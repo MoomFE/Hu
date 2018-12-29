@@ -1,0 +1,25 @@
+{
+  "name": "@moomfe/lit",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "keywords": [],
+  "author": "Wei Zhang",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoomFE/Lit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MoomFE/Lit/issues"
+  },
+  "homepage": "https://github.com/MoomFE/Lit#readme",
+  "devDependencies": {
+    "@moomfe/zen-cli": "^1.0.0-beta.49",
+    "@moomfe/zenjs": "^5.0.0-beta.5",
+    "@polymer/lit-element": "^0.6.5",
+    "@webcomponents/webcomponentsjs": "^2.2.1",
+    "lit-html": "^1.0.0-rc.1"
+  },
+  "dependencies": {}
+}
