@@ -1,1 +1,0 @@
-import '../shared/global/Lit/polymer/index';

@@ -14,15 +14,15 @@
   },
   "homepage": "https://github.com/MoomFE/Lit#readme",
   "scripts": {
-    "build": "node_modules\\.bin\\zen build",
-    "watch": "node_modules\\.bin\\zen watch watch"
+    "build": "node_modules\\.bin\\polymer build",
+    "watch": ""
   },
   "devDependencies": {
     "@moomfe/zen-cli": "^1.0.0-beta.49",
-    "@moomfe/zenjs": "^5.0.0-beta.5",
     "@polymer/lit-element": "^0.6.5",
     "@webcomponents/webcomponentsjs": "^2.2.1",
-    "lit-html": "^1.0.0-rc.1"
+    "lit-html": "^1.0.0-rc.1",
+    "polymer-cli": "^1.9.4"
   },
   "dependencies": {}
 }

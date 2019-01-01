@@ -1,0 +1,21 @@
+{
+  "entrypoint": "src/index.html",
+  "shell": "src/index.js",
+  "builds": [
+    {
+      "name": "Lit",
+      "preset": "es5-bundled",
+      "js": {
+        "minify": false,
+        "compile": "es5",
+        "transformModulesToAmd": false
+      },
+      "css": {
+        "minify": false
+      },
+      "html": {
+        "minify": false
+      }
+    }
+  ]
+}
