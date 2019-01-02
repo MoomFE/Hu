@@ -1,4 +1,6 @@
-!function (a) {
+var a = {};
+
+!function () {
 
   function b(a, b, c, e) {
     var f = b && b.prototype instanceof d ? b : d,
@@ -283,4 +285,6 @@
       }, "next" === this.method && (this.arg = void 0), x
     }
   }
-}( window );
+}();
+
+export default a.regeneratorRuntime;

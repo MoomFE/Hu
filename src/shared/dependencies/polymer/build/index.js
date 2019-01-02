@@ -1,3 +1,7 @@
+import babelHelpers from '../polyfill/babelHelpers';
+import regeneratorRuntime from '../polyfill/regeneratorRuntime';
+
+
 /**
  * @license
  * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
