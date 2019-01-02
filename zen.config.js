@@ -6,18 +6,45 @@ module.exports = {
 
     watch: [
       {
-        from: 'src/build/index',
+        from: 'src/build/slim.js',
         to: 'dist/lit.js'
+      },
+      {
+        from: 'src/build/fat.js',
+        to: 'dist/lit.fat.js'
+      }
+    ],
+
+    build: [
+      {
+        mode: true,
+        from: 'src/build/slim.js',
+        to: 'dist/lit.min.js'
+      },
+      {
+        mode: true,
+        from: 'src/build/fat.js',
+        to: 'dist/lit.fat.min.js'
       }
     ]
 
   },
 
   config: {
-    mode: true,
     rollup: true,
-    babel: false,
-    autoPolyfill: false
+
+    babel: true,
+    babelrc: {
+      presets: [
+        '@babel/preset-env'
+      ]
+    },
+
+    on: {
+      ConfigCreated( rollupConfigs ){
+        rollupConfigs.forEach( config => config.inputOptions.context = 'window' );
+      }
+    }
   }
-  
+
 };

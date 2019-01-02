@@ -3,13 +3,222 @@
   factory();
 }(function () { 'use strict';
 
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+   */
+  (function () {
+    /**
+     * Basic flow of the loader process
+     *
+     * There are 4 flows the loader can take when booting up
+     *
+     * - Synchronous script, no polyfills needed
+     *   - wait for `DOMContentLoaded`
+     *   - run callbacks passed to `waitFor`
+     *   - fire WCR event
+     *
+     * - Synchronous script, polyfills needed
+     *   - document.write the polyfill bundle
+     *   - wait on the `load` event of the bundle to batch Custom Element upgrades
+     *   - wait for `DOMContentLoaded`
+     *   - run callbacks passed to `waitFor`
+     *   - fire WCR event
+     *
+     * - Asynchronous script, no polyfills needed
+     *   - fire WCR event, as there could not be any callbacks passed to `waitFor`
+     *
+     * - Asynchronous script, polyfills needed
+     *   - Append the polyfill bundle script
+     *   - wait for `load` event of the bundle
+     *   - batch Custom Element Upgrades
+     *   - run callbacks pass to `waitFor`
+     *   - fire WCR event
+     */
+
+    var polyfillsLoaded = false;
+    var whenLoadedFns = [];
+    var allowUpgrades = false;
+    var flushFn;
+
+    function fireEvent() {
+      window.WebComponents.ready = true;
+      document.dispatchEvent(new CustomEvent('WebComponentsReady', {
+        bubbles: true
+      }));
+    }
+
+    function batchCustomElements() {
+      if (window.customElements && customElements.polyfillWrapFlushCallback) {
+        customElements.polyfillWrapFlushCallback(function (flushCallback) {
+          flushFn = flushCallback;
+
+          if (allowUpgrades) {
+            flushFn();
+          }
+        });
+      }
+    }
+
+    function asyncReady() {
+      batchCustomElements();
+      ready();
+    }
+
+    function ready() {
+      // bootstrap <template> elements before custom elements
+      if (window.HTMLTemplateElement && HTMLTemplateElement.bootstrap) {
+        HTMLTemplateElement.bootstrap(window.document);
+      }
+
+      polyfillsLoaded = true;
+      runWhenLoadedFns().then(fireEvent);
+    }
+
+    function runWhenLoadedFns() {
+      allowUpgrades = false;
+
+      var done = function done() {
+        allowUpgrades = true;
+        whenLoadedFns.length = 0;
+        flushFn && flushFn();
+      };
+
+      return Promise.all(whenLoadedFns.map(function (fn) {
+        return fn instanceof Function ? fn() : fn;
+      })).then(function () {
+        done();
+      }).catch(function (err) {
+        console.error(err);
+      });
+    }
+
+    window.WebComponents = window.WebComponents || {};
+    window.WebComponents.ready = window.WebComponents.ready || false;
+
+    window.WebComponents.waitFor = window.WebComponents.waitFor || function (waitFn) {
+      if (!waitFn) {
+        return;
+      }
+
+      whenLoadedFns.push(waitFn);
+
+      if (polyfillsLoaded) {
+        runWhenLoadedFns();
+      }
+    };
+
+    window.WebComponents._batchCustomElements = batchCustomElements;
+    var name = 'webcomponents-loader.js'; // Feature detect which polyfill needs to be imported.
+
+    var polyfills = [];
+
+    if (!('attachShadow' in Element.prototype && 'getRootNode' in Element.prototype) || window.ShadyDOM && window.ShadyDOM.force) {
+      polyfills.push('sd');
+    }
+
+    if (!window.customElements || window.customElements.forcePolyfill) {
+      polyfills.push('ce');
+    }
+
+    var needsTemplate = function () {
+      // no real <template> because no `content` property (IE and older browsers)
+      var t = document.createElement('template');
+
+      if (!('content' in t)) {
+        return true;
+      } // broken doc fragment (older Edge)
+
+
+      if (!(t.content.cloneNode() instanceof DocumentFragment)) {
+        return true;
+      } // broken <template> cloning (Edge up to at least version 17)
+
+
+      var t2 = document.createElement('template');
+      t2.content.appendChild(document.createElement('div'));
+      t.content.appendChild(t2);
+      var clone = t.cloneNode(true);
+      return clone.content.childNodes.length === 0 || clone.content.firstChild.content.childNodes.length === 0;
+    }(); // NOTE: any browser that does not have template or ES6 features
+    // must load the full suite of polyfills.
+
+
+    if (!window.Promise || !Array.from || !window.URL || !window.Symbol || needsTemplate) {
+      polyfills = ['sd-ce-pf'];
+    }
+
+    if (polyfills.length) {
+      var url;
+      var polyfillFile = 'bundles/webcomponents-' + polyfills.join('-') + '.js'; // Load it from the right place.
+
+      if (window.WebComponents.root) {
+        url = window.WebComponents.root + polyfillFile;
+      } else {
+        var script = document.querySelector('script[src*="' + name + '"]'); // Load it from the right place.
+
+        url = script.src.replace(name, polyfillFile);
+      }
+
+      var newScript = document.createElement('script');
+      newScript.src = url; // if readyState is 'loading', this script is synchronous
+
+      if (document.readyState === 'loading') {
+        // make sure custom elements are batched whenever parser gets to the injected script
+        newScript.setAttribute('onload', 'window.WebComponents._batchCustomElements()');
+        document.write(newScript.outerHTML);
+        document.addEventListener('DOMContentLoaded', ready);
+      } else {
+        newScript.addEventListener('load', function () {
+          asyncReady();
+        });
+        newScript.addEventListener('error', function () {
+          throw new Error('Could not load polyfill bundle' + url);
+        });
+        document.head.appendChild(newScript);
+      }
+    } else {
+      polyfillsLoaded = true;
+
+      if (document.readyState === 'complete') {
+        fireEvent();
+      } else {
+        // this script may come between DCL and load, so listen for both, and cancel load listener if DCL fires
+        window.addEventListener('load', ready);
+        window.addEventListener('DOMContentLoaded', function () {
+          window.removeEventListener('load', ready);
+          ready();
+        });
+      }
+    }
+  })();
+
+  function _typeof(obj) {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
+  }
+
   var a = {};
 
   function b(a) {
-    return r.typeof = "function" === typeof Symbol && "symbol" === typeof Symbol.iterator ? b = function (a) {
-      return typeof a;
-    } : b = function (a) {
-      return a && "function" === typeof Symbol && a.constructor === Symbol && a !== Symbol.prototype ? "symbol" : typeof a;
+    return r.typeof = "function" === typeof Symbol && "symbol" === _typeof(Symbol.iterator) ? b = function b(a) {
+      return _typeof(a);
+    } : b = function b(a) {
+      return a && "function" === typeof Symbol && a.constructor === Symbol && a !== Symbol.prototype ? "symbol" : _typeof(a);
     }, b(a);
   }
 
@@ -79,7 +288,9 @@
   }
 
   function e(a, b) {
-    for (var c, d = 0; d < b.length; d++) c = b[d], c.enumerable = c.enumerable || !1, c.configurable = !0, "value" in c && (c.writable = !0), Object.defineProperty(a, c.key, c);
+    for (var c, d = 0; d < b.length; d++) {
+      c = b[d], c.enumerable = c.enumerable || !1, c.configurable = !0, "value" in c && (c.writable = !0), Object.defineProperty(a, c.key, c);
+    }
   }
 
   function f(a, b) {
@@ -107,7 +318,11 @@
 
   function h() {
     return r.extends = h = Object.assign || function (a) {
-      for (var b, c = 1; c < arguments.length; c++) for (var d in b = arguments[c], b) Object.prototype.hasOwnProperty.call(b, d) && (a[d] = b[d]);
+      for (var b, c = 1; c < arguments.length; c++) {
+        for (var d in b = arguments[c], b) {
+          Object.prototype.hasOwnProperty.call(b, d) && (a[d] = b[d]);
+        }
+      }
 
       return a;
     }, h.apply(this, arguments);
@@ -138,7 +353,7 @@
   }
 
   function l() {
-    return r.construct = k() ? l = Reflect.construct : l = function (b, c, d) {
+    return r.construct = k() ? l = Reflect.construct : l = function l(b, c, d) {
       var e = [null];
       e.push.apply(e, c);
       var a = Function.bind.apply(b, e),
@@ -149,7 +364,7 @@
 
   function m(a) {
     var b = "function" === typeof Map ? new Map() : void 0;
-    return r.wrapNativeSuper = m = function (a) {
+    return r.wrapNativeSuper = m = function m(a) {
       function c() {
         return r.construct(a, arguments, r.getPrototypeOf(this).constructor);
       }
@@ -174,7 +389,7 @@
   }
 
   function n(a, b, c) {
-    return r.get = "undefined" !== typeof Reflect && Reflect.get ? n = Reflect.get : n = function (a, b, c) {
+    return r.get = "undefined" !== typeof Reflect && Reflect.get ? n = Reflect.get : n = function n(a, b, c) {
       var d = r.superPropBase(a, b);
 
       if (d) {
@@ -322,9 +537,11 @@
   }, r.interopRequireWildcard = function (a) {
     if (a && a.__esModule) return a;
     var b = {};
-    if (null != a) for (var c in a) if (Object.prototype.hasOwnProperty.call(a, c)) {
-      var d = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(a, c) : {};
-      d.get || d.set ? Object.defineProperty(b, c, d) : b[c] = a[c];
+    if (null != a) for (var c in a) {
+      if (Object.prototype.hasOwnProperty.call(a, c)) {
+        var d = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(a, c) : {};
+        d.get || d.set ? Object.defineProperty(b, c, d) : b[c] = a[c];
+      }
     }
     return b.default = a, b;
   }, r.newArrowCheck = function (a, b) {
@@ -340,7 +557,9 @@
     if (Object.getOwnPropertySymbols) {
       var f = Object.getOwnPropertySymbols(a);
 
-      for (d = 0; d < f.length; d++) c = f[d], !(0 <= b.indexOf(c)) && Object.prototype.propertyIsEnumerable.call(a, c) && (e[c] = a[c]);
+      for (d = 0; d < f.length; d++) {
+        c = f[d], !(0 <= b.indexOf(c)) && Object.prototype.propertyIsEnumerable.call(a, c) && (e[c] = a[c]);
+      }
     }
 
     return e;
@@ -348,9 +567,10 @@
     if (void 0 === a) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     return a;
   }, r.possibleConstructorReturn = function (a, b) {
-    return b && ("object" === typeof b || "function" === typeof b) ? b : r.assertThisInitialized(a);
+    return b && ("object" === _typeof(b) || "function" === typeof b) ? b : r.assertThisInitialized(a);
   }, r.superPropBase = function (a, b) {
-    for (; !Object.prototype.hasOwnProperty.call(a, b) && (a = r.getPrototypeOf(a), null !== a););
+    for (; !Object.prototype.hasOwnProperty.call(a, b) && (a = r.getPrototypeOf(a), null !== a);) {
+    }
 
     return a;
   }, r.get = n, r.set = p, r.taggedTemplateLiteral = function (a, b) {
@@ -371,7 +591,9 @@
     return r.arrayWithoutHoles(a) || r.iterableToArray(a) || r.nonIterableSpread();
   }, r.arrayWithoutHoles = function (a) {
     if (Array.isArray(a)) {
-      for (var b = 0, c = Array(a.length); b < a.length; b++) c[b] = a[b];
+      for (var b = 0, c = Array(a.length); b < a.length; b++) {
+        c[b] = a[b];
+      }
 
       return c;
     }
@@ -384,7 +606,8 @@
         f = void 0;
 
     try {
-      for (var g, h = a[Symbol.iterator](); !(d = (g = h.next()).done) && (c.push(g.value), !(b && c.length === b)); d = !0);
+      for (var g, h = a[Symbol.iterator](); !(d = (g = h.next()).done) && (c.push(g.value), !(b && c.length === b)); d = !0) {
+      }
     } catch (a) {
       e = !0, f = a;
     } finally {
@@ -402,7 +625,7 @@
     throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }, r.toPropertyKey = function (a) {
     var b = r.toPrimitive(a, "string");
-    return "symbol" === typeof b ? b : b + "";
+    return "symbol" === _typeof(b) ? b : b + "";
   };
 
   var a$1 = {};
@@ -448,7 +671,7 @@
         if ("throw" === h.type) g(h.arg);else {
           var i = h.arg,
               j = i.value;
-          return j && "object" === typeof j && q.call(j, "__await") ? Promise.resolve(j.__await).then(function (a) {
+          return j && "object" === _typeof(j) && q.call(j, "__await") ? Promise.resolve(j.__await).then(function (a) {
             b("next", a, f, g);
           }, function (a) {
             b("throw", a, f, g);
@@ -561,7 +784,9 @@
         if (!isNaN(a.length)) {
           var c = -1,
               d = function b() {
-            for (; ++c < a.length;) if (q.call(a, c)) return b.value = a[c], b.done = !1, b;
+            for (; ++c < a.length;) {
+              if (q.call(a, c)) return b.value = a[c], b.done = !1, b;
+            }
 
             return b.value = void 0, b.done = !0, b;
           };
@@ -588,7 +813,7 @@
         s = r.iterator || "@@iterator",
         t = r.asyncIterator || "@@asyncIterator",
         u = r.toStringTag || "@@toStringTag",
-        v = "object" === typeof module,
+        v = "object" === (typeof module === "undefined" ? "undefined" : _typeof(module)),
         w = a$1.regeneratorRuntime;
     if (w) return void (v && (module.exports = w));
     w = a$1.regeneratorRuntime = v ? module.exports : {}, w.wrap = b;
@@ -626,7 +851,9 @@
     }, w.keys = function (a) {
       var b = [];
 
-      for (var c in a) b.push(c);
+      for (var c in a) {
+        b.push(c);
+      }
 
       return b.reverse(), function c() {
         for (; b.length;) {
@@ -638,17 +865,19 @@
       };
     }, w.values = n, m.prototype = {
       constructor: m,
-      reset: function (a) {
-        if (this.prev = 0, this.next = 0, this.sent = this._sent = void 0, this.done = !1, this.delegate = null, this.method = "next", this.arg = void 0, this.tryEntries.forEach(l), !a) for (var b in this) "t" === b.charAt(0) && q.call(this, b) && !isNaN(+b.slice(1)) && (this[b] = void 0);
+      reset: function reset(a) {
+        if (this.prev = 0, this.next = 0, this.sent = this._sent = void 0, this.done = !1, this.delegate = null, this.method = "next", this.arg = void 0, this.tryEntries.forEach(l), !a) for (var b in this) {
+          "t" === b.charAt(0) && q.call(this, b) && !isNaN(+b.slice(1)) && (this[b] = void 0);
+        }
       },
-      stop: function () {
+      stop: function stop() {
         this.done = !0;
         var a = this.tryEntries[0],
             b = a.completion;
         if ("throw" === b.type) throw b.arg;
         return this.rval;
       },
-      dispatchException: function (a) {
+      dispatchException: function dispatchException(a) {
         function b(b, d) {
           return f.type = "throw", f.arg = a, c.next = b, d && (c.method = "next", c.arg = void 0), !!d;
         }
@@ -673,38 +902,44 @@
           }
         }
       },
-      abrupt: function (a, b) {
-        for (var c, d = this.tryEntries.length - 1; 0 <= d; --d) if (c = this.tryEntries[d], c.tryLoc <= this.prev && q.call(c, "finallyLoc") && this.prev < c.finallyLoc) {
-          var e = c;
-          break;
+      abrupt: function abrupt(a, b) {
+        for (var c, d = this.tryEntries.length - 1; 0 <= d; --d) {
+          if (c = this.tryEntries[d], c.tryLoc <= this.prev && q.call(c, "finallyLoc") && this.prev < c.finallyLoc) {
+            var e = c;
+            break;
+          }
         }
 
         e && ("break" === a || "continue" === a) && e.tryLoc <= b && b <= e.finallyLoc && (e = null);
         var f = e ? e.completion : {};
         return f.type = a, f.arg = b, e ? (this.method = "next", this.next = e.finallyLoc, x) : this.complete(f);
       },
-      complete: function (a, b) {
+      complete: function complete(a, b) {
         if ("throw" === a.type) throw a.arg;
         return "break" === a.type || "continue" === a.type ? this.next = a.arg : "return" === a.type ? (this.rval = this.arg = a.arg, this.method = "return", this.next = "end") : "normal" === a.type && b && (this.next = b), x;
       },
-      finish: function (a) {
-        for (var b, c = this.tryEntries.length - 1; 0 <= c; --c) if (b = this.tryEntries[c], b.finallyLoc === a) return this.complete(b.completion, b.afterLoc), l(b), x;
+      finish: function finish(a) {
+        for (var b, c = this.tryEntries.length - 1; 0 <= c; --c) {
+          if (b = this.tryEntries[c], b.finallyLoc === a) return this.complete(b.completion, b.afterLoc), l(b), x;
+        }
       },
-      catch: function (a) {
-        for (var b, c = this.tryEntries.length - 1; 0 <= c; --c) if (b = this.tryEntries[c], b.tryLoc === a) {
-          var d = b.completion;
+      catch: function _catch(a) {
+        for (var b, c = this.tryEntries.length - 1; 0 <= c; --c) {
+          if (b = this.tryEntries[c], b.tryLoc === a) {
+            var d = b.completion;
 
-          if ("throw" === d.type) {
-            var e = d.arg;
-            l(b);
+            if ("throw" === d.type) {
+              var e = d.arg;
+              l(b);
+            }
+
+            return e;
           }
-
-          return e;
         }
 
         throw new Error("illegal catch attempt");
       },
-      delegateYield: function (a, b, c) {
+      delegateYield: function delegateYield(a, b, c) {
         return this.delegate = {
           iterator: n(a),
           resultName: b,
