@@ -1,7 +1,6 @@
 const { moveSync, emptyDirSync, readFile } = require('fs-extra');
 const { resolve } = require('path');
 
-/* ------------------------------------ */
 
 const fromBuild = resolve( __dirname, '../../../../build' );
 const from = resolve( fromBuild, 'polymer/src/shared/dependencies/polymer/src' );
@@ -14,21 +13,3 @@ moveSync( from, to, {
 
 // 清空原始文件夹
 emptyDirSync( fromBuild );
-
-/* ------------------------------------ */
-
-const html = resolve( to, 'index.html' );
-const rScript = /<script>(.+?)<\/script>/;
-
-
-// 提取 babelHelpers
-readFile( html ).then( buffer => {
-  const html = buffer.toString();
-  const result = [];
-
-  html
-    .match( rScript )
-    .map( script => {
-      
-    });
-});
