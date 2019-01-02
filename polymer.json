@@ -1,9 +1,9 @@
 {
-  "entrypoint": "src/index.html",
-  "shell": "src/index.js",
+  "entrypoint": "src/shared/dependencies/polymer/src/index.html",
+  "shell": "src/shared/dependencies/polymer/src/index.js",
   "builds": [
     {
-      "name": "Lit",
+      "name": "polymer",
       "preset": "es5-bundled",
       "js": {
         "minify": false,

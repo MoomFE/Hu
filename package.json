@@ -14,8 +14,9 @@
   },
   "homepage": "https://github.com/MoomFE/Lit#readme",
   "scripts": {
-    "build": "node_modules\\.bin\\polymer build",
-    "watch": ""
+    "build": "node_modules\\.bin\\zen build",
+    "watch": "node_modules\\.bin\\zen watch",
+    "polymer": "node_modules\\.bin\\polymer build && cd src/shared/dependencies/polymer && node move"
   },
   "devDependencies": {
     "@moomfe/zen-cli": "^1.0.0-beta.49",
