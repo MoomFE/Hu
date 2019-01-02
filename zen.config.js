@@ -35,8 +35,20 @@ module.exports = {
 
     babel: true,
     babelrc: {
-      presets: [
-        '@babel/preset-env'
+      plugins: [
+        [
+          "@babel/plugin-transform-block-scoping", {
+            "throwIfClosureRequired": true
+          }
+        ],
+        "@babel/plugin-transform-block-scoped-functions",
+        "@babel/plugin-transform-arrow-functions",
+        "@babel/plugin-transform-shorthand-properties",
+        [
+          "@babel/plugin-transform-template-literals", {
+            "loose": true
+          }
+        ]
       ]
     },
 

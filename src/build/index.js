@@ -1,1 +1,1 @@
-import '../shared/dependencies/polymer/dist/index';
+import '../lit/index';

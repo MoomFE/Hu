@@ -15,11 +15,17 @@
   "homepage": "https://github.com/MoomFE/Lit#readme",
   "scripts": {
     "build": "node_modules\\.bin\\zen build",
-    "watch": "node_modules\\.bin\\zen watch",
+    "watch": "node_modules\\.bin\\zen watch watch",
     "polymer": "node_modules\\.bin\\polymer build && cd src/shared/dependencies/polymer && node move"
   },
   "devDependencies": {
+    "@babel/plugin-transform-arrow-functions": "^7.2.0",
+    "@babel/plugin-transform-block-scoped-functions": "^7.2.0",
+    "@babel/plugin-transform-block-scoping": "^7.2.0",
+    "@babel/plugin-transform-shorthand-properties": "^7.2.0",
+    "@babel/plugin-transform-template-literals": "^7.2.0",
     "@moomfe/zen-cli": "^1.0.0-beta.52",
+    "@moomfe/zenjs": "^5.0.0-beta.5",
     "@polymer/lit-element": "^0.6.5",
     "@webcomponents/webcomponentsjs": "^2.2.1",
     "fs-extra": "^7.0.1",
