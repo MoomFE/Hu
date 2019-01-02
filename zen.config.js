@@ -41,8 +41,8 @@ module.exports = {
     },
 
     on: {
-      ConfigCreated( rollupConfigs ){
-        rollupConfigs.forEach( config => config.inputOptions.context = 'window' );
+      ConfigCreated( rollup ){
+        rollup.inputOptions.context = 'window';
       }
     }
   }
