@@ -16,7 +16,7 @@
   "scripts": {
     "build": "node_modules\\.bin\\zen build",
     "watch": "node_modules\\.bin\\zen watch watch",
-    "polymer": "node_modules\\.bin\\polymer build && cd src/shared/dependencies/polymer && node move"
+    "polymer": "node_modules\\.bin\\polymer build && cd src/polymer && node move"
   },
   "devDependencies": {
     "@babel/plugin-transform-arrow-functions": "^7.2.0",

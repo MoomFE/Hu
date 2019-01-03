@@ -1,6 +1,10 @@
 {
-  "entrypoint": "src/shared/dependencies/polymer/src/index.html",
-  "shell": "src/shared/dependencies/polymer/src/index.js",
+  "entrypoint": "src/polymer/src/index.html",
+  "shell": "src/polymer/src/index.js",
+  "sources": [
+    "src/polymer/src/index.html",
+    "src/polymer/src/index.js"
+  ],
   "builds": [
     {
       "name": "polymer",

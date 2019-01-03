@@ -4,8 +4,8 @@ const { resolve } = require('path');
 
 /* ------------------------------------ */
 
-const fromBuild = resolve( __dirname, '../../../../build' );
-const from = resolve( fromBuild, 'polymer/src/shared/dependencies/polymer/src' );
+const fromBuild = resolve( __dirname, '../../build' );
+const from = resolve( fromBuild, 'polymer/src/polymer/src' );
 const to = resolve( __dirname, 'polymer' );
 
 // 将代码移入文件夹
