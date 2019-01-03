@@ -2793,8 +2793,14 @@ function define(name, options) {
 
     babelHelpers.createClass(_class, [{
       key: "firstUpdated",
+      // 第一次更新元素后调用
       value: function firstUpdated() {
         options.mounted.call(this);
+      }
+    }], [{
+      key: "properties",
+      value: function properties() {
+        return {};
       }
     }]);
     return _class;

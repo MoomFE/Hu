@@ -7564,8 +7564,14 @@
 
       r.createClass(_class, [{
         key: "firstUpdated",
+        // 第一次更新元素后调用
         value: function firstUpdated() {
           options.mounted.call(this);
+        }
+      }], [{
+        key: "properties",
+        value: function properties() {
+          return {};
         }
       }]);
       return _class;
@@ -7576,25 +7582,48 @@
     return custom;
   }
 
-  ZenJS.defineValue(Lit, 'define', function (name, options) {
-    // 克隆一份配置, 保证配置传进来后不被更改
-    options = Object.$assign(null, options); // 初始化渲染方法
+  /**
+   * 初始化渲染方法
+   */
 
+  function render$3(options) {
+    // 有 render 方法
     if (options.render) {
       options.render = options.render.$args({
         0: html
       });
-    } else if (options.template) {
-      options.render = function () {
-        return html([options.template]);
-      };
-    } else {
-      options.render = ZenJS.noop;
-    } // 生命周期 -> 挂载完成
+    } // 有 template 模板
+    else if (options.template) {
+        options.render = function () {
+          return html([options.template]);
+        };
+      } // 啥都没有
+      else {
+          options.render = ZenJS.noop;
+        }
+  }
 
+  /**
+   * 生命周期 -> 挂载完成
+   */
+  function mounted(options) {
+    if (!options.mounted) {
+      options.mounted = ZenJS.noop;
+    }
+  }
 
-    options.mounted = options.mounted || ZenJS.noop;
+  function properties(options) {}
+
+  ZenJS.defineValue(Lit, 'define', function (name, options) {
+    // 克隆一份配置, 保证配置传进来后不被更改
+    options = Object.$assign(null, options); // 初始化参数
+
+    processing.forEach(function (fn) {
+      fn(options);
+    }); // 初始化元素并进行定义
+
     define$1(name, options);
   });
+  var processing = [render$3, mounted, properties];
 
 }));

@@ -13,12 +13,21 @@
   <script>
     Lit.define( 'test-xxx', {
 
-      template: `
-        <div>test-xxx</div>
-      `,
+      data(){
+        return {
+          asd: 123
+        }
+      },
+
+      render( html ){
+        return html`
+          <div>test-xxx</div>
+        `
+      },
 
       mounted(){
-        console.log( this )
+        window.xxx = this;
+        console.log( this.asd )
       }
 
     });

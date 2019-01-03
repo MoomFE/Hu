@@ -1,5 +1,4 @@
 import Lit from '../../shared/global/Lit/index';
-import { html } from '../../polymer/dist/litHtml';
 import { define } from '../../polymer/dist/index';
 
 
@@ -8,17 +7,24 @@ ZenJS.defineValue( Lit, 'define', function( name, options ){
   // 克隆一份配置, 保证配置传进来后不被更改
   options = Object.$assign( null, options );
 
-  // 初始化渲染方法
-  if( options.render ){
-    options.render = options.render.$args({ 0: html });
-  }else if( options.template ){
-    options.render = () => html([ options.template ]);
-  }else{
-    options.render = ZenJS.noop;
-  }
-
-  // 生命周期 -> 挂载完成
-  options.mounted = options.mounted || ZenJS.noop;
-
+  // 初始化参数
+  processing.forEach( fn => {
+    fn( options );
+  });
+  
+  // 初始化元素并进行定义
   define( name, options );
+
 });
+
+
+import render from './processing/render';
+import mounted from './processing/mounted';
+import properties from './processing/properties';
+
+
+const processing = [
+  render,
+  mounted,
+  properties
+];
