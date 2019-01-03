@@ -4,9 +4,6 @@ Lit 是一个基于 Web Components 和 Proxy 的 MVVM 框架
 <br>
 
 ## 版本详解
-| 
-
-
 | name        | description |
 | :-          | :-          |
 | lit.js      | 核心代码 |
