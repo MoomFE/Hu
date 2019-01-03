@@ -1,18 +1,27 @@
 {
 	"folders": [
-		{
-			"path": "."
-		}
-	],
+    {
+      "path": "."
+    },
+    {
+      "path": "src\\polymer"
+    },
+    {
+      "path": "src\\lit"
+    }
+  ],
 	"settings": {
 		"files.exclude": {
       ".gitignore": true,
+      "**/src/lit": true,
+      "**/src/polymer": true,
       "LICENSE": true,
       "Lit.code-workspace": true,
       "node_modules": true,
       "package-lock.json": true,
       "polymer.json": true,
       "tsconfig.json": true,
+      "typings": true,
       "zen.config.js": true
     },
 		"editor.tabSize": 2,
