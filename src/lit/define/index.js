@@ -1,19 +1,21 @@
 import Lit from '../../shared/global/Lit/index';
 import { define } from '../../polymer/dist/index';
+import $assign from '../../shared/global/Object/$assign';
 
 
-ZenJS.defineValue( Lit, 'define', function( name, options ){
+ZenJS.defineValue( Lit, 'define', function( name, _options ){
 
   // 克隆一份配置, 保证配置传进来后不被更改
-  options = Object.$assign( null, options );
+  const options = $assign( null, _options );
+  // 先初始化元素
+  const custom = define( name, options );
+  // 获取原型对象
+  const customProto = custom.prototype;
 
   // 初始化参数
   processing.forEach( fn => {
-    fn( options );
+    fn( options, custom, customProto );
   });
-  
-  // 初始化元素并进行定义
-  define( name, options );
 
 });
 
@@ -21,6 +23,7 @@ ZenJS.defineValue( Lit, 'define', function( name, options ){
 import render from './processing/render';
 import mounted from './processing/mounted';
 import properties from './processing/properties';
+
 
 
 const processing = [

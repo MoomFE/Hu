@@ -13,21 +13,16 @@
   <script>
     Lit.define( 'test-xxx', {
 
-      data(){
-        return {
-          asd: 123
-        }
-      },
+      props: {},
 
       render( html ){
         return html`
-          <div>test-xxx</div>
+          <div>test-xxx: ${ this.xxx }</div>
         `
       },
 
       mounted(){
         window.xxx = this;
-        console.log( this.asd )
       }
 
     });

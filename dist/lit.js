@@ -4085,6 +4085,18 @@
     }
   });
 
+  var noop$1 = ZenJS.noop;
+
+  var warn = noop$1;
+
+  if (typeof console !== undefined) {
+    warn = function (message) {
+      console.error("[Lit warn]: " + message);
+    };
+  }
+
+  var warn$1 = warn;
+
   function Lit() {}
 
   window.Lit = Lit;
@@ -7364,70 +7376,91 @@
 
       function _class() {
         r.classCallCheck(this, _class);
-        return r.possibleConstructorReturn(this, r.getPrototypeOf(_class).apply(this, arguments));
+        return r.possibleConstructorReturn(this, r.getPrototypeOf(_class).call(this));
       }
 
       r.createClass(_class, [{
         key: "firstUpdated",
         // 第一次更新元素后调用
         value: function firstUpdated() {
+          this.xxx = 123;
           options.mounted.call(this);
         }
       }], [{
         key: "properties",
-        value: function properties() {
+        get: function get() {
           return {};
         }
       }]);
       return _class;
     }(LitElement));
-    Object.$assign(custom.prototype, {
-      render: options.render
-    });
-    return custom;
+    custom.prototype.render = options.render;
+    return window.custom = custom;
+  }
+
+  var $assign = Object.$assign;
+
+  function _readOnlyError(name) {
+    throw new Error("\"" + name + "\" is read-only");
   }
 
   /**
    * 初始化渲染方法
    */
 
-  function render$3(options) {
-    // 有 render 方法
-    if (options.render) {
-      options.render = options.render.$args({
+  function render$3(options, custom, customProto) {
+    var render$$1 = options.render; // 有 render 方法
+
+    if (render$$1) {
+      render$$1 = (_readOnlyError("render"), render$$1.$args({
         0: html
-      });
+      }));
     } // 有 template 模板
     else if (options.template) {
-        options.render = function () {
+        render$$1 = (_readOnlyError("render"), function () {
           return html([options.template]);
-        };
+        });
       } // 啥都没有
       else {
-          options.render = ZenJS.noop;
-        }
+          render$$1 = (_readOnlyError("render"), noop$1);
+        } // 渲染方法
+
+
+    options.render = customProto.render = render$$1;
   }
 
   /**
    * 生命周期 -> 挂载完成
    */
+
   function mounted(options) {
-    if (!options.mounted) {
-      options.mounted = ZenJS.noop;
-    }
+    options.mounted = options.mounted || noop$1;
   }
 
-  function properties(options) {}
+  var isFunction$2 = ZenJS.isFunction;
 
-  ZenJS.defineValue(Lit, 'define', function (name, options) {
+  function properties(options) {
+    ['data', 'props'].forEach(function (attr) {
+      var value = options[attr];
+
+      if (value != null && !isFunction$2(value)) {
+        warn$1("\u4F7F\u7528 Lit.define \u5B9A\u4E49\u7EC4\u4EF6\u65F6, \"" + attr + "\" \u53C2\u6570\u5FC5\u987B\u4E3A\u4E00\u4E2A\u65B9\u6CD5 !");
+        options[attr] = null;
+      }
+    });
+  }
+
+  ZenJS.defineValue(Lit, 'define', function (name, _options) {
     // 克隆一份配置, 保证配置传进来后不被更改
-    options = Object.$assign(null, options); // 初始化参数
+    var options = $assign(null, _options); // 先初始化元素
+
+    var custom = define$1(name, options); // 获取原型对象
+
+    var customProto = custom.prototype; // 初始化参数
 
     processing.forEach(function (fn) {
-      fn(options);
-    }); // 初始化元素并进行定义
-
-    define$1(name, options);
+      fn(options, custom, customProto);
+    });
   });
   var processing = [render$3, mounted, properties];
 

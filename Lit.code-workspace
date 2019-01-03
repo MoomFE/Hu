@@ -15,6 +15,7 @@
       ".gitignore": true,
       "**/src/lit": true,
       "**/src/polymer": true,
+      "jsconfig.json": true,
       "LICENSE": true,
       "Lit.code-workspace": true,
       "node_modules": true,

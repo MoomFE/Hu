@@ -5,6 +5,10 @@ export function define( name, options ){
 
   const custom = customElement( name )( class extends LitElement{
 
+    constructor(){
+      super();
+    }
+
     static get properties(){
       return {
 
@@ -18,7 +22,5 @@ export function define( name, options ){
 
   });
 
-  custom.prototype.render = options.render;
-
-  return custom;
+  return window.custom = custom;
 }

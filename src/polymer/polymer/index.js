@@ -2788,27 +2788,26 @@ function define(name, options) {
 
     function _class() {
       babelHelpers.classCallCheck(this, _class);
-      return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(_class).apply(this, arguments));
+      return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(_class).call(this));
     }
 
     babelHelpers.createClass(_class, [{
       key: "firstUpdated",
       // 第一次更新元素后调用
       value: function firstUpdated() {
+        this.xxx = 123;
         options.mounted.call(this);
       }
     }], [{
       key: "properties",
-      value: function properties() {
+      get: function get() {
         return {};
       }
     }]);
     return _class;
   }(LitElement));
-  Object.$assign(custom.prototype, {
-    render: options.render
-  });
-  return custom;
+  custom.prototype.render = options.render;
+  return window.custom = custom;
 }
 
 var index = {
