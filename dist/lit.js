@@ -7400,33 +7400,30 @@
 
   var $assign = Object.$assign;
 
-  function _readOnlyError(name) {
-    throw new Error("\"" + name + "\" is read-only");
-  }
-
   /**
    * 初始化渲染方法
    */
 
   function render$3(options, custom, customProto) {
-    var render$$1 = options.render; // 有 render 方法
+    var render$$1 = options.render;
+    delete options.render; // 有 render 方法
 
     if (render$$1) {
-      render$$1 = (_readOnlyError("render"), render$$1.$args({
+      render$$1 = render$$1.$args({
         0: html
-      }));
+      });
     } // 有 template 模板
     else if (options.template) {
-        render$$1 = (_readOnlyError("render"), function () {
+        render$$1 = function () {
           return html([options.template]);
-        });
+        };
       } // 啥都没有
       else {
-          render$$1 = (_readOnlyError("render"), noop$1);
+          render$$1 = noop$1;
         } // 渲染方法
 
 
-    options.render = customProto.render = render$$1;
+    customProto.render = render$$1;
   }
 
   /**

@@ -6,7 +6,9 @@ import noop from '../../../shared/global/ZenJS/noop';
  * 初始化渲染方法
  */
 export default function render( options, custom, customProto ){
-  const render = options.render;
+  let render = options.render;
+
+  delete options.render;
 
   // 有 render 方法
   if( render ){
@@ -22,5 +24,5 @@ export default function render( options, custom, customProto ){
   }
 
   // 渲染方法
-  options.render = customProto.render = render;
+  customProto.render = render;
 }
