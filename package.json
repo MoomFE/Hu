@@ -29,6 +29,7 @@
     "@polymer/lit-element": "^0.6.5",
     "@webcomponents/webcomponentsjs": "^2.2.1",
     "fs-extra": "^7.0.1",
+    "harmony-reflect": "^1.6.1",
     "lit-html": "^1.0.0-rc.1",
     "polymer-cli": "^1.9.4"
   },

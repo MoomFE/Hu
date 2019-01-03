@@ -9,4 +9,4 @@ export {
   eventOptions,
   html,
   svg
-} from '../build/index';
+} from '../polymer/index';

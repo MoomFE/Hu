@@ -26,4 +26,4 @@ export {
   createMarker,
   isTemplatePartActive,
   Template
-} from '../build/index';
+} from '../polymer/index';

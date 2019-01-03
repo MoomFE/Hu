@@ -198,15 +198,6 @@
     }
   })();
 
-  function _taggedTemplateLiteralLoose(strings, raw) {
-    if (!raw) {
-      raw = strings.slice(0);
-    }
-
-    strings.raw = raw;
-    return strings;
-  }
-
   /*!
    * Zen.js v5.0.0-beta.5
    * https://github.com/MoomFE/ZenJS
@@ -1152,7 +1143,7 @@
     return obj !== null && typeof obj === 'object';
   }
 
-  function set$1(array, index, value) {
+  function set(array, index, value) {
     index = fixArrayIndex(array, index); // 占位, 如果位数超过数组长度, 使用 splice 不会创建多余空间
     // [ 1, 2, 3 ].$splice( 99, 1, 4 );
     // [ 1, 2, 3, 4 ]
@@ -1173,7 +1164,7 @@
   }
 
   ['$set', '$edit'].forEach(function (name, index) {
-    var fn = index ? edit : set$1;
+    var fn = index ? edit : set;
     defineValue(ArrayProto, name, function (index, value) {
       var _this = this;
 
@@ -7560,25 +7551,50 @@
 
   LitElement.render = render$2;
 
-  function _templateObject() {
-    var data = _taggedTemplateLiteralLoose(["\n          <div>", "</div>\n        "]);
+  function define$1(name, options) {
+    var custom = customElement(name)(
+    /*#__PURE__*/
+    function (_LitElement) {
+      r.inherits(_class, _LitElement);
 
-    _templateObject = function () {
-      return data;
-    };
+      function _class() {
+        r.classCallCheck(this, _class);
+        return r.possibleConstructorReturn(this, r.getPrototypeOf(_class).apply(this, arguments));
+      }
 
-    return data;
-  }
-  Object.defineProperty(Lit, 'define', {
-    enumerable: true,
-    value: function (name, options) {
-      var custom = customElement(name)(class extends LitElement {
-        render() {
-          return html(_templateObject(), String.$someRandom(36, true, true));
+      r.createClass(_class, [{
+        key: "firstUpdated",
+        value: function firstUpdated() {
+          options.mounted.call(this);
         }
+      }]);
+      return _class;
+    }(LitElement));
+    Object.$assign(custom.prototype, {
+      render: options.render
+    });
+    return custom;
+  }
 
+  ZenJS.defineValue(Lit, 'define', function (name, options) {
+    // 克隆一份配置, 保证配置传进来后不被更改
+    options = Object.$assign(null, options); // 初始化渲染方法
+
+    if (options.render) {
+      options.render = options.render.$args({
+        0: html
       });
-    }
+    } else if (options.template) {
+      options.render = function () {
+        return html([options.template]);
+      };
+    } else {
+      options.render = ZenJS.noop;
+    } // 生命周期 -> 挂载完成
+
+
+    options.mounted = options.mounted || ZenJS.noop;
+    define$1(name, options);
   });
 
 }));

@@ -2781,7 +2781,7 @@ var litElement = {
 };
 
 function define(name, options) {
-  customElement(name)(
+  var custom = customElement(name)(
   /*#__PURE__*/
   function (_LitElement) {
     babelHelpers.inherits(_class, _LitElement);
@@ -2791,11 +2791,21 @@ function define(name, options) {
       return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(_class).apply(this, arguments));
     }
 
+    babelHelpers.createClass(_class, [{
+      key: "firstUpdated",
+      value: function firstUpdated() {
+        options.mounted.call(this);
+      }
+    }]);
     return _class;
   }(LitElement));
+  Object.$assign(custom.prototype, {
+    render: options.render
+  });
+  return custom;
 }
 
 var index = {
   define: define
 };
-export { decorators as $decorators, updatingElement as $updatingElement, litElement as $litElement, defaultTemplateProcessor$1 as $defaultTemplateProcessor, directive$1 as $directive, dom as $dom, modifyTemplate as $modifyTemplate, part as $part, parts as $parts, render$1 as $render, shadyRender as $shadyRender, templateFactory$1 as $templateFactory, templateInstance as $templateInstance, templateResult as $templateResult, template as $template, litHtml as $litHtml, index as $index, customElement, property, query, queryAll, eventOptions, notEqual, UpdatingElement, notEqual as notEqual$1, UpdatingElement as UpdatingElement$1, customElement as customElement$1, property as property$1, query as query$1, queryAll as queryAll$1, eventOptions as eventOptions$1, html, svg, LitElement, DefaultTemplateProcessor, defaultTemplateProcessor, directive, isDirective, isCEPolyfill, reparentNodes, removeNodes, removeNodesFromTemplate, insertNodeIntoTemplate, noChange, isPrimitive, AttributeCommitter, AttributePart, NodePart, BooleanAttributePart, PropertyCommitter, PropertyPart, EventPart, parts$1 as parts, render, html as html$1, svg as svg$1, TemplateResult, render$2 as render$1, templateFactory, templateCaches, TemplateInstance, TemplateResult as TemplateResult$1, SVGTemplateResult, marker, nodeMarker, markerRegex, boundAttributeSuffix, Template, isTemplatePartActive, createMarker, lastAttributeNameRegex, DefaultTemplateProcessor as DefaultTemplateProcessor$1, defaultTemplateProcessor as defaultTemplateProcessor$1, directive as directive$1, isDirective as isDirective$1, removeNodes as removeNodes$1, reparentNodes as reparentNodes$1, noChange as noChange$1, AttributeCommitter as AttributeCommitter$1, AttributePart as AttributePart$1, BooleanAttributePart as BooleanAttributePart$1, EventPart as EventPart$1, isPrimitive as isPrimitive$1, NodePart as NodePart$1, PropertyCommitter as PropertyCommitter$1, PropertyPart as PropertyPart$1, parts$1, render as render$2, templateCaches as templateCaches$1, templateFactory as templateFactory$1, TemplateInstance as TemplateInstance$1, SVGTemplateResult as SVGTemplateResult$1, TemplateResult as TemplateResult$2, createMarker as createMarker$1, isTemplatePartActive as isTemplatePartActive$1, Template as Template$1, html as html$2, svg as svg$2, define };
+export { decorators as $decorators, updatingElement as $updatingElement, litElement as $litElement, defaultTemplateProcessor$1 as $defaultTemplateProcessor, directive$1 as $directive, dom as $dom, modifyTemplate as $modifyTemplate, part as $part, parts as $parts, render$1 as $render, shadyRender as $shadyRender, templateFactory$1 as $templateFactory, templateInstance as $templateInstance, templateResult as $templateResult, template as $template, litHtml as $litHtml, index as $index$1, customElement, property, query, queryAll, eventOptions, notEqual, UpdatingElement, notEqual as notEqual$1, UpdatingElement as UpdatingElement$1, customElement as customElement$1, property as property$1, query as query$1, queryAll as queryAll$1, eventOptions as eventOptions$1, html, svg, LitElement, DefaultTemplateProcessor, defaultTemplateProcessor, directive, isDirective, isCEPolyfill, reparentNodes, removeNodes, removeNodesFromTemplate, insertNodeIntoTemplate, noChange, isPrimitive, AttributeCommitter, AttributePart, NodePart, BooleanAttributePart, PropertyCommitter, PropertyPart, EventPart, parts$1 as parts, render, html as html$1, svg as svg$1, TemplateResult, render$2 as render$1, templateFactory, templateCaches, TemplateInstance, TemplateResult as TemplateResult$1, SVGTemplateResult, marker, nodeMarker, markerRegex, boundAttributeSuffix, Template, isTemplatePartActive, createMarker, lastAttributeNameRegex, DefaultTemplateProcessor as DefaultTemplateProcessor$1, defaultTemplateProcessor as defaultTemplateProcessor$1, directive as directive$1, isDirective as isDirective$1, removeNodes as removeNodes$1, reparentNodes as reparentNodes$1, noChange as noChange$1, AttributeCommitter as AttributeCommitter$1, AttributePart as AttributePart$1, BooleanAttributePart as BooleanAttributePart$1, EventPart as EventPart$1, isPrimitive as isPrimitive$1, NodePart as NodePart$1, PropertyCommitter as PropertyCommitter$1, PropertyPart as PropertyPart$1, parts$1, render as render$2, templateCaches as templateCaches$1, templateFactory as templateFactory$1, TemplateInstance as TemplateInstance$1, SVGTemplateResult as SVGTemplateResult$1, TemplateResult as TemplateResult$2, createMarker as createMarker$1, isTemplatePartActive as isTemplatePartActive$1, Template as Template$1, html as html$2, svg as svg$2, define };
