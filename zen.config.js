@@ -20,21 +20,21 @@ module.exports = {
     ],
 
     build: [
-      {
-        mode: true,
-        from: 'src/build/index.js',
-        to: 'dist/lit.min.js'
-      },
-      {
-        mode: true,
-        from: 'src/build/lazy.js',
-        to: 'dist/lit.lazy.min.js'
-      },
-      {
-        mode: true,
-        from: 'src/build/fat.js',
-        to: 'dist/lit.fat.min.js'
-      }
+      // {
+      //   mode: true,
+      //   from: 'src/build/index.js',
+      //   to: 'dist/lit.min.js'
+      // },
+      // {
+      //   mode: true,
+      //   from: 'src/build/lazy.js',
+      //   to: 'dist/lit.lazy.min.js'
+      // },
+      // {
+      //   mode: true,
+      //   from: 'src/build/fat.js',
+      //   to: 'dist/lit.fat.min.js'
+      // }
     ]
 
   },
@@ -62,8 +62,10 @@ module.exports = {
     },
 
     on: {
-      ConfigCreated( rollup ){
-        rollup.inputOptions.context = 'window';
+      ConfigCreated( rollup, config ){
+        if( config.rollup ){
+          rollup.inputOptions.context = 'window';
+        }
       }
     }
   }
