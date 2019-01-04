@@ -2780,27 +2780,28 @@ var litElement = {
   svg: svg
 };
 
-function define(name, options) {
-  var custom = customElement(name)(
-  /*#__PURE__*/
-  function (_LitElement) {
-    babelHelpers.inherits(_class, _LitElement);
+function define(options) {
+  return (
+    /*#__PURE__*/
+    function (_LitElement) {
+      babelHelpers.inherits(_class, _LitElement);
 
-    function _class() {
-      babelHelpers.classCallCheck(this, _class);
-      return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(_class).call(this));
-    } // 第一次更新元素后调用
+      function _class() {
+        babelHelpers.classCallCheck(this, _class);
+        return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(_class).call(this));
+      } // 第一次更新元素后调用
 
 
-    babelHelpers.createClass(_class, [{
-      key: "firstUpdated",
-      value: function firstUpdated() {
-        options.mounted.call(this);
-      }
-    }]);
-    return _class;
-  }(LitElement));
-  return window.custom = custom;
+      babelHelpers.createClass(_class, [{
+        key: "firstUpdated",
+        value: function firstUpdated() {
+          // 生命周期 -> 组件挂载并渲染完成
+          options.mounted.call(this);
+        }
+      }]);
+      return _class;
+    }(LitElement)
+  );
 }
 
 var index = {

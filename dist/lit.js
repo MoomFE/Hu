@@ -7358,27 +7358,28 @@
 
   LitElement.render = render$2;
 
-  function define$1(name, options) {
-    var custom = customElement(name)(
-    /*#__PURE__*/
-    function (_LitElement) {
-      r.inherits(_class, _LitElement);
+  function define$1(options) {
+    return (
+      /*#__PURE__*/
+      function (_LitElement) {
+        r.inherits(_class, _LitElement);
 
-      function _class() {
-        r.classCallCheck(this, _class);
-        return r.possibleConstructorReturn(this, r.getPrototypeOf(_class).call(this));
-      } // 第一次更新元素后调用
+        function _class() {
+          r.classCallCheck(this, _class);
+          return r.possibleConstructorReturn(this, r.getPrototypeOf(_class).call(this));
+        } // 第一次更新元素后调用
 
 
-      r.createClass(_class, [{
-        key: "firstUpdated",
-        value: function firstUpdated() {
-          options.mounted.call(this);
-        }
-      }]);
-      return _class;
-    }(LitElement));
-    return window.custom = custom;
+        r.createClass(_class, [{
+          key: "firstUpdated",
+          value: function firstUpdated() {
+            // 生命周期 -> 组件挂载并渲染完成
+            options.mounted.call(this);
+          }
+        }]);
+        return _class;
+      }(LitElement)
+    );
   }
 
   var $assign = Object.$assign;
@@ -7416,47 +7417,61 @@
   }
 
   /**
-   * 生命周期 -> 挂载完成
+   * 生命周期 -> 组件挂载并渲染完成
    */
 
   function mounted(options) {
     options.mounted = options.mounted || noop$1;
   }
 
-  var isFunction$2 = ZenJS.isFunction;
-
   var defineGet$1 = ZenJS.defineGet;
 
   var isArray$2 = ZenJS.isArray;
+
+  var $isPlainObject = Object.$isPlainObject;
+
+  var fromEntries$1 = ZenJS.fromEntries;
 
   /**
    * 初始化 props
    */
 
-  function properties(options, custom) {
-    // 去除不合法参数
-    var props = options.props;
-    delete options.props;
+  function properties(options, custom, customProto) {
+    var props = get(options, 'props');
+    var propsIsArray = false; // 去除不合法参数
 
-    if (props != null && !(isFunction$2(props) || isArray$2(props))) {
-      props = null;
+    if (props == null || !((propsIsArray = isArray$2(props)) || $isPlainObject(props))) {
+      return;
+    } // 格式化数组参数
+
+
+    if (propsIsArray) {
+      if (!props.length) return;
+      props = fromEntries$1(props.map(function (prop) {
+        return [prop, {
+          attribute: true
+        }];
+      }));
     }
 
-    if (props == null) return;
-    defineGet$1(custom, 'properties', function () {});
+    defineGet$1(custom, 'properties', function () {
+      return props;
+    });
   }
 
   ZenJS.defineValue(Lit, 'define', function (name, _options) {
     // 克隆一份配置, 保证配置传进来后不被更改
     var options = $assign(null, _options); // 先初始化元素
 
-    var custom = define$1(name, options); // 获取原型对象
+    var custom = define$1(options); // 获取原型对象
 
     var customProto = custom.prototype; // 初始化参数
 
     processing.forEach(function (fn) {
       fn(options, custom, customProto);
-    });
+    }); // 定义组件
+
+    customElement(name)(custom);
   });
   var processing = [render$3, mounted, properties];
 

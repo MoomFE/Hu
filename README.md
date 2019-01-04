@@ -19,6 +19,13 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
 ```js
   Lit.define( 'custom-element', {
 
+    props: [ 'foo', 'bar' ],
+    props: {
+      foo: {
+        
+      }
+    },
+
     /* ------ 声明渲染方法 ------ */
 
     // 渲染方法
@@ -51,9 +58,14 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
       </style>
 
       <div>Define custom element for "template" option .</div>
-    `
+    `,
 
     /* ------ 声明渲染方法 ------ */
+
+    // 生命周期 -> 组件挂载并渲染完成
+    mounted(){
+
+    }
 
   });
 ```

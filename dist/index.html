@@ -8,16 +8,16 @@
   <script src="./lit.fat.js"></script>
 </head>
 <body>
-  <test-xxx></test-xxx>
+  <test-xxx foo="bar"></test-xxx>
 
   <script>
     Lit.define( 'test-xxx', {
 
-      props: {},
+      props: [ 'foo', 'bar' ],
 
       render( html ){
         return html`
-          <div>test-xxx: ${ this.xxx }</div>
+          <div>test-xxx: ${ this.foo }</div>
         `
       },
 
