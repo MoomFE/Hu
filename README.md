@@ -21,8 +21,9 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
 
     props: [ 'foo', 'bar' ],
     props: {
-      foo: {
-        
+      foo: null,
+      bar: {
+
       }
     },
 

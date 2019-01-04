@@ -3,13 +3,13 @@ import isArray from "../../../shared/global/ZenJS/isArray";
 import $isPlainObject from "../../../shared/global/Object/$isPlainObject";
 import get from "../../../shared/util/get";
 import fromEntries from "../../../shared/global/ZenJS/fromEntries";
-import r from "../../../polymer/polyfill/babelHelpers";
+import entries from "../../../shared/global/ZenJS/entries";
 
 
 /**
  * 初始化 props
  */
-export default function properties( options, custom, customProto ){
+export default function properties( options, custom ){
 
   let props = get( options, 'props' );
   let propsIsArray = false;
@@ -26,6 +26,17 @@ export default function properties( options, custom, customProto ){
     props = fromEntries(
       props.map( prop => ([ prop, { attribute: true } ]) )
     );
+  }
+  // 格式化 JSON 参数
+  else{
+    props = entries( props ).map( keyValue => {
+      const key = keyValue[ 0 ];
+      const value = keyValue[ 1 ];
+
+      
+      
+      return keyValue;
+    });
   }
 
   defineGet( custom, 'properties', function(){

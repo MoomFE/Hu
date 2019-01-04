@@ -7432,11 +7432,13 @@
 
   var fromEntries$1 = ZenJS.fromEntries;
 
+  var entries$1 = ZenJS.entries;
+
   /**
    * 初始化 props
    */
 
-  function properties(options, custom, customProto) {
+  function properties(options, custom) {
     var props = get(options, 'props');
     var propsIsArray = false; // 去除不合法参数
 
@@ -7452,7 +7454,14 @@
           attribute: true
         }];
       }));
-    }
+    } // 格式化 JSON 参数
+    else {
+        props = entries$1(props).map(function (keyValue) {
+          var key = keyValue[0];
+          var value = keyValue[1];
+          return keyValue;
+        });
+      }
 
     defineGet$1(custom, 'properties', function () {
       return props;
