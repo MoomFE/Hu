@@ -7414,11 +7414,11 @@
 
   var $assign = Object.$assign;
 
-  function liefCycle(options) {
-    ["constructor", "connectedCallback", "disconnectedCallback", "updateStart", "updateEnd", "firstUpdated", "updated"].forEach(function (liefCycle) {
+  function lifecycle(options) {
+    ["constructor", "connectedCallback", "disconnectedCallback", "updateStart", "updateEnd", "firstUpdated", "updated"].forEach(function (lifecycle) {
       var events = [];
 
-      options[liefCycle] = function () {
+      options[lifecycle] = function () {
         var _this = this,
             _arguments = arguments;
 
@@ -7427,7 +7427,7 @@
         });
       };
 
-      $assign(true, options[liefCycle], {
+      $assign(true, options[lifecycle], {
         push: function () {
           [].push.apply(events, arguments);
         }
@@ -7572,6 +7572,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [liefCycle, render$3, mounted, props];
+  var processing = [lifecycle, render$3, mounted, props];
 
 }));

@@ -1,7 +1,7 @@
 import $assign from "../../../shared/global/Object/$assign";
 
 
-export default function liefCycle( options ){
+export default function lifecycle( options ){
 
   [
     "constructor",
@@ -11,14 +11,14 @@ export default function liefCycle( options ){
     "updateEnd",
     "firstUpdated",
     "updated"
-  ].forEach( liefCycle => {
+  ].forEach( lifecycle => {
     const events = [];
 
-    options[ liefCycle ] = function(){
+    options[ lifecycle ] = function(){
       events.forEach( fn => fn.apply( this, arguments ) )
     }
 
-    $assign( true, options[ liefCycle ], {
+    $assign( true, options[ lifecycle ], {
       push(){
         [].push.apply( events, arguments );
       }
