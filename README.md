@@ -99,3 +99,10 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
 
   });
 ```
+
+<br>
+
+## Include
+  - [ZenJS](https://github.com/MoomFE/ZenJS) \- [LICENSE](https://github.com/MoomFE/ZenJS/blob/master/LICENSE)
+  - [Lit-Element](https://github.com/Polymer/lit-element) \- [LICENSE](https://github.com/Polymer/lit-element/blob/master/LICENSE)
+  - [Lit-HTML](https://github.com/Polymer/lit-html) \- [LICENSE](https://github.com/Polymer/lit-html/blob/master/LICENSE)
