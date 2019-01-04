@@ -19,13 +19,42 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
 ```js
   Lit.define( 'custom-element', {
 
-    props: [ 'foo', 'bar' ],
+    /* ------ 接收参数 ------ */
+
+    // 基础用法
+    //   - 从同名的小写属性上使用字符串的方式获取值
+    props: [ 'foo', 'bar', 'fooBar' ],
     props: {
       foo: null,
-      bar: {
+      bar: null
+    }
 
+    // 高级用法
+    //   - 可以设置变量类型及转义方法
+    //   - 设定默认值
+    props: {
+      foo: {
+        // 设定从属性转为变量时, 变量的类型
+        type: String || Number || Boolean,
+        // 自定义从属性转为变量的方法
+        type( value ){
+          return value
+        },
+        type: {
+          // 自定义从属性转为变量的方法
+          from( value ){ return value },
+          // 自定义从变量转为属性的方法 ( reflect 选项为 true 时可用 )
+          to( value ){ return value }
+        },
+        // 可以设定从什么属性上获取值
+        attr: 'bar',
+        attr: 'foo-bar',
+        // 值转义后, 如果在对象内发生变动, 是否将变动显示到属性上
+        reflect: false
       }
     },
+
+    /* ------ 接收参数 ------ */
 
     /* ------ 声明渲染方法 ------ */
 

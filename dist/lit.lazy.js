@@ -7629,6 +7629,10 @@
 
   var entries$1 = ZenJS.entries;
 
+  var isString$2 = ZenJS.isString;
+
+  var isFunction$2 = ZenJS.isFunction;
+
   /**
    * 初始化 props
    */
@@ -7645,19 +7649,51 @@
     if (propsIsArray) {
       if (!props.length) return;
       props = fromEntries$1(props.map(function (prop) {
-        return [prop, {
-          attribute: true
-        }];
+        return [prop, {}];
       }));
     } // 格式化 JSON 参数
     else {
         props = entries$1(props).map(function (keyValue) {
-          var key = keyValue[0];
-          var value = keyValue[1];
-          return keyValue;
+          var key = keyValue[0],
+              value = keyValue[1];
+          var options = {};
+
+          if (value) {
+            // 变量取值属性名
+            if (isString$2(value.attr)) {
+              options.attribute = value.attr;
+            } // 变量发生变化联动属性一起更改
+
+
+            if (value.reflect) {
+              options.reflect = true;
+            } // 变量类型
+
+
+            if (value.type != null) {
+              var type = value.type; // String || Number || Boolean
+              // function( value ){ return value };
+
+              if (isFunction$2(type)) {
+                options.type = type;
+              } // {
+              //   from(){},
+              //   to(){}
+              // }
+              else if ($isPlainObject(type)) {
+                  options.type = {};
+                  if (isFunction$2(type.from)) options.type.fromAttribute = type.from;
+                  if (isFunction$2(type.to)) options.type.toAttribute = type.to;
+                }
+            }
+          }
+
+          return [key, options];
         });
+        props = fromEntries$1(props);
       }
 
+    console.log(props);
     defineGet$1(custom, 'properties', function () {
       return props;
     });
