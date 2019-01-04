@@ -13232,16 +13232,46 @@
         r.inherits(_class, _LitElement);
 
         function _class() {
+          var _this7;
+
           r.classCallCheck(this, _class);
-          return r.possibleConstructorReturn(this, r.getPrototypeOf(_class).call(this));
-        } // 第一次更新元素后调用
+          _this7 = r.possibleConstructorReturn(this, r.getPrototypeOf(_class).call(this));
+          options.constructor.call(r.assertThisInitialized(r.assertThisInitialized(_this7)));
+          return _this7;
+        } // 组件被插入 DOM 时触发
+        //   - 此时还没触发 render 方法
+        //   - 此时已经将 props 初始化完毕
 
 
         r.createClass(_class, [{
+          key: "connectedCallback",
+          value: function connectedCallback() {
+            r.get(r.getPrototypeOf(_class.prototype), "connectedCallback", this).call(this);
+            options.connectedCallback.call(this);
+          }
+        }, {
+          key: "update",
+          value: function update(changedProperties) {
+            options.updateStart.call(this, changedProperties);
+            r.get(r.getPrototypeOf(_class.prototype), "update", this).call(this, changedProperties);
+            options.updateEnd.call(this, changedProperties);
+          } // 第一次更新元素后调用
+
+        }, {
           key: "firstUpdated",
-          value: function firstUpdated() {
-            // 生命周期 -> 组件挂载并渲染完成
-            options.mounted.call(this);
+          value: function firstUpdated(changedProperties) {
+            options.firstUpdated.call(this, changedProperties);
+          }
+        }, {
+          key: "updated",
+          value: function updated(changedProperties) {
+            options.updated.call(this, changedProperties);
+          }
+        }, {
+          key: "disconnectedCallback",
+          value: function disconnectedCallback() {
+            r.get(r.getPrototypeOf(_class.prototype), "disconnectedCallback", this).call(this);
+            options.disconnectedCallback.call(this);
           }
         }]);
         return _class;
@@ -13250,6 +13280,27 @@
   }
 
   var $assign = Object.$assign;
+
+  function liefCycle(options) {
+    ["constructor", "connectedCallback", "disconnectedCallback", "updateStart", "updateEnd", "firstUpdated", "updated"].forEach(function (liefCycle) {
+      var events = [];
+
+      options[liefCycle] = function () {
+        var _this = this,
+            _arguments = arguments;
+
+        events.forEach(function (fn) {
+          return fn.apply(_this, _arguments);
+        });
+      };
+
+      $assign(true, options[liefCycle], {
+        push: function () {
+          [].push.apply(events, arguments);
+        }
+      });
+    });
+  }
 
   function get(object, name) {
     var value = object[name];
@@ -13288,7 +13339,11 @@
    */
 
   function mounted(options) {
-    options.mounted = options.mounted || noop$1;
+    var mounted = get(options, 'mounted');
+
+    if (mounted) {
+      options.firstUpdated.push(mounted);
+    }
   }
 
   var defineGet$1 = ZenJS.defineGet;
@@ -13365,7 +13420,6 @@
         props = fromEntries$1(props);
       }
 
-    console.log(props);
     defineGet$1(custom, 'properties', function () {
       return props;
     });
@@ -13385,6 +13439,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [render$3, mounted, properties];
+  var processing = [liefCycle, render$3, mounted, properties];
 
 }));

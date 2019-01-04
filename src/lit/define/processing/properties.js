@@ -71,10 +71,6 @@ export default function properties( options, custom ){
     props = fromEntries( props );
   }
 
-  console.log(
-    props
-  )
-
   defineGet( custom, 'properties', function(){
     return props;
   });

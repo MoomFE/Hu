@@ -1,9 +1,13 @@
-import noop from "../../../shared/global/ZenJS/noop";
+import get from "../../../shared/util/get";
 
 
 /**
  * 生命周期 -> 组件挂载并渲染完成
  */
 export default function mounted( options ){
-  options.mounted = options.mounted || noop;
+  const mounted = get( options, 'mounted' );
+
+  if( mounted ){
+    options.firstUpdated.push( mounted )
+  }
 }

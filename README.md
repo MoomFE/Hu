@@ -38,7 +38,7 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
         type: String || Number || Boolean,
         // 自定义从属性转为变量的方法
         type( value ){
-          return value
+          return value;
         },
         type: {
           // 自定义从属性转为变量的方法
