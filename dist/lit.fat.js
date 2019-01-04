@@ -9954,16 +9954,6 @@
 
   var noop$1 = ZenJS.noop;
 
-  var warn = noop$1;
-
-  if (typeof console !== undefined) {
-    warn = function (message) {
-      console.error("[Lit warn]: " + message);
-    };
-  }
-
-  var warn$1 = warn;
-
   function Lit() {}
 
   window.Lit = Lit;
@@ -13244,45 +13234,44 @@
       function _class() {
         r.classCallCheck(this, _class);
         return r.possibleConstructorReturn(this, r.getPrototypeOf(_class).call(this));
-      }
+      } // 第一次更新元素后调用
+
 
       r.createClass(_class, [{
         key: "firstUpdated",
-        // 第一次更新元素后调用
         value: function firstUpdated() {
-          this.xxx = 123;
           options.mounted.call(this);
-        }
-      }], [{
-        key: "properties",
-        get: function get() {
-          return {};
         }
       }]);
       return _class;
     }(LitElement));
-    custom.prototype.render = options.render;
     return window.custom = custom;
   }
 
   var $assign = Object.$assign;
+
+  function get(object, name) {
+    var value = object[name];
+    delete object[name];
+    return value;
+  }
 
   /**
    * 初始化渲染方法
    */
 
   function render$3(options, custom, customProto) {
-    var render$$1 = options.render;
-    delete options.render; // 有 render 方法
+    var render$$1 = get(options, 'render'),
+        template; // 有 render 方法
 
     if (render$$1) {
       render$$1 = render$$1.$args({
         0: html
       });
     } // 有 template 模板
-    else if (options.template) {
+    else if (template = get(options, 'template')) {
         render$$1 = function () {
-          return html([options.template]);
+          return html([template]);
         };
       } // 啥都没有
       else {
@@ -13303,15 +13292,25 @@
 
   var isFunction$2 = ZenJS.isFunction;
 
-  function properties(options) {
-    ['data', 'props'].forEach(function (attr) {
-      var value = options[attr];
+  var defineGet$1 = ZenJS.defineGet;
 
-      if (value != null && !isFunction$2(value)) {
-        warn$1("\u4F7F\u7528 Lit.define \u5B9A\u4E49\u7EC4\u4EF6\u65F6, \"" + attr + "\" \u53C2\u6570\u5FC5\u987B\u4E3A\u4E00\u4E2A\u65B9\u6CD5 !");
-        options[attr] = null;
-      }
-    });
+  var isArray$2 = ZenJS.isArray;
+
+  /**
+   * 初始化 props
+   */
+
+  function properties(options, custom) {
+    // 去除不合法参数
+    var props = options.props;
+    delete options.props;
+
+    if (props != null && !(isFunction$2(props) || isArray$2(props))) {
+      props = null;
+    }
+
+    if (props == null) return;
+    defineGet$1(custom, 'properties', function () {});
   }
 
   ZenJS.defineValue(Lit, 'define', function (name, _options) {

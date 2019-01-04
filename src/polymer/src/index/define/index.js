@@ -9,12 +9,6 @@ export function define( name, options ){
       super();
     }
 
-    static get properties(){
-      return {
-
-      };
-    }
-
     // 第一次更新元素后调用
     firstUpdated(){
       options.mounted.call( this );

@@ -1,17 +1,25 @@
 import isFunction from "../../../shared/global/ZenJS/isFunction";
-import warn from "../../console/index";
+import defineGet from "../../../shared/global/ZenJS/defineGet";
+import isArray from "../../../shared/global/ZenJS/isArray";
 
 
+/**
+ * 初始化 props
+ */
+export default function properties( options, custom ){
 
-export default function properties( options ){
+  // 去除不合法参数
+  let props = options.props;
+  delete options.props;
 
-  [ 'data', 'props' ].forEach( attr => {
-    const value = options[ attr ];
+  if( props != null && !( isFunction( props ) || isArray( props ) ) ){
+    props = null;
+  }
 
-    if( value != null && !isFunction( value ) ){
-      warn(`使用 Lit.define 定义组件时, "${ attr }" 参数必须为一个方法 !`);
-      options[ attr ] = null;
-    }
+  if( props == null ) return;
+
+  defineGet( custom, 'properties', function(){
+
   });
 
 }
