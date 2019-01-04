@@ -26,7 +26,7 @@ ZenJS.defineValue( Lit, 'define', function( name, _options ){
 import liefCycle from './processing/liefCycle';
 import render from './processing/render';
 import mounted from './processing/mounted';
-import properties from './processing/properties';
+import props from './processing/props';
 
 
 
@@ -34,5 +34,5 @@ const processing = [
   liefCycle,
   render,
   mounted,
-  properties
+  props
 ];

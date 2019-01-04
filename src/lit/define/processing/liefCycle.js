@@ -5,8 +5,12 @@ export default function liefCycle( options ){
 
   [
     "constructor",
-    "connectedCallback", "disconnectedCallback",
-    "updateStart", "updateEnd", "firstUpdated", "updated"
+    "connectedCallback",
+    "disconnectedCallback",
+    "updateStart",
+    "updateEnd",
+    "firstUpdated",
+    "updated"
   ].forEach( liefCycle => {
     const events = [];
 

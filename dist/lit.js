@@ -7497,7 +7497,7 @@
    * 初始化 props
    */
 
-  function properties(options, custom) {
+  function props(options, custom) {
     var props = get(options, 'props');
     var propsIsArray = false; // 去除不合法参数
 
@@ -7572,6 +7572,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [liefCycle, render$3, mounted, properties];
+  var processing = [liefCycle, render$3, mounted, props];
 
 }));

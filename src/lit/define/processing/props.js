@@ -11,7 +11,7 @@ import isFunction from "../../../shared/global/ZenJS/isFunction";
 /**
  * 初始化 props
  */
-export default function properties( options, custom ){
+export default function props( options, custom ){
 
   let props = get( options, 'props' );
   let propsIsArray = false;
