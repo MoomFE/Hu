@@ -27,6 +27,7 @@ import lifecycle from './processing/lifecycle';
 import render from './processing/render';
 import mounted from './processing/mounted';
 import props from './processing/props';
+import methods from './processing/methods';
 
 
 
@@ -34,5 +35,5 @@ const processing = [
   lifecycle,
   render,
   mounted,
-  props
+  props, methods
 ];

@@ -66,9 +66,16 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
       }
     },
 
-    /* ------ 接收参数 ------ */
+    /* ------ 设置方法 ------ */
 
-    /* ------ 声明渲染方法 ------ */
+    methods: {
+      example(){
+        // Do something
+      },
+      ...
+    },
+
+    /* ------ 声明渲染方法 - START ------ */
 
     // 渲染方法
     //   - 优先级第一
@@ -102,7 +109,7 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
       <div>Define custom element for "template" option .</div>
     `,
 
-    /* ------ 声明渲染方法 ------ */
+    /* ------ 声明渲染方法 - END ------ */
 
     // 生命周期 -> 组件挂载并渲染完成
     mounted(){

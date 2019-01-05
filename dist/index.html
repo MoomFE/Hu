@@ -8,7 +8,7 @@
   <script src="./lit.fat.js"></script>
 </head>
 <body>
-  <test-xxx xxx="0"></test-xxx>
+  <test-xxx foo="bar" xxx="0"></test-xxx>
 
   <script>
     Lit.define( 'test-xxx', {
@@ -22,11 +22,15 @@
         }
       },
 
-      render( html ){
-        var click = () => this.bar += 1;
+      methods: {
+        click(){
+          this.bar += 1;
+        }
+      },
 
+      render( html ){
         return html`
-          <div @click="${ click }">test-xxx: ${ this.foo } ${ this.bar }</div>
+          <div @click="${ this.click }">test-xxx: ${ this.foo } ${ this.bar }</div>
         `
       },
 

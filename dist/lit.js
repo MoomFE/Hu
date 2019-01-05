@@ -7625,6 +7625,31 @@
     });
   }
 
+  var defineProperty$1 = Object.defineProperty;
+
+  function methods(options) {
+    if (options.methods) {
+      var keyValues = entries$1(options.methods);
+
+      if (keyValues.length) {
+        options.connectedCallback.push(function () {
+          var _this = this;
+
+          keyValues.forEach(function (keyValue) {
+            var name = keyValue[0],
+                value = keyValue[1];
+            defineProperty$1(_this, name, {
+              value: value,
+              configurable: false,
+              enumerable: true,
+              writable: false
+            });
+          });
+        });
+      }
+    }
+  }
+
   ZenJS.defineValue(Lit, 'define', function (name, _options) {
     // 克隆一份配置, 保证配置传进来后不被更改
     var options = $assign(null, _options); // 先初始化元素
@@ -7639,6 +7664,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [lifecycle, render$3, mounted, props];
+  var processing = [lifecycle, render$3, mounted, props, methods];
 
 }));
