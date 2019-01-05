@@ -92,6 +92,25 @@ export default function props( options, custom ){
         }
       }
 
+      // 当显式的设定了类型后, 比如: ( String || Number || Boolean )
+      // 对没有默认值的类型定义一个初始值
+      if( options.type && !( 'default' in options ) ){
+        switch( options.type ){
+          case String: {
+            options.default = '';
+            break;
+          }
+          case Number: {
+            options.default = 0;
+            break;
+          }
+          case Boolean: {
+            options.default = false;
+            break;
+          }
+        }
+      }
+
       return [ key, options ];
     });
     props = fromEntries( props );
