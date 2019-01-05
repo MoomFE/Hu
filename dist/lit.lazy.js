@@ -7720,55 +7720,61 @@
           var options = {};
 
           if (value) {
-            // 变量取值属性名
-            if (isString$2(value.attr)) {
-              options.attribute = value.attr;
-            } // 变量发生变化联动属性一起更改
+            // 设置变量类型
+            if (isFunction$2(value)) {
+              options.type = value;
+            } // 高级用法
+            else {
+                // 变量取值属性名
+                if (isString$2(value.attr)) {
+                  options.attribute = value.attr;
+                } // 变量发生变化联动属性一起更改
 
 
-            if (value.reflect) {
-              options.reflect = true;
-            } // 变量类型
+                if (value.reflect) {
+                  options.reflect = true;
+                } // 变量类型
 
 
-            if (value.type != null) {
-              var type = value.type; // String || Number || Boolean
-              // function( value ){ return value };
+                if (value.type != null) {
+                  var type = value.type; // String || Number || Boolean
+                  // function( value ){ return value };
 
-              if (isFunction$2(type)) {
-                options.type = type;
-              } // {
-              //   from(){},
-              //   to(){}
-              // }
-              else if ($isPlainObject(type)) {
-                  options.type = {};
-                  if (isFunction$2(type.from)) options.type.fromAttribute = type.from;
-                  if (isFunction$2(type.to)) options.type.toAttribute = type.to;
+                  if (isFunction$2(type)) {
+                    options.type = type;
+                  } // {
+                  //   from(){},
+                  //   to(){}
+                  // }
+                  else if ($isPlainObject(type)) {
+                      options.type = {};
+                      if (isFunction$2(type.from)) options.type.fromAttribute = type.from;
+                      if (isFunction$2(type.to)) options.type.toAttribute = type.to;
+                    }
+                } // 默认值
+
+
+                if ('default' in value) {
+                  var _default = value.default;
+
+                  switch (typeof _default) {
+                    case 'object':
+                      break;
+
+                    case 'function':
+                      {
+                        defineGet$1(options, 'default', _default.bind(void 0));
+                        break;
+                      }
+
+                    default:
+                      {
+                        defineValue$1(options, 'default', _default);
+                        break;
+                      }
+                  }
                 }
-            } // 默认值
-
-
-            if ('default' in value) {
-              var _default = value['default'];
-
-              switch (typeof _default) {
-                case 'object':
-                  break;
-
-                case 'function':
-                  {
-                    defineGet$1(options, 'default', _default.bind(void 0));
-                    break;
-                  }
-
-                default:
-                  {
-                    defineValue$1(options, 'default', _default);
-                    break;
-                  }
               }
-            }
           }
 
           return [key, options];
@@ -7783,7 +7789,9 @@
       var _this = this;
 
       $each$1(props, function (name, options) {
-        hasOwnProperty$1.call(_this, name) || (_this[name] = options['default']);
+        if (!hasOwnProperty$1.call(_this, name) && 'default' in options) {
+          _this[name] = options.default;
+        }
       });
     });
   }

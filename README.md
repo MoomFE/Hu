@@ -33,6 +33,12 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
     //   - 可以设置变量类型及转义方法
     //   - 设定默认值
     props: {
+      // 设定从属性转为变量时, 变量的类型
+      bar: String || Number || Boolean,
+      // 自定义从属性转为变量的方法
+      bar( value ){
+        return value;
+      },
       foo: {
         // 设定从属性转为变量时, 变量的类型
         type: String || Number || Boolean,

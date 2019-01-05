@@ -39,47 +39,54 @@ export default function props( options, custom ){
       const options = {};
 
       if( value ){
-        // 变量取值属性名
-        if( isString( value.attr ) ){
-          options.attribute = value.attr;
+        // 设置变量类型
+        if( isFunction( value ) ){
+          options.type = value;
         }
-        // 变量发生变化联动属性一起更改
-        if( value.reflect ){
-          options.reflect = true;
-        }
-        // 变量类型
-        if( value.type != null ){
-          const type = value.type;
-
-          // String || Number || Boolean
-          // function( value ){ return value };
-          if( isFunction( type ) ){
-            options.type = type;
+        // 高级用法
+        else{
+          // 变量取值属性名
+          if( isString( value.attr ) ){
+            options.attribute = value.attr;
           }
-          // {
-          //   from(){},
-          //   to(){}
-          // }
-          else if( $isPlainObject( type ) ){
-            options.type = {};
-
-            if( isFunction( type.from ) ) options.type.fromAttribute = type.from;
-            if( isFunction( type.to ) ) options.type.toAttribute = type.to;
+          // 变量发生变化联动属性一起更改
+          if( value.reflect ){
+            options.reflect = true;
           }
-        }
-        // 默认值
-        if( 'default' in value ){
-          const _default = value[ 'default' ];
+          // 变量类型
+          if( value.type != null ){
+            const type = value.type;
 
-          switch( typeof _default ){
-            case 'object': break;
-            case 'function': {
-              defineGet( options, 'default', _default.bind( void 0 ) );
-              break;
+            // String || Number || Boolean
+            // function( value ){ return value };
+            if( isFunction( type ) ){
+              options.type = type;
             }
-            default: {
-              defineValue( options, 'default', _default );
-              break;
+            // {
+            //   from(){},
+            //   to(){}
+            // }
+            else if( $isPlainObject( type ) ){
+              options.type = {};
+
+              if( isFunction( type.from ) ) options.type.fromAttribute = type.from;
+              if( isFunction( type.to ) ) options.type.toAttribute = type.to;
+            }
+          }
+          // 默认值
+          if( 'default' in value ){
+            const _default = value.default;
+
+            switch( typeof _default ){
+              case 'object': break;
+              case 'function': {
+                defineGet( options, 'default', _default.bind( void 0 ) );
+                break;
+              }
+              default: {
+                defineValue( options, 'default', _default );
+                break;
+              }
             }
           }
         }
@@ -96,9 +103,9 @@ export default function props( options, custom ){
 
   options.connectedCallback.push(function(){
     $each( props, ( name, options ) => {
-      hasOwnProperty.call( this, name ) || (
-        this[ name ] = options[ 'default' ]
-      );
+      if( !hasOwnProperty.call( this, name ) && 'default' in options ){
+        this[ name ] = options.default
+      }
     });
   });
 

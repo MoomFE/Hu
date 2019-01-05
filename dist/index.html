@@ -8,13 +8,13 @@
   <script src="./lit.fat.js"></script>
 </head>
 <body>
-  <test-xxx foo="bar" xxx="0"></test-xxx>
+  <test-xxx xxx="0"></test-xxx>
 
   <script>
     Lit.define( 'test-xxx', {
 
       props: {
-        foo: null,
+        foo: Boolean,
         bar: {
           type: Number,
           attr: 'xxx',
