@@ -50,7 +50,13 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
         attr: 'bar',
         attr: 'foo-bar',
         // 值转义后, 如果在对象内发生变动, 是否将变动显示到属性上
-        reflect: false
+        reflect: false,
+        // 无传参时的默认值
+        default: '',
+        // 非原始值请使用工厂方法
+        default(){
+          return {};
+        }
       }
     },
 

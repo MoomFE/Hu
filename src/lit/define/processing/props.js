@@ -6,6 +6,9 @@ import fromEntries from "../../../shared/global/ZenJS/fromEntries";
 import entries from "../../../shared/global/ZenJS/entries";
 import isString from "../../../shared/global/ZenJS/isString";
 import isFunction from "../../../shared/global/ZenJS/isFunction";
+import defineValue from "../../../shared/global/ZenJS/defineValue";
+import hasOwnProperty from "../../../shared/global/Object/hasOwnProperty";
+import $each from "../../../shared/global/Object/$each";
 
 
 /**
@@ -64,6 +67,22 @@ export default function props( options, custom ){
             if( isFunction( type.to ) ) options.type.toAttribute = type.to;
           }
         }
+        // 默认值
+        if( 'default' in value ){
+          const _default = value[ 'default' ];
+
+          switch( typeof _default ){
+            case 'object': break;
+            case 'function': {
+              defineGet( options, 'default', _default.bind( void 0 ) );
+              break;
+            }
+            default: {
+              defineValue( options, 'default', _default );
+              break;
+            }
+          }
+        }
       }
 
       return [ key, options ];
@@ -73,6 +92,14 @@ export default function props( options, custom ){
 
   defineGet( custom, 'properties', function(){
     return props;
+  });
+
+  options.connectedCallback.push(function(){
+    $each( props, ( name, options ) => {
+      hasOwnProperty.call( this, name ) || (
+        this[ name ] = options[ 'default' ]
+      );
+    });
   });
 
 }

@@ -13360,6 +13360,12 @@
 
   var isFunction$2 = ZenJS.isFunction;
 
+  var defineValue$1 = ZenJS.defineValue;
+
+  var hasOwnProperty$1 = Object.hasOwnProperty;
+
+  var $each$1 = Object.$each;
+
   /**
    * 初始化 props
    */
@@ -13412,6 +13418,28 @@
                   if (isFunction$2(type.from)) options.type.fromAttribute = type.from;
                   if (isFunction$2(type.to)) options.type.toAttribute = type.to;
                 }
+            } // 默认值
+
+
+            if ('default' in value) {
+              var _default = value['default'];
+
+              switch (typeof _default) {
+                case 'object':
+                  break;
+
+                case 'function':
+                  {
+                    defineGet$1(options, 'default', _default.bind(void 0));
+                    break;
+                  }
+
+                default:
+                  {
+                    defineValue$1(options, 'default', _default);
+                    break;
+                  }
+              }
             }
           }
 
@@ -13422,6 +13450,13 @@
 
     defineGet$1(custom, 'properties', function () {
       return props;
+    });
+    options.connectedCallback.push(function () {
+      var _this = this;
+
+      $each$1(props, function (name, options) {
+        hasOwnProperty$1.call(_this, name) || (_this[name] = options['default']);
+      });
     });
   }
 
