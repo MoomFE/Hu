@@ -122,8 +122,8 @@ export default function props( options, custom ){
 
   options.connectedCallback.push(function(){
     $each( props, ( name, options ) => {
-      if( !hasOwnProperty.call( this, name ) && 'default' in options ){
-        this[ name ] = options.default
+      if( !hasOwnProperty.call( this, `__${ name }` ) && 'default' in options ){
+        this[ name ] = options.default;
       }
     });
   });

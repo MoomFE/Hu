@@ -8,18 +8,24 @@
   <script src="./lit.fat.js"></script>
 </head>
 <body>
-  <test-xxx foo="bar" xxx="0"></test-xxx>
+  <test-xxx foo="bar" xxx="1"></test-xxx>
 
   <script>
     Lit.define( 'test-xxx', {
 
       props: {
-        foo: Boolean,
+        foo: String,
         bar: {
           type: Number,
           attr: 'xxx',
           reflect: true
         }
+      },
+
+      data(){
+        return {
+          name: `test-xxx: ${ this.foo }`
+        };
       },
 
       methods: {
@@ -30,7 +36,7 @@
 
       render( html ){
         return html`
-          <div @click="${ this.click }">test-xxx: ${ this.foo } ${ this.bar }</div>
+          <div @click="${ this.click }">${ this.name } ${ this.bar }</div>
         `
       },
 

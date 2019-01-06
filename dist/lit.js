@@ -7618,7 +7618,7 @@
       var _this = this;
 
       $each$1(props, function (name, options) {
-        if (!hasOwnProperty$1.call(_this, name) && 'default' in options) {
+        if (!hasOwnProperty$1.call(_this, "__" + name) && 'default' in options) {
           _this[name] = options.default;
         }
       });
@@ -7628,26 +7628,40 @@
   var defineProperty$1 = Object.defineProperty;
 
   function methods(options) {
-    if (options.methods) {
-      var keyValues = entries$1(options.methods);
+    var methods = get(options, 'methods');
+    if (!methods) return;
+    var keyValues = entries$1(methods);
+    if (!keyValues.length) return;
+    options.connectedCallback.push(function () {
+      var _this = this;
 
-      if (keyValues.length) {
-        options.connectedCallback.push(function () {
-          var _this = this;
-
-          keyValues.forEach(function (keyValue) {
-            var name = keyValue[0],
-                value = keyValue[1];
-            defineProperty$1(_this, name, {
-              value: value,
-              configurable: false,
-              enumerable: true,
-              writable: false
-            });
-          });
+      keyValues.forEach(function (keyValue) {
+        var name = keyValue[0],
+            value = keyValue[1];
+        defineProperty$1(_this, name, {
+          value: value,
+          configurable: false,
+          enumerable: true,
+          writable: false
         });
-      }
-    }
+      });
+    });
+  }
+
+  function data(options, custom, customProto) {
+    var dataFn = get(options, 'data');
+    if (!isFunction$2(dataFn)) return;
+    options.connectedCallback.push(function () {
+      var _this = this;
+
+      var data = dataFn.call(this);
+      $each$1(data, function (name, value) {
+        custom.createProperty(name, {
+          attribute: false
+        });
+        _this[name] = value;
+      });
+    });
   }
 
   ZenJS.defineValue(Lit, 'define', function (name, _options) {
@@ -7664,6 +7678,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [lifecycle, render$3, mounted, props, methods];
+  var processing = [lifecycle, render$3, mounted, props, methods, data];
 
 }));

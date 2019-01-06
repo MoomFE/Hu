@@ -1,29 +1,28 @@
 import entries from "../../../shared/global/ZenJS/entries";
 import defineProperty from "../../../shared/global/Object/defineProperty";
+import get from "../../../shared/util/get";
 
 
 
 export default function methods( options ){
-  if( options.methods ){
-    const keyValues = entries( options.methods );
+  const methods = get( options, 'methods' );
 
-    if( keyValues.length ){
+  if( !methods ) return;
 
-      options.connectedCallback.push(function(){
-        
-        keyValues.forEach( keyValue => {
-          const [ name, value ] = keyValue;
+  const keyValues = entries( methods );
 
-          defineProperty( this, name, {
-            value,
-            configurable: false,
-            enumerable: true,
-            writable: false
-          });
-        });
+  if( !keyValues.length ) return;
 
+  options.connectedCallback.push(function(){
+    keyValues.forEach( keyValue => {
+      const [ name, value ] = keyValue;
+
+      defineProperty( this, name, {
+        value,
+        configurable: false,
+        enumerable: true,
+        writable: false
       });
-
-    }
-  }
+    });
+  });
 }
