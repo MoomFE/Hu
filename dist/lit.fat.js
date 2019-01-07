@@ -13480,7 +13480,8 @@
 
     defineGet$1(custom, 'properties', function () {
       return props;
-    });
+    }); // 初始化默认值
+
     options.connectedCallback.push(function () {
       var _this = this;
 
@@ -13543,6 +13544,70 @@
     }
   }
 
+  var keys$1 = ZenJS.keys;
+
+  function watch(options, custom, customProto) {
+    var watch = get(options, 'watch');
+    var watcher = initWatch(watch || {});
+    var isFirst = true;
+    options.updateStart.push(function (changedProperties) {
+      var _this = this;
+
+      changedProperties.forEach(function (oldValue, key) {
+        if (watcher[key]) {
+          var value = _this[key];
+          watcher[key].forEach(function (options) {
+            if (isFirst ? options.immediate : !options.immediate) {
+              options.immediate = false;
+              options.handler.call(_this, value, oldValue);
+            }
+          });
+        }
+      });
+      isFirst = false;
+    });
+    defineValue$1(customProto, '$watch', function (name, options) {
+      entries$1(initWatch({}.$set(name, options))).forEach(function (keyValue) {
+        var key = keyValue[0],
+            value = keyValue[1];
+
+        if (watcher[key]) {
+          watcher[key].$concat(value);
+        } else {
+          watcher[key] = value;
+        }
+      });
+    });
+  }
+
+  function initWatch(watch) {
+    var watcher = {};
+    $each$1(watch, function (name, options) {
+      if (isFunction$2(options)) {
+        options = {
+          immediate: false,
+          // 是否立即执行
+          handler: options
+        };
+      } else if (!($isPlainObject(options) && options.handler)) {
+        return;
+      }
+
+      watcher[name] = [options];
+    });
+    return watcher;
+  } // // 第一次更新元素后开始监听
+  // options.updated.push( changedProperties => {
+  //   changedProperties.forEach(( oldValue, key ) => {
+  //     if( watcher[ key ] ){
+  //       const value = this[ key ];
+  //       watcher[ key ].forEach( watch => {
+  //         watch.call( this, value, oldValue );
+  //       });
+  //     }
+  //   });
+  // });
+
   ZenJS.defineValue(Lit, 'define', function (name, _options) {
     // 克隆一份配置, 保证配置传进来后不被更改
     var options = $assign(null, _options); // 先初始化元素
@@ -13557,6 +13622,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [lifecycle, props, methods, data, created, render$3, mounted];
+  var processing = [lifecycle, props, methods, data, watch, created, render$3, mounted];
 
 }));

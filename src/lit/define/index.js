@@ -30,12 +30,13 @@ import props from './processing/props';
 import methods from './processing/methods';
 import data from './processing/data';
 import created from './processing/created';
+import watch from './processing/watch';
 
 
 const processing = [
   lifecycle,
-  props, methods, data,
+  props, methods, data, watch,
   created,
   render,
-  mounted
+  mounted,
 ];

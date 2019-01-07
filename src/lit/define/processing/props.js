@@ -120,6 +120,7 @@ export default function props( options, custom ){
     return props;
   });
 
+  // 初始化默认值
   options.connectedCallback.push(function(){
     $each( props, ( name, options ) => {
       if( !hasOwnProperty.call( this, `__${ name }` ) && 'default' in options ){

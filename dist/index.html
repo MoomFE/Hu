@@ -34,6 +34,15 @@
         }
       },
 
+      watch: {
+        bar: {
+          immediate: true,
+          handler( value, oldValue ){
+            console.log( value, oldValue );
+          }
+        }
+      },
+
       render( html ){
         return html`
           <div @click="${ this.click }">${ this.name } ${ this.bar }</div>
