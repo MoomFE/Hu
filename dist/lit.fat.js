@@ -13556,6 +13556,7 @@
       }));
     }
 
+    dataFns.$deleteValue(void 0);
     if (!dataFns.length) return;
     options.connectedCallback.push(function () {
       var _this = this;

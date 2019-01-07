@@ -20,6 +20,8 @@ export default function data( options, custom, customProto ){
     );
   }
 
+  dataFns.$deleteValue( void 0 );
+
   if( !dataFns.length ) return;
 
   options.connectedCallback.push(function(){
