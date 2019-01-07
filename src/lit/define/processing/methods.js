@@ -5,14 +5,20 @@ import get from "../../../shared/util/get";
 
 
 export default function methods( options ){
-  const methods = get( options, 'methods' );
+  let methods = get( options, 'methods' ) || {};
 
-  if( !methods ) return;
+  // Mixins
+  if( options.mixins && options.mixins.length ){
+    methods = $assign.apply( null, [].concat(
+      options.mixins.map( mixins => mixins.methods ),
+      methods
+    ));
+  }
 
   const keyValues = entries( methods );
 
   if( !keyValues.length ) return;
-
+  
   options.connectedCallback.push(function(){
     keyValues.forEach( keyValue => {
       const [ name, value ] = keyValue;

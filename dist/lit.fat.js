@@ -13279,7 +13279,7 @@
     );
   }
 
-  var $assign = Object.$assign;
+  var $assign$1 = Object.$assign;
 
   function lifecycle(options) {
     ["constructor", "connectedCallback", "disconnectedCallback", "updateStart", "updateEnd", "firstUpdated", "updated"].forEach(function (lifecycle) {
@@ -13294,7 +13294,7 @@
         });
       };
 
-      $assign(true, options[lifecycle], {
+      $assign$1(true, options[lifecycle], {
         push: function () {
           [].push.apply(events, arguments);
         }
@@ -13339,10 +13339,24 @@
    */
 
   function mounted(options) {
-    var mounted = get(options, 'mounted');
+    var mountedFns = [];
 
-    if (mounted) {
-      options.firstUpdated.push(mounted);
+    if (options.mounted) {
+      mountedFns.push(get(options, 'mounted'));
+    }
+
+    if (options.mixins && options.mixins.length) {
+      mountedFns.$concatTo(0, options.mixins.map(function (mixins) {
+        return mixins.mounted;
+      }));
+    }
+
+    mountedFns.$deleteValue(void 0);
+
+    if (mountedFns.length) {
+      var _options$firstUpdated;
+
+      (_options$firstUpdated = options.firstUpdated).push.apply(_options$firstUpdated, mountedFns);
     }
   }
 
@@ -13372,7 +13386,14 @@
 
   function props(options, custom) {
     var props = get(options, 'props');
-    var propsIsArray = false; // 去除不合法参数
+    var propsIsArray = false; // Mixins
+
+    if (options.mixins && options.mixins.length) {
+      props = $assign$1.apply(null, [].concat(options.mixins.map(function (mixins) {
+        return mixins.props;
+      }), props));
+    } // 去除不合法参数
+
 
     if (props == null || !((propsIsArray = isArray$2(props)) || $isPlainObject(props))) {
       return;
@@ -13496,8 +13517,14 @@
   var defineProperty$1 = Object.defineProperty;
 
   function methods(options) {
-    var methods = get(options, 'methods');
-    if (!methods) return;
+    var methods = get(options, 'methods') || {}; // Mixins
+
+    if (options.mixins && options.mixins.length) {
+      methods = $assign.apply(null, [].concat(options.mixins.map(function (mixins) {
+        return mixins.methods;
+      }), methods));
+    }
+
     var keyValues = entries$1(methods);
     if (!keyValues.length) return;
     options.connectedCallback.push(function () {
@@ -13517,12 +13544,25 @@
   }
 
   function data(options, custom, customProto) {
-    var dataFn = get(options, 'data');
-    if (!isFunction$2(dataFn)) return;
+    var dataFns = [];
+
+    if (isFunction$2(options.data)) {
+      dataFns.push(get(options, 'data'));
+    }
+
+    if (options.mixins && options.mixins.length) {
+      dataFns.$concatTo(0, options.mixins.map(function (mixins) {
+        return mixins.data;
+      }));
+    }
+
+    if (!dataFns.length) return;
     options.connectedCallback.push(function () {
       var _this = this;
 
-      var data = dataFn.call(this);
+      var data = $assign$1.apply(null, dataFns.map(function (fn) {
+        return fn.call(_this);
+      }));
       $each$1(data, function (name, value) {
         custom.createProperty(name, {
           attribute: false
@@ -13537,14 +13577,26 @@
    */
 
   function created(options) {
-    var createdFn = get(options, 'created');
+    var createdFns = [];
 
-    if (isFunction$2(createdFn)) {
-      options.connectedCallback.push(createdFn);
+    if (options.created) {
+      createdFns.push(get(options, 'created'));
+    }
+
+    if (options.mixins && options.mixins.length) {
+      createdFns.$concatTo(0, options.mixins.map(function (mixins) {
+        return mixins.created;
+      }));
+    }
+
+    createdFns.$deleteValue(void 0);
+
+    if (createdFns.length) {
+      var _options$connectedCal;
+
+      (_options$connectedCal = options.connectedCallback).push.apply(_options$connectedCal, createdFns);
     }
   }
-
-  var keys$1 = ZenJS.keys;
 
   function watch(options, custom, customProto) {
     var watch = get(options, 'watch');
@@ -13596,21 +13648,11 @@
       watcher[name] = [options];
     });
     return watcher;
-  } // // 第一次更新元素后开始监听
-  // options.updated.push( changedProperties => {
-  //   changedProperties.forEach(( oldValue, key ) => {
-  //     if( watcher[ key ] ){
-  //       const value = this[ key ];
-  //       watcher[ key ].forEach( watch => {
-  //         watch.call( this, value, oldValue );
-  //       });
-  //     }
-  //   });
-  // });
+  }
 
   ZenJS.defineValue(Lit, 'define', function (name, _options) {
     // 克隆一份配置, 保证配置传进来后不被更改
-    var options = $assign(null, _options); // 先初始化元素
+    var options = $assign$1(null, _options); // 先初始化元素
 
     var custom = define$1(options); // 获取原型对象
 

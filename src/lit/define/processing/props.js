@@ -9,6 +9,7 @@ import isFunction from "../../../shared/global/ZenJS/isFunction";
 import defineValue from "../../../shared/global/ZenJS/defineValue";
 import hasOwnProperty from "../../../shared/global/Object/hasOwnProperty";
 import $each from "../../../shared/global/Object/$each";
+import $assign from "../../../shared/global/Object/$assign";
 
 
 /**
@@ -18,6 +19,14 @@ export default function props( options, custom ){
 
   let props = get( options, 'props' );
   let propsIsArray = false;
+
+  // Mixins
+  if( options.mixins && options.mixins.length ){
+    props = $assign.apply( null, [].concat(
+      options.mixins.map( mixins => mixins.props ),
+      props
+    ));
+  }
 
   // 去除不合法参数
   if( props == null || !( ( propsIsArray = isArray( props ) ) || $isPlainObject( props ) ) ){

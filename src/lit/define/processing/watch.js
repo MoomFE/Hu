@@ -1,5 +1,4 @@
 import get from "../../../shared/util/get";
-import keys from "../../../shared/global/ZenJS/keys";
 import $each from "../../../shared/global/Object/$each";
 import isFunction from "../../../shared/global/ZenJS/isFunction";
 import $isPlainObject from "../../../shared/global/Object/$isPlainObject";
@@ -69,16 +68,3 @@ function initWatch( watch ){
 
   return watcher;
 }
-
-// // 第一次更新元素后开始监听
-// options.updated.push( changedProperties => {
-//   changedProperties.forEach(( oldValue, key ) => {
-//     if( watcher[ key ] ){
-//       const value = this[ key ];
-
-//       watcher[ key ].forEach( watch => {
-//         watch.call( this, value, oldValue );
-//       });
-//     }
-//   });
-// });

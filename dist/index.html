@@ -11,7 +11,25 @@
   <test-xxx foo="bar" xxx="1"></test-xxx>
 
   <script>
+    var mixins1 = {
+      data(){
+        return {
+          name2: 123,
+        };
+      },
+      created(){
+        console.log('mixins created')
+      },
+      mounted(){
+        console.log('mixins mounted')
+      }
+    };
+
     Lit.define( 'test-xxx', {
+
+      mixins: [
+        mixins1
+      ],
 
       props: {
         foo: String,
@@ -45,7 +63,7 @@
 
       render( html ){
         return html`
-          <div @click="${ this.click }">${ this.name } ${ this.bar }</div>
+          <div @click="${ this.click }">${ this.name2 }, ${ this.name } ${ this.bar }</div>
         `
       },
 

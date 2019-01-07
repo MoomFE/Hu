@@ -92,10 +92,23 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
       foo: {
         immediate: true,
         handler( value, oldValue ){
-          
+
         }
       }
     },
+
+    /* ------ 设置 Mixins ------ */
+
+    mixins: [
+      {
+        data(){
+          return {}
+        },
+        methods: {},
+        created(){}
+      },
+      mixins2
+    ],
 
     /* ------ 声明渲染方法 - START ------ */
 
