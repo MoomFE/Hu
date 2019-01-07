@@ -66,6 +66,14 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
       }
     },
 
+    /* ------ 设置变量 ------ */
+
+    data(){
+      return {
+        name: 'xxx'
+      };
+    },
+
     /* ------ 设置方法 ------ */
 
     methods: {
@@ -73,6 +81,20 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
         // Do something
       },
       ...
+    },
+
+    /* ------ 设置监听 ------ */
+
+    watch: {
+      foo( value, oldValue ){
+
+      },
+      foo: {
+        immediate: true,
+        handler( value, oldValue ){
+          
+        }
+      }
     },
 
     /* ------ 声明渲染方法 - START ------ */
