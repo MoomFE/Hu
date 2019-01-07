@@ -29,12 +29,13 @@ import mounted from './processing/mounted';
 import props from './processing/props';
 import methods from './processing/methods';
 import data from './processing/data';
-
+import created from './processing/created';
 
 
 const processing = [
   lifecycle,
+  props, methods, data,
+  created,
   render,
-  mounted,
-  props, methods, data
+  mounted
 ];

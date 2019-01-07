@@ -13531,6 +13531,18 @@
     });
   }
 
+  /**
+   * 生命周期 -> 组件创建完成
+   */
+
+  function created(options) {
+    var createdFn = get(options, 'created');
+
+    if (isFunction$2(createdFn)) {
+      options.connectedCallback.push(createdFn);
+    }
+  }
+
   ZenJS.defineValue(Lit, 'define', function (name, _options) {
     // 克隆一份配置, 保证配置传进来后不被更改
     var options = $assign(null, _options); // 先初始化元素
@@ -13545,6 +13557,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [lifecycle, render$3, mounted, props, methods, data];
+  var processing = [lifecycle, props, methods, data, created, render$3, mounted];
 
 }));
