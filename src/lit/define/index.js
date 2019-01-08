@@ -31,6 +31,7 @@ import methods from './processing/methods';
 import data from './processing/data';
 import created from './processing/created';
 import watch from './processing/watch';
+import destroyed from './processing/destroyed';
 
 
 const processing = [
@@ -39,4 +40,5 @@ const processing = [
   created,
   render,
   mounted,
+  destroyed
 ];

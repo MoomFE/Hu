@@ -7979,6 +7979,28 @@
     return watcher;
   }
 
+  function destroyed(options) {
+    var destroyedFns = [];
+
+    if (options.destroyed) {
+      destroyedFns.push(get(options, 'destroyed'));
+    }
+
+    if (options.mixins && options.mixins.length) {
+      destroyedFns.$concatTo(0, options.mixins.map(function (mixins) {
+        return mixins.destroyed;
+      }));
+    }
+
+    destroyedFns.$deleteValue(void 0);
+
+    if (destroyedFns.length) {
+      var _options$disconnected;
+
+      (_options$disconnected = options.disconnectedCallback).push.apply(_options$disconnected, destroyedFns);
+    }
+  }
+
   ZenJS.defineValue(Lit, 'define', function (name, _options) {
     // 克隆一份配置, 保证配置传进来后不被更改
     var options = $assign$1(null, _options); // 先初始化元素
@@ -7993,6 +8015,6 @@
 
     customElement(name)(custom);
   });
-  var processing = [lifecycle, props, methods, data, watch, created, render$3, mounted];
+  var processing = [lifecycle, props, methods, data, watch, created, render$3, mounted, destroyed];
 
 }));

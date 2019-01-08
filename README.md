@@ -154,6 +154,11 @@ Lit 是一个基于 Web Components 的 MVVM 框架, 适合公用组件开发
     // 生命周期 -> 组件挂载并渲染完成
     mounted(){
 
+    },
+
+    // 生命周期 -> 组件被注销
+    destroyed(){
+
     }
 
   });
