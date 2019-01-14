@@ -1,11 +1,11 @@
 {
-	"folders": [
+  "folders": [
     {
       "path": "."
     }
   ],
-	"settings": {
-		"files.exclude": {
+  "settings": {
+    "files.exclude": {
       ".gitignore": true,
       "jsconfig.json": true,
       "LICENSE": true,
@@ -14,10 +14,9 @@
       "package-lock.json": true,
       "polymer.json": true,
       "tsconfig.json": true,
-      "typings": true,
-      "zen.config.js": true
+      "typings": true
     },
-		"editor.tabSize": 2,
-		"editor.detectIndentation": false
-	}
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false
+  }
 }
