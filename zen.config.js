@@ -5,36 +5,11 @@ module.exports = {
   group: {
 
     watch: [
-      {
-        from: 'src/build/index.js',
-        to: 'dist/lit.js'
-      },
-      {
-        from: 'src/build/lazy.js',
-        to: 'dist/lit.lazy.js'
-      },
-      {
-        from: 'src/build/fat.js',
-        to: 'dist/lit.fat.js'
-      }
+      
     ],
 
     build: [
-      {
-        mode: true,
-        from: 'src/build/index.js',
-        to: 'dist/lit.min.js'
-      },
-      {
-        mode: true,
-        from: 'src/build/lazy.js',
-        to: 'dist/lit.lazy.min.js'
-      },
-      {
-        mode: true,
-        from: 'src/build/fat.js',
-        to: 'dist/lit.fat.min.js'
-      }
+      
     ]
 
   },
@@ -45,7 +20,6 @@ module.exports = {
     babel: true,
     babelrc: {
       plugins: [
-
         /**
          * let 和 const 块级作用域
          */
@@ -100,14 +74,6 @@ module.exports = {
           }
         ]
       ]
-    },
-
-    on: {
-      ConfigCreated( rollup, config ){
-        if( config.rollup ){
-          rollup.inputOptions.context = 'window';
-        }
-      }
     }
   }
 

@@ -2,19 +2,11 @@
 	"folders": [
     {
       "path": "."
-    },
-    {
-      "path": "src\\polymer"
-    },
-    {
-      "path": "src\\lit"
     }
   ],
 	"settings": {
 		"files.exclude": {
       ".gitignore": true,
-      "**/src/lit": true,
-      "**/src/polymer": true,
       "jsconfig.json": true,
       "LICENSE": true,
       "Lit.code-workspace": true,
