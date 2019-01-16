@@ -1,6 +1,6 @@
 {
   "name": "@moomfe/lit",
-  "version": "1.0.0",
+  "version": "1.0.0-bata.0",
   "description": "",
   "keywords": [],
   "author": "Wei Zhang",
@@ -28,12 +28,11 @@
     "@babel/plugin-transform-template-literals": "^7.2.0",
     "@moomfe/zen-cli": "^1.0.0-beta.53",
     "@moomfe/zenjs": "^5.0.0-beta.5",
-    "@polymer/lit-element": "^0.6.5",
     "@webcomponents/webcomponentsjs": "^2.2.1",
+    "chai": "^4.2.0",
     "fs-extra": "^7.0.1",
-    "harmony-reflect": "^1.6.1",
     "lit-html": "^1.0.0-rc.1",
-    "polymer-cli": "^1.9.4"
+    "mocha": "^5.2.0"
   },
   "dependencies": {}
 }
