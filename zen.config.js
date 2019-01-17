@@ -5,7 +5,10 @@ module.exports = {
   group: {
 
     watch: [
-      
+      {
+        from: 'src/build/index.js',
+        to: 'dist/lit.js'
+      }
     ],
 
     build: [
@@ -13,6 +16,15 @@ module.exports = {
     ]
 
   },
+
+  pipe: [
+    {
+      from: 'src/html/src/index.js',
+      to: 'src/html/index.js',
+      format: 'es',
+      babel: false
+    }
+  ],
 
   config: {
     rollup: true,
