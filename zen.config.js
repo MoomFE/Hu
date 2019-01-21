@@ -8,11 +8,33 @@ module.exports = {
       {
         from: 'src/build/index.js',
         to: 'dist/lit.js'
+      },
+      {
+        from: 'src/build/polyfill.js',
+        to: 'dist/lit.polyfill.js'
+      },
+      {
+        from: 'src/build/polyfill.async.js',
+        to: 'dist/lit.polyfill.async.js'
       }
     ],
 
     build: [
-      
+      {
+        mode: true,
+        from: 'src/build/index.js',
+        to: 'dist/lit.min.js'
+      },
+      {
+        mode: true,
+        from: 'src/build/polyfill.js',
+        to: 'dist/lit.polyfill.min.js'
+      },
+      {
+        mode: true,
+        from: 'src/build/polyfill.async.js',
+        to: 'dist/lit.polyfill.async.min.js'
+      }
     ]
 
   },
@@ -21,12 +43,16 @@ module.exports = {
     {
       from: 'src/html/src/index.js',
       to: 'src/html/index.js',
+      name: undefined,
       format: 'es',
       babel: false
     }
   ],
 
   config: {
+    name: 'Lit',
+    format: 'umd',
+
     rollup: true,
 
     babel: true,
@@ -52,6 +78,14 @@ module.exports = {
           }
         ]
       ]
+    },
+
+    on: {
+      ConfigCreated( rollup, config ){
+        if( config.name === 'Lit' && config.format === 'umd' ){
+          rollup.inputOptions.context = 'window';
+        }
+      }
     }
   }
 

@@ -1,7 +1,8 @@
-(function (factory) {
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  factory();
-}(function () { 'use strict';
+  (global = global || self, global.Lit = factory());
+}(this, function () { 'use strict';
 
   function Lit() {}
 
@@ -42,5 +43,7 @@
 
     customElements.define(name, LitElement);
   };
+
+  return Lit;
 
 }));
