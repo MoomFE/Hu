@@ -1,5 +1,6 @@
 import Lit from "../../shared/global/Lit/index";
 import initOptions from "./initOptions/index";
+import init from "./init/index";
 
 
 Lit.define = function( name, options ){
@@ -12,8 +13,8 @@ Lit.define = function( name, options ){
 
     constructor(){
       super();
-
-      console.log('constructor');
+      
+      this.$lit = init( this, options );
 
       // this.$lit = new Proxy({}, {
 
