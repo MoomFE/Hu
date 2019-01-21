@@ -2,17 +2,28 @@
   "folders": [
     {
       "path": "."
+    },
+    {
+      "path": "test"
+    },
+    {
+      "path": "dist"
+    },
+    {
+      "path": "src"
     }
   ],
   "settings": {
     "files.exclude": {
       ".gitignore": true,
+      "dist": true,
       "jsconfig.json": true,
       "LICENSE": true,
       "Lit.code-workspace": true,
       "node_modules": true,
       "package-lock.json": true,
-      "polymer.json": true,
+      "src": true,
+      "test": true,
       "tsconfig.json": true,
       "typings": true
     },

@@ -14,16 +14,14 @@
     const LitElement = class Lit$$1 extends HTMLElement {
       constructor() {
         super();
-        console.log('constructor');
-        this.$lit = new Proxy({}, {});
-        this.$lit.$el = this.attachShadow({
-          mode: 'open'
-        });
-        this.$lit.$root = this;
-        this.$lit.$data = {};
-        this.$lit.$props = {};
-        this.$lit.$methods = {};
-        this.$lit.$computed = {};
+        console.log('constructor'); // this.$lit = new Proxy({}, {
+        // });
+        // this.$lit.$el = this.attachShadow({ mode: 'open' });
+        // this.$lit.$root = this;
+        // this.$lit.$data = {};
+        // this.$lit.$props = {};
+        // this.$lit.$methods = {};
+        // this.$lit.$computed = {};
       }
 
       attributeChangedCallback(name, value, oldValue) {}
