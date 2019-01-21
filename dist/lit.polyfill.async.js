@@ -4,6 +4,10 @@
   (global = global || self, global.Lit = factory());
 }(this, function () { 'use strict';
 
+  window.WebComponents = {
+    root: 'https://unpkg.com/@webcomponents/webcomponentsjs@%5E2/'
+  };
+
   /**
    * @license
    * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
