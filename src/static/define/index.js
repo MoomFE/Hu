@@ -1,7 +1,11 @@
 import Lit from "../../shared/global/Lit/index";
+import initOptions from "./initOptions/index";
 
 
 Lit.define = function( name, options ){
+
+  // 初始化组件属性
+  options = initOptions( options );
 
   // 创建组件
   const LitElement = class Lit extends HTMLElement{
