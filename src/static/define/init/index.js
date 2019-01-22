@@ -1,14 +1,8 @@
-import create from "../../../shared/global/Object/create";
+import initProps from "./initProps";
 
 
 export default function init( root, options ){
-  const target = create( null );
+  const target = {};
 
   initProps( root, options, target );
-}
-
-function initProps( root, options, target ){
-  const $props = create( null );
-
-
 }

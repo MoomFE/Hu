@@ -3,7 +3,12 @@ import initOptions from "./initOptions/index";
 import init from "./init/index";
 
 
-Lit.define = function( name, options ){
+/**
+ * 定义自定义标签
+ * @param {string} name 标签名
+ * @param {{}} options 组件属性
+ */
+export default function define( name, options ){
 
   // 初始化组件属性
   options = initOptions( options );
@@ -49,3 +54,5 @@ Lit.define = function( name, options ){
   // 注册组件
   customElements.define( name, LitElement );
 }
+
+Lit.define = define;

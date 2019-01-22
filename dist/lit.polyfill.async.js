@@ -209,57 +209,74 @@
     window.Lit = Lit;
   }
 
-  const create = Object.create;
-
   const isArray = Array.isArray;
 
   /**
-   * 传入一个键值对的列表, 并返回一个带有这些键值对的新对象 ( 是 Object.entries 的反转 )
-   * Object.fromEntries polyfill
-   * 
-   * From @moomfe/zenjs
+   * 初始化组件 props 属性
+   * @param {{}} userOptions 用户传入的组件属性
+   * @param {{}} options 格式化后的组件属性
    */
-  function fromEntries(iterable) {
-    const result = {};
-    const newIterable = Array.from(iterable);
-    let item;
-    let index = newIterable.length;
 
-    while (index--) {
-      item = newIterable[index];
+  function initProps(userOptions, options) {
+    /** 格式化后的 props 属性 */
+    const props = options.props = {};
+    /** 用户传入的 props 属性 */
 
-      if (item && item.length) {
-        result[item[0]] = item[1];
-      }
-    }
+    const userProps = userOptions.props;
+    /** 用户传入的 props 属性是否是数组 */
 
-    return result;
-  }
-
-  function initOptions(_options) {
-    const options = create(null);
-    initProps(_options, options);
-  }
-
-  function initProps(_options, options) {
-    let props = _options.props;
     let propsIsArray = false; // 去除不合法参数
 
-    if (props == null && !(propsIsArray = isArray(props))) {
+    if (userProps == null || !(propsIsArray = isArray(userProps))) {
       return;
     } // 格式化数组参数
 
 
     if (propsIsArray) {
-      if (!props.length) return;
-      props = fromEntries(props.map(prop => [prop, {}]));
+      if (!userProps.length) return;
+
+      for (let name of userProps) {
+        props[name] = {};
+      }
+    }
+  }
+
+  /**
+   * 初始化组件属性
+   * @param {{}} userOptions 用户传入的组件属性
+   */
+
+  function initOptions(userOptions) {
+    /** 格式化后的组件属性 */
+    const options = {};
+    initProps(userOptions, options);
+    return options;
+  }
+
+  const create = Object.create;
+
+  function initProps$1(root, options, target) {
+    const $props = target.$props = create(null);
+    const props = options.props;
+
+    for (let name in props) {
+      let item = props[name];
+      console.log(name, options);
     }
   }
 
   function init(root, options) {
+    const target = {};
+    initProps$1(root, options, target);
   }
 
-  Lit.define = function (name, options) {
+  /**
+   * 定义自定义标签
+   * @param {string} name 标签名
+   * @param {{}} options 组件属性
+   */
+
+  function define(name, options) {
     // 初始化组件属性
     options = initOptions(options); // 创建组件
 
@@ -293,7 +310,8 @@
     }; // 注册组件
 
     customElements.define(name, LitElement);
-  };
+  }
+  Lit.define = define;
 
   return Lit;
 
