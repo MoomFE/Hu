@@ -16,8 +16,10 @@ export default function initProps( root, options, target ){
   each( props, ( name, options ) => {
     let value = root.getAttribute( name );
 
-    if( value !== void 0 ){
+    if( value !== null ){
       propsTarget[ name ] = value;
+    }else{
+      propsTarget[ name ] = undefined;
     }
   });
 

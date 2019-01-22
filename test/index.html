@@ -5,7 +5,9 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./Lib/mocha.css" />
+  <script src="./Lib/zen.fat.js"></script>
   <script src="./Lib/mocha.js"></script>
+  <script src="./Lib/chai.js"></script>
   <script src="../dist/lit.js"></script>
 </head>
 <body>
@@ -13,6 +15,12 @@
 
   <script>
     mocha.setup('bdd');
+    window.expect = chai.expect;
+    window.should = chai.should();
+
+    window.should.has = function( obj, name ){
+      return Object.prototype.hasOwnProperty.call( obj, name ).should.true;
+    }
   </script>
   <script src="./Lit/define.props.test.js"></script>
   <script>

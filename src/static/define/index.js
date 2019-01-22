@@ -18,7 +18,7 @@ export default function define( name, options ){
 
     constructor(){
       super();
-      
+
       this.$lit = init( this, options );
 
       // this.$lit = new Proxy({}, {

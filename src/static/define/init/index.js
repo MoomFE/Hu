@@ -11,4 +11,8 @@ export default function init( root, options ){
   const target = {};
 
   initProps( root, options, target );
+
+  return new Proxy( target, {
+
+  });
 }

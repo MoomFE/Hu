@@ -71,8 +71,10 @@
     each(props, (name, options) => {
       let value = root.getAttribute(name);
 
-      if (value !== void 0) {
+      if (value !== null) {
         propsTarget[name] = value;
+      } else {
+        propsTarget[name] = undefined;
       }
     });
     target.$props = new Proxy(propsTarget, {});
@@ -88,6 +90,7 @@
     /** 当前组件对象 */
     const target = {};
     initProps$1(root, options, target);
+    return new Proxy(target, {});
   }
 
   /**
