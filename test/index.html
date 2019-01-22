@@ -15,12 +15,15 @@
 
   <script>
     mocha.setup('bdd');
+
     window.expect = chai.expect;
     window.should = chai.should();
 
     window.should.has = function( obj, name ){
       return Object.prototype.hasOwnProperty.call( obj, name ).should.true;
     }
+
+    ZenJS.defineGet( window, 'customName', () => `custom-element-${ ZenJS.guid }` );
   </script>
   <script src="./Lit/define.props.test.js"></script>
   <script>
