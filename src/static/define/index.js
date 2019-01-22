@@ -6,11 +6,11 @@ import init from "./init/index";
 /**
  * 定义自定义标签
  * @param {string} name 标签名
- * @param {{}} options 组件属性
+ * @param {{}} options 组件配置
  */
 export default function define( name, options ){
 
-  // 初始化组件属性
+  // 初始化组件配置
   options = initOptions( options );
 
   // 创建组件

@@ -2,17 +2,17 @@ import isArray from "../../../shared/global/Array/inArray";
 
 
 /**
- * 初始化组件 props 属性
- * @param {{}} userOptions 用户传入的组件属性
- * @param {{}} options 格式化后的组件属性
+ * 初始化组件 props 配置
+ * @param {{}} userOptions 用户传入的组件配置
+ * @param {{}} options 格式化后的组件配置
  */
 export default function initProps( userOptions, options ){
 
-  /** 格式化后的 props 属性 */
+  /** 格式化后的 props 配置 */
   const props = options.props = {};
-  /** 用户传入的 props 属性 */
+  /** 用户传入的 props 配置 */
   const userProps = userOptions.props;
-  /** 用户传入的 props 属性是否是数组 */
+  /** 用户传入的 props 配置是否是数组 */
   let propsIsArray = false;
 
 

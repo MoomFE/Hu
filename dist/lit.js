@@ -13,18 +13,18 @@
   const isArray = Array.isArray;
 
   /**
-   * 初始化组件 props 属性
-   * @param {{}} userOptions 用户传入的组件属性
-   * @param {{}} options 格式化后的组件属性
+   * 初始化组件 props 配置
+   * @param {{}} userOptions 用户传入的组件配置
+   * @param {{}} options 格式化后的组件配置
    */
 
   function initProps(userOptions, options) {
-    /** 格式化后的 props 属性 */
+    /** 格式化后的 props 配置 */
     const props = options.props = {};
-    /** 用户传入的 props 属性 */
+    /** 用户传入的 props 配置 */
 
     const userProps = userOptions.props;
-    /** 用户传入的 props 属性是否是数组 */
+    /** 用户传入的 props 配置是否是数组 */
 
     let propsIsArray = false; // 去除不合法参数
 
@@ -43,30 +43,49 @@
   }
 
   /**
-   * 初始化组件属性
-   * @param {{}} userOptions 用户传入的组件属性
+   * 初始化组件配置
+   * @param {{}} userOptions 用户传入的组件配置
    */
 
   function initOptions(userOptions) {
-    /** 格式化后的组件属性 */
+    /** 格式化后的组件配置 */
     const options = {};
     initProps(userOptions, options);
     return options;
   }
 
-  const create = Object.create;
-
-  function initProps$1(root, options, target) {
-    const $props = target.$props = create(null);
-    const props = options.props;
-
-    for (let name in props) {
-      let item = props[name];
-      console.log(name, options);
-    }
+  function each(obj, cb) {
+    for (let name in obj) cb(name, obj[name]);
   }
 
+  /**
+   * 初始化当前组件 props 属性
+   * @param {HTMLElement} root 
+   * @param {{}} options 
+   * @param {{}} target 
+   */
+
+  function initProps$1(root, options, target) {
+    const props = options.props;
+    const propsTarget = {};
+    each(props, (name, options) => {
+      let value = root.getAttribute(name);
+
+      if (value !== void 0) {
+        propsTarget[name] = value;
+      }
+    });
+    target.$props = new Proxy(propsTarget, {});
+  }
+
+  /**
+   * 初始化当前组件属性
+   * @param {HTMLElement} root 组件根节点
+   * @param {{}} options 组件配置
+   */
+
   function init(root, options) {
+    /** 当前组件对象 */
     const target = {};
     initProps$1(root, options, target);
   }
@@ -74,11 +93,11 @@
   /**
    * 定义自定义标签
    * @param {string} name 标签名
-   * @param {{}} options 组件属性
+   * @param {{}} options 组件配置
    */
 
   function define(name, options) {
-    // 初始化组件属性
+    // 初始化组件配置
     options = initOptions(options); // 创建组件
 
     const LitElement = class Lit$$1 extends HTMLElement {
