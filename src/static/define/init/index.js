@@ -9,10 +9,11 @@ import initProps from "./initProps";
 export default function init( root, options ){
   /** 当前组件对象 */
   const target = {};
-
-  initProps( root, options, target );
-
-  return new Proxy( target, {
+  const targetProxy = new Proxy( target, {
 
   });
+
+  initProps( root, options, target, targetProxy );
+
+  return targetProxy
 }

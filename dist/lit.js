@@ -12,6 +12,18 @@
 
   const isArray = Array.isArray;
 
+  var isPlainObject = (obj => Object.prototype.toString.call(obj) === '[object Object]');
+
+  var each = ((obj, cb) => {
+    for (let name in obj) {
+      cb(name, obj[name]);
+    }
+  });
+
+  var isFunction = (obj => typeof obj === 'function');
+
+  var fromBooleanAttribute = (value => value !== null);
+
   /**
    * 初始化组件 props 配置
    * @param {{}} userOptions 用户传入的组件配置
@@ -28,7 +40,7 @@
 
     let propsIsArray = false; // 去除不合法参数
 
-    if (userProps == null || !(propsIsArray = isArray(userProps))) {
+    if (userProps == null || !((propsIsArray = isArray(userProps)) || isPlainObject(userProps))) {
       return;
     } // 格式化数组参数
 
@@ -39,7 +51,72 @@
       for (let name of userProps) {
         props[name] = {};
       }
+    } // 格式化 JSON 参数
+    else {
+        each(userProps, (name, userProp) => {
+          props[name] = userProp ? initProp(userProp, {}) : {};
+        });
+      }
+  }
+
+  function initProp(prop, options) {
+    // 单纯设置变量类型
+    if (isFunction(prop)) {
+      options.from = prop;
+    } // 高级用法
+    else {
+        // 变量类型
+        if (props.type != null) {
+          const type = prop.type; // String || Number || Boolean || function( value ){ return value };
+
+          if (isFunction(type)) {
+            options.from = type;
+          } // {
+          //   from(){}
+          //   to(){}
+          // }
+          else if (isPlainObject(type)) {
+              if (isFunction(type.from)) options.from = type.from;
+              if (isFunction(type.to)) options.to = type.to;
+            }
+        } // 默认值
+
+
+        if ('default' in prop) {
+          if (typeof prop.default !== 'object') {
+            options.default = prop.default;
+          }
+        }
+      }
+    /* ↓ ↓ ↓ ↓ ↓ ↓ 这个特性再考虑下 ↓ ↓ ↓ ↓ ↓ ↓ */
+    // // 当显式的设定了类型后, 比如: ( String || Number || Boolean )
+    // // 对没有默认值的类型定义一个初始值
+    // if( options.from && !( 'default' in options ) ){
+    //   switch( options.from ){
+    //     case String: {
+    //       options.default = '';
+    //       break;
+    //     }
+    //     case Number: {
+    //       options.default = 0;
+    //       break;
+    //     }
+    //     case Boolean: {
+    //       options.default = false;
+    //       break;
+    //     }
+    //   }
+    // }
+
+    /* ↑ ↑ ↑ ↑ ↑ ↑ 不过应该不会被通过 ↑ ↑ ↑ ↑ ↑ ↑ */
+    // 如果传入值是 Boolean 类型, 则需要另外处理
+
+
+    if (options.from === Boolean) {
+      options.from = fromBooleanAttribute;
     }
+
+    return options;
   }
 
   /**
@@ -54,9 +131,7 @@
     return options;
   }
 
-  function each(obj, cb) {
-    for (let name in obj) cb(name, obj[name]);
-  }
+  var returnArg = (value => value);
 
   /**
    * 初始化当前组件 props 属性
@@ -65,17 +140,18 @@
    * @param {{}} target 
    */
 
-  function initProps$1(root, options, target) {
+  function initProps$1(root, options, target, targetProxy) {
     const props = options.props;
     const propsTarget = {};
     each(props, (name, options) => {
-      let value = root.getAttribute(name);
+      let value = root.getAttribute(name); // 定义了该属性
 
       if (value !== null) {
-        propsTarget[name] = value;
-      } else {
-        propsTarget[name] = undefined;
-      }
+        propsTarget[name] = (options.from || returnArg)(value);
+      } // 使用默认值
+      else {
+          propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
+        }
     });
     target.$props = new Proxy(propsTarget, {});
   }
@@ -89,8 +165,9 @@
   function init(root, options) {
     /** 当前组件对象 */
     const target = {};
-    initProps$1(root, options, target);
-    return new Proxy(target, {});
+    const targetProxy = new Proxy(target, {});
+    initProps$1(root, options, target, targetProxy);
+    return targetProxy;
   }
 
   /**

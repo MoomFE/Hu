@@ -1,4 +1,6 @@
 import each from "../../../shared/util/each";
+import isFunction from "../../../shared/util/isFunction";
+import returnArg from "../../../shared/util/returnArg";
 
 
 /**
@@ -7,7 +9,7 @@ import each from "../../../shared/util/each";
  * @param {{}} options 
  * @param {{}} target 
  */
-export default function initProps( root, options, target ){
+export default function initProps( root, options, target, targetProxy ){
 
   const props = options.props;
   const propsTarget = {};
@@ -16,10 +18,15 @@ export default function initProps( root, options, target ){
   each( props, ( name, options ) => {
     let value = root.getAttribute( name );
 
+    // 定义了该属性
     if( value !== null ){
-      propsTarget[ name ] = value;
-    }else{
-      propsTarget[ name ] = undefined;
+      propsTarget[ name ] = ( options.from || returnArg )( value );
+    }
+    // 使用默认值
+    else{
+      propsTarget[ name ] = isFunction( options.default )
+                              ? options.default.call( targetProxy )
+                              : options.default;
     }
   });
 
