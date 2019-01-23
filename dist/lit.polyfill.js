@@ -5907,7 +5907,7 @@
     } // 高级用法
     else {
         // 变量类型
-        if (props.type != null) {
+        if (prop.type != null) {
           const type = prop.type; // String || Number || Boolean || function( value ){ return value };
 
           if (isFunction(type)) {
@@ -5928,29 +5928,7 @@
             options.default = prop.default;
           }
         }
-      }
-    /* ↓ ↓ ↓ ↓ ↓ ↓ 这个特性再考虑下 ↓ ↓ ↓ ↓ ↓ ↓ */
-    // // 当显式的设定了类型后, 比如: ( String || Number || Boolean )
-    // // 对没有默认值的类型定义一个初始值
-    // if( options.from && !( 'default' in options ) ){
-    //   switch( options.from ){
-    //     case String: {
-    //       options.default = '';
-    //       break;
-    //     }
-    //     case Number: {
-    //       options.default = 0;
-    //       break;
-    //     }
-    //     case Boolean: {
-    //       options.default = false;
-    //       break;
-    //     }
-    //   }
-    // }
-
-    /* ↑ ↑ ↑ ↑ ↑ ↑ 不过应该不会被通过 ↑ ↑ ↑ ↑ ↑ ↑ */
-    // 如果传入值是 Boolean 类型, 则需要另外处理
+      } // 如果传入值是 Boolean 类型, 则需要另外处理
 
 
     if (options.from === Boolean) {
