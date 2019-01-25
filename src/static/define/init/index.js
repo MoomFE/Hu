@@ -1,3 +1,4 @@
+import create from "../../../shared/global/Object/create";
 import initProps from "./initProps";
 
 
@@ -8,16 +9,21 @@ import initProps from "./initProps";
  */
 export default function init( root, options ){
   /** 当前组件对象 */
-  const target = {};
+  const target = create( null );
   /** 当前组件代理对象 */
   const targetProxy = new Proxy( target, {
-    
+    set( target, name, value ){
+      if( name[0] === '$' ) return false;
+
+      target[ name ] = value;
+      return true;
+    }
   });
 
-  target.$el = this.attachShadow({ mode: 'open' });
-  target.$root = this;
+  target.$el = root.attachShadow({ mode: 'open' });
+  target.$root = root;
 
   initProps( root, options, target, targetProxy );
 
-  return targetProxy
+  return targetProxy;
 }

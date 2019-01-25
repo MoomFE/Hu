@@ -1,3 +1,4 @@
+import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
@@ -12,7 +13,7 @@ import returnArg from "../../../shared/util/returnArg";
 export default function initProps( root, options, target, targetProxy ){
 
   const props = options.props;
-  const propsTarget = {};
+  const propsTarget = create( null );
 
 
   each( props, ( name, options ) => {
@@ -31,6 +32,8 @@ export default function initProps( root, options, target, targetProxy ){
   });
 
   target.$props = new Proxy( propsTarget, {
-
+    set( target, name, value ){
+      if( name in target ) target[ name ] = value;
+    }
   });
 }
