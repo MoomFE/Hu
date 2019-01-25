@@ -419,4 +419,98 @@ describe( 'Lit.define - props', () => {
 
   });
 
+  describe( '创建时定义 prop 的默认值', () => {
+
+    it( '默认值是非引用类型', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a: {
+            default: '123'
+          },
+          b: {
+            default: 123
+          },
+          c: {
+            default: false
+          },
+          d: {
+            default: true
+          },
+          e: {
+            default: null
+          }
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit.$props, 'a' );
+      should.has( lit.$props, 'b' );
+      should.has( lit.$props, 'c' );
+      should.has( lit.$props, 'd' );
+      should.has( lit.$props, 'e' );
+
+      should.equal( lit.$props.a, '123' );
+      should.equal( lit.$props.b, 123 );
+      should.equal( lit.$props.c, false );
+      should.equal( lit.$props.d, true );
+      should.equal( lit.$props.e, null );
+    });
+
+    it( '默认值是引用类型', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a: {
+            default: [ 1, 2, 3 ]
+          },
+          b: {
+            default: { a: 1, b: 2, c: 3 }
+          },
+          c: {
+            default: /RegExp/
+          },
+          d: {
+            default: () => [ 1, 2, 3 ]
+          },
+          e: {
+            default: () => ({ a: 1, b: 2, c: 3 })
+          },
+          f: {
+            default: () => /RegExp/
+          },
+          g: {
+            default: () => ZenJS.noop
+          }
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit.$props, 'a' );
+      should.has( lit.$props, 'b' );
+      should.has( lit.$props, 'c' );
+      should.has( lit.$props, 'd' );
+      should.has( lit.$props, 'e' );
+      should.has( lit.$props, 'f' );
+      should.has( lit.$props, 'g' );
+
+      Object.$equals( lit.$props.a, undefined ).should.true;
+      Object.$equals( lit.$props.b, undefined ).should.true;
+      Object.$equals( lit.$props.c, undefined ).should.true;
+      Object.$equals( lit.$props.d, [ 1, 2, 3 ] ).should.true;
+      Object.$equals( lit.$props.e, { a: 1, b: 2, c: 3 } ).should.true;
+      Object.$equals( lit.$props.f, /RegExp/ ).should.true;
+      Object.$equals( lit.$props.g, ZenJS.noop ).should.true;
+    });
+
+  });
+
 });
