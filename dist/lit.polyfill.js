@@ -5865,6 +5865,8 @@
 
   var fromBooleanAttribute = (value => value !== null);
 
+  var isObject = (value => value !== null && typeof value === 'object');
+
   /**
    * 初始化组件 props 配置
    * @param {{}} userOptions 用户传入的组件配置
@@ -5924,8 +5926,10 @@
 
 
         if ('default' in prop) {
-          if (typeof prop.default !== 'object') {
-            options.default = prop.default;
+          const $default = prop.default;
+
+          if (isFunction($default) || !isObject($default)) {
+            options.default = $default;
           }
         }
       } // 如果传入值是 Boolean 类型, 则需要另外处理
@@ -5950,6 +5954,8 @@
     return options;
   }
 
+  const create = Object.create;
+
   var returnArg = (value => value);
 
   /**
@@ -5961,7 +5967,7 @@
 
   function initProps$1(root, options, target, targetProxy) {
     const props = options.props;
-    const propsTarget = {};
+    const propsTarget = create(null);
     each(props, (name, options) => {
       let value = root.getAttribute(name); // 定义了该属性
 
@@ -5972,7 +5978,12 @@
           propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
         }
     });
-    target.$props = new Proxy(propsTarget, {});
+    target.$props = new Proxy(propsTarget, {
+      set(target, name, value) {
+        if (name in target) target[name] = value;
+      }
+
+    });
   }
 
   /**
@@ -5983,14 +5994,21 @@
 
   function init(root, options) {
     /** 当前组件对象 */
-    const target = {};
+    const target = create(null);
     /** 当前组件代理对象 */
 
-    const targetProxy = new Proxy(target, {});
-    target.$el = this.attachShadow({
+    const targetProxy = new Proxy(target, {
+      set(target, name, value) {
+        if (name[0] === '$') return false;
+        target[name] = value;
+        return true;
+      }
+
+    });
+    target.$el = root.attachShadow({
       mode: 'open'
     });
-    target.$root = this;
+    target.$root = root;
     initProps$1(root, options, target, targetProxy);
     return targetProxy;
   }

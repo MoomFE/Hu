@@ -511,6 +511,82 @@ describe( 'Lit.define - props', () => {
       Object.$equals( lit.$props.g, ZenJS.noop ).should.true;
     });
 
+    it( '确保在已传入值时, 默认值不起作用', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a1:  { default: 'a1', type: String },
+          a2:  { default: 'a2', type: String },
+          a3:  { default: 'a3', type: String },
+          a4:  { default: 'a4', type: Boolean },
+          a5:  { default: 'a5', type: Boolean },
+          a6:  { default: 'a6', type: Boolean },
+          a7:  { default: 'a7', type: Number },
+          a8:  { default: 'a8', type: Number },
+          a9:  { default: 'a9', type: Number },
+          b1:  { default: 'c1', type: String },
+          b2:  { default: 'c2', type: String },
+          b3:  { default: 'c3', type: String },
+          b4:  { default: 'c4', type: Boolean },
+          b5:  { default: 'c5', type: Boolean },
+          b6:  { default: 'c6', type: Boolean },
+          b7:  { default: 'c7', type: Number },
+          b8:  { default: 'c8', type: Number },
+          b9:  { default: 'c9', type: Number }
+        }
+      });
+
+      const div = document.createElement('div').$html(`
+        <${ customName }
+          a1 a2="" a3="b3"
+          a4 a5="" a6="b5"
+          a7 a8="" a9="9"
+        >
+        </${ customName }>
+      `);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit.$props, 'a1' );
+      should.has( lit.$props, 'a2' );
+      should.has( lit.$props, 'a3' );
+      should.has( lit.$props, 'a4' );
+      should.has( lit.$props, 'a5' );
+      should.has( lit.$props, 'a6' );
+      should.has( lit.$props, 'a7' );
+      should.has( lit.$props, 'a8' );
+      should.has( lit.$props, 'a9' );
+      should.has( lit.$props, 'b1' );
+      should.has( lit.$props, 'b2' );
+      should.has( lit.$props, 'b3' );
+      should.has( lit.$props, 'b4' );
+      should.has( lit.$props, 'b5' );
+      should.has( lit.$props, 'b6' );
+      should.has( lit.$props, 'b7' );
+      should.has( lit.$props, 'b8' );
+      should.has( lit.$props, 'b9' );
+
+      should.equal( lit.$props.a1, '' );
+      should.equal( lit.$props.a2, '' );
+      should.equal( lit.$props.a3, 'b3' );
+      should.equal( lit.$props.a4, true );
+      should.equal( lit.$props.a5, true );
+      should.equal( lit.$props.a6, true );
+      should.equal( lit.$props.a7, 0 );
+      should.equal( lit.$props.a8, 0 );
+      should.equal( lit.$props.a9, 9 );
+      should.equal( lit.$props.b1, 'c1' );
+      should.equal( lit.$props.b2, 'c2' );
+      should.equal( lit.$props.b3, 'c3' );
+      should.equal( lit.$props.b4, 'c4' );
+      should.equal( lit.$props.b5, 'c5' );
+      should.equal( lit.$props.b6, 'c6' );
+      should.equal( lit.$props.b7, 'c7' );
+      should.equal( lit.$props.b8, 'c8' );
+      should.equal( lit.$props.b9, 'c9' );
+    });
+
   });
 
 });
