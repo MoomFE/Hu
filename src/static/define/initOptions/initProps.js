@@ -3,6 +3,7 @@ import isPlainObject from "../../../shared/util/isPlainObject";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import fromBooleanAttribute from "../../../shared/util/fromBooleanAttribute";
+import isObject from "../../../shared/util/isObject";
 
 
 /**
@@ -70,8 +71,10 @@ function initProp( prop, options ){
     }
     // 默认值
     if( 'default' in prop ){
-      if( typeof prop.default !== 'object' ){
-        options.default = prop.default;
+      const $default = prop.default;
+
+      if( isFunction( $default ) || !isObject( $default ) ){
+        options.default = $default;
       }
     }
   }
