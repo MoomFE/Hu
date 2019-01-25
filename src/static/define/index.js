@@ -20,17 +20,6 @@ export default function define( name, options ){
       super();
 
       this.$lit = init( this, options );
-
-      // this.$lit = new Proxy({}, {
-
-      // });
-
-      // this.$lit.$el = this.attachShadow({ mode: 'open' });
-      // this.$lit.$root = this;
-      // this.$lit.$data = {};
-      // this.$lit.$props = {};
-      // this.$lit.$methods = {};
-      // this.$lit.$computed = {};
     }
 
     attributeChangedCallback( name, value, oldValue ){

@@ -9,9 +9,13 @@ import initProps from "./initProps";
 export default function init( root, options ){
   /** 当前组件对象 */
   const target = {};
+  /** 当前组件代理对象 */
   const targetProxy = new Proxy( target, {
-
+    
   });
+
+  target.$el = this.attachShadow({ mode: 'open' });
+  target.$root = this;
 
   initProps( root, options, target, targetProxy );
 

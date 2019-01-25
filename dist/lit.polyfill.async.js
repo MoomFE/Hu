@@ -342,7 +342,13 @@
   function init(root, options) {
     /** 当前组件对象 */
     const target = {};
+    /** 当前组件代理对象 */
+
     const targetProxy = new Proxy(target, {});
+    target.$el = this.attachShadow({
+      mode: 'open'
+    });
+    target.$root = this;
     initProps$1(root, options, target, targetProxy);
     return targetProxy;
   }
@@ -360,14 +366,7 @@
     const LitElement = class Lit$$1 extends HTMLElement {
       constructor() {
         super();
-        this.$lit = init(this, options); // this.$lit = new Proxy({}, {
-        // });
-        // this.$lit.$el = this.attachShadow({ mode: 'open' });
-        // this.$lit.$root = this;
-        // this.$lit.$data = {};
-        // this.$lit.$props = {};
-        // this.$lit.$methods = {};
-        // this.$lit.$computed = {};
+        this.$lit = init(this, options);
       }
 
       attributeChangedCallback(name, value, oldValue) {}
