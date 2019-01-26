@@ -4,6 +4,8 @@ import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import fromBooleanAttribute from "../../../shared/util/fromBooleanAttribute";
 import isObject from "../../../shared/util/isObject";
+import rHyphenate from "../../../shared/const/rHyphenate";
+import isSymbol from "../../../shared/util/isSymbol";
 
 
 /**
@@ -30,21 +32,24 @@ export default function initProps( userOptions, options ){
     if( !userProps.length ) return;
 
     for( let name of userProps ){
-      props[ name ] = {}
+      props[ name ] = initAttribute( name, null, {} );
     }
   }
   // 格式化 JSON 参数
   else{
     each( userProps, ( name, userProp ) => {
-      props[ name ] = userProp ? initProp( userProp, {} )
-                               : {}
+      props[ name ] = userProp ? initProp( name, userProp, {} )
+                               : initAttribute( name, null, {} );
     });
   }
 
 }
 
 
-function initProp( prop, options ){
+function initProp( name, prop, options ){
+
+  // 设置 options.attr
+  initAttribute( name, prop, options );
 
   // 单纯设置变量类型
   if( isFunction( prop ) ){
@@ -84,5 +89,14 @@ function initProp( prop, options ){
     options.from = fromBooleanAttribute;
   }
 
+  return options;
+}
+
+function initAttribute( name, prop, options ){
+  options.attr = prop && prop.attr
+                  ? prop.attr
+                  : isSymbol( name )
+                    ? null
+                    : name.replace( rHyphenate, '-$1' ).toLowerCase();
   return options;
 }

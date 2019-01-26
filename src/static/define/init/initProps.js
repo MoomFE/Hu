@@ -28,7 +28,7 @@ export default function initProps( root, options, target, targetProxy ){
     let value = null;
 
     if( !isSymbol( name ) ){
-      value = root.getAttribute( name );
+      value = root.getAttribute( options.attr );
     }
 
     // 定义了该属性

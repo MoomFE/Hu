@@ -227,6 +227,10 @@
 
   var isObject = (value => value !== null && typeof value === 'object');
 
+  var rHyphenate = /\B([A-Z])/g;
+
+  var isSymbol = (value => typeof value === 'symbol');
+
   /**
    * 初始化组件 props 配置
    * @param {{}} userOptions 用户传入的组件配置
@@ -252,18 +256,20 @@
       if (!userProps.length) return;
 
       for (let name of userProps) {
-        props[name] = {};
+        props[name] = initAttribute(name, null, {});
       }
     } // 格式化 JSON 参数
     else {
         each(userProps, (name, userProp) => {
-          props[name] = userProp ? initProp(userProp, {}) : {};
+          props[name] = userProp ? initProp(name, userProp, {}) : initAttribute(name, null, {});
         });
       }
   }
 
-  function initProp(prop, options) {
-    // 单纯设置变量类型
+  function initProp(name, prop, options) {
+    // 设置 options.attr
+    initAttribute(name, prop, options); // 单纯设置变量类型
+
     if (isFunction(prop)) {
       options.from = prop;
     } // 高级用法
@@ -302,6 +308,11 @@
     return options;
   }
 
+  function initAttribute(name, prop, options) {
+    options.attr = prop && prop.attr ? prop.attr : isSymbol(name) ? null : name.replace(rHyphenate, '-$1').toLowerCase();
+    return options;
+  }
+
   /**
    * 初始化组件配置
    * @param {{}} userOptions 用户传入的组件配置
@@ -331,8 +342,6 @@
 
   const defineProperty = Object.defineProperty;
 
-  var isSymbol = (value => typeof value === 'symbol');
-
   /**
    * 初始化当前组件 props 属性
    * @param {HTMLElement} root 
@@ -354,7 +363,7 @@
       let value = null;
 
       if (!isSymbol(name)) {
-        value = root.getAttribute(name);
+        value = root.getAttribute(options.attr);
       } // 定义了该属性
 
 
