@@ -735,4 +735,35 @@ describe( 'Lit.define - props', () => {
 
   });
 
+  describe( '使用 JSON 定义 props 时支持传入 Symbol 类型的 prop', () => {
+    
+    it( '使用默认值给 Symbol 类型的 prop 赋值', () => {
+      const customName = window.customName;
+      const a = Symbol('a');
+      const b = Symbol('b');
+      const props = {};
+            props[ a ] = { default: 1 };
+            props[ b ] = { default: 2 };
+
+      Lit.define( customName, {
+        props
+      });
+
+      const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit, a );
+      should.has( lit, b );
+      should.has( lit.$props, a );
+      should.has( lit.$props, b );
+
+      should.equal( lit[ a ], 1 );
+      should.equal( lit[ b ], 2 );
+      should.equal( lit.$props[ a ], 1 );
+      should.equal( lit.$props[ b ], 2 );
+    });
+
+  });
+
 });

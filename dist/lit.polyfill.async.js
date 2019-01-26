@@ -214,8 +214,10 @@
   var isPlainObject = (obj => Object.prototype.toString.call(obj) === '[object Object]');
 
   var each = ((obj, cb) => {
-    for (let name in obj) {
-      cb(name, obj[name]);
+    const keys = Reflect.ownKeys(obj);
+
+    for (let key of keys) {
+      cb(key, obj[key]);
     }
   });
 
@@ -329,6 +331,8 @@
 
   const defineProperty = Object.defineProperty;
 
+  var isSymbol = (value => typeof value === 'symbol');
+
   /**
    * 初始化当前组件 props 属性
    * @param {HTMLElement} root 
@@ -347,7 +351,12 @@
     }); // 尝试从标签上获取 props 属性, 否则取默认值
 
     each(props, (name, options) => {
-      let value = root.getAttribute(name); // 定义了该属性
+      let value = null;
+
+      if (!isSymbol(name)) {
+        value = root.getAttribute(name);
+      } // 定义了该属性
+
 
       if (value !== null) {
         propsTarget[name] = (options.from || returnArg)(value);
@@ -358,7 +367,7 @@
     }); // 将 $props 上的属性在 $lit 上建立引用
 
     each(props, name => {
-      if (isReserved(name)) return;
+      if (!(isSymbol(name) || !isReserved(name))) return;
       defineProperty(target, name, {
         enumerable: true,
         configurable: true,

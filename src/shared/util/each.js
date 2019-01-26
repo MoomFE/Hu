@@ -1,5 +1,7 @@
 export default ( obj, cb ) => {
-  for( let name in obj ){
-    cb( name, obj[ name ] );
+  const keys = Reflect.ownKeys( obj );
+
+  for( let key of keys ){
+    cb( key, obj[ key ] );
   }
 }
