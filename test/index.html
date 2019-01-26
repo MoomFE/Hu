@@ -22,6 +22,9 @@
     window.should.has = function( obj, name ){
       return Object.prototype.hasOwnProperty.call( obj, name ).should.true;
     }
+    window.should.notHas = function( obj, name ){
+      return Object.prototype.hasOwnProperty.call( obj, name ).should.false;
+    }
 
     ZenJS.defineGet( window, 'customName', () => `custom-element-${ ZenJS.guid }` );
   </script>

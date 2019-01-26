@@ -13,9 +13,13 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, '3' );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, '3' );
     });
@@ -34,9 +38,13 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, '3' );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, '3' );
     });
@@ -60,10 +68,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, '' );
+      should.equal( lit.c, '5' );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, '' );
       should.equal( lit.$props.c, '5' );
@@ -74,15 +88,9 @@ describe( 'Lit.define - props', () => {
   
       Lit.define( customName, {
         props: {
-          a: {
-            type: String
-          },
-          b: {
-            type: String
-          },
-          c: {
-            type: String
-          }
+          a: { type: String },
+          b: { type: String },
+          c: { type: String }
         }
       });
   
@@ -90,10 +98,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, '' );
+      should.equal( lit.c, '5' );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, '' );
       should.equal( lit.$props.c, '5' );
@@ -105,19 +119,13 @@ describe( 'Lit.define - props', () => {
       Lit.define( customName, {
         props: {
           a: {
-            type: {
-              from: String
-            }
+            type: { from: String }
           },
           b: {
-            type: {
-              from: String
-            }
+            type: { from: String }
           },
           c: {
-            type: {
-              from: String
-            }
+            type: { from: String }
           }
         }
       });
@@ -126,10 +134,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, '' );
+      should.equal( lit.c, '5' );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, '' );
       should.equal( lit.$props.c, '5' );
@@ -153,11 +167,17 @@ describe( 'Lit.define - props', () => {
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, true );
+      should.equal( lit.c, true );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, true );
       should.equal( lit.$props.c, true );
@@ -168,15 +188,9 @@ describe( 'Lit.define - props', () => {
   
       Lit.define( customName, {
         props: {
-          a: {
-            type: Boolean
-          },
-          b: {
-            type: Boolean
-          },
-          c: {
-            type: Boolean
-          }
+          a: { type: Boolean },
+          b: { type: Boolean },
+          c: { type: Boolean }
         }
       });
   
@@ -184,10 +198,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, true );
+      should.equal( lit.c, true );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, true );
       should.equal( lit.$props.c, true );
@@ -199,19 +219,13 @@ describe( 'Lit.define - props', () => {
       Lit.define( customName, {
         props: {
           a: {
-            type: {
-              from: Boolean
-            }
+            type: { from: Boolean }
           },
           b: {
-            type: {
-              from: Boolean
-            }
+            type: { from: Boolean }
           },
           c: {
-            type: {
-              from: Boolean
-            }
+            type: { from: Boolean }
           }
         }
       });
@@ -220,10 +234,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, true );
+      should.equal( lit.c, true );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, true );
       should.equal( lit.$props.c, true );
@@ -248,10 +268,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, 0 );
+      should.equal( lit.c, 5 );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, 0 );
       should.equal( lit.$props.c, 5 );
@@ -262,15 +288,9 @@ describe( 'Lit.define - props', () => {
   
       Lit.define( customName, {
         props: {
-          a: {
-            type: Number
-          },
-          b: {
-            type: Number
-          },
-          c: {
-            type: Number
-          }
+          a: { type: Number },
+          b: { type: Number },
+          c: { type: Number }
         }
       });
   
@@ -278,10 +298,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, 0 );
+      should.equal( lit.c, 5 );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, 0 );
       should.equal( lit.$props.c, 5 );
@@ -293,19 +319,13 @@ describe( 'Lit.define - props', () => {
       Lit.define( customName, {
         props: {
           a: {
-            type: {
-              from: Number
-            }
+            type: { from: Number }
           },
           b: {
-            type: {
-              from: Number
-            }
+            type: { from: Number }
           },
           c: {
-            type: {
-              from: Number
-            }
+            type: { from: Number }
           }
         }
       });
@@ -314,10 +334,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, 0 );
+      should.equal( lit.c, 5 );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, 0 );
       should.equal( lit.$props.c, 5 );
@@ -342,10 +368,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, 2 );
+      should.equal( lit.b, 3 );
+      should.equal( lit.c, 4 );
       should.equal( lit.$props.a, 2 );
       should.equal( lit.$props.b, 3 );
       should.equal( lit.$props.c, 4 );
@@ -356,15 +388,9 @@ describe( 'Lit.define - props', () => {
   
       Lit.define( customName, {
         props: {
-          a: {
-            type: value => parseInt( value ) + 1
-          },
-          b: {
-            type: value => parseInt( value ) + 2
-          },
-          c: {
-            type: value => parseInt( value ) + 3
-          }
+          a: { type: value => parseInt( value ) + 1 },
+          b: { type: value => parseInt( value ) + 2 },
+          c: { type: value => parseInt( value ) + 3 }
         }
       });
   
@@ -372,10 +398,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, 2 );
+      should.equal( lit.b, 3 );
+      should.equal( lit.c, 4 );
       should.equal( lit.$props.a, 2 );
       should.equal( lit.$props.b, 3 );
       should.equal( lit.$props.c, 4 );
@@ -387,19 +419,13 @@ describe( 'Lit.define - props', () => {
       Lit.define( customName, {
         props: {
           a: {
-            type: {
-              from: value => parseInt( value ) + 1
-            }
+            type: { from: value => parseInt( value ) + 1 }
           },
           b: {
-            type: {
-              from: value => parseInt( value ) + 2
-            }
+            type: { from: value => parseInt( value ) + 2 }
           },
           c: {
-            type: {
-              from: value => parseInt( value ) + 3
-            }
+            type: { from: value => parseInt( value ) + 3 }
           }
         }
       });
@@ -408,10 +434,16 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
   
+      should.equal( lit.a, 2 );
+      should.equal( lit.b, 3 );
+      should.equal( lit.c, 4 );
       should.equal( lit.$props.a, 2 );
       should.equal( lit.$props.b, 3 );
       should.equal( lit.$props.c, 4 );
@@ -448,12 +480,22 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
 
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
+      should.has( lit, 'd' );
+      should.has( lit, 'e' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
       should.has( lit.$props, 'd' );
       should.has( lit.$props, 'e' );
 
+      should.equal( lit.a, '123' );
+      should.equal( lit.b, 123 );
+      should.equal( lit.c, false );
+      should.equal( lit.d, true );
+      should.equal( lit.e, null );
       should.equal( lit.$props.a, '123' );
       should.equal( lit.$props.b, 123 );
       should.equal( lit.$props.c, false );
@@ -494,6 +536,13 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
 
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'c' );
+      should.has( lit, 'd' );
+      should.has( lit, 'e' );
+      should.has( lit, 'f' );
+      should.has( lit, 'g' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
@@ -502,6 +551,13 @@ describe( 'Lit.define - props', () => {
       should.has( lit.$props, 'f' );
       should.has( lit.$props, 'g' );
 
+      Object.$equals( lit.a, undefined ).should.true;
+      Object.$equals( lit.b, undefined ).should.true;
+      Object.$equals( lit.c, undefined ).should.true;
+      Object.$equals( lit.d, [ 1, 2, 3 ] ).should.true;
+      Object.$equals( lit.e, { a: 1, b: 2, c: 3 } ).should.true;
+      Object.$equals( lit.f, /RegExp/ ).should.true;
+      Object.$equals( lit.g, ZenJS.noop ).should.true;
       Object.$equals( lit.$props.a, undefined ).should.true;
       Object.$equals( lit.$props.b, undefined ).should.true;
       Object.$equals( lit.$props.c, undefined ).should.true;
@@ -548,6 +604,24 @@ describe( 'Lit.define - props', () => {
       const custom = div.firstElementChild;
       const lit = custom.$lit;
 
+      should.has( lit, 'a1' );
+      should.has( lit, 'a2' );
+      should.has( lit, 'a3' );
+      should.has( lit, 'a4' );
+      should.has( lit, 'a5' );
+      should.has( lit, 'a6' );
+      should.has( lit, 'a7' );
+      should.has( lit, 'a8' );
+      should.has( lit, 'a9' );
+      should.has( lit, 'b1' );
+      should.has( lit, 'b2' );
+      should.has( lit, 'b3' );
+      should.has( lit, 'b4' );
+      should.has( lit, 'b5' );
+      should.has( lit, 'b6' );
+      should.has( lit, 'b7' );
+      should.has( lit, 'b8' );
+      should.has( lit, 'b9' );
       should.has( lit.$props, 'a1' );
       should.has( lit.$props, 'a2' );
       should.has( lit.$props, 'a3' );
@@ -567,6 +641,24 @@ describe( 'Lit.define - props', () => {
       should.has( lit.$props, 'b8' );
       should.has( lit.$props, 'b9' );
 
+      should.equal( lit.a1, '' );
+      should.equal( lit.a2, '' );
+      should.equal( lit.a3, 'b3' );
+      should.equal( lit.a4, true );
+      should.equal( lit.a5, true );
+      should.equal( lit.a6, true );
+      should.equal( lit.a7, 0 );
+      should.equal( lit.a8, 0 );
+      should.equal( lit.a9, 9 );
+      should.equal( lit.b1, 'c1' );
+      should.equal( lit.b2, 'c2' );
+      should.equal( lit.b3, 'c3' );
+      should.equal( lit.b4, 'c4' );
+      should.equal( lit.b5, 'c5' );
+      should.equal( lit.b6, 'c6' );
+      should.equal( lit.b7, 'c7' );
+      should.equal( lit.b8, 'c8' );
+      should.equal( lit.b9, 'c9' );
       should.equal( lit.$props.a1, '' );
       should.equal( lit.$props.a2, '' );
       should.equal( lit.$props.a3, 'b3' );
@@ -585,6 +677,60 @@ describe( 'Lit.define - props', () => {
       should.equal( lit.$props.b7, 'c7' );
       should.equal( lit.$props.b8, 'c8' );
       should.equal( lit.$props.b9, 'c9' );
+    });
+
+  });
+
+  describe( '首字母不为 $ 的 prop 会在 $lit 上建立引用', () => {
+
+    it( '首字母不为 $ 的 prop 可以在 $props 和 $lit 下找到', () => {
+      const customName = window.customName;
+  
+      Lit.define( customName, {
+        props: {
+          a: null,
+          b: null
+        }
+      });
+  
+      const div = document.createElement('div').$html(`<${ customName } b="3"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+  
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit.$props, 'a' );
+      should.has( lit.$props, 'b' );
+  
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, '3' );
+      should.equal( lit.$props.a, undefined );
+      should.equal( lit.$props.b, '3' );
+    });
+
+    it( '首字母为 $ 的 prop 可以在 $props 下找到, 但是不能在 $lit 下找到', () => {
+      const customName = window.customName;
+  
+      Lit.define( customName, {
+        props: {
+          $a: null,
+          $b: null
+        }
+      });
+  
+      const div = document.createElement('div').$html(`<${ customName } $b="3"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+  
+      should.notHas( lit, '$a' );
+      should.notHas( lit, '$b' );
+      should.has( lit.$props, '$a' );
+      should.has( lit.$props, '$b' );
+  
+      should.equal( lit.$a, undefined );
+      should.equal( lit.$b, undefined );
+      should.equal( lit.$props.$a, undefined );
+      should.equal( lit.$props.$b, '3' );
     });
 
   });

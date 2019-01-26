@@ -117,6 +117,19 @@
 
   var returnArg = (value => value);
 
+  var isReserved = (
+  /**
+   * 判断字符串首字母是否为 $
+   * @param {String} value
+   * @returns {Boolean}
+   */
+  value => {
+    const charCode = (value + '').charCodeAt(0);
+    return charCode === 0x24;
+  });
+
+  const defineProperty = Object.defineProperty;
+
   /**
    * 初始化当前组件 props 属性
    * @param {HTMLElement} root 
@@ -127,6 +140,13 @@
   function initProps$1(root, options, target, targetProxy) {
     const props = options.props;
     const propsTarget = create(null);
+    const propsTargetProxy = target.$props = new Proxy(propsTarget, {
+      set(target, name, value) {
+        if (name in target) target[name] = value;
+      }
+
+    }); // 尝试从标签上获取 props 属性, 否则取默认值
+
     each(props, (name, options) => {
       let value = root.getAttribute(name); // 定义了该属性
 
@@ -136,12 +156,16 @@
       else {
           propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
         }
-    });
-    target.$props = new Proxy(propsTarget, {
-      set(target, name, value) {
-        if (name in target) target[name] = value;
-      }
+    }); // 将 $props 上的属性在 $lit 上建立引用
 
+    each(props, name => {
+      if (isReserved(name)) return;
+      defineProperty(target, name, {
+        enumerable: true,
+        configurable: true,
+        get: () => propsTargetProxy[name],
+        set: value => propsTargetProxy[name] = value
+      });
     });
   }
 
