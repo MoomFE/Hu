@@ -14,7 +14,7 @@ export default function define( name, options ){
   options = initOptions( options );
 
   // 创建组件
-  const LitElement = class Lit extends HTMLElement{
+  const LitElement = class LitElement extends HTMLElement{
 
     constructor(){
       super();
