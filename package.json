@@ -18,14 +18,14 @@
     "watch": "node_modules\\.bin\\zen watch watch"
   },
   "devDependencies": {
-    "@babel/plugin-transform-destructuring": "^7.2.0",
+    "@babel/plugin-transform-destructuring": "^7.3.2",
     "@babel/plugin-transform-spread": "^7.2.2",
     "@moomfe/zen-cli": "^1.0.0-beta.53",
     "@moomfe/zenjs": "^5.0.0-beta.5",
-    "@webcomponents/webcomponentsjs": "^2.2.4",
+    "@webcomponents/webcomponentsjs": "^2.2.7",
     "chai": "^4.2.0",
     "fs-extra": "^7.0.1",
-    "lit-html": "^1.0.0-rc.2",
+    "lit-html": "^1.0.0",
     "mocha": "^5.2.0"
   },
   "dependencies": {}
