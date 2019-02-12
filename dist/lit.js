@@ -87,49 +87,36 @@
       if (!userProps.length) return;
 
       for (let name of userProps) {
-        props[name] = initAttribute(name, null, {});
+        props[name] = initProp(name, null);
       }
     } // 格式化 JSON 参数
     else {
-        each(userProps, (name, userProp) => {
-          props[name] = userProp ? initProp(name, userProp, {}) : initAttribute(name, null, {});
+        each(userProps, (name, prop) => {
+          props[name] = initProp(name, prop);
         });
       }
   }
+  /**
+   * 格式化组件 prop 配置
+   * @param { string | symbol } name prop 名称
+   * @param { {} | null } prop 用户传入的 prop
+   */
 
-  function initProp(name, prop, options) {
-    // 设置 options.attr
-    initAttribute(name, prop, options); // 单纯设置变量类型
+  function initProp(name, prop) {
+    /** 格式化后的 props 配置 */
+    const options = {};
+    initPropAttribute(name, prop, options);
 
-    if (isFunction(prop)) {
-      options.from = prop;
-    } // 高级用法
-    else {
-        // 变量类型
-        if (prop.type != null) {
-          const type = prop.type; // String || Number || Boolean || function( value ){ return value };
-
-          if (isFunction(type)) {
-            options.from = type;
-          } // {
-          //   from(){}
-          //   to(){}
-          // }
-          else if (isPlainObject(type)) {
-              if (isFunction(type.from)) options.from = type.from;
-              if (isFunction(type.to)) options.to = type.to;
-            }
-        } // 默认值
-
-
-        if ('default' in prop) {
-          const $default = prop.default;
-
-          if (isFunction($default) || !isObject($default)) {
-            options.default = $default;
-          }
+    if (prop) {
+      // 单纯设置变量类型
+      if (isFunction(prop)) {
+        options.from = prop;
+      } // 高级用法
+      else {
+          initPropType(prop, options);
+          initPropDefault(prop, options);
         }
-      } // 如果传入值是 Boolean 类型, 则需要另外处理
+    } // 如果传入值是 Boolean 类型, 则需要另外处理
 
 
     if (options.from === Boolean) {
@@ -138,10 +125,52 @@
 
     return options;
   }
+  /**
+   * 初始化 options.attr
+   */
 
-  function initAttribute(name, prop, options) {
-    options.attr = prop && prop.attr ? prop.attr : isSymbol(name) ? null : name.replace(rHyphenate, '-$1').toLowerCase();
-    return options;
+
+  function initPropAttribute(name, prop, options) {
+    options.attr = // 定义了 attr 名称则使用定义的 attr 名称
+    prop && prop.attr ? props.attr // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
+    : isSymbol(name) ? null // 驼峰转为以连字符号连接的小写 attr 名称
+    : name.replace(rHyphenate, '-$1').toLowerCase();
+  }
+  /**
+   * 初始化 options.type 变量类型
+   */
+
+
+  function initPropType(prop, options) {
+    const type = prop.type;
+
+    if (type != null) {
+      // String || Number || Boolean || function( value ){ return value };
+      if (isFunction(type)) {
+        options.from = type;
+      } // {
+      //   from(){}
+      //   to(){}
+      // }
+      else if (isPlainObject(type)) {
+          if (isFunction(type.from)) options.from = type.from;
+          if (isFunction(type.to)) options.to = type.to;
+        }
+    }
+  }
+  /**
+   * 初始化 options.default 默认值
+   */
+
+
+  function initPropDefault(prop, options) {
+    if ('default' in prop) {
+      const $default = prop.default;
+
+      if (isFunction($default) || !isObject($default)) {
+        options.default = $default;
+      }
+    }
   }
 
   /**
