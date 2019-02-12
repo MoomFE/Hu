@@ -1,3 +1,7 @@
+const path = require('path');
+const fs = require('fs-extra');
+
+const READMEPATH = path.resolve( __dirname, 'README.md' );
 
 
 module.exports = {
@@ -84,6 +88,21 @@ module.exports = {
       ConfigCreated( rollup, config ){
         if( config.name === 'Lit' && config.format === 'umd' ){
           rollup.inputOptions.context = 'window';
+        }
+      },
+      WriteFile( rollup, config, path, size, gzipSize ){
+        const name = path.split('\\').$get( -1 );
+        const rSearch = new RegExp(`(\\|\\s${ name }\\s+\\|\\s)[0-9\\.]+(KB\\s\\|\\s)[0-9\\.]+(KB\\s\\|)`);
+        const readmeContent = fs.readFileSync( READMEPATH, 'utf-8' );
+
+        if( rSearch.test( readmeContent ) ){
+          fs.writeFileSync(
+            READMEPATH,
+            readmeContent.replace(
+              rSearch,
+              `$1${ ( size / 1024 ).toFixed( 2 ) }$2${ ( gzipSize / 1024 ).toFixed( 2 ) }$3`
+            )
+          );
         }
       }
     }

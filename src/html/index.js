@@ -12,7 +12,9 @@
  * http://polymer.github.io/PATENTS.txt
  */
 const directives = new WeakMap();
-const isDirective = o => typeof o === 'function' && directives.has(o);
+const isDirective = o => {
+  return typeof o === 'function' && directives.has(o);
+};
 
 /**
  * @license
@@ -26,10 +28,6 @@ const isDirective = o => typeof o === 'function' && directives.has(o);
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
- */
-
-/**
- * @module lit-html
  */
 
 /**
@@ -331,7 +329,9 @@ class TemplateResult {
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
  */
-const isPrimitive = value => value === null || !(typeof value === 'object' || typeof value === 'function');
+const isPrimitive = value => {
+  return value === null || !(typeof value === 'object' || typeof value === 'function');
+};
 /**
  * Sets attribute values for AttributeParts, so that the value is only set once
  * even if there are multiple parts for an attribute.
@@ -370,7 +370,8 @@ class AttributeCommitter {
       if (part !== undefined) {
         const v = part.value;
 
-        if (v != null && (Array.isArray(v) || typeof v !== 'string' && v[Symbol.iterator])) {
+        if (v != null && (Array.isArray(v) || // tslint:disable-next-line:no-any
+        typeof v !== 'string' && v[Symbol.iterator])) {
           for (const t of v) {
             text += typeof t === 'string' ? t : String(t);
           }
@@ -506,7 +507,8 @@ class NodePart {
       this._commitTemplateResult(value);
     } else if (value instanceof Node) {
       this._commitNode(value);
-    } else if (Array.isArray(value) || value[Symbol.iterator]) {
+    } else if (Array.isArray(value) || // tslint:disable-next-line:no-any
+    value[Symbol.iterator]) {
       this._commitIterable(value);
     } else if (value === nothing) {
       this.value = nothing;
@@ -554,7 +556,7 @@ class NodePart {
   _commitTemplateResult(value) {
     const template = this.options.templateFactory(value);
 
-    if (this.value && this.value.template === template) {
+    if (this.value instanceof TemplateInstance && this.value.template === template) {
       this.value.update(value.values);
     } else {
       // Make sure we propagate the template processor from the TemplateResult
@@ -708,7 +710,8 @@ class PropertyCommitter extends AttributeCommitter {
 
   commit() {
     if (this.dirty) {
-      this.dirty = false;
+      this.dirty = false; // tslint:disable-next-line:no-any
+
       this.element[this.name] = this._getValue();
     }
   }
@@ -728,8 +731,10 @@ try {
       return false;
     }
 
-  };
-  window.addEventListener('test', options, options);
+  }; // tslint:disable-next-line:no-any
+
+  window.addEventListener('test', options, options); // tslint:disable-next-line:no-any
+
   window.removeEventListener('test', options, options);
 } catch (_e) {}
 
@@ -895,6 +900,10 @@ const defaultTemplateProcessor = new DefaultTemplateProcessor();
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
  */
+// This line will be used in regexes to search for lit-html usage.
+// TODO(justinfagnani): inject version number at build time
+
+(window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
 
 const html$1 = function (strings, ...values) {
   return new TemplateResult(strings, values, 'html', defaultTemplateProcessor);

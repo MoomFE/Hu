@@ -25,8 +25,7 @@
      *
      * - Synchronous script, no polyfills needed
      *   - wait for `DOMContentLoaded`
-     *   - run callbacks passed to `waitFor`
-     *   - fire WCR event
+     *   - fire WCR event, as there could not be any callbacks passed to `waitFor`
      *
      * - Synchronous script, polyfills needed
      *   - document.write the polyfill bundle
@@ -36,7 +35,9 @@
      *   - fire WCR event
      *
      * - Asynchronous script, no polyfills needed
-     *   - fire WCR event, as there could not be any callbacks passed to `waitFor`
+     *   - wait for `DOMContentLoaded`
+     *   - run callbacks passed to `waitFor`
+     *   - fire WCR event
      *
      * - Asynchronous script, polyfills needed
      *   - Append the polyfill bundle script
@@ -87,17 +88,13 @@
 
     function runWhenLoadedFns() {
       allowUpgrades = false;
-
-      var done = function () {
-        allowUpgrades = true;
-        whenLoadedFns.length = 0;
-        flushFn && flushFn();
-      };
-
-      return Promise.all(whenLoadedFns.map(function (fn) {
+      var fnsMap = whenLoadedFns.map(function (fn) {
         return fn instanceof Function ? fn() : fn;
-      })).then(function () {
-        done();
+      });
+      whenLoadedFns = [];
+      return Promise.all(fnsMap).then(function () {
+        allowUpgrades = true;
+        flushFn && flushFn();
       }).catch(function (err) {
         console.error(err);
       });
@@ -188,9 +185,9 @@
         document.head.appendChild(newScript);
       }
     } else {
-      polyfillsLoaded = true;
-
+      // if readyState is 'complete', script is loaded imperatively on a spec-compliant browser, so just fire WCR
       if (document.readyState === 'complete') {
+        polyfillsLoaded = true;
         fireEvent();
       } else {
         // this script may come between DCL and load, so listen for both, and cancel load listener if DCL fires
@@ -211,9 +208,20 @@
 
   const isArray = Array.isArray;
 
-  var isPlainObject = (obj => Object.prototype.toString.call(obj) === '[object Object]');
+  var isPlainObject = (
+  /**
+   * 判断传入对象是否是纯粹的对象
+   * @param {any} value 需要判断的对象
+   */
+  value => Object.prototype.toString.call(value) === '[object Object]');
 
-  var each = ((obj, cb) => {
+  var each = (
+  /**
+   * 对象遍历方法
+   * @param {{}} obj 需要遍历的对象
+   * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
+   */
+  (obj, cb) => {
     const keys = Reflect.ownKeys(obj);
 
     for (let key of keys) {
@@ -221,15 +229,34 @@
     }
   });
 
-  var isFunction = (obj => typeof obj === 'function');
+  var isFunction = (
+  /**
+   * 判断传入对象是否是 Function 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => typeof value === 'function');
 
-  var fromBooleanAttribute = (value => value !== null);
+  var fromBooleanAttribute = (
+  /**
+   * 序列化为 Boolean 属性
+   */
+  value => value !== null);
 
-  var isObject = (value => value !== null && typeof value === 'object');
+  var isObject = (
+  /**
+   * 判断传入对象是否是 Object 类型且不为 null
+   * @param {any} value 需要判断的对象
+   */
+  value => value !== null && typeof value === 'object');
 
   var rHyphenate = /\B([A-Z])/g;
 
-  var isSymbol = (value => typeof value === 'symbol');
+  var isSymbol = (
+  /**
+   * 判断传入对象是否是 Symbol 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => typeof value === 'symbol');
 
   /**
    * 初始化组件 props 配置
@@ -327,13 +354,17 @@
 
   const create = Object.create;
 
-  var returnArg = (value => value);
+  var returnArg = (
+  /**
+   * 返回传入的首个参数
+   * @param {any} value 需要返回的参数
+   */
+  value => value);
 
   var isReserved = (
   /**
    * 判断字符串首字母是否为 $
    * @param {String} value
-   * @returns {Boolean}
    */
   value => {
     const charCode = (value + '').charCodeAt(0);
@@ -423,7 +454,7 @@
     // 初始化组件配置
     options = initOptions(options); // 创建组件
 
-    const LitElement = class Lit$$1 extends HTMLElement {
+    const LitElement = class LitElement extends HTMLElement {
       constructor() {
         super();
         this.$lit = init(this, options);
