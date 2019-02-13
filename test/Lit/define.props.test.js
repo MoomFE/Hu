@@ -872,28 +872,66 @@ describe( 'Lit.define - props', () => {
 
   });
 
-  describe( '更改元素的 attr 属性值时, 会立即将改变更新到内部的值中', () => {
+  describe( '更改元素的 attribute 属性值时, 会立即将改变更新到内部的值中', () => {
 
     it( 'prop 为非 Symbol 类型', () => {
       const customName = window.customName;
 
       Lit.define( customName, {
         props: {
-          a: null
+          a: null,
+          aB: null,
+          attr1: { attr: 'attr2' },
+          attr2: { attr: 'attr1' }
         }
       });
 
-      const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+      const div = document.createElement('div').$html(`<${ customName } a="1" a-b="2" attr1="5" attr2="6"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
 
       should.equal( lit.a, '1' );
+      should.equal( lit.aB, '2' );
+      should.equal( lit.attr1, '6' );
+      should.equal( lit.attr2, '5' );
       should.equal( lit.$props.a, '1' );
+      should.equal( lit.$props.aB, '2' );
+      should.equal( lit.$props.attr1, '6' );
+      should.equal( lit.$props.attr2, '5' );
 
       custom.setAttribute('a','2');
 
-      // should.equal( lit.a, '2' );
-      // should.equal( lit.$props.a, '2' );
+      should.equal( lit.a, '2' );
+      should.equal( lit.aB, '2' );
+      should.equal( lit.attr1, '6' );
+      should.equal( lit.attr2, '5' );
+      should.equal( lit.$props.a, '2' );
+      should.equal( lit.$props.aB, '2' );
+      should.equal( lit.$props.attr1, '6' );
+      should.equal( lit.$props.attr2, '5' );
+
+      custom.setAttribute('a-b','3');
+
+      should.equal( lit.a, '2' );
+      should.equal( lit.aB, '3' );
+      should.equal( lit.attr1, '6' );
+      should.equal( lit.attr2, '5' );
+      should.equal( lit.$props.a, '2' );
+      should.equal( lit.$props.aB, '3' );
+      should.equal( lit.$props.attr1, '6' );
+      should.equal( lit.$props.attr2, '5' );
+
+      custom.setAttribute('attr1','7');
+      custom.setAttribute('attr2','8');
+
+      should.equal( lit.a, '2' );
+      should.equal( lit.aB, '3' );
+      should.equal( lit.attr1, '8' );
+      should.equal( lit.attr2, '7' );
+      should.equal( lit.$props.a, '2' );
+      should.equal( lit.$props.aB, '3' );
+      should.equal( lit.$props.attr1, '8' );
+      should.equal( lit.$props.attr2, '7' );
     });
 
   });

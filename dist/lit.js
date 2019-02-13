@@ -283,6 +283,50 @@
     return targetProxy;
   }
 
+  const keys = Object.keys;
+
+  /**
+   * 方法返回一个给定对象自身可枚举属性的键值对数组.
+   * Object.entries polyfill
+   * 
+   * From @moomfe/zenjs
+   */
+
+  function entries(obj) {
+    let index, key;
+    const ownKeys = keys(obj);
+    const result = Array(index = ownKeys.length);
+
+    while (index--) {
+      result[index] = [key = ownKeys[index], obj[key]];
+    }
+
+    return result;
+  }
+
+  /**
+   * 传入一个键值对的列表, 并返回一个带有这些键值对的新对象 ( 是 Object.entries 的反转 )
+   * Object.fromEntries polyfill
+   * 
+   * From @moomfe/zenjs
+   */
+  function fromEntries(iterable) {
+    const result = {};
+    const newIterable = Array.from(iterable);
+    let item;
+    let index = newIterable.length;
+
+    while (index--) {
+      item = newIterable[index];
+
+      if (item && item.length) {
+        result[item[0]] = item[1];
+      }
+    }
+
+    return result;
+  }
+
   /**
    * 定义自定义标签
    * @param {string} name 标签名
@@ -291,7 +335,12 @@
 
   function define(name, options) {
     // 初始化组件配置
-    options = initOptions(options); // 创建组件
+    options = initOptions(options);
+    /**
+     * 组件的 prop 与取值 attr 的映射
+     */
+
+    const props = fromEntries(entries(options.props).filter(entry => entry[1].attr).map(entry => [entry[1].attr, entry[0]])); // 创建组件
 
     const LitElement = class LitElement extends HTMLElement {
       constructor() {
@@ -299,18 +348,24 @@
         this.$lit = init(this, options);
       }
 
-      static get observedAttributes() {
-        const attributes = [];
-        each(options.props, (name, options) => {
-          if (options.attr) attributes.push(options.attr);
-        });
-        return attributes;
-      }
+      attributeChangedCallback(name, oldValue, value) {
+        if (value !== oldValue) {
+          /** 当前组件 $props 对象 */
+          const $props = this.$lit.$props;
+          /** 被改动的 prop 的名称 */
 
-      attributeChangedCallback(name, value, oldValue) {
-        console.log(name, value, oldValue); // if( value !== oldValue ){
-        // console.log( options )
-        // }
+          const propName = props[name];
+          /** 被改动的 prop 的配置 */
+
+          const prop = options.props[propName];
+          /** 格式转换后的 value */
+
+          const newValue = (prop.from || returnArg)(value);
+
+          if ($props[propName] !== newValue) {
+            $props[propName] = newValue;
+          }
+        }
       }
 
       connectedCallback() {
@@ -325,7 +380,9 @@
         console.log('adoptedCallback');
       }
 
-    }; // 注册组件
+    }; // 定义需要监听的属性
+
+    LitElement.observedAttributes = keys(props); // 注册组件
 
     customElements.define(name, LitElement);
   }
