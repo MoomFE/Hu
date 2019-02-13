@@ -872,10 +872,30 @@ describe( 'Lit.define - props', () => {
 
   });
 
-  // describe( '更改元素的 attr 属性值时, 会立即将改变更新到内部的值中', () => {
+  describe( '更改元素的 attr 属性值时, 会立即将改变更新到内部的值中', () => {
 
-  //   // it( '')
+    it( 'prop 为非 Symbol 类型', () => {
+      const customName = window.customName;
 
-  // });
+      Lit.define( customName, {
+        props: {
+          a: null
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.equal( lit.a, '1' );
+      should.equal( lit.$props.a, '1' );
+
+      custom.setAttribute('a','2');
+
+      // should.equal( lit.a, '2' );
+      // should.equal( lit.$props.a, '2' );
+    });
+
+  });
 
 });

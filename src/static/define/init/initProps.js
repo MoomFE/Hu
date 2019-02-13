@@ -18,7 +18,10 @@ export default function initProps( root, options, target, targetProxy ){
   const propsTarget = create( null );
   const propsTargetProxy = target.$props = new Proxy( propsTarget, {
     set( target, name, value ){
-      if( name in target ) target[ name ] = value;
+      if( name in target ){
+        return (( target[ name ] = value ), true);
+      }
+      return false;
     }
   });
 

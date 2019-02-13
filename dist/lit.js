@@ -220,7 +220,11 @@
     const propsTarget = create(null);
     const propsTargetProxy = target.$props = new Proxy(propsTarget, {
       set(target, name, value) {
-        if (name in target) target[name] = value;
+        if (name in target) {
+          return target[name] = value, true;
+        }
+
+        return false;
       }
 
     }); // 尝试从标签上获取 props 属性, 否则取默认值
@@ -265,7 +269,7 @@
 
     const targetProxy = new Proxy(target, {
       set(target, name, value) {
-        if (name[0] === '$') return false;
+        if (isReserved(name)) return false;
         target[name] = value;
         return true;
       }
@@ -295,7 +299,19 @@
         this.$lit = init(this, options);
       }
 
-      attributeChangedCallback(name, value, oldValue) {}
+      static get observedAttributes() {
+        const attributes = [];
+        each(options.props, (name, options) => {
+          if (options.attr) attributes.push(options.attr);
+        });
+        return attributes;
+      }
+
+      attributeChangedCallback(name, value, oldValue) {
+        console.log(name, value, oldValue); // if( value !== oldValue ){
+        // console.log( options )
+        // }
+      }
 
       connectedCallback() {
         console.log('connectedCallback');

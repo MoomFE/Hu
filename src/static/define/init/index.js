@@ -1,5 +1,6 @@
 import create from "../../../shared/global/Object/create";
 import initProps from "./initProps";
+import isReserved from "../../../shared/util/isReserved";
 
 
 /**
@@ -13,7 +14,7 @@ export default function init( root, options ){
   /** 当前组件代理对象 */
   const targetProxy = new Proxy( target, {
     set( target, name, value ){
-      if( name[0] === '$' ) return false;
+      if( isReserved( name ) ) return false;
 
       target[ name ] = value;
       return true;

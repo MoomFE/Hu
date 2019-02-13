@@ -1,6 +1,7 @@
 import Lit from "../../shared/global/Lit/index";
 import initOptions from "./initOptions/index";
 import init from "./init/index";
+import each from "../../shared/util/each";
 
 
 /**
@@ -22,8 +23,21 @@ export default function define( name, options ){
       this.$lit = init( this, options );
     }
 
-    attributeChangedCallback( name, value, oldValue ){
+    static get observedAttributes(){
+      const attributes = [];
 
+      each( options.props, ( name, options ) => {
+        if( options.attr ) attributes.push( options.attr );
+      });
+
+      return attributes;
+    }
+
+    attributeChangedCallback( name, value, oldValue ){
+      console.log( name, value, oldValue )
+      // if( value !== oldValue ){
+        // console.log( options )
+      // }
     }
 
     connectedCallback(){
