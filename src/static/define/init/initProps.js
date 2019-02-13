@@ -4,7 +4,6 @@ import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
 import isReserved from "../../../shared/util/isReserved";
 import defineProperty from "../../../shared/global/Object/defineProperty";
-import isSymbol from "../../../shared/util/isSymbol";
 
 
 /**
@@ -27,7 +26,7 @@ export default function initProps( root, options, target, targetProxy ){
   each( props, ( name, options ) => {
     let value = null;
 
-    if( !isSymbol( name ) ){
+    if( options.attr ){
       value = root.getAttribute( options.attr );
     }
 
@@ -44,8 +43,8 @@ export default function initProps( root, options, target, targetProxy ){
   });
 
   // 将 $props 上的属性在 $lit 上建立引用
-  each( props, name => {
-    if( !( isSymbol( name ) || !isReserved( name ) ) ) return;
+  each( props, ( name, options ) => {
+    if( !( options.isSymbol || !isReserved( name ) ) ) return;
 
     defineProperty( target, name, {
       enumerable: true,

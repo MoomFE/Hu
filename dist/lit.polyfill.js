@@ -5976,10 +5976,12 @@
 
 
   function initPropAttribute(name, prop, options) {
-    options.attr = // 定义了 attr 名称则使用定义的 attr 名称
-    prop && prop.attr ? props.attr // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
-    : isSymbol(name) ? null // 驼峰转为以连字符号连接的小写 attr 名称
-    : name.replace(rHyphenate, '-$1').toLowerCase();
+    // 当前 prop 是否是 Symbol 类型的
+    options.isSymbol = isSymbol(name); // 当前 prop 的取值 attribute
+
+    options.attr = prop && prop.attr || (options.isSymbol //[ 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
+    ? null // 驼峰转为以连字符号连接的小写 attr 名称
+    : name.replace(rHyphenate, '-$1').toLowerCase());
   }
   /**
    * 初始化 options.type 变量类型
@@ -6071,7 +6073,7 @@
     each(props, (name, options) => {
       let value = null;
 
-      if (!isSymbol(name)) {
+      if (options.attr) {
         value = root.getAttribute(options.attr);
       } // 定义了该属性
 
@@ -6084,8 +6086,8 @@
         }
     }); // 将 $props 上的属性在 $lit 上建立引用
 
-    each(props, name => {
-      if (!(isSymbol(name) || !isReserved(name))) return;
+    each(props, (name, options) => {
+      if (!(options.isSymbol || !isReserved(name))) return;
       defineProperty(target, name, {
         enumerable: true,
         configurable: true,
