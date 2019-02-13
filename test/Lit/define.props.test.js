@@ -713,24 +713,103 @@ describe( 'Lit.define - props', () => {
   
       Lit.define( customName, {
         props: {
+          a: null,
+          b: null,
           $a: null,
           $b: null
         }
       });
   
-      const div = document.createElement('div').$html(`<${ customName } $b="3"></${ customName }>`);
+      const div = document.createElement('div').$html(`<${ customName } $b="3" b="4"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
   
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
       should.notHas( lit, '$a' );
       should.notHas( lit, '$b' );
+      should.has( lit.$props, 'a' );
+      should.has( lit.$props, 'b' );
       should.has( lit.$props, '$a' );
       should.has( lit.$props, '$b' );
   
+      should.equal( lit.a, undefined );
+      should.equal( lit.b, '4' );
       should.equal( lit.$a, undefined );
       should.equal( lit.$b, undefined );
+      should.equal( lit.$props.a, undefined );
+      should.equal( lit.$props.b, '4' );
       should.equal( lit.$props.$a, undefined );
       should.equal( lit.$props.$b, '3' );
+    });
+
+  });
+
+  describe( '设置 attr 参数来指定当前 prop 是由哪个 attribute 取值而来', () => {
+
+    it( '不设置 attr 则将当前 prop 的名称转为以连字符号连接的小写 attr 名称', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a: null,
+          'aB': null,
+          'a-c': null
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } a="1" a-b="2" a-c="3"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit, 'a' );
+      should.has( lit, 'aB' );
+      should.has( lit, 'a-c' );
+      should.has( lit.$props, 'a' );
+      should.has( lit.$props, 'aB' );
+      should.has( lit.$props, 'a-c' );
+
+      should.equal( lit[ 'a' ], '1' );
+      should.equal( lit[ 'aB' ], '2' );
+      should.equal( lit[ 'a-c' ], '3' );
+      should.equal( lit.$props[ 'a' ], '1' );
+      should.equal( lit.$props[ 'aB' ], '2' );
+      should.equal( lit.$props[ 'a-c' ], '3' );
+    });
+
+    it( '设置了 attr 属性则会从相应的 attribute 中取值', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a: { attr: 'b' },
+          b: { attr: 'a' },
+          aB: { attr: 'a-c' },
+          aC: { attr: 'a-b' }
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } a="1" b="2" a-b="3" a-c="4"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit, 'a' );
+      should.has( lit, 'b' );
+      should.has( lit, 'aB' );
+      should.has( lit, 'aC' );
+      should.has( lit.$props, 'a' );
+      should.has( lit.$props, 'b' );
+      should.has( lit.$props, 'aB' );
+      should.has( lit.$props, 'aC' );
+
+      should.equal( lit[ 'a' ], '2' );
+      should.equal( lit[ 'b' ], '1' );
+      should.equal( lit[ 'aB' ], '4' );
+      should.equal( lit[ 'aC' ], '3' );
+      should.equal( lit.$props[ 'a' ], '2' );
+      should.equal( lit.$props[ 'b' ], '1' );
+      should.equal( lit.$props[ 'aB' ], '4' );
+      should.equal( lit.$props[ 'aC' ], '3' );
     });
 
   });
@@ -764,6 +843,39 @@ describe( 'Lit.define - props', () => {
       should.equal( lit.$props[ b ], 2 );
     });
 
+    it( '指定 attr 给 Symbol 类型的 prop 则会从相应的 attr 中取值', () => {
+      const customName = window.customName;
+      const a = Symbol('a');
+      const b = Symbol('b');
+      const props = {};
+            props[ a ] = { attr: 'c' };
+            props[ b ] = { attr: 'd' };
+
+      Lit.define( customName, {
+        props
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } c="d" d="e"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit, a );
+      should.has( lit, b );
+      should.has( lit.$props, a );
+      should.has( lit.$props, b );
+
+      should.equal( lit[ a ], 'd' );
+      should.equal( lit[ b ], 'e' );
+      should.equal( lit.$props[ a ], 'd' );
+      should.equal( lit.$props[ b ], 'e' );
+    });
+
   });
+
+  // describe( '更改元素的 attr 属性值时, 会立即将改变更新到内部的值中', () => {
+
+  //   // it( '')
+
+  // });
 
 });
