@@ -6043,6 +6043,103 @@
     }
   }
 
+  function initLifecycle(userOptions, options) {
+    [
+    /** 在实例初始化之后 */
+    'beforeCreate',
+    /** 在实例创建完成后被立即调用, 挂载阶段还没开始 */
+    'created',
+    /** 在挂载开始之前被调用, 首次调用 render 函数 */
+    'beforeMount',
+    /** 组件 DOM 已挂载 */
+    'mounted',
+    /** 数据更新时调用, 还未更新组件 DOM */
+    'beforeUpdate',
+    /** 数据更新时调用, 已更新组件 DOM */
+    'updated',
+    /** 实例销毁之前调用。在这一步，实例仍然完全可用 */
+    'beforeDestroy',
+    /** 实例销毁后调用 */
+    'destroyed'].forEach(name => {
+      const lifecycle = userOptions[name];
+      isFunction(lifecycle) && (options[name] = lifecycle);
+    });
+  }
+
+  var noop = (
+  /**
+   * 空方法
+   */
+  () => {});
+
+  function initState(userOptions, options) {
+    const methods = userOptions.methods,
+          data = userOptions.data,
+          computed = userOptions.computed,
+          watch = userOptions.watch;
+
+    if (methods) {
+      initMethods(methods, options);
+    }
+
+    if (data) {
+      initData(data, options);
+    }
+
+    if (computed) {
+      initComputed(computed, options);
+    }
+
+    if (watch) {
+      initWatch(watch, options);
+    }
+  }
+
+  function initMethods(userMethods, options) {
+    const methods = options.methods = {};
+    each(userMethods, (key, method) => {
+      isFunction(method) && (methods[key] = method);
+    });
+  }
+
+  function initData(userData, options) {
+    isFunction(data) && (options.data = userData);
+  }
+
+  function initComputed(userComputed, options) {
+    const computed = options.computed = {};
+    each(userComputed, (key, userComputed) => {
+      if (userComputed) {
+        const isFn = isFunction(userComputed);
+        const get = isFn ? userComputed : userComputed.get || noop;
+        const set = isFn ? noop : userComputed.set || noop;
+        computed[key] = {
+          get,
+          set
+        };
+      }
+    });
+  }
+
+  function initWatch(userWatch, options) {
+    const watch = options.watch = {};
+    each(userWatch, (key, handler) => {
+      if (isArray(handler)) {
+        for (const handler of handler) {
+          createWatcher(key, handler, watch);
+        }
+      } else {
+        createWatcher(key, handler, watch);
+      }
+    });
+  }
+
+  function createWatcher(key, handler, watch) {
+    watch[key] = isPlainObject(handler) ? handler : {
+      handler
+    };
+  }
+
   /**
    * 初始化组件配置
    * @param {{}} userOptions 用户传入的组件配置
@@ -6052,6 +6149,8 @@
     /** 格式化后的组件配置 */
     const options = {};
     initProps(userOptions, options);
+    initState(userOptions, options);
+    initLifecycle(userOptions, options);
     return options;
   }
 
