@@ -11,6 +11,7 @@ import defineProperty from "../../../shared/global/Object/defineProperty";
  * @param {HTMLElement} root 
  * @param {{}} options 
  * @param {{}} target 
+ * @param {{}} targetProxy 
  */
 export default function initProps( root, options, target, targetProxy ){
 

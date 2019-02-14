@@ -1,6 +1,7 @@
 import create from "../../../shared/global/Object/create";
 import initProps from "./initProps";
 import isReserved from "../../../shared/util/isReserved";
+import initMethods from "./initMethods";
 
 
 /**
@@ -25,6 +26,7 @@ export default function init( root, options ){
   target.$root = root;
 
   initProps( root, options, target, targetProxy );
+  initMethods( root, options, target, targetProxy );
 
   return targetProxy;
 }

@@ -524,6 +524,7 @@
    * @param {HTMLElement} root 
    * @param {{}} options 
    * @param {{}} target 
+   * @param {{}} targetProxy 
    */
 
   function initProps$1(root, options, target, targetProxy) {
@@ -568,6 +569,32 @@
   }
 
   /**
+   * 初始化当前组件 methods 属性
+   * @param {HTMLElement} root 
+   * @param {{}} options 
+   * @param {{}} target 
+   * @param {{}} targetProxy 
+   */
+
+  function initMethods$1(root, options, target, targetProxy) {
+    const methodsTarget = create(null);
+    target.$methods = new Proxy(methodsTarget, {
+      set(target, name, value) {
+        if (name in target) {
+          return target[name] = value, true;
+        }
+
+        return false;
+      }
+
+    });
+    options.methods && each(options.methods, (key, method) => {
+      const $method = methodsTarget[key] = method.bind(targetProxy);
+      isReserved(key) || (target[key] = $method);
+    });
+  }
+
+  /**
    * 初始化当前组件属性
    * @param {HTMLElement} root 组件根节点
    * @param {{}} options 组件配置
@@ -591,6 +618,7 @@
     });
     target.$root = root;
     initProps$1(root, options, target, targetProxy);
+    initMethods$1(root, options, target, targetProxy);
     return targetProxy;
   }
 
