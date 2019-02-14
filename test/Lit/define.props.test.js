@@ -1027,4 +1027,52 @@ describe( 'Lit.define - props', () => {
 
   });
 
+  describe( '可以通过 $lit 和 $props 对 prop 进行读取和更改', () => {
+
+    it( '通过 $lit 对 prop 进行读取和更改', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a: null
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.equal( lit.a, '1' );
+      should.equal( lit.$props.a, '1' );
+
+      lit.a = 123;
+
+      should.equal( lit.a, 123 );
+      should.equal( lit.$props.a, 123 );
+    });
+
+    it( '通过 $props 对 prop 进行读取和更改', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a: null
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.equal( lit.a, '1' );
+      should.equal( lit.$props.a, '1' );
+
+      lit.$props.a = 123;
+
+      should.equal( lit.a, 123 );
+      should.equal( lit.$props.a, 123 );
+    });
+
+  });
+
 });
