@@ -985,6 +985,46 @@ describe( 'Lit.define - props', () => {
       should.equal( lit.$props[ c ], 3 );
     });
 
+    it( '多个 prop 绑定到一个 attribute 上', () => {
+      const customName = window.customName;
+      const a = Symbol('a');
+      const props = {};
+            props[ a ] = { attr: 'a' };
+            props[ 'a' ] = { attr: 'a' };
+            props[ 'aB' ] = { attr: 'a', type: Number };
+
+      Lit.define( customName, {
+        props
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit, a );
+      should.has( lit, 'a' );
+      should.has( lit, 'aB' );
+      should.has( lit.$props, a );
+      should.has( lit.$props, 'a' );
+      should.has( lit.$props, 'aB' );
+
+      should.equal( lit[ a ], '1' );
+      should.equal( lit[ 'a' ], '1' );
+      should.equal( lit[ 'aB' ], 1 );
+      should.equal( lit.$props[ a ], '1' );
+      should.equal( lit.$props[ 'a' ], '1' );
+      should.equal( lit.$props[ 'aB' ], 1 );
+
+      custom.setAttribute('a','2');
+
+      should.equal( lit[ a ], '2' );
+      should.equal( lit[ 'a' ], '2' );
+      should.equal( lit[ 'aB' ], 2 );
+      should.equal( lit.$props[ a ], '2' );
+      should.equal( lit.$props[ 'a' ], '2' );
+      should.equal( lit.$props[ 'aB' ], 2 );
+    });
+
   });
 
 });
