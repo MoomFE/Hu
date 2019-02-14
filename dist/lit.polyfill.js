@@ -5907,6 +5907,13 @@
    */
   value => typeof value === 'symbol');
 
+  var returnArg = (
+  /**
+   * 返回传入的首个参数
+   * @param {any} value 需要返回的参数
+   */
+  value => value);
+
   /**
    * 初始化组件 props 配置
    * @param {{}} userOptions 用户传入的组件配置
@@ -5916,6 +5923,9 @@
   function initProps(userOptions, options) {
     /** 格式化后的 props 配置 */
     const props = options.props = {};
+    /** 最终的 prop 与取值 attribute 的映射 */
+
+    const propsMap = options.propsMap = {};
     /** 用户传入的 props 配置 */
 
     const userProps = userOptions.props;
@@ -5939,7 +5949,20 @@
         each(userProps, (name, prop) => {
           props[name] = initProp(name, prop);
         });
+      } // 生成 propsMap
+
+
+    each(props, (name, prop) => {
+      const attr = prop.attr;
+
+      if (attr) {
+        const map = propsMap[attr] || (propsMap[attr] = []);
+        map.push({
+          name,
+          from: prop.from || returnArg
+        });
       }
+    });
   }
   /**
    * 格式化组件 prop 配置
@@ -6034,13 +6057,6 @@
 
   const create = Object.create;
 
-  var returnArg = (
-  /**
-   * 返回传入的首个参数
-   * @param {any} value 需要返回的参数
-   */
-  value => value);
-
   var isReserved = (
   /**
    * 判断字符串首字母是否为 $
@@ -6131,48 +6147,6 @@
   const keys = Object.keys;
 
   /**
-   * 方法返回一个给定对象自身可枚举属性的键值对数组.
-   * Object.entries polyfill
-   * 
-   * From @moomfe/zenjs
-   */
-
-  function entries(obj) {
-    let index, key;
-    const ownKeys = keys(obj);
-    const result = Array(index = ownKeys.length);
-
-    while (index--) {
-      result[index] = [key = ownKeys[index], obj[key]];
-    }
-
-    return result;
-  }
-
-  /**
-   * 传入一个键值对的列表, 并返回一个带有这些键值对的新对象 ( 是 Object.entries 的反转 )
-   * Object.fromEntries polyfill
-   * 
-   * From @moomfe/zenjs
-   */
-  function fromEntries(iterable) {
-    const result = {};
-    const newIterable = Array.from(iterable);
-    let item;
-    let index = newIterable.length;
-
-    while (index--) {
-      item = newIterable[index];
-
-      if (item && item.length) {
-        result[item[0]] = item[1];
-      }
-    }
-
-    return result;
-  }
-
-  /**
    * 定义自定义标签
    * @param {string} name 标签名
    * @param {{}} options 组件配置
@@ -6185,7 +6159,7 @@
      * 组件的 prop 与取值 attr 的映射
      */
 
-    const props = fromEntries(entries(options.props).filter(entry => entry[1].attr).map(entry => [entry[1].attr, entry[0]])); // 创建组件
+    const propsMap = options.propsMap; // 创建组件
 
     const LitElement = class LitElement extends HTMLElement {
       constructor() {
@@ -6197,18 +6171,20 @@
         if (value !== oldValue) {
           /** 当前组件 $props 对象 */
           const $props = this.$lit.$props;
-          /** 被改动的 prop 的名称 */
+          /** 当前属性被改动后需要修改的对应 prop */
 
-          const propName = props[name];
-          /** 被改动的 prop 的配置 */
+          const props = propsMap[name];
 
-          const prop = options.props[propName];
-          /** 格式转换后的 value */
+          for (const _ref of props) {
+            const name = _ref.name;
+            const from = _ref.from;
 
-          const newValue = (prop.from || returnArg)(value);
+            /** 格式转换后的 value */
+            const fromValue = from(value);
 
-          if ($props[propName] !== newValue) {
-            $props[propName] = newValue;
+            if ($props[name] !== fromValue) {
+              $props[name] = fromValue;
+            }
           }
         }
       }
@@ -6227,7 +6203,7 @@
 
     }; // 定义需要监听的属性
 
-    LitElement.observedAttributes = keys(props); // 注册组件
+    LitElement.observedAttributes = keys(propsMap); // 注册组件
 
     customElements.define(name, LitElement);
   }

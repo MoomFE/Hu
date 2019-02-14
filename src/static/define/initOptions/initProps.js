@@ -6,6 +6,7 @@ import fromBooleanAttribute from "../../../shared/util/fromBooleanAttribute";
 import isObject from "../../../shared/util/isObject";
 import rHyphenate from "../../../shared/const/rHyphenate";
 import isSymbol from "../../../shared/util/isSymbol";
+import returnArg from "../../../shared/util/returnArg";
 
 
 /**
@@ -17,6 +18,8 @@ export default function initProps( userOptions, options ){
 
   /** 格式化后的 props 配置 */
   const props = options.props = {};
+  /** 最终的 prop 与取值 attribute 的映射 */
+  const propsMap = options.propsMap = {};
   /** 用户传入的 props 配置 */
   const userProps = userOptions.props;
   /** 用户传入的 props 配置是否是数组 */
@@ -42,6 +45,21 @@ export default function initProps( userOptions, options ){
     });
   }
 
+  // 生成 propsMap
+  each( props, ( name, prop ) => {
+    const { attr } = prop;
+
+    if( attr ){
+      const map = propsMap[ attr ] || (
+        propsMap[ attr ] = []
+      );
+
+      map.push({
+        name,
+        from: prop.from || returnArg
+      });
+    }
+  });
 }
 
 /**
