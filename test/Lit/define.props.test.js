@@ -4,45 +4,45 @@ describe( 'Lit.define - props', () => {
 
     it( '使用数组定义 props', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: [ 'a', 'b' ]
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b="3"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, '3' );
       should.equal( lit.$props.a, undefined );
       should.equal( lit.$props.b, '3' );
     });
-    
+
     it( '使用 JOSN 定义 props', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: null,
           b: null
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b="3"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, '3' );
       should.equal( lit.$props.a, undefined );
@@ -55,7 +55,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法一', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: String,
@@ -63,18 +63,18 @@ describe( 'Lit.define - props', () => {
           c: String
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, '' );
       should.equal( lit.c, '5' );
@@ -85,7 +85,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法二', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: { type: String },
@@ -93,18 +93,18 @@ describe( 'Lit.define - props', () => {
           c: { type: String }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, '' );
       should.equal( lit.c, '5' );
@@ -115,7 +115,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法三', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: {
@@ -129,18 +129,18 @@ describe( 'Lit.define - props', () => {
           }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, '' );
       should.equal( lit.c, '5' );
@@ -155,7 +155,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法一', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: Boolean,
@@ -163,7 +163,7 @@ describe( 'Lit.define - props', () => {
           c: Boolean
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
@@ -174,7 +174,7 @@ describe( 'Lit.define - props', () => {
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, true );
       should.equal( lit.c, true );
@@ -185,7 +185,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法二', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: { type: Boolean },
@@ -193,18 +193,18 @@ describe( 'Lit.define - props', () => {
           c: { type: Boolean }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, true );
       should.equal( lit.c, true );
@@ -215,7 +215,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法三', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: {
@@ -229,18 +229,18 @@ describe( 'Lit.define - props', () => {
           }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, true );
       should.equal( lit.c, true );
@@ -252,10 +252,10 @@ describe( 'Lit.define - props', () => {
   });
 
   describe( '创建时定义 prop 的类型为 Number', () => {
-    
+
     it( '写法一', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: Number,
@@ -263,18 +263,18 @@ describe( 'Lit.define - props', () => {
           c: Number
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, 0 );
       should.equal( lit.c, 5 );
@@ -285,7 +285,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法二', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: { type: Number },
@@ -293,18 +293,18 @@ describe( 'Lit.define - props', () => {
           c: { type: Number }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, 0 );
       should.equal( lit.c, 5 );
@@ -315,7 +315,7 @@ describe( 'Lit.define - props', () => {
 
     it( '写法三', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: {
@@ -329,18 +329,18 @@ describe( 'Lit.define - props', () => {
           }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b c="5"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, 0 );
       should.equal( lit.c, 5 );
@@ -352,10 +352,10 @@ describe( 'Lit.define - props', () => {
   });
 
   describe( '创建时使用自定义方法转换 prop 的类型', () => {
-    
+
     it( '写法一', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: value => parseInt( value ) + 1,
@@ -363,18 +363,18 @@ describe( 'Lit.define - props', () => {
           c: value => parseInt( value ) + 3
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } a="1" b="1" c="1"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, 2 );
       should.equal( lit.b, 3 );
       should.equal( lit.c, 4 );
@@ -382,10 +382,10 @@ describe( 'Lit.define - props', () => {
       should.equal( lit.$props.b, 3 );
       should.equal( lit.$props.c, 4 );
     });
-    
+
     it( '写法二', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: { type: value => parseInt( value ) + 1 },
@@ -393,18 +393,18 @@ describe( 'Lit.define - props', () => {
           c: { type: value => parseInt( value ) + 3 }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } a="1" b="1" c="1"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, 2 );
       should.equal( lit.b, 3 );
       should.equal( lit.c, 4 );
@@ -412,10 +412,10 @@ describe( 'Lit.define - props', () => {
       should.equal( lit.$props.b, 3 );
       should.equal( lit.$props.c, 4 );
     });
-    
+
     it( '写法三', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: {
@@ -429,18 +429,18 @@ describe( 'Lit.define - props', () => {
           }
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } a="1" b="1" c="1"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit, 'c' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
       should.has( lit.$props, 'c' );
-  
+
       should.equal( lit.a, 2 );
       should.equal( lit.b, 3 );
       should.equal( lit.c, 4 );
@@ -685,23 +685,23 @@ describe( 'Lit.define - props', () => {
 
     it( '首字母不为 $ 的 prop 可以在 $props 和 $lit 下找到', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: null,
           b: null
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } b="3"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.has( lit.$props, 'a' );
       should.has( lit.$props, 'b' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, '3' );
       should.equal( lit.$props.a, undefined );
@@ -710,7 +710,7 @@ describe( 'Lit.define - props', () => {
 
     it( '首字母为 $ 的 prop 可以在 $props 下找到, 但是不能在 $lit 下找到', () => {
       const customName = window.customName;
-  
+
       Lit.define( customName, {
         props: {
           a: null,
@@ -719,11 +719,11 @@ describe( 'Lit.define - props', () => {
           $b: null
         }
       });
-  
+
       const div = document.createElement('div').$html(`<${ customName } $b="3" b="4"></${ customName }>`);
       const custom = div.firstElementChild;
       const lit = custom.$lit;
-  
+
       should.has( lit, 'a' );
       should.has( lit, 'b' );
       should.notHas( lit, '$a' );
@@ -732,7 +732,7 @@ describe( 'Lit.define - props', () => {
       should.has( lit.$props, 'b' );
       should.has( lit.$props, '$a' );
       should.has( lit.$props, '$b' );
-  
+
       should.equal( lit.a, undefined );
       should.equal( lit.b, '4' );
       should.equal( lit.$a, undefined );
@@ -815,7 +815,7 @@ describe( 'Lit.define - props', () => {
   });
 
   describe( '使用 JSON 定义 props 时支持传入 Symbol 类型的 prop', () => {
-    
+
     it( '使用默认值给 Symbol 类型的 prop 赋值', () => {
       const customName = window.customName;
       const a = Symbol('a');
@@ -932,6 +932,57 @@ describe( 'Lit.define - props', () => {
       should.equal( lit.$props.aB, '3' );
       should.equal( lit.$props.attr1, '8' );
       should.equal( lit.$props.attr2, '7' );
+    });
+
+    it( 'prop 为 Symbol 类型', () => {
+      const customName = window.customName;
+      const a = Symbol('a');
+      const b = Symbol('b');
+      const c = Symbol('c');
+      const props = {};
+            props[ a ] = null;
+            props[ b ] = { attr: 'a' };
+            props[ c ] = { attr: 'b', type: Number };
+
+      Lit.define( customName, {
+        props
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } a="1" b="2"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit, a );
+      should.has( lit, b );
+      should.has( lit, c );
+      should.has( lit.$props, a );
+      should.has( lit.$props, b );
+      should.has( lit.$props, c );
+
+      should.equal( lit[ a ], undefined );
+      should.equal( lit[ b ], '1' );
+      should.equal( lit[ c ], 2 );
+      should.equal( lit.$props[ a ], undefined );
+      should.equal( lit.$props[ b ], '1' );
+      should.equal( lit.$props[ c ], 2 );
+
+      custom.setAttribute('a','2');
+
+      should.equal( lit[ a ], undefined );
+      should.equal( lit[ b ], '2' );
+      should.equal( lit[ c ], 2 );
+      should.equal( lit.$props[ a ], undefined );
+      should.equal( lit.$props[ b ], '2' );
+      should.equal( lit.$props[ c ], 2 );
+
+      custom.setAttribute('b','3');
+
+      should.equal( lit[ a ], undefined );
+      should.equal( lit[ b ], '2' );
+      should.equal( lit[ c ], 3 );
+      should.equal( lit.$props[ a ], undefined );
+      should.equal( lit.$props[ b ], '2' );
+      should.equal( lit.$props[ c ], 3 );
     });
 
   });
