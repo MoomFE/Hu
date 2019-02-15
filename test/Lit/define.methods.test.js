@@ -27,6 +27,29 @@ describe( 'Lit.define - methods', () => {
     should.equal( lit.$methods.b(), 2 );
   });
 
+  it( '首字母不为 $ 的方法可以在 $methods 和 $lit 下找到', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      methods: {
+        a: fn1
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    should.has( lit, 'a' );
+    should.has( lit.$methods, 'a' );
+
+    should.isFunction( lit.a );
+    should.isFunction( lit.$methods.a );
+
+    should.equal( lit.a(), 1 );
+    should.equal( lit.$methods.a(), 1 );
+  });
+
   it( '首字母为 $ 的方法可以在 $methods 下找到, 但是不能在 $lit 下找到', () => {
     const customName = window.customName;
 
@@ -49,29 +72,6 @@ describe( 'Lit.define - methods', () => {
     should.equal( lit.a(), 1 );
     should.equal( lit.$methods.a(), 1 );
     should.equal( lit.$methods.$a(), 2 );
-  });
-
-  it( '首字母不为 $ 的方法可以在 $methods 和 $lit 下找到', () => {
-    const customName = window.customName;
-
-    Lit.define( customName, {
-      methods: {
-        a: fn1
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const lit = custom.$lit;
-
-    should.has( lit, 'a' );
-    should.has( lit.$methods, 'a' );
-
-    should.isFunction( lit.a );
-    should.isFunction( lit.$methods.a );
-
-    should.equal( lit.a(), 1 );
-    should.equal( lit.$methods.a(), 1 );
   });
 
   it( '若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前方法', () => {
@@ -100,6 +100,26 @@ describe( 'Lit.define - methods', () => {
     should.equal( lit.$props.a, '1' );
     should.equal( lit.a(), 1 );
     should.equal( lit.$methods.a(), 1 );
+  });
+
+  it( '调用方法时, 方法的 this 指向的是 $lit', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      methods: {
+        a(){ return this }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    should.has( lit, 'a' );
+    should.has( lit.$methods, 'a' );
+
+    should.equal( lit.a(), lit );
+    should.equal( lit.$methods.a(), lit );
   });
 
 });
