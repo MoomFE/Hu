@@ -1,6 +1,8 @@
 import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
 import isReserved from "../../../shared/util/isReserved";
+import canInjection from "../../../shared/util/canInjection";
+import has from "../../../shared/global/Reflect/has";
 
 
 /**
@@ -26,9 +28,13 @@ export default function initMethods( root, options, target, targetProxy ){
   options.methods && each( options.methods, ( key, method ) => {
     const $method = methodsTarget[ key ] = method.bind( targetProxy );
 
-    isReserved( key ) || (
-      target[ key ] = $method
+    if( !canInjection( key ) ) return;
+
+    has( target, key ) && (
+      delete target[ key ]
     );
+
+    target[ key ] = $method;
   });
 
 }

@@ -215,6 +215,8 @@
    */
   value => Object.prototype.toString.call(value) === '[object Object]');
 
+  const ownKeys = Reflect.ownKeys;
+
   var each = (
   /**
    * 对象遍历方法
@@ -222,7 +224,7 @@
    * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
    */
   (obj, cb) => {
-    const keys = Reflect.ownKeys(obj);
+    const keys = ownKeys(obj);
 
     for (let key of keys) {
       cb(key, obj[key]);
@@ -519,6 +521,16 @@
 
   const defineProperty = Object.defineProperty;
 
+  var canInjection = (
+  /**
+   * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
+   * @param { string | symbol } name 需要判断的名称
+   * @param { boolean? } isSymbolName name 是否是 symbol 类型
+   */
+  (name, isSymbolName) => {
+    return (isSymbolName !== undefined ? isSymbolName : isSymbol(name)) || !isReserved(name);
+  });
+
   /**
    * 初始化当前组件 props 属性
    * @param {HTMLElement} root 
@@ -558,7 +570,7 @@
     }); // 将 $props 上的属性在 $lit 上建立引用
 
     each(props, (name, options) => {
-      if (!(options.isSymbol || !isReserved(name))) return;
+      if (!canInjection(name, options.isSymbol)) return;
       defineProperty(target, name, {
         enumerable: true,
         configurable: true,
@@ -567,6 +579,8 @@
       });
     });
   }
+
+  const has = Reflect.has;
 
   /**
    * 初始化当前组件 methods 属性
@@ -590,7 +604,9 @@
     });
     options.methods && each(options.methods, (key, method) => {
       const $method = methodsTarget[key] = method.bind(targetProxy);
-      isReserved(key) || (target[key] = $method);
+      if (!canInjection(key)) return;
+      has(target, key) && delete target[key];
+      target[key] = $method;
     });
   }
 
