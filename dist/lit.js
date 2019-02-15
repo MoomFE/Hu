@@ -446,6 +446,29 @@
   }
 
   /**
+   * 初始化当前组件 data 属性
+   * @param {HTMLElement} root 
+   * @param {{}} options 
+   * @param {{}} target 
+   * @param {{}} targetProxy 
+   */
+
+  function initData$1(root, options, target, targetProxy) {
+    const dataTarget = create(null);
+    target.$data = new Proxy(dataTarget, {
+      set: Set_Defined
+    });
+
+    if (options.data) {
+      const data = options.data.call(targetProxy);
+      data && each(data, (key, value) => {
+        dataTarget[key] = value;
+        injectionToLit(target, key, value);
+      });
+    }
+  }
+
+  /**
    * 初始化当前组件属性
    * @param {HTMLElement} root 组件根节点
    * @param {{}} options 组件配置
@@ -470,6 +493,7 @@
     target.$root = root;
     initProps$1(root, options, target, targetProxy);
     initMethods$1(root, options, target, targetProxy);
+    initData$1(root, options, target, targetProxy);
     return targetProxy;
   }
 

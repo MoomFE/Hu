@@ -13,12 +13,12 @@ Lit 使用了和 Vue 相似的 API, 大大减少了学习成本
 ## 大小 - 版本详解
 |                           | Default | Gzip   | -   | Module | Use in | Description |
 | :-                        | :-      | :-     | :-: | :-     | :-     | :-          |
-| lit.js                    | 12.03KB | 3.93KB | \| | UMD | Browser | |
-| lit.min.js                | 3.09KB | 1.43KB | \| | UMD | Browser | |
-| lit.polyfill.async.js     | 18.54KB | 5.90KB | \| | UMD | Browser | |
-| lit.polyfill.async.min.js | 5.38KB | 2.28KB | \| | UMD | Browser | |
-| lit.polyfill.js           | 176.11KB | 41.15KB | \| | UMD | Browser | |
-| lit.polyfill.min.js       | 101.37KB | 31.58KB | \| | UMD | Browser | |
+| lit.js                    | 12.61KB | 4.00KB | \| | UMD | Browser | |
+| lit.min.js                | 3.23KB | 1.47KB | \| | UMD | Browser | |
+| lit.polyfill.async.js     | 19.12KB | 5.97KB | \| | UMD | Browser | |
+| lit.polyfill.async.min.js | 5.51KB | 2.32KB | \| | UMD | Browser | |
+| lit.polyfill.js           | 176.69KB | 41.22KB | \| | UMD | Browser | |
+| lit.polyfill.min.js       | 101.50KB | 31.62KB | \| | UMD | Browser | |
 
 <br>
 
