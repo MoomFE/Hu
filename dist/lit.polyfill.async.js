@@ -531,6 +531,18 @@
     return (isSymbolName !== undefined ? isSymbolName : isSymbol(name)) || !isReserved(name);
   });
 
+  var Set_Defined = (
+  /**
+   * 只允许修改已定义过的变量
+   */
+  (target, name, value) => {
+    if (name in target) {
+      return target[name] = value, true;
+    }
+
+    return false;
+  });
+
   /**
    * 初始化当前组件 props 属性
    * @param {HTMLElement} root 
@@ -543,14 +555,7 @@
     const props = options.props;
     const propsTarget = create(null);
     const propsTargetProxy = target.$props = new Proxy(propsTarget, {
-      set(target, name, value) {
-        if (name in target) {
-          return target[name] = value, true;
-        }
-
-        return false;
-      }
-
+      set: Set_Defined
     }); // 尝试从标签上获取 props 属性, 否则取默认值
 
     each(props, (name, options) => {
@@ -593,14 +598,7 @@
   function initMethods$1(root, options, target, targetProxy) {
     const methodsTarget = create(null);
     target.$methods = new Proxy(methodsTarget, {
-      set(target, name, value) {
-        if (name in target) {
-          return target[name] = value, true;
-        }
-
-        return false;
-      }
-
+      set: Set_Defined
     });
     options.methods && each(options.methods, (key, method) => {
       const $method = methodsTarget[key] = method.bind(targetProxy);

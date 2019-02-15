@@ -1,8 +1,8 @@
 import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
-import isReserved from "../../../shared/util/isReserved";
 import canInjection from "../../../shared/util/canInjection";
 import has from "../../../shared/global/Reflect/has";
+import Set_Defined from "../../../shared/proxy/Set_Defined";
 
 
 /**
@@ -17,12 +17,7 @@ export default function initMethods( root, options, target, targetProxy ){
   const methodsTarget = create( null );
 
   target.$methods = new Proxy( methodsTarget, {
-    set( target, name, value ){
-      if( name in target ){
-        return (( target[ name ] = value ), true);
-      }
-      return false;
-    }
+    set: Set_Defined
   });
 
   options.methods && each( options.methods, ( key, method ) => {

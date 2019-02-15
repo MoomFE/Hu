@@ -4,6 +4,7 @@ import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
 import defineProperty from "../../../shared/global/Object/defineProperty";
 import canInjection from "../../../shared/util/canInjection";
+import Set_Defined from "../../../shared/proxy/Set_Defined";
 
 
 /**
@@ -18,12 +19,7 @@ export default function initProps( root, options, target, targetProxy ){
   const props = options.props;
   const propsTarget = create( null );
   const propsTargetProxy = target.$props = new Proxy( propsTarget, {
-    set( target, name, value ){
-      if( name in target ){
-        return (( target[ name ] = value ), true);
-      }
-      return false;
-    }
+    set: Set_Defined
   });
 
   // 尝试从标签上获取 props 属性, 否则取默认值
