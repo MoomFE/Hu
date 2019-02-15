@@ -6158,8 +6158,6 @@
 
   const create = Object.create;
 
-  const defineProperty = Object.defineProperty;
-
   var isReserved = (
   /**
    * 判断字符串首字母是否为 $
@@ -6190,6 +6188,26 @@
     }
 
     return false;
+  });
+
+  const defineProperty = Object.defineProperty;
+
+  var define = (
+  /**
+   * 在传入对象上定义可枚举可删除的一个新属性
+   * 
+   * @param {any} 需要定义属性的对象
+   * @param {string} attribute 需要定义的属性名称
+   * @param {function} get 属性的 getter 方法
+   * @param {function} set 属性的 setter 方法
+   */
+  (obj, attribute, get, set) => {
+    defineProperty(obj, attribute, {
+      enumerable: true,
+      configurable: true,
+      get,
+      set
+    });
   });
 
   /**
@@ -6224,17 +6242,34 @@
     }); // 将 $props 上的属性在 $lit 上建立引用
 
     each(props, (name, options) => {
-      if (!canInjection(name, options.isSymbol)) return;
-      defineProperty(target, name, {
-        enumerable: true,
-        configurable: true,
-        get: () => propsTargetProxy[name],
-        set: value => propsTargetProxy[name] = value
-      });
+      canInjection(name, options.isSymbol) && define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
     });
   }
 
   const has = Reflect.has;
+
+  var injectionToLit = (
+  /**
+   * 在 $lit 上建立对象的映射
+   * 
+   * @param {{}} litTarget $lit 实例
+   * @param {string} key 对象名称
+   * @param {any} value 对象值
+   * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
+   * @param {function} get 属性的 setter 方法
+   */
+  (litTarget, key, value, getter, set, get) => {
+    // 首字母为 $ 则不允许映射到 $lit 实例中去
+    if (!canInjection(key)) return; // 若在 $lit 下有同名变量, 则删除
+
+    has(litTarget, key) && delete litTarget[key];
+
+    if (getter) {
+      define(litTarget, key, set, get);
+    } else {
+      litTarget[key] = value;
+    }
+  });
 
   /**
    * 初始化当前组件 methods 属性
@@ -6249,12 +6284,9 @@
     target.$methods = new Proxy(methodsTarget, {
       set: Set_Defined
     });
-    options.methods && each(options.methods, (key, method) => {
-      const $method = methodsTarget[key] = method.bind(targetProxy);
-      if (!canInjection(key)) return; // 若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前方法
-
-      has(target, key) && delete target[key];
-      target[key] = $method;
+    options.methods && each(options.methods, (key, value) => {
+      const method = methodsTarget[key] = value.bind(targetProxy);
+      injectionToLit(target, key, method);
     });
   }
 
@@ -6294,7 +6326,7 @@
    * @param {{}} options 组件配置
    */
 
-  function define(name, options) {
+  function define$1(name, options) {
     // 初始化组件配置
     options = initOptions(options);
     /**
@@ -6349,7 +6381,7 @@
 
     customElements.define(name, LitElement);
   }
-  Lit.define = define;
+  Lit.define = define$1;
 
   return Lit;
 

@@ -2,9 +2,9 @@ import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
-import defineProperty from "../../../shared/global/Object/defineProperty";
 import canInjection from "../../../shared/util/canInjection";
 import Set_Defined from "../../../shared/proxy/Set_Defined";
+import define from "../../../shared/util/define";
 
 
 /**
@@ -44,14 +44,12 @@ export default function initProps( root, options, target, targetProxy ){
 
   // 将 $props 上的属性在 $lit 上建立引用
   each( props, ( name, options ) => {
-    if( !canInjection( name, options.isSymbol ) ) return;
-
-    defineProperty( target, name, {
-      enumerable: true,
-      configurable: true,
-      get: () => propsTargetProxy[ name ],
-      set: value => propsTargetProxy[ name ] = value
-    });
+    canInjection( name, options.isSymbol ) &&
+    define(
+      target, name,
+      () => propsTargetProxy[ name ],
+      value => propsTargetProxy[ name ] = value
+    );
   });
 
 }
