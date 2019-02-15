@@ -2,8 +2,8 @@ import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
-import isReserved from "../../../shared/util/isReserved";
 import defineProperty from "../../../shared/global/Object/defineProperty";
+import canInjection from "../../../shared/util/canInjection";
 
 
 /**
@@ -48,7 +48,7 @@ export default function initProps( root, options, target, targetProxy ){
 
   // 将 $props 上的属性在 $lit 上建立引用
   each( props, ( name, options ) => {
-    if( !( options.isSymbol || !isReserved( name ) ) ) return;
+    if( !canInjection( name, options.isSymbol ) ) return;
 
     defineProperty( target, name, {
       enumerable: true,
