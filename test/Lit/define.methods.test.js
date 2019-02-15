@@ -34,7 +34,7 @@ describe( 'Lit.define - methods', () => {
 
   describe( '首字母不为 $ 的方法会在 $lit 上建立引用', () => {
 
-    it( '若在 $lit 下有同名变量, 会把 $lit 下的同名变量给替换为当前方法', () => {
+    it( '若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前方法', () => {
       const customName = window.customName;
 
       Lit.define( customName, {
