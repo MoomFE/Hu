@@ -679,6 +679,30 @@ describe( 'Lit.define - props', () => {
       should.equal( lit.$props.b9, 'c9' );
     });
 
+    it( '在返回默认值方法内, this 指向的是 $lit', () => {
+      const customName = window.customName;
+
+      Lit.define( customName, {
+        props: {
+          a: {
+            default(){
+              return this;
+            }
+          }
+        }
+      });
+
+      const div = document.createElement('div').$html(`<${ customName } b="3"></${ customName }>`);
+      const custom = div.firstElementChild;
+      const lit = custom.$lit;
+
+      should.has( lit, 'a' );
+      should.has( lit.$props, 'a' );
+
+      should.equal( lit.a, lit );
+      should.equal( lit.$props.a, lit );
+    });
+
   });
 
   describe( '首字母不为 $ 的 prop 会在 $lit 上建立引用', () => {
