@@ -1,7 +1,11 @@
 const path = require('path');
 const fs = require('fs-extra');
 
+
 const READMEPATH = path.resolve( __dirname, 'README.md' );
+const REPLACE_PRODUCTION = {
+  'process.env.NODE_ENV': JSON.stringify('production')
+};
 
 
 module.exports = {
@@ -27,17 +31,20 @@ module.exports = {
       {
         mode: true,
         from: 'src/build/index.js',
-        to: 'dist/lit.min.js'
+        to: 'dist/lit.min.js',
+        replace: REPLACE_PRODUCTION
       },
       {
         mode: true,
         from: 'src/build/polyfill.js',
-        to: 'dist/lit.polyfill.min.js'
+        to: 'dist/lit.polyfill.min.js',
+        replace: REPLACE_PRODUCTION
       },
       {
         mode: true,
         from: 'src/build/polyfill.async.js',
-        to: 'dist/lit.polyfill.async.min.js'
+        to: 'dist/lit.polyfill.async.min.js',
+        replace: REPLACE_PRODUCTION
       }
     ]
 
@@ -122,6 +129,10 @@ module.exports = {
          */
         unsafe_methods: true
       }
+    },
+
+    replace: {
+      'process.env.NODE_ENV': JSON.stringify('development')
     },
 
     on: {
