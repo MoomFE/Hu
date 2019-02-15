@@ -1,3 +1,6 @@
+import ownKeys from "../global/Reflect/ownKeys";
+
+
 export default
 /**
  * 对象遍历方法
@@ -5,7 +8,7 @@ export default
  * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
  */
 ( obj, cb ) => {
-  const keys = Reflect.ownKeys( obj );
+  const keys = ownKeys( obj );
 
   for( let key of keys ){
     cb( key, obj[ key ] );
