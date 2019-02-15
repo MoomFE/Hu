@@ -313,6 +313,8 @@
 
   const create = Object.create;
 
+  const defineProperty = Object.defineProperty;
+
   var isReserved = (
   /**
    * 判断字符串首字母是否为 $
@@ -322,8 +324,6 @@
     const charCode = (value + '').charCodeAt(0);
     return charCode === 0x24;
   });
-
-  const defineProperty = Object.defineProperty;
 
   var canInjection = (
   /**
@@ -408,7 +408,8 @@
     });
     options.methods && each(options.methods, (key, method) => {
       const $method = methodsTarget[key] = method.bind(targetProxy);
-      if (!canInjection(key)) return;
+      if (!canInjection(key)) return; // 若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前方法
+
       has(target, key) && delete target[key];
       target[key] = $method;
     });

@@ -30,9 +30,8 @@ export default function initMethods( root, options, target, targetProxy ){
 
     if( !canInjection( key ) ) return;
 
-    has( target, key ) && (
-      delete target[ key ]
-    );
+    // 若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前方法
+    has( target, key ) && delete target[ key ];
 
     target[ key ] = $method;
   });
