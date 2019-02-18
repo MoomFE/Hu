@@ -17,8 +17,8 @@ describe( 'Lit.define - methods', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    expect( lit.$methods ).has.property( 'a' ).that.to.be.an('function');
-    expect( lit.$methods ).has.property( 'b' ).that.to.be.an('function');
+    expect( lit.$methods ).has.property( 'a' );
+    expect( lit.$methods ).has.property( 'b' );
 
     expect( lit.$methods.a() ).to.equals( 1 );
     expect( lit.$methods.b() ).to.equals( 2 );
@@ -37,8 +37,8 @@ describe( 'Lit.define - methods', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    expect( lit ).has.property( 'a' ).that.to.be.an('function');
-    expect( lit.$methods ).has.property( 'a' ).that.to.be.an('function');
+    expect( lit ).has.property( 'a' );
+    expect( lit.$methods ).has.property( 'a' );
 
     expect( lit.a() ).to.equals( 1 );
     expect( lit.$methods.a() ).to.equals( 1 );
@@ -84,9 +84,9 @@ describe( 'Lit.define - methods', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    expect( lit ).has.property( 'a' ).that.to.be.an('function');
-    expect( lit.$props ).has.property( 'a' ).that.to.be.an('string');
-    expect( lit.$methods ).has.property( 'a' ).that.to.be.an('function');
+    expect( lit ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$methods ).has.property( 'a' );
 
     expect( lit.$props.a ).to.equals( '1' );
     expect( lit.a() ).to.equals( 1 );
