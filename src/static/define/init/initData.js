@@ -15,17 +15,21 @@ export default function initData( root, options, target, targetProxy ){
 
   const dataTarget = create( null );
 
-  target.$data = new Proxy( dataTarget, {
+  const dataTargetProxy = target.$data = new Proxy( dataTarget, {
     set: Set_Defined
   });
 
   if( options.data ){
     const data = options.data.call( targetProxy );
 
-    data && each( data, ( key, value ) => {
-      dataTarget[ key ] = value;
+    data && each( data, ( name, value ) => {
+      dataTarget[ name ] = value;
 
-      injectionToLit( target, key, value );
+      injectionToLit(
+        target, name, value,
+        () => dataTargetProxy[ name ],
+        value => dataTargetProxy[ name ] = value
+      );
     });
   }
   

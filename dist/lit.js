@@ -440,9 +440,9 @@
     target.$methods = new Proxy(methodsTarget, {
       set: Set_Defined
     });
-    options.methods && each(options.methods, (key, value) => {
-      const method = methodsTarget[key] = value.bind(targetProxy);
-      injectionToLit(target, key, method);
+    options.methods && each(options.methods, (name, value) => {
+      const method = methodsTarget[name] = value.bind(targetProxy);
+      injectionToLit(target, name, method);
     });
   }
 
@@ -456,15 +456,15 @@
 
   function initData$1(root, options, target, targetProxy) {
     const dataTarget = create(null);
-    target.$data = new Proxy(dataTarget, {
+    const dataTargetProxy = target.$data = new Proxy(dataTarget, {
       set: Set_Defined
     });
 
     if (options.data) {
       const data = options.data.call(targetProxy);
-      data && each(data, (key, value) => {
-        dataTarget[key] = value;
-        injectionToLit(target, key, value);
+      data && each(data, (name, value) => {
+        dataTarget[name] = value;
+        injectionToLit(target, name, value, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
       });
     }
   }
