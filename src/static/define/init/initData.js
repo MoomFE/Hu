@@ -25,9 +25,7 @@ export default function initData( root, options, target, targetProxy ){
     data && each( data, ( key, value ) => {
       dataTarget[ key ] = value;
 
-      injectionToLit(
-        target, key, value
-      );
+      injectionToLit( target, key, value );
     });
   }
   
