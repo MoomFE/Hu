@@ -1055,4 +1055,33 @@ describe( 'Lit.define - props', () => {
     should.equal( lit.$props.a, 123 );
   });
 
+  it( '若删除 $lit 下的 prop 映射, 不会影响到 $props 内的 prop 本体', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      props: {
+        a: null
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    should.has( lit, 'a' );
+    should.has( lit.$props, 'a' );
+
+    should.equal( lit.a, '1' );
+    should.equal( lit.$props.a, '1' );
+    
+    delete lit.a;
+
+    should.notHas( lit, 'a' );
+    should.has( lit.$props, 'a' );
+
+    should.equal( lit.a, undefined );
+    should.equal( lit.$props.a, '1' );
+  });
+
+
 });
