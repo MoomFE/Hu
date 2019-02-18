@@ -19,10 +19,10 @@ export default function initMethods( root, options, target, targetProxy ){
     set: Set_Defined
   });
 
-  options.methods && each( options.methods, ( key, value ) => {
-    const method = methodsTarget[ key ] = value.bind( targetProxy );
+  options.methods && each( options.methods, ( name, value ) => {
+    const method = methodsTarget[ name ] = value.bind( targetProxy );
 
-    injectionToLit( target, key, method );
+    injectionToLit( target, name, method );
   });
 
 }
