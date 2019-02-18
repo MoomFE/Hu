@@ -11,15 +11,15 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, '3' );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, '3' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( '3' );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( '3' );
   });
 
   it( '使用 JOSN 定义 props', () => {
@@ -36,15 +36,15 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, '3' );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, '3' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( '3' );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( '3' );
   });
 
   it( '定义 prop 的类型为 String ( 写法一 )', () => {
@@ -62,19 +62,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, '' );
-    should.equal( lit.c, '5' );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, '' );
-    should.equal( lit.$props.c, '5' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( '' );
+    expect( lit.c ).to.equals( '5' );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( '' );
+    expect( lit.$props.c ).to.equals( '5' );
   });
 
   it( '定义 prop 的类型为 String ( 写法二 )', () => {
@@ -92,19 +92,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, '' );
-    should.equal( lit.c, '5' );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, '' );
-    should.equal( lit.$props.c, '5' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( '' );
+    expect( lit.c ).to.equals( '5' );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( '' );
+    expect( lit.$props.c ).to.equals( '5' );
   });
 
   it( '定义 prop 的类型为 String ( 写法三 )', () => {
@@ -128,19 +128,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, '' );
-    should.equal( lit.c, '5' );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, '' );
-    should.equal( lit.$props.c, '5' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( '' );
+    expect( lit.c ).to.equals( '5' );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( '' );
+    expect( lit.$props.c ).to.equals( '5' );
   });
 
   it( '定义 prop 的类型为 Boolean ( 写法一 )', () => {
@@ -158,19 +158,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, true );
-    should.equal( lit.c, true );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, true );
-    should.equal( lit.$props.c, true );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( true );
+    expect( lit.c ).to.equals( true );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( true );
+    expect( lit.$props.c ).to.equals( true );
   });
 
   it( '定义 prop 的类型为 Boolean ( 写法二 )', () => {
@@ -188,19 +188,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, true );
-    should.equal( lit.c, true );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, true );
-    should.equal( lit.$props.c, true );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( true );
+    expect( lit.c ).to.equals( true );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( true );
+    expect( lit.$props.c ).to.equals( true );
   });
 
   it( '定义 prop 的类型为 Boolean ( 写法三 )', () => {
@@ -224,19 +224,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, true );
-    should.equal( lit.c, true );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, true );
-    should.equal( lit.$props.c, true );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( true );
+    expect( lit.c ).to.equals( true );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( true );
+    expect( lit.$props.c ).to.equals( true );
   });
 
   it( '定义 prop 的类型为 Number ( 写法一 )', () => {
@@ -254,19 +254,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, 0 );
-    should.equal( lit.c, 5 );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, 0 );
-    should.equal( lit.$props.c, 5 );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( 0 );
+    expect( lit.c ).to.equals( 5 );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( 0 );
+    expect( lit.$props.c ).to.equals( 5 );
   });
 
   it( '定义 prop 的类型为 Number ( 写法二 )', () => {
@@ -284,19 +284,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, 0 );
-    should.equal( lit.c, 5 );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, 0 );
-    should.equal( lit.$props.c, 5 );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( 0 );
+    expect( lit.c ).to.equals( 5 );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( 0 );
+    expect( lit.$props.c ).to.equals( 5 );
   });
 
   it( '定义 prop 的类型为 Number ( 写法三 )', () => {
@@ -320,19 +320,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, 0 );
-    should.equal( lit.c, 5 );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, 0 );
-    should.equal( lit.$props.c, 5 );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( 0 );
+    expect( lit.c ).to.equals( 5 );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( 0 );
+    expect( lit.$props.c ).to.equals( 5 );
   });
 
   it( '使用自定义方法转换 prop 的类型 ( 写法一 )', () => {
@@ -350,19 +350,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, 2 );
-    should.equal( lit.b, 3 );
-    should.equal( lit.c, 4 );
-    should.equal( lit.$props.a, 2 );
-    should.equal( lit.$props.b, 3 );
-    should.equal( lit.$props.c, 4 );
+    expect( lit.a ).to.equals( 2 );
+    expect( lit.b ).to.equals( 3 );
+    expect( lit.c ).to.equals( 4 );
+    expect( lit.$props.a ).to.equals( 2 );
+    expect( lit.$props.b ).to.equals( 3 );
+    expect( lit.$props.c ).to.equals( 4 );
   });
 
   it( '使用自定义方法转换 prop 的类型 ( 写法二 )', () => {
@@ -380,19 +380,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, 2 );
-    should.equal( lit.b, 3 );
-    should.equal( lit.c, 4 );
-    should.equal( lit.$props.a, 2 );
-    should.equal( lit.$props.b, 3 );
-    should.equal( lit.$props.c, 4 );
+    expect( lit.a ).to.equals( 2 );
+    expect( lit.b ).to.equals( 3 );
+    expect( lit.c ).to.equals( 4 );
+    expect( lit.$props.a ).to.equals( 2 );
+    expect( lit.$props.b ).to.equals( 3 );
+    expect( lit.$props.c ).to.equals( 4 );
   });
 
   it( '使用自定义方法转换 prop 的类型 ( 写法三 )', () => {
@@ -416,19 +416,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
 
-    should.equal( lit.a, 2 );
-    should.equal( lit.b, 3 );
-    should.equal( lit.c, 4 );
-    should.equal( lit.$props.a, 2 );
-    should.equal( lit.$props.b, 3 );
-    should.equal( lit.$props.c, 4 );
+    expect( lit.a ).to.equals( 2 );
+    expect( lit.b ).to.equals( 3 );
+    expect( lit.c ).to.equals( 4 );
+    expect( lit.$props.a ).to.equals( 2 );
+    expect( lit.$props.b ).to.equals( 3 );
+    expect( lit.$props.c ).to.equals( 4 );
   });
 
   it( '定义 prop 的默认值为非引用类型时无要求', () => {
@@ -458,27 +458,27 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit, 'd' );
-    should.has( lit, 'e' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
-    should.has( lit.$props, 'd' );
-    should.has( lit.$props, 'e' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit ).has.property( 'd' );
+    expect( lit ).has.property( 'e' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'd' );
+    expect( lit.$props ).has.property( 'e' );
 
-    should.equal( lit.a, '123' );
-    should.equal( lit.b, 123 );
-    should.equal( lit.c, false );
-    should.equal( lit.d, true );
-    should.equal( lit.e, null );
-    should.equal( lit.$props.a, '123' );
-    should.equal( lit.$props.b, 123 );
-    should.equal( lit.$props.c, false );
-    should.equal( lit.$props.d, true );
-    should.equal( lit.$props.e, null );
+    expect( lit.a ).to.equals( '123' );
+    expect( lit.b ).to.equals( 123 );
+    expect( lit.c ).to.equals( false );
+    expect( lit.d ).to.equals( true );
+    expect( lit.e ).to.equals( null );
+    expect( lit.$props.a ).to.equals( '123' );
+    expect( lit.$props.b ).to.equals( 123 );
+    expect( lit.$props.c ).to.equals( false );
+    expect( lit.$props.d ).to.equals( true );
+    expect( lit.$props.e ).to.equals( null );
   });
 
   it( '定义 prop 的默认值为引用类型时必须使用方法进行返回', () => {
@@ -514,35 +514,35 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'c' );
-    should.has( lit, 'd' );
-    should.has( lit, 'e' );
-    should.has( lit, 'f' );
-    should.has( lit, 'g' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'c' );
-    should.has( lit.$props, 'd' );
-    should.has( lit.$props, 'e' );
-    should.has( lit.$props, 'f' );
-    should.has( lit.$props, 'g' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'c' );
+    expect( lit ).has.property( 'd' );
+    expect( lit ).has.property( 'e' );
+    expect( lit ).has.property( 'f' );
+    expect( lit ).has.property( 'g' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'c' );
+    expect( lit.$props ).has.property( 'd' );
+    expect( lit.$props ).has.property( 'e' );
+    expect( lit.$props ).has.property( 'f' );
+    expect( lit.$props ).has.property( 'g' );
 
-    Object.$equals( lit.a, undefined ).should.true;
-    Object.$equals( lit.b, undefined ).should.true;
-    Object.$equals( lit.c, undefined ).should.true;
-    Object.$equals( lit.d, [ 1, 2, 3 ] ).should.true;
-    Object.$equals( lit.e, { a: 1, b: 2, c: 3 } ).should.true;
-    Object.$equals( lit.f, /RegExp/ ).should.true;
-    Object.$equals( lit.g, ZenJS.noop ).should.true;
-    Object.$equals( lit.$props.a, undefined ).should.true;
-    Object.$equals( lit.$props.b, undefined ).should.true;
-    Object.$equals( lit.$props.c, undefined ).should.true;
-    Object.$equals( lit.$props.d, [ 1, 2, 3 ] ).should.true;
-    Object.$equals( lit.$props.e, { a: 1, b: 2, c: 3 } ).should.true;
-    Object.$equals( lit.$props.f, /RegExp/ ).should.true;
-    Object.$equals( lit.$props.g, ZenJS.noop ).should.true;
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( undefined );
+    expect( lit.c ).to.equals( undefined );
+    // expect( lit.d ).to.equals( [ 1, 2, 3 ] );
+    expect( lit.e ).to.deep.equals( { a: 1, b: 2, c: 3 } );
+    expect( lit.f ).to.deep.equals( /RegExp/ );
+    expect( lit.g ).to.equals( ZenJS.noop );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( undefined );
+    expect( lit.$props.c ).to.equals( undefined );
+    expect( lit.$props.d ).to.deep.equals( [ 1, 2, 3 ] );
+    expect( lit.$props.e ).to.deep.equals( { a: 1, b: 2, c: 3 } );
+    expect( lit.$props.f ).to.deep.equals( /RegExp/ );
+    expect( lit.$props.g ).to.equals( ZenJS.noop );
   });
 
   it( '定义 prop 的默认值后, 确保在已传入值时, 默认值不起作用', () => {
@@ -582,79 +582,79 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a1' );
-    should.has( lit, 'a2' );
-    should.has( lit, 'a3' );
-    should.has( lit, 'a4' );
-    should.has( lit, 'a5' );
-    should.has( lit, 'a6' );
-    should.has( lit, 'a7' );
-    should.has( lit, 'a8' );
-    should.has( lit, 'a9' );
-    should.has( lit, 'b1' );
-    should.has( lit, 'b2' );
-    should.has( lit, 'b3' );
-    should.has( lit, 'b4' );
-    should.has( lit, 'b5' );
-    should.has( lit, 'b6' );
-    should.has( lit, 'b7' );
-    should.has( lit, 'b8' );
-    should.has( lit, 'b9' );
-    should.has( lit.$props, 'a1' );
-    should.has( lit.$props, 'a2' );
-    should.has( lit.$props, 'a3' );
-    should.has( lit.$props, 'a4' );
-    should.has( lit.$props, 'a5' );
-    should.has( lit.$props, 'a6' );
-    should.has( lit.$props, 'a7' );
-    should.has( lit.$props, 'a8' );
-    should.has( lit.$props, 'a9' );
-    should.has( lit.$props, 'b1' );
-    should.has( lit.$props, 'b2' );
-    should.has( lit.$props, 'b3' );
-    should.has( lit.$props, 'b4' );
-    should.has( lit.$props, 'b5' );
-    should.has( lit.$props, 'b6' );
-    should.has( lit.$props, 'b7' );
-    should.has( lit.$props, 'b8' );
-    should.has( lit.$props, 'b9' );
+    expect( lit ).has.property( 'a1' );
+    expect( lit ).has.property( 'a2' );
+    expect( lit ).has.property( 'a3' );
+    expect( lit ).has.property( 'a4' );
+    expect( lit ).has.property( 'a5' );
+    expect( lit ).has.property( 'a6' );
+    expect( lit ).has.property( 'a7' );
+    expect( lit ).has.property( 'a8' );
+    expect( lit ).has.property( 'a9' );
+    expect( lit ).has.property( 'b1' );
+    expect( lit ).has.property( 'b2' );
+    expect( lit ).has.property( 'b3' );
+    expect( lit ).has.property( 'b4' );
+    expect( lit ).has.property( 'b5' );
+    expect( lit ).has.property( 'b6' );
+    expect( lit ).has.property( 'b7' );
+    expect( lit ).has.property( 'b8' );
+    expect( lit ).has.property( 'b9' );
+    expect( lit.$props ).has.property( 'a1' );
+    expect( lit.$props ).has.property( 'a2' );
+    expect( lit.$props ).has.property( 'a3' );
+    expect( lit.$props ).has.property( 'a4' );
+    expect( lit.$props ).has.property( 'a5' );
+    expect( lit.$props ).has.property( 'a6' );
+    expect( lit.$props ).has.property( 'a7' );
+    expect( lit.$props ).has.property( 'a8' );
+    expect( lit.$props ).has.property( 'a9' );
+    expect( lit.$props ).has.property( 'b1' );
+    expect( lit.$props ).has.property( 'b2' );
+    expect( lit.$props ).has.property( 'b3' );
+    expect( lit.$props ).has.property( 'b4' );
+    expect( lit.$props ).has.property( 'b5' );
+    expect( lit.$props ).has.property( 'b6' );
+    expect( lit.$props ).has.property( 'b7' );
+    expect( lit.$props ).has.property( 'b8' );
+    expect( lit.$props ).has.property( 'b9' );
 
-    should.equal( lit.a1, '' );
-    should.equal( lit.a2, '' );
-    should.equal( lit.a3, 'b3' );
-    should.equal( lit.a4, true );
-    should.equal( lit.a5, true );
-    should.equal( lit.a6, true );
-    should.equal( lit.a7, 0 );
-    should.equal( lit.a8, 0 );
-    should.equal( lit.a9, 9 );
-    should.equal( lit.b1, 'c1' );
-    should.equal( lit.b2, 'c2' );
-    should.equal( lit.b3, 'c3' );
-    should.equal( lit.b4, 'c4' );
-    should.equal( lit.b5, 'c5' );
-    should.equal( lit.b6, 'c6' );
-    should.equal( lit.b7, 'c7' );
-    should.equal( lit.b8, 'c8' );
-    should.equal( lit.b9, 'c9' );
-    should.equal( lit.$props.a1, '' );
-    should.equal( lit.$props.a2, '' );
-    should.equal( lit.$props.a3, 'b3' );
-    should.equal( lit.$props.a4, true );
-    should.equal( lit.$props.a5, true );
-    should.equal( lit.$props.a6, true );
-    should.equal( lit.$props.a7, 0 );
-    should.equal( lit.$props.a8, 0 );
-    should.equal( lit.$props.a9, 9 );
-    should.equal( lit.$props.b1, 'c1' );
-    should.equal( lit.$props.b2, 'c2' );
-    should.equal( lit.$props.b3, 'c3' );
-    should.equal( lit.$props.b4, 'c4' );
-    should.equal( lit.$props.b5, 'c5' );
-    should.equal( lit.$props.b6, 'c6' );
-    should.equal( lit.$props.b7, 'c7' );
-    should.equal( lit.$props.b8, 'c8' );
-    should.equal( lit.$props.b9, 'c9' );
+    expect( lit.a1 ).to.equals( '' );
+    expect( lit.a2 ).to.equals( '' );
+    expect( lit.a3 ).to.equals( 'b3' );
+    expect( lit.a4 ).to.equals( true );
+    expect( lit.a5 ).to.equals( true );
+    expect( lit.a6 ).to.equals( true );
+    expect( lit.a7 ).to.equals( 0 );
+    expect( lit.a8 ).to.equals( 0 );
+    expect( lit.a9 ).to.equals( 9 );
+    expect( lit.b1 ).to.equals( 'c1' );
+    expect( lit.b2 ).to.equals( 'c2' );
+    expect( lit.b3 ).to.equals( 'c3' );
+    expect( lit.b4 ).to.equals( 'c4' );
+    expect( lit.b5 ).to.equals( 'c5' );
+    expect( lit.b6 ).to.equals( 'c6' );
+    expect( lit.b7 ).to.equals( 'c7' );
+    expect( lit.b8 ).to.equals( 'c8' );
+    expect( lit.b9 ).to.equals( 'c9' );
+    expect( lit.$props.a1 ).to.equals( '' );
+    expect( lit.$props.a2 ).to.equals( '' );
+    expect( lit.$props.a3 ).to.equals( 'b3' );
+    expect( lit.$props.a4 ).to.equals( true );
+    expect( lit.$props.a5 ).to.equals( true );
+    expect( lit.$props.a6 ).to.equals( true );
+    expect( lit.$props.a7 ).to.equals( 0 );
+    expect( lit.$props.a8 ).to.equals( 0 );
+    expect( lit.$props.a9 ).to.equals( 9 );
+    expect( lit.$props.b1 ).to.equals( 'c1' );
+    expect( lit.$props.b2 ).to.equals( 'c2' );
+    expect( lit.$props.b3 ).to.equals( 'c3' );
+    expect( lit.$props.b4 ).to.equals( 'c4' );
+    expect( lit.$props.b5 ).to.equals( 'c5' );
+    expect( lit.$props.b6 ).to.equals( 'c6' );
+    expect( lit.$props.b7 ).to.equals( 'c7' );
+    expect( lit.$props.b8 ).to.equals( 'c8' );
+    expect( lit.$props.b9 ).to.equals( 'c9' );
   });
 
   it( '定义 prop 的默认值时, 在使用方法进行返回默认值时, this 指向的是 $lit', () => {
@@ -674,11 +674,11 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit.$props, 'a' );
+    expect( lit ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'a' );
 
-    should.equal( lit.a, lit );
-    should.equal( lit.$props.a, lit );
+    expect( lit.a ).to.equals( lit );
+    expect( lit.$props.a ).to.equals( lit );
   });
 
   it( '首字母不为 $ 的 prop 可以在 $props 和 $lit 下找到', () => {
@@ -695,15 +695,15 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, '3' );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, '3' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( '3' );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( '3' );
   });
 
   it( '首字母为 $ 的 prop 可以在 $props 下找到, 但是不能在 $lit 下找到', () => {
@@ -722,23 +722,23 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.notHas( lit, '$a' );
-    should.notHas( lit, '$b' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, '$a' );
-    should.has( lit.$props, '$b' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.not.property( '$a' );
+    expect( lit ).has.not.property( '$b' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( '$a' );
+    expect( lit.$props ).has.property( '$b' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.b, '4' );
-    should.equal( lit.$a, undefined );
-    should.equal( lit.$b, undefined );
-    should.equal( lit.$props.a, undefined );
-    should.equal( lit.$props.b, '4' );
-    should.equal( lit.$props.$a, undefined );
-    should.equal( lit.$props.$b, '3' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.b ).to.equals( '4' );
+    expect( lit.$a ).to.equals( undefined );
+    expect( lit.$b ).to.equals( undefined );
+    expect( lit.$props.a ).to.equals( undefined );
+    expect( lit.$props.b ).to.equals( '4' );
+    expect( lit.$props.$a ).to.equals( undefined );
+    expect( lit.$props.$b ).to.equals( '3' );
   });
 
   it( '定义了 attr 参数则会从相应的 attribute 中取值', () => {
@@ -757,23 +757,23 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'b' );
-    should.has( lit, 'aB' );
-    should.has( lit, 'aC' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'b' );
-    should.has( lit.$props, 'aB' );
-    should.has( lit.$props, 'aC' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'b' );
+    expect( lit ).has.property( 'aB' );
+    expect( lit ).has.property( 'aC' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'b' );
+    expect( lit.$props ).has.property( 'aB' );
+    expect( lit.$props ).has.property( 'aC' );
 
-    should.equal( lit[ 'a' ], '2' );
-    should.equal( lit[ 'b' ], '1' );
-    should.equal( lit[ 'aB' ], '4' );
-    should.equal( lit[ 'aC' ], '3' );
-    should.equal( lit.$props[ 'a' ], '2' );
-    should.equal( lit.$props[ 'b' ], '1' );
-    should.equal( lit.$props[ 'aB' ], '4' );
-    should.equal( lit.$props[ 'aC' ], '3' );
+    expect( lit[ 'a' ] ).to.equals( '2' );
+    expect( lit[ 'b' ] ).to.equals( '1' );
+    expect( lit[ 'aB' ] ).to.equals( '4' );
+    expect( lit[ 'aC' ] ).to.equals( '3' );
+    expect( lit.$props[ 'a' ] ).to.equals( '2' );
+    expect( lit.$props[ 'b' ] ).to.equals( '1' );
+    expect( lit.$props[ 'aB' ] ).to.equals( '4' );
+    expect( lit.$props[ 'aC' ] ).to.equals( '3' );
   });
 
   it( '未定义 attr 参数则会将当前 prop 的名称转为以连字符号连接的小写 attr 名称', () => {
@@ -791,19 +791,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit, 'aB' );
-    should.has( lit, 'a-c' );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'aB' );
-    should.has( lit.$props, 'a-c' );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'aB' );
+    expect( lit ).has.property( 'a-c' );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'aB' );
+    expect( lit.$props ).has.property( 'a-c' );
 
-    should.equal( lit[ 'a' ], '1' );
-    should.equal( lit[ 'aB' ], '2' );
-    should.equal( lit[ 'a-c' ], '3' );
-    should.equal( lit.$props[ 'a' ], '1' );
-    should.equal( lit.$props[ 'aB' ], '2' );
-    should.equal( lit.$props[ 'a-c' ], '3' );
+    expect( lit[ 'a' ] ).to.equals( '1' );
+    expect( lit[ 'aB' ] ).to.equals( '2' );
+    expect( lit[ 'a-c' ] ).to.equals( '3' );
+    expect( lit.$props[ 'a' ] ).to.equals( '1' );
+    expect( lit.$props[ 'aB' ] ).to.equals( '2' );
+    expect( lit.$props[ 'a-c' ] ).to.equals( '3' );
   });
 
   it( '支持传入名称为 Symbol 类型的 prop, 可以使用默认值给名称为 Symbol 类型的 prop 赋值', () => {
@@ -822,15 +822,15 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, a );
-    should.has( lit, b );
-    should.has( lit.$props, a );
-    should.has( lit.$props, b );
+    expect( lit ).has.property( a );
+    expect( lit ).has.property( b );
+    expect( lit.$props ).has.property( a );
+    expect( lit.$props ).has.property( b );
 
-    should.equal( lit[ a ], 1 );
-    should.equal( lit[ b ], 2 );
-    should.equal( lit.$props[ a ], 1 );
-    should.equal( lit.$props[ b ], 2 );
+    expect( lit[ a ] ).to.equals( 1 );
+    expect( lit[ b ] ).to.equals( 2 );
+    expect( lit.$props[ a ] ).to.equals( 1 );
+    expect( lit.$props[ b ] ).to.equals( 2 );
   });
 
   it( '支持传入名称为 Symbol 类型的 prop, 可以指定 attr 属性使当前 prop 从指定 attribute 取值', () => {
@@ -849,15 +849,15 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, a );
-    should.has( lit, b );
-    should.has( lit.$props, a );
-    should.has( lit.$props, b );
+    expect( lit ).has.property( a );
+    expect( lit ).has.property( b );
+    expect( lit.$props ).has.property( a );
+    expect( lit.$props ).has.property( b );
 
-    should.equal( lit[ a ], 'd' );
-    should.equal( lit[ b ], 'e' );
-    should.equal( lit.$props[ a ], 'd' );
-    should.equal( lit.$props[ b ], 'e' );
+    expect( lit[ a ] ).to.equals( 'd' );
+    expect( lit[ b ] ).to.equals( 'e' );
+    expect( lit.$props[ a ] ).to.equals( 'd' );
+    expect( lit.$props[ b ] ).to.equals( 'e' );
   });
 
   it( '更改自定义元素的 attribute 属性值时, 会立即将改变更新到内部的值中 ( 非 Symbol 类型 )', () => {
@@ -876,48 +876,48 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.equal( lit.a, '1' );
-    should.equal( lit.aB, '2' );
-    should.equal( lit.attr1, '6' );
-    should.equal( lit.attr2, '5' );
-    should.equal( lit.$props.a, '1' );
-    should.equal( lit.$props.aB, '2' );
-    should.equal( lit.$props.attr1, '6' );
-    should.equal( lit.$props.attr2, '5' );
+    expect( lit.a ).to.equals( '1' );
+    expect( lit.aB ).to.equals( '2' );
+    expect( lit.attr1 ).to.equals( '6' );
+    expect( lit.attr2 ).to.equals( '5' );
+    expect( lit.$props.a ).to.equals( '1' );
+    expect( lit.$props.aB ).to.equals( '2' );
+    expect( lit.$props.attr1 ).to.equals( '6' );
+    expect( lit.$props.attr2 ).to.equals( '5' );
 
     custom.setAttribute('a','2');
 
-    should.equal( lit.a, '2' );
-    should.equal( lit.aB, '2' );
-    should.equal( lit.attr1, '6' );
-    should.equal( lit.attr2, '5' );
-    should.equal( lit.$props.a, '2' );
-    should.equal( lit.$props.aB, '2' );
-    should.equal( lit.$props.attr1, '6' );
-    should.equal( lit.$props.attr2, '5' );
+    expect( lit.a ).to.equals( '2' );
+    expect( lit.aB ).to.equals( '2' );
+    expect( lit.attr1 ).to.equals( '6' );
+    expect( lit.attr2 ).to.equals( '5' );
+    expect( lit.$props.a ).to.equals( '2' );
+    expect( lit.$props.aB ).to.equals( '2' );
+    expect( lit.$props.attr1 ).to.equals( '6' );
+    expect( lit.$props.attr2 ).to.equals( '5' );
 
     custom.setAttribute('a-b','3');
 
-    should.equal( lit.a, '2' );
-    should.equal( lit.aB, '3' );
-    should.equal( lit.attr1, '6' );
-    should.equal( lit.attr2, '5' );
-    should.equal( lit.$props.a, '2' );
-    should.equal( lit.$props.aB, '3' );
-    should.equal( lit.$props.attr1, '6' );
-    should.equal( lit.$props.attr2, '5' );
+    expect( lit.a ).to.equals( '2' );
+    expect( lit.aB ).to.equals( '3' );
+    expect( lit.attr1 ).to.equals( '6' );
+    expect( lit.attr2 ).to.equals( '5' );
+    expect( lit.$props.a ).to.equals( '2' );
+    expect( lit.$props.aB ).to.equals( '3' );
+    expect( lit.$props.attr1 ).to.equals( '6' );
+    expect( lit.$props.attr2 ).to.equals( '5' );
 
     custom.setAttribute('attr1','7');
     custom.setAttribute('attr2','8');
 
-    should.equal( lit.a, '2' );
-    should.equal( lit.aB, '3' );
-    should.equal( lit.attr1, '8' );
-    should.equal( lit.attr2, '7' );
-    should.equal( lit.$props.a, '2' );
-    should.equal( lit.$props.aB, '3' );
-    should.equal( lit.$props.attr1, '8' );
-    should.equal( lit.$props.attr2, '7' );
+    expect( lit.a ).to.equals( '2' );
+    expect( lit.aB ).to.equals( '3' );
+    expect( lit.attr1 ).to.equals( '8' );
+    expect( lit.attr2 ).to.equals( '7' );
+    expect( lit.$props.a ).to.equals( '2' );
+    expect( lit.$props.aB ).to.equals( '3' );
+    expect( lit.$props.attr1 ).to.equals( '8' );
+    expect( lit.$props.attr2 ).to.equals( '7' );
   });
 
   it( '更改自定义元素的 attribute 属性值时, 会立即将改变更新到内部的值中 ( Symbol 类型 )', () => {
@@ -938,37 +938,37 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, a );
-    should.has( lit, b );
-    should.has( lit, c );
-    should.has( lit.$props, a );
-    should.has( lit.$props, b );
-    should.has( lit.$props, c );
+    expect( lit ).has.property( a );
+    expect( lit ).has.property( b );
+    expect( lit ).has.property( c );
+    expect( lit.$props ).has.property( a );
+    expect( lit.$props ).has.property( b );
+    expect( lit.$props ).has.property( c );
 
-    should.equal( lit[ a ], undefined );
-    should.equal( lit[ b ], '1' );
-    should.equal( lit[ c ], 2 );
-    should.equal( lit.$props[ a ], undefined );
-    should.equal( lit.$props[ b ], '1' );
-    should.equal( lit.$props[ c ], 2 );
+    expect( lit[ a ] ).to.equals( undefined );
+    expect( lit[ b ] ).to.equals( '1' );
+    expect( lit[ c ] ).to.equals( 2 );
+    expect( lit.$props[ a ] ).to.equals( undefined );
+    expect( lit.$props[ b ] ).to.equals( '1' );
+    expect( lit.$props[ c ] ).to.equals( 2 );
 
     custom.setAttribute('a','2');
 
-    should.equal( lit[ a ], undefined );
-    should.equal( lit[ b ], '2' );
-    should.equal( lit[ c ], 2 );
-    should.equal( lit.$props[ a ], undefined );
-    should.equal( lit.$props[ b ], '2' );
-    should.equal( lit.$props[ c ], 2 );
+    expect( lit[ a ] ).to.equals( undefined );
+    expect( lit[ b ] ).to.equals( '2' );
+    expect( lit[ c ] ).to.equals( 2 );
+    expect( lit.$props[ a ] ).to.equals( undefined );
+    expect( lit.$props[ b ] ).to.equals( '2' );
+    expect( lit.$props[ c ] ).to.equals( 2 );
 
     custom.setAttribute('b','3');
 
-    should.equal( lit[ a ], undefined );
-    should.equal( lit[ b ], '2' );
-    should.equal( lit[ c ], 3 );
-    should.equal( lit.$props[ a ], undefined );
-    should.equal( lit.$props[ b ], '2' );
-    should.equal( lit.$props[ c ], 3 );
+    expect( lit[ a ] ).to.equals( undefined );
+    expect( lit[ b ] ).to.equals( '2' );
+    expect( lit[ c ] ).to.equals( 3 );
+    expect( lit.$props[ a ] ).to.equals( undefined );
+    expect( lit.$props[ b ] ).to.equals( '2' );
+    expect( lit.$props[ c ] ).to.equals( 3 );
   });
 
   it( '可以使用 attr 属性将多个 prop 绑定到一个 attribute 上, 当 attribute 更改时, 所有绑定到 attribute 上的 prop 均会更新', () => {
@@ -987,28 +987,28 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, a );
-    should.has( lit, 'a' );
-    should.has( lit, 'aB' );
-    should.has( lit.$props, a );
-    should.has( lit.$props, 'a' );
-    should.has( lit.$props, 'aB' );
+    expect( lit ).has.property( a );
+    expect( lit ).has.property( 'a' );
+    expect( lit ).has.property( 'aB' );
+    expect( lit.$props ).has.property( a );
+    expect( lit.$props ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'aB' );
 
-    should.equal( lit[ a ], '1' );
-    should.equal( lit[ 'a' ], '1' );
-    should.equal( lit[ 'aB' ], 1 );
-    should.equal( lit.$props[ a ], '1' );
-    should.equal( lit.$props[ 'a' ], '1' );
-    should.equal( lit.$props[ 'aB' ], 1 );
+    expect( lit[ a ] ).to.equals( '1' );
+    expect( lit[ 'a' ] ).to.equals( '1' );
+    expect( lit[ 'aB' ] ).to.equals( 1 );
+    expect( lit.$props[ a ] ).to.equals( '1' );
+    expect( lit.$props[ 'a' ] ).to.equals( '1' );
+    expect( lit.$props[ 'aB' ] ).to.equals( 1 );
 
     custom.setAttribute('a','2');
 
-    should.equal( lit[ a ], '2' );
-    should.equal( lit[ 'a' ], '2' );
-    should.equal( lit[ 'aB' ], 2 );
-    should.equal( lit.$props[ a ], '2' );
-    should.equal( lit.$props[ 'a' ], '2' );
-    should.equal( lit.$props[ 'aB' ], 2 );
+    expect( lit[ a ] ).to.equals( '2' );
+    expect( lit[ 'a' ] ).to.equals( '2' );
+    expect( lit[ 'aB' ] ).to.equals( 2 );
+    expect( lit.$props[ a ] ).to.equals( '2' );
+    expect( lit.$props[ 'a' ] ).to.equals( '2' );
+    expect( lit.$props[ 'aB' ] ).to.equals( 2 );
   });
 
   it( '可以通过 $lit 对 prop 进行读取和更改', () => {
@@ -1024,13 +1024,13 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.equal( lit.a, '1' );
-    should.equal( lit.$props.a, '1' );
+    expect( lit.a ).to.equals( '1' );
+    expect( lit.$props.a ).to.equals( '1' );
 
     lit.a = 123;
 
-    should.equal( lit.a, 123 );
-    should.equal( lit.$props.a, 123 );
+    expect( lit.a ).to.equals( 123 );
+    expect( lit.$props.a ).to.equals( 123 );
   });
 
   it( '可以通过 $props 对 prop 进行读取和更改', () => {
@@ -1046,13 +1046,13 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.equal( lit.a, '1' );
-    should.equal( lit.$props.a, '1' );
+    expect( lit.a ).to.equals( '1' );
+    expect( lit.$props.a ).to.equals( '1' );
 
     lit.$props.a = 123;
 
-    should.equal( lit.a, 123 );
-    should.equal( lit.$props.a, 123 );
+    expect( lit.a ).to.equals( 123 );
+    expect( lit.$props.a ).to.equals( 123 );
   });
 
   it( '若删除 $lit 下的 prop 映射, 不会影响到 $props 内的 prop 本体', () => {
@@ -1068,19 +1068,19 @@ describe( 'Lit.define - props', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    should.has( lit, 'a' );
-    should.has( lit.$props, 'a' );
+    expect( lit ).has.property( 'a' );
+    expect( lit.$props ).has.property( 'a' );
 
-    should.equal( lit.a, '1' );
-    should.equal( lit.$props.a, '1' );
-    
+    expect( lit.a ).to.equals( '1' );
+    expect( lit.$props.a ).to.equals( '1' );
+
     delete lit.a;
 
-    should.notHas( lit, 'a' );
-    should.has( lit.$props, 'a' );
+    expect( lit ).has.not.property( 'a' );
+    expect( lit.$props ).has.property( 'a' );
 
-    should.equal( lit.a, undefined );
-    should.equal( lit.$props.a, '1' );
+    expect( lit.a ).to.equals( undefined );
+    expect( lit.$props.a ).to.equals( '1' );
   });
 
 

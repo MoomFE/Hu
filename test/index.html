@@ -19,16 +19,6 @@
     window.expect = chai.expect;
     window.should = chai.should();
 
-    window.should.has = function( obj, name ){
-      return Object.prototype.hasOwnProperty.call( obj, name ).should.true;
-    }
-    window.should.notHas = function( obj, name ){
-      return Object.prototype.hasOwnProperty.call( obj, name ).should.false;
-    }
-    window.should.isFunction = function( obj ){
-      return ( typeof obj === 'function' ).should.true;
-    }
-
     ZenJS.defineGet( window, 'customName', () => `custom-element-${ ZenJS.guid }` );
   </script>
   <script src="./Lit/define.props.test.js"></script>
