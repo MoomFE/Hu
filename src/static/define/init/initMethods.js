@@ -1,7 +1,5 @@
 import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
-import canInjection from "../../../shared/util/canInjection";
-import has from "../../../shared/global/Reflect/has";
 import Set_Defined from "../../../shared/proxy/Set_Defined";
 import injectionToLit from "../../../shared/util/injectionToLit";
 
