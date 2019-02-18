@@ -122,4 +122,26 @@ describe( 'Lit.define - methods', () => {
     should.equal( lit.$methods.a(), lit );
   });
 
+  it( '若删除 $lit 下的方法映射, 不会影响到 $methods 内的方法本体', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      methods: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    should.has( lit, 'a' );
+    should.has( lit.$methods, 'a' );
+
+    delete lit.a;
+
+    should.notHas( lit, 'a' );
+    should.has( lit.$methods, 'a' );
+  });
+
 });
