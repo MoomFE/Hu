@@ -4,6 +4,9 @@
       "path": "."
     },
     {
+      "path": "typings"
+    },
+    {
       "path": "test"
     },
     {
