@@ -48,11 +48,11 @@ interface LitOptions{
   /**
    * 声明需要从自定义标签上接收哪些属性
    */
-  props?: {
-    [ key: string ]: PropOptions;
-    [ key: number ]: PropOptions;
-    [ key: symbol ]: PropOptions;
-  } | KEYTYPE[];
+  props?: KEYTYPE[] | {
+    [ key: string ]: (( value: any ) => any) | PropOptions;
+    [ key: number ]: (( value: any ) => any) | PropOptions;
+    [ key: symbol ]: (( value: any ) => any) | PropOptions;
+  };
 
   /**
    * 返回 Lit 实例的初始数据对象的函数
@@ -72,6 +72,11 @@ interface LitOptions{
 }
 
 
-interface PropOptions{
-  type?: function
+interface PropOptions {
+  type?: (( value: any ) => any) | PropOptionsType
+}
+
+interface PropOptionsType {
+  from: ( value: any ) => any;
+  to: ( value: any ) => any;
 }
