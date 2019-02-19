@@ -1,28 +1,19 @@
-/**
- * Lit 实例控制自定义元素行为的选项对象
- */
-interface LitOptions {
 
-  props: string[],
+type KEYTYPE = string | number | symbol;
 
-  /**
-   * 返回 Lit 实例的初始数据对象的函数
-   */
-  data(): {};
+/* ------------------ Lit 实例对象定义 ------------------ */
 
+interface $lit {
+  readonly $data: Record< KEYTYPE, any >;
+  readonly $props: Record< KEYTYPE, any >;
+  readonly $methods: Record< KEYTYPE, any >;
 }
 
+interface Element {
+  $lit: $lit
+}
 
-
-/* ------------------ Lit 实例对象定义相关 ------------------ */
-
-// interface $lit {
-//   readonly $data: Record< string, any >;
-//   readonly $props: Record< string, any >;
-//   readonly $methods: Record< string, function >;
-// }
-
-/* ------------------ Lit 静态对象定义相关 ------------------ */
+/* ------------------ Lit 静态对象定义 ------------------ */
 
 /**
  * Lit 静态对象
@@ -45,4 +36,42 @@ interface Window {
    * Lit 静态对象
    */
   Lit: Lit
+}
+
+/* ------------------ Lit 实例选项对象 ------------------ */
+
+/**
+ * Lit 实例控制自定义元素行为的选项对象
+ */
+interface LitOptions{
+
+  /**
+   * 声明需要从自定义标签上接收哪些属性
+   */
+  props?: {
+    [ key: string ]: PropOptions;
+    [ key: number ]: PropOptions;
+    [ key: symbol ]: PropOptions;
+  } | KEYTYPE[];
+
+  /**
+   * 返回 Lit 实例的初始数据对象的函数
+   */
+  data?( this: $lit ): {
+    [ key: string ]: any;
+    [ key: number ]: any;
+    [ key: symbol ]: any;
+  };
+
+  methods: {
+    [ key: string ]: ( this: $lit, ...args: any[] ) => any;
+    [ key: number ]: ( this: $lit, ...args: any[] ) => any;
+    [ key: symbol ]: ( this: $lit, ...args: any[] ) => any;
+  };
+
+}
+
+
+interface PropOptions{
+  type?: function
 }
