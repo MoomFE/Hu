@@ -20,7 +20,7 @@ interface Element {
 /**
  * Lit 静态对象
  */
-export default interface Lit{
+interface Lit{
 
   /**
    * 定义一个全局的自定义元素
