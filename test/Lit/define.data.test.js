@@ -181,4 +181,70 @@ describe( 'Lit.define - data', () => {
     expect( lit.$data.a ).to.equals( lit );
   });
 
+  it( '可以通过 $lit 对变量进行读取和更改', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      data(){
+        return { a: 1 }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.a ).to.equals( 1 );
+    expect( lit.$data.a ).to.equals( 1 );
+
+    lit.a = 123;
+
+    expect( lit.a ).to.equals( 123 );
+    expect( lit.$data.a ).to.equals( 123 );
+  });
+
+  it( '可以通过 $data 对变量进行读取和更改', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      data(){
+        return { a: 1 }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.a ).to.equals( 1 );
+    expect( lit.$data.a ).to.equals( 1 );
+
+    lit.$data.a = 123;
+
+    expect( lit.a ).to.equals( 123 );
+    expect( lit.$data.a ).to.equals( 123 );
+  });
+
+  it( '若删除 $lit 下的变量映射, 不会影响到 $data 内的变量本体', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      data(){
+        return { a: 1 }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.a ).to.equals( 1 );
+    expect( lit.$data.a ).to.equals( 1 );
+
+    delete lit.a;
+
+    expect( lit.a ).to.undefined;
+    expect( lit.$data.a ).to.equals( 1 );
+  });
+
 });
