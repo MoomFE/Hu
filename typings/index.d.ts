@@ -1,5 +1,7 @@
 
 type KEYTYPE = string | number | symbol;
+type fromAttribute = ( value: string | null ) => any;
+type toAttribute = ( value: any ) => string | null;
 
 /* ------------------ Lit 实例对象定义 ------------------ */
 
@@ -96,6 +98,3 @@ interface PropOptions<T=any> {
    */
   default?: string | number | boolean | null | undefined | (() => any)
 }
-
-type fromAttribute = ( value: string | null ) => any;
-type toAttribute = ( value: any ) => string | null;
