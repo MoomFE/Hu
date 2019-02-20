@@ -1,7 +1,5 @@
 
 type KEYTYPE = string | number | symbol;
-type fromAttribute = ( value: string | null ) => any;
-type toAttribute = ( value: any ) => string | null;
 
 /* ------------------ Lit 实例对象定义 ------------------ */
 
@@ -24,6 +22,11 @@ interface $lit {
    * 包含了声明自定义元素时的 data 方法返回的所有属性
    */
   readonly $data: Record< KEYTYPE, any >;
+
+  /**
+   * 迫使 Lit 实例重新渲染
+   */
+  readonly $forceUpdate(): void;
 }
 
 interface Element {
@@ -60,6 +63,9 @@ interface Window {
 
 /* ------------------ Lit 实例选项对象 ------------------ */
 
+type fromAttribute = ( value: string | null ) => any;
+type toAttribute = ( value: any ) => string | null;
+
 /**
  * Lit 实例控制自定义元素行为的选项对象
  */
@@ -91,6 +97,12 @@ interface LitOptions{
     [ key: number ]: any;
     [ key: symbol ]: any;
   };
+
+  /**
+   * Lit 实例的渲染函数
+   * @param html 用于创建模板字符串的对象
+   */
+  render<T>( this: $lit, html: ( strings: TemplateStringsArray, ...values: unknown[] ) => T ): T;
 
 }
 
