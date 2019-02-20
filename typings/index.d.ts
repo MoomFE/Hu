@@ -5,10 +5,25 @@ type toAttribute = ( value: any ) => string | null;
 
 /* ------------------ Lit 实例对象定义 ------------------ */
 
+/**
+ * Lit 实例对象
+ */
 interface $lit {
-  readonly $data: Record< KEYTYPE, any >;
+  /**
+   * Lit 实例属性对象,
+   * 包含了声明自定义元素时的 props 属性上定义的所有属性
+   */
   readonly $props: Record< KEYTYPE, any >;
+  /**
+   * Lit 实例方法对象,
+   * 包含了声明自定义元素时的 methods 属性上定义的所有方法
+   */
   readonly $methods: Record< KEYTYPE, any >;
+  /**
+   * Lit 实例数据对象,
+   * 包含了声明自定义元素时的 data 方法返回的所有属性
+   */
+  readonly $data: Record< KEYTYPE, any >;
 }
 
 interface Element {
@@ -57,18 +72,21 @@ interface LitOptions{
   };
 
   /**
+   * 定义一系列的方法以在 Lit 实例中使用
+   */
+  methods: {
+    [ key: string ]: ( this: $lit, ...args: any[] ) => any;
+    [ key: number ]: ( this: $lit, ...args: any[] ) => any;
+    [ key: symbol ]: ( this: $lit, ...args: any[] ) => any;
+  };
+
+  /**
    * 返回 Lit 实例的初始数据对象的函数
    */
   data?( this: $lit ): {
     [ key: string ]: any;
     [ key: number ]: any;
     [ key: symbol ]: any;
-  };
-
-  methods: {
-    [ key: string ]: ( this: $lit, ...args: any[] ) => any;
-    [ key: number ]: ( this: $lit, ...args: any[] ) => any;
-    [ key: symbol ]: ( this: $lit, ...args: any[] ) => any;
   };
 
 }
