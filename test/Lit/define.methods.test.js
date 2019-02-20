@@ -113,6 +113,47 @@ describe( 'Lit.define - methods', () => {
     expect( lit.$methods.a() ).to.equals( lit );
   });
 
+  it( '可以通过 $methods 对方法进行读取和更改', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      methods: {
+        a: fn1
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.$methods.a() ).to.equals( 1 );
+
+    lit.$methods.a = fn2;
+
+    expect( lit.$methods.a() ).to.equals( 2 );
+  });
+  
+  it( '更改 $lit 上方法的映射, 不会影响到 $methods 内的方法', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      methods: {
+        a: fn1
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.$methods.a() ).to.equals( 1 );
+
+    lit.a = fn2;
+
+    expect( lit.a() ).to.equals( 2 );
+    expect( lit.$methods.a() ).to.equals( 1 );
+  });
+
   it( '若删除 $lit 下的方法映射, 不会影响到 $methods 内的方法本体', () => {
     const customName = window.customName;
 
