@@ -49,9 +49,9 @@ interface LitOptions{
    * 声明需要从自定义标签上接收哪些属性
    */
   props?: KEYTYPE[] | {
-    [ key: string ]: (( value: any ) => any) | PropOptions;
-    [ key: number ]: (( value: any ) => any) | PropOptions;
-    [ key: symbol ]: (( value: any ) => any) | PropOptions;
+    [ key: string ]: fromAttribute | PropOptions;
+    [ key: number ]: fromAttribute | PropOptions;
+    [ key: symbol ]: fromAttribute | PropOptions;
   };
 
   /**
@@ -72,11 +72,30 @@ interface LitOptions{
 }
 
 
-interface PropOptions {
-  type?: (( value: any ) => any) | PropOptionsType
+interface PropOptions<T=any> {
+  /**
+   * 定义当前 prop 的需要从哪个 attribute 上取值
+   */
+  attr?: string | number,
+  /**
+   * 定义当前 prop 的类型, 可传入自定义方法用于转换从 attribute 上的取值
+   */
+  type?: fromAttribute | {
+    /**
+     * 定义当前 prop 的类型, 可传入自定义方法定义如何从 attribute 转换为当前 prop 值
+     */
+    from: fromAttribute;
+    /**
+     * 定义如何从当前 prop 值转换为 attribute ( 当前不可用 )
+     */
+    to: toAttribute;
+  },
+  /**
+   * 定义当前 prop 的默认值,
+   * 如果创建当前自定义元素时未定义属于当前 prop 的 attribute 时, 则取当前默认值
+   */
+  default?: string | number | boolean | null | undefined | (() => any)
 }
 
-interface PropOptionsType {
-  from: ( value: any ) => any;
-  to: ( value: any ) => any;
-}
+type fromAttribute = ( value: string | null ) => any;
+type toAttribute = ( value: any ) => string | null;
