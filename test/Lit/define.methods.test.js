@@ -3,7 +3,7 @@ describe( 'Lit.define - methods', () => {
   function fn1(){ return 1 }
   function fn2(){ return 2 }
 
-  it( '在 $lit 实例下会创建 $methods 对象, 存放所有的方法, 定义的所有方法会在 $methods 内找到', () => {
+  it( '在 $lit 实例下会创建 $methods 对象, 存放所有的方法', () => {
     const customName = window.customName;
 
     Lit.define( customName, {
@@ -110,29 +110,29 @@ describe( 'Lit.define - methods', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
     expect( lit ).has.property('a');
-    expect( lit ).has.not.property('b');
-    expect( lit ).has.not.property('c');
-    expect( lit ).has.not.property('d');
-    expect( lit ).has.not.property('e');
-    expect( lit ).has.not.property('f');
-    expect( lit ).has.not.property('g');
-    expect( lit ).has.not.property('h');
-    expect( lit ).has.not.property('i');
+    expect( lit ).not.has.property('b');
+    expect( lit ).not.has.property('c');
+    expect( lit ).not.has.property('d');
+    expect( lit ).not.has.property('e');
+    expect( lit ).not.has.property('f');
+    expect( lit ).not.has.property('g');
+    expect( lit ).not.has.property('h');
+    expect( lit ).not.has.property('i');
 
     expect( lit.$methods ).has.property('a');
-    expect( lit.$methods ).has.not.property('b');
-    expect( lit.$methods ).has.not.property('c');
-    expect( lit.$methods ).has.not.property('d');
-    expect( lit.$methods ).has.not.property('e');
-    expect( lit.$methods ).has.not.property('f');
-    expect( lit.$methods ).has.not.property('g');
-    expect( lit.$methods ).has.not.property('h');
-    expect( lit.$methods ).has.not.property('i');
+    expect( lit.$methods ).not.has.property('b');
+    expect( lit.$methods ).not.has.property('c');
+    expect( lit.$methods ).not.has.property('d');
+    expect( lit.$methods ).not.has.property('e');
+    expect( lit.$methods ).not.has.property('f');
+    expect( lit.$methods ).not.has.property('g');
+    expect( lit.$methods ).not.has.property('h');
+    expect( lit.$methods ).not.has.property('i');
   });
 
   it( '调用方法时, 方法的 this 指向的是 $lit', () => {
@@ -164,7 +164,7 @@ describe( 'Lit.define - methods', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
@@ -184,7 +184,7 @@ describe( 'Lit.define - methods', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 

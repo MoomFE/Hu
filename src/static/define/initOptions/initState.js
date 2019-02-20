@@ -41,7 +41,7 @@ function initMethods( userMethods, options ){
 }
 
 function initData( userData, options ){
-  isFunction( data ) && (
+  isFunction( userData ) && (
     options.data = userData
   );
 }

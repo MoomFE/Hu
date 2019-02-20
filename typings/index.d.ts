@@ -27,6 +27,9 @@ interface $lit {
 }
 
 interface Element {
+  /**
+   * Lit 实例对象
+   */
   $lit: $lit
 }
 

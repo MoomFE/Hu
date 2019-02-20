@@ -6105,7 +6105,7 @@
   }
 
   function initData(userData, options) {
-    isFunction(data) && (options.data = userData);
+    isFunction(userData) && (options.data = userData);
   }
 
   function initComputed(userComputed, options) {
