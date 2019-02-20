@@ -93,6 +93,48 @@ describe( 'Lit.define - methods', () => {
     expect( lit.$methods.a() ).to.equals( 1 );
   });
 
+  it( '定义 methods 时有非 function 类型的属性会进行忽略', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      methods: {
+        a: fn1,
+        b: '',
+        c: true,
+        d: false,
+        e: {},
+        f: [],
+        g: null,
+        h: undefined,
+        i: Symbol('i')
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit ).has.property('a');
+    expect( lit ).has.not.property('b');
+    expect( lit ).has.not.property('c');
+    expect( lit ).has.not.property('d');
+    expect( lit ).has.not.property('e');
+    expect( lit ).has.not.property('f');
+    expect( lit ).has.not.property('g');
+    expect( lit ).has.not.property('h');
+    expect( lit ).has.not.property('i');
+
+    expect( lit.$methods ).has.property('a');
+    expect( lit.$methods ).has.not.property('b');
+    expect( lit.$methods ).has.not.property('c');
+    expect( lit.$methods ).has.not.property('d');
+    expect( lit.$methods ).has.not.property('e');
+    expect( lit.$methods ).has.not.property('f');
+    expect( lit.$methods ).has.not.property('g');
+    expect( lit.$methods ).has.not.property('h');
+    expect( lit.$methods ).has.not.property('i');
+  });
+
   it( '调用方法时, 方法的 this 指向的是 $lit', () => {
     const customName = window.customName;
 
