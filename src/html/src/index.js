@@ -1,4 +1,7 @@
-import { TemplateResult, defaultTemplateProcessor } from 'lit-html';
+import { defaultTemplateProcessor } from 'lit-html';
+
+
+export { TemplateResult, render } from 'lit-html';
 
 
 export const html = function( strings, ...values ){

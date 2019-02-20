@@ -1,6 +1,7 @@
 import initProps from "./initProps";
 import initLifecycle from "./initLifecycle";
 import initState from "./initState";
+import initOther from "./initOther";
 
 
 /**
@@ -14,6 +15,7 @@ export default function initOptions( userOptions ){
   initProps( userOptions, options );
   initState( userOptions, options );
   initLifecycle( userOptions, options );
+  initOther( userOptions, options );
 
   return options;
 }

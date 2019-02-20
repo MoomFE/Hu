@@ -47,7 +47,7 @@ export default function define( name, options ){
     }
 
     connectedCallback(){
-      console.log('connectedCallback');
+      this.$lit.$forceUpdate();
     }
 
     disconnectedCallback(){
