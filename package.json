@@ -5,6 +5,7 @@
   "keywords": [],
   "author": "Wei Zhang",
   "license": "MIT",
+  "typings": "./typings/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MoomFE/Lit.git"
