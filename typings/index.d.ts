@@ -19,18 +19,18 @@ interface $lit {
   $customElement: Element;
 
   /**
-   * Lit 实例属性对象,
-   * 包含了声明自定义元素时的 props 属性上定义的所有属性
+   * Lit 实例属性对象
+   * - 包含了声明自定义元素时的 props 属性上定义的所有属性
    */
   readonly $props: Record< KEYTYPE, any >;
   /**
-   * Lit 实例方法对象,
-   * 包含了声明自定义元素时的 methods 属性上定义的所有方法
+   * Lit 实例方法对象
+   * - 包含了声明自定义元素时的 methods 属性上定义的所有方法
    */
   readonly $methods: Record< KEYTYPE, any >;
   /**
-   * Lit 实例数据对象,
-   * 包含了声明自定义元素时的 data 方法返回的所有属性
+   * Lit 实例数据对象
+   * - 包含了声明自定义元素时的 data 方法返回的所有属性
    */
   readonly $data: Record< KEYTYPE, any >;
 
@@ -121,6 +121,15 @@ interface LitOptions{
   render<T>( this: $lit, html: ( strings: TemplateStringsArray, ...values: unknown[] ) => T ): T;
 
   /**
+   * 方法会返回一个可响应的对象代理, Lit 内部会用它来处理 data 函数返回的对象
+   * - 返回的可响应的对象代理可以直接用于渲染函数和计算属性内, 并且会在发生改变时触发相应的更新
+   * - 而对源对象直接进行修改将是不可响应的
+   * - 也可以作为最小化的跨组件状态存储器
+   * @param obj 
+   */
+  observable<T>( obj: T ): T;
+
+  /**
    * 在自定义元素挂载开始之前被调用
    */
   beforeMount( this: $lit );
@@ -131,6 +140,8 @@ interface LitOptions{
   mounted( this: $lit );
 
 }
+
+const xxx  = new Proxy({}, {});
 
 
 interface PropOptions<T=any> {
@@ -152,8 +163,8 @@ interface PropOptions<T=any> {
     to: toAttribute;
   },
   /**
-   * 定义当前 prop 的默认值,
-   * 如果创建当前自定义元素时未定义属于当前 prop 的 attribute 时, 则取当前默认值
+   * 定义当前 prop 的默认值
+   * - 如果创建当前自定义元素时未定义属于当前 prop 的 attribute 时, 则取当前默认值
    */
   default?: string | number | boolean | null | undefined | (() => any)
 }

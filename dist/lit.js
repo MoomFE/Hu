@@ -1784,6 +1784,8 @@
   Lit.html = html$1;
   Lit.render = render;
 
+  Lit.observable = obj => {};
+
   return Lit;
 
 }));
