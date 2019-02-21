@@ -1778,6 +1778,9 @@
     window.Lit = Lit;
   }
 
+  Lit.html = html$1;
+  Lit.render = render;
+
   return Lit;
 
 }));
