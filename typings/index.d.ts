@@ -61,6 +61,11 @@ interface Lit{
    */
   define( name: string, options: LitOptions ): void;
 
+  /**
+   * 释放 window.Lit 的控制权, 还原到定义 Lit 之前
+   */
+  noConflict(): Lit;
+
 }
 
 declare const Lit: Lit;

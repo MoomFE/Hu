@@ -6,10 +6,6 @@
 
   function Lit() {}
 
-  if (typeof window !== 'undefined') {
-    window.Lit = Lit;
-  }
-
   const isArray = Array.isArray;
 
   var isPlainObject = (
@@ -1770,6 +1766,17 @@
     customElements.define(name, LitElement);
   }
   Lit.define = define$1;
+
+  const otherLit = window.Lit;
+
+  Lit.noConflict = () => {
+    if (window.Lit === Lit) window.Lit = otherLit;
+    return Lit;
+  };
+
+  if (typeof window !== 'undefined') {
+    window.Lit = Lit;
+  }
 
   return Lit;
 
