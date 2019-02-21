@@ -4,7 +4,7 @@ describe( 'Lit.noConflict', () => {
     const Lit = window.Lit;
 
     Lit.noConflict();
-    expect( window.Lit ).to.be.undefined;
+    expect( window.Lit ).is.undefined;
 
     window.Lit = Lit;
   });
@@ -13,10 +13,10 @@ describe( 'Lit.noConflict', () => {
     const Lit = window.Lit;
 
     const result = Lit.noConflict();
-    expect( result ).to.equals( Lit );
+    expect( result ).is.equals( Lit );
 
     const result2 = Lit.noConflict();
-    expect( result2 ).to.equals( Lit );
+    expect( result2 ).is.equals( Lit );
 
     window.Lit = Lit;
   });

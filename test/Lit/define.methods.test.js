@@ -20,8 +20,8 @@ describe( 'Lit.define - methods', () => {
     expect( lit.$methods ).has.property( 'a' );
     expect( lit.$methods ).has.property( 'b' );
 
-    expect( lit.$methods.a() ).to.equals( 1 );
-    expect( lit.$methods.b() ).to.equals( 2 );
+    expect( lit.$methods.a() ).is.equals( 1 );
+    expect( lit.$methods.b() ).is.equals( 2 );
   });
 
   it( '首字母不为 $ 的方法可以在 $methods 和 $lit 下找到', () => {
@@ -40,8 +40,8 @@ describe( 'Lit.define - methods', () => {
     expect( lit ).has.property( 'a' );
     expect( lit.$methods ).has.property( 'a' );
 
-    expect( lit.a() ).to.equals( 1 );
-    expect( lit.$methods.a() ).to.equals( 1 );
+    expect( lit.a() ).is.equals( 1 );
+    expect( lit.$methods.a() ).is.equals( 1 );
   });
 
   it( '首字母为 $ 的方法可以在 $methods 下找到, 但是不能在 $lit 下找到', () => {
@@ -63,9 +63,9 @@ describe( 'Lit.define - methods', () => {
     expect( lit.$methods ).has.property( 'a' );
     expect( lit.$methods ).has.property( '$a' );
 
-    expect( lit.a() ).to.equals( 1 );
-    expect( lit.$methods.a() ).to.equals( 1 );
-    expect( lit.$methods.$a() ).to.equals( 2 );
+    expect( lit.a() ).is.equals( 1 );
+    expect( lit.$methods.a() ).is.equals( 1 );
+    expect( lit.$methods.$a() ).is.equals( 2 );
   });
 
   it( '若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前方法', () => {
@@ -88,9 +88,9 @@ describe( 'Lit.define - methods', () => {
     expect( lit.$props ).has.property( 'a' );
     expect( lit.$methods ).has.property( 'a' );
 
-    expect( lit.$props.a ).to.equals( '1' );
-    expect( lit.a() ).to.equals( 1 );
-    expect( lit.$methods.a() ).to.equals( 1 );
+    expect( lit.$props.a ).is.equals( '1' );
+    expect( lit.a() ).is.equals( 1 );
+    expect( lit.$methods.a() ).is.equals( 1 );
   });
 
   it( '定义 methods 时有非 function 类型的属性会进行忽略', () => {
@@ -151,8 +151,8 @@ describe( 'Lit.define - methods', () => {
     expect( lit ).has.property( 'a' );
     expect( lit.$methods ).has.property( 'a' );
 
-    expect( lit.a() ).to.equals( lit );
-    expect( lit.$methods.a() ).to.equals( lit );
+    expect( lit.a() ).is.equals( lit );
+    expect( lit.$methods.a() ).is.equals( lit );
   });
 
   it( '可以通过 $methods 对方法进行读取和更改', () => {
@@ -168,11 +168,11 @@ describe( 'Lit.define - methods', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    expect( lit.$methods.a() ).to.equals( 1 );
+    expect( lit.$methods.a() ).is.equals( 1 );
 
     lit.$methods.a = fn2;
 
-    expect( lit.$methods.a() ).to.equals( 2 );
+    expect( lit.$methods.a() ).is.equals( 2 );
   });
 
   it( '更改 $lit 上方法的映射, 不会影响到 $methods 内的方法', () => {
@@ -188,12 +188,12 @@ describe( 'Lit.define - methods', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    expect( lit.$methods.a() ).to.equals( 1 );
+    expect( lit.$methods.a() ).is.equals( 1 );
 
     lit.a = fn2;
 
-    expect( lit.a() ).to.equals( 2 );
-    expect( lit.$methods.a() ).to.equals( 1 );
+    expect( lit.a() ).is.equals( 2 );
+    expect( lit.$methods.a() ).is.equals( 1 );
   });
 
   it( '若删除 $lit 下的方法映射, 不会影响到 $methods 内的方法本体', () => {
