@@ -174,7 +174,7 @@ describe( 'Lit.define - methods', () => {
 
     expect( lit.$methods.a() ).to.equals( 2 );
   });
-  
+
   it( '更改 $lit 上方法的映射, 不会影响到 $methods 内的方法', () => {
     const customName = window.customName;
 
