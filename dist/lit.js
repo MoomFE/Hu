@@ -450,6 +450,47 @@
   }
 
   /**
+   * 存放创建过的观察者
+   */
+
+  const observeMap = new WeakMap();
+  /**
+   * 为传入对象创建观察者
+   */
+
+  function observe(target) {
+    // 如果创建过观察者
+    // 则返回之前创建的观察者
+    if (observeMap.has(target)) return observeMap.get(target).proxy; // 否则立即创建观察者进行返回
+
+    return createObserver(target);
+  }
+
+  function createObserver(target) {
+    /** 当前对象的 Proxy 对象 */
+    const proxy = new Proxy(target, {
+      get(target, name) {
+        return target[name];
+      }
+
+    });
+    /** 存放当前对象的 Proxy 对象 / 被依赖数据 / 监听数据 */
+
+    const targetParameter = {
+      watch: [],
+      proxy
+    };
+    observeMap.set(target, targetParameter); // 递归创建观察者
+
+    each(target, (key, target) => {
+      if (isObject(target)) {
+        target[key] = createObserver(target);
+      }
+    });
+    return proxy;
+  }
+
+  /**
    * 初始化当前组件 data 属性
    * @param {HTMLElement} root 
    * @param {{}} options 
@@ -459,9 +500,7 @@
 
   function initData$1(root, options, target, targetProxy) {
     const dataTarget = create(null);
-    const dataTargetProxy = target.$data = new Proxy(dataTarget, {
-      set: Set_Defined
-    });
+    const dataTargetProxy = target.$data = observe(dataTarget);
 
     if (options.data) {
       const data = options.data.call(targetProxy);
@@ -1783,30 +1822,6 @@
 
   Lit.html = html$1;
   Lit.render = render;
-
-  /**
-   * 存放创建过的观察者
-   */
-  const observeMap = new WeakMap();
-  /**
-   * 为传入对象创建观察者
-   */
-  function observe(target) {
-    // 如果创建过观察者
-    // 则返回之前创建的观察者
-    if (observeMap.has(target)) return observeMap.get(target).proxy;
-    const proxy = createObserver(target);
-    const valueParameter = {
-      proxy
-    };
-    observeMap.set(target, valueParameter);
-    return proxy;
-  }
-
-  function createObserver(target) {
-    const targetProxy = new Proxy(target, {});
-    return targetProxy;
-  }
 
   Lit.observable = obj => {
     return isObject(obj) ? observe(obj) : obj;

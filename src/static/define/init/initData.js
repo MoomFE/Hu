@@ -2,6 +2,7 @@ import create from "../../../shared/global/Object/create";
 import Set_Defined from "../../../shared/proxy/Set_Defined";
 import each from "../../../shared/util/each";
 import injectionToLit from "../../../shared/util/injectionToLit";
+import { observe, observeMap } from "../../observable/util/observe";
 
 
 /**
@@ -15,9 +16,7 @@ export default function initData( root, options, target, targetProxy ){
 
   const dataTarget = create( null );
 
-  const dataTargetProxy = target.$data = new Proxy( dataTarget, {
-    set: Set_Defined
-  });
+  const dataTargetProxy = target.$data = observe( dataTarget );
 
   if( options.data ){
     const data = options.data.call( targetProxy );
