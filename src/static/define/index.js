@@ -18,7 +18,7 @@ export default function define( name, options ){
    * 组件的 prop 与取值 attr 的映射
    */
   const propsMap = options.propsMap;
-  
+
   // 创建组件
   const LitElement = class LitElement extends HTMLElement{
 
@@ -51,11 +51,11 @@ export default function define( name, options ){
     }
 
     disconnectedCallback(){
-      console.log('disconnectedCallback');
+
     }
 
     adoptedCallback(){
-      console.log('adoptedCallback');
+
     }
 
   }

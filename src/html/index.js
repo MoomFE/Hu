@@ -426,7 +426,7 @@ class TemplateInstance {
  * interpolated expressions.
  */
 
-class TemplateResult$1 {
+class TemplateResult {
   constructor(strings, values, type, processor) {
     this.strings = strings;
     this.values = values;
@@ -665,7 +665,7 @@ class NodePart {
       if (value !== this.value) {
         this._commitText(value);
       }
-    } else if (value instanceof TemplateResult$1) {
+    } else if (value instanceof TemplateResult) {
       this._commitTemplateResult(value);
     } else if (value instanceof Node) {
       this._commitNode(value);
@@ -1142,4 +1142,4 @@ const html$1 = function (strings, ...values) {
   return new TemplateResult(strings, values, 'html', defaultTemplateProcessor);
 };
 
-export { html$1 as html, TemplateResult$1 as TemplateResult, render };
+export { html$1 as html, TemplateResult, render };
