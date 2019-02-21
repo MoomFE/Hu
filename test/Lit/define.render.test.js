@@ -1,6 +1,6 @@
 describe( 'Lit.define - render', () => {
 
-  it( '项目创建后, 会将自定义元素本身作为 $root 变量存储在 Lit 实例中', () => {
+  it( '项目创建后, 会将自定义元素本身作为 $customElement 变量存储在 Lit 实例中', () => {
     const customName = window.customName;
 
     Lit.define( customName );
@@ -9,7 +9,7 @@ describe( 'Lit.define - render', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    expect( lit.$root ).is.equals( custom );
+    expect( lit.$customElement ).is.equals( custom );
   });
 
   it( '项目创建后, 会将自定义元素的 Shadow DOM 作为 $el 存储在 Lit 实例中', () => {

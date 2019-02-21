@@ -1678,7 +1678,7 @@
 
   /**
    * 初始化当前组件属性
-   * @param {HTMLElement} root 组件根节点
+   * @param {HTMLElement} root 自定义元素组件节点
    * @param {{}} options 组件配置
    */
 
@@ -1698,7 +1698,7 @@
     target.$el = root.attachShadow({
       mode: 'open'
     });
-    target.$root = root;
+    target.$customElement = root;
     initProps$1(root, options, target, targetProxy);
     initMethods$1(root, options, target, targetProxy);
     initData$1(root, options, target, targetProxy);

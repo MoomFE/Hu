@@ -16,7 +16,7 @@ interface $lit {
   /**
    * Lit 实例的自定义元素节点
    */
-  $root: Element;
+  $customElement: Element;
 
   /**
    * Lit 实例属性对象,
