@@ -12,7 +12,7 @@ import keys from "../../shared/global/Object/keys";
 export default function define( name, options ){
 
   // 初始化组件配置
-  options = initOptions( options );
+  options = initOptions( options || {} );
 
   /**
    * 组件的 prop 与取值 attr 的映射

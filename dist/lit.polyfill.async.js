@@ -1912,7 +1912,7 @@
 
   function define$1(name, options) {
     // 初始化组件配置
-    options = initOptions(options);
+    options = initOptions(options || {});
     /**
      * 组件的 prop 与取值 attr 的映射
      */
