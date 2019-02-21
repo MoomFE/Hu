@@ -1,4 +1,4 @@
-describe( 'noConflict', () => {
+describe( 'Lit.noConflict', () => {
 
   it( '使用 noConflict 方法可以释放 window.Lit 的控制权, 还原到定义 Lit 之前', () => {
     const Lit = window.Lit;
