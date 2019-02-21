@@ -4,9 +4,9 @@
   (global = global || self, global.Lit = factory());
 }(this, function () { 'use strict';
 
-  window.WebComponents = {
+  window.WebComponents = Object.assign({
     root: 'https://unpkg.com/@webcomponents/webcomponentsjs@%5E2/'
-  };
+  }, window.WebComponents);
 
   /**
    * @license
