@@ -40,6 +40,25 @@ describe( 'Lit.define - lifecycle', () => {
     expect( isMountedRun ).is.true;
   });
 
+  it( '生命周期钩子的 this 指向的是 $lit', () => {
+    const customName = window.customName;
+    const self = [];
+    const returnSelf = function(){ self.push( this ) };
+
+    Lit.define( customName, {
+      beforeMount: returnSelf,
+      mounted: returnSelf,
+      render(){}
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect([ ...new Set( self ) ]).deep.equals([ lit ]);
+
+    div.$remove();
+  });
 
 });
 
