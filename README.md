@@ -11,7 +11,7 @@ Lit 使用了和 Vue 相似的 API, 大大减少了学习成本
 | 49+    | 45+     | 10+    | 12+  | No                |
 
 > 在目前支持的这些浏览器下, 已经支持大部分的 ES5 / ES6 等特性及方法了,<br>
-> 在项目中就可以忽略对这些特性的 babel 转码和 polyfill 以达到更好的性能, 特在此罗列出来 ( 肯定不全 ): <br>
+> 在项目中就可以忽略对这些特性的 babel 转码和 polyfill 以达到更好的性能, 特在此罗列出来 ( 包括但不限于 ): <br>
   > - [箭头函数表达式 ( Arrow Functions )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Arrow_functions)
   > - [剩余参数 ( Rest Parameters )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Rest_parameters)
   > - [模板字面量 ( Template literals ) or 模板字符串 ( Template Strings )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/template_strings)
@@ -25,11 +25,11 @@ Lit 使用了和 Vue 相似的 API, 大大减少了学习成本
 ## 大小 - 版本详解
 |                           | Default | Gzip   | -   | Module | Use in | Description |
 | :-                        | :-      | :-     | :-: | :-     | :-     | :-          |
-| lit.js                    | 51.09KB | 13.22KB | \| | UMD | Browser | |
-| lit.min.js                | 12.07KB | 4.40KB | \| | UMD | Browser | |
-| lit.polyfill.async.js     | 57.64KB | 14.89KB | \| | UMD | Browser | |
-| lit.polyfill.async.min.js | 14.39KB | 5.17KB | \| | UMD | Browser | |
-| lit.polyfill.js           | 215.17KB | 50.32KB | \| | UMD | Browser | |
+| lit.js                    | 51.10KB | 13.22KB | \| | UMD | Browser | |
+| lit.min.js                | 12.07KB | 4.41KB | \| | UMD | Browser | |
+| lit.polyfill.async.js     | 57.65KB | 14.89KB | \| | UMD | Browser | |
+| lit.polyfill.async.min.js | 14.39KB | 5.18KB | \| | UMD | Browser | |
+| lit.polyfill.js           | 215.18KB | 50.32KB | \| | UMD | Browser | |
 | lit.polyfill.min.js       | 110.35KB | 34.33KB | \| | UMD | Browser | |
 
 <br>
