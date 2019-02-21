@@ -1,5 +1,29 @@
 describe( 'Lit.define - render', () => {
 
+  it( '项目创建后, 会将自定义元素本身作为 $root 变量存储在 Lit 实例中', () => {
+    const customName = window.customName;
+
+    Lit.define( customName );
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.$root ).is.equals( custom );
+  });
+
+  it( '项目创建后, 会将自定义元素的 Shadow DOM 作为 $el 存储在 Lit 实例中', () => {
+    const customName = window.customName;
+
+    Lit.define( customName );
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.$el ).is.a('ShadowRoot');
+  });
+
   it( '自定义元素被添加到 DOM 树中后会立即运行渲染方法进行渲染', () => {
     const customName = window.customName;
     let isRender = false;
@@ -12,11 +36,11 @@ describe( 'Lit.define - render', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
 
-    expect( isRender ).to.be.false;
+    expect( isRender ).is.false;
 
     div.$appendTo( document.body );
 
-    expect( isRender ).to.be.true;
+    expect( isRender ).is.true;
 
     div.$remove();
   });
@@ -35,14 +59,14 @@ describe( 'Lit.define - render', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
-    expect( num ).to.equals( 1 );
+    expect( num ).is.equals( 1 );
 
     lit.$forceUpdate();
-    expect( num ).to.equals( 2 );
+    expect( num ).is.equals( 2 );
 
     lit.$forceUpdate();
     lit.$forceUpdate();
-    expect( num ).to.equals( 4 );
+    expect( num ).is.equals( 4 );
 
     div.$remove();
   });
@@ -52,7 +76,7 @@ describe( 'Lit.define - render', () => {
 
     Lit.define( customName, {
       render( html ){
-        expect( html ).to.be.an( 'function' );
+        expect( html ).is.a( 'function' );
       }
     });
 
@@ -72,9 +96,9 @@ describe( 'Lit.define - render', () => {
     const custom = div.firstElementChild;
     const $el = custom.$lit.$el;
 
-    expect( $el.children.length ).to.equals( 1 );
-    expect( $el.children[0]._nodeName ).to.equals( 'div' );
-    expect( $el.children[0].innerHTML ).to.equals( '123' );
+    expect( $el.children.length ).is.equals( 1 );
+    expect( $el.children[0]._nodeName ).is.equals( 'div' );
+    expect( $el.children[0].innerHTML ).is.equals( '123' );
 
     div.$remove();
   });
