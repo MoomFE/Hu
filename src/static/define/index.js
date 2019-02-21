@@ -47,7 +47,11 @@ export default function define( name, options ){
     }
 
     connectedCallback(){
-      this.$lit.$forceUpdate();
+      const { $lit } = this;
+
+      options.beforeMount.call( $lit );
+      $lit.$forceUpdate();
+      options.mounted.call( $lit );
     }
 
     disconnectedCallback(){

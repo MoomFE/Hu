@@ -196,15 +196,21 @@
     }
   }
 
+  var noop = (
+  /**
+   * 空方法
+   */
+  () => {});
+
   function initLifecycle(userOptions, options) {
     [
     /** 在实例初始化之后 */
     'beforeCreate',
     /** 在实例创建完成后被立即调用, 挂载阶段还没开始 */
     'created',
-    /** 在挂载开始之前被调用, 首次调用 render 函数 */
+    /** 在自定义元素挂载开始之前被调用 */
     'beforeMount',
-    /** 组件 DOM 已挂载 */
+    /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
     'mounted',
     /** 数据更新时调用, 还未更新组件 DOM */
     'beforeUpdate',
@@ -215,15 +221,9 @@
     /** 实例销毁后调用 */
     'destroyed'].forEach(name => {
       const lifecycle = userOptions[name];
-      isFunction(lifecycle) && (options[name] = lifecycle);
+      options[name] = isFunction(lifecycle) ? lifecycle : noop;
     });
   }
-
-  var noop = (
-  /**
-   * 空方法
-   */
-  () => {});
 
   function initState(userOptions, options) {
     const methods = userOptions.methods,
@@ -1752,7 +1752,10 @@
       }
 
       connectedCallback() {
-        this.$lit.$forceUpdate();
+        const $lit = this.$lit;
+        options.beforeMount.call($lit);
+        $lit.$forceUpdate();
+        options.mounted.call($lit);
       }
 
       disconnectedCallback() {}

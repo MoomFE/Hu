@@ -120,6 +120,16 @@ interface LitOptions{
    */
   render<T>( this: $lit, html: ( strings: TemplateStringsArray, ...values: unknown[] ) => T ): T;
 
+  /**
+   * 在自定义元素挂载开始之前被调用
+   */
+  beforeMount( this: $lit );
+
+  /**
+   * 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载
+   */
+  mounted( this: $lit );
+
 }
 
 
