@@ -7,6 +7,17 @@ type KEYTYPE = string | number | symbol;
  * Lit 实例对象
  */
 interface $lit {
+
+  /**
+   * Lit 实例的 Shadow DOM ( 阴影 DOM ) 节点
+   */
+  $el: ShadowRoot;
+
+  /**
+   * Lit 实例的自定义元素节点
+   */
+  $root: Element;
+
   /**
    * Lit 实例属性对象,
    * 包含了声明自定义元素时的 props 属性上定义的所有属性
