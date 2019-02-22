@@ -4,6 +4,7 @@ import isReserved from "../../../shared/util/isReserved";
 import initMethods from "./initMethods";
 import initData from "./initData";
 import initRender from "./initRender";
+import initComputed from "./initComputed";
 
 
 /**
@@ -30,6 +31,7 @@ export default function init( root, options ){
   initProps( root, options, target, targetProxy );
   initMethods( root, options, target, targetProxy );
   initData( root, options, target, targetProxy );
+  initComputed( root, options, target, targetProxy );
   initRender( root, options, target, targetProxy );
 
   return targetProxy;

@@ -591,7 +591,7 @@
       const data = options.data.call(targetProxy);
       data && each(data, (name, value) => {
         dataTarget[name] = value;
-        injectionToLit(target, name, value, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
+        injectionToLit(target, name, 0, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
       });
     }
   }
@@ -1797,6 +1797,38 @@
     });
   }
 
+  function initComputed$1(root, options, target, targetProxy) {
+    const computedTarget = create(null);
+    const computedTargetProxy = observe(computedTarget);
+    const computedTargetProxyInterceptor = target.$computed = new Proxy(computedTargetProxy, {
+      get(target, name) {
+        const computedOptions = computedStateMap[name];
+        let result;
+
+        if (computedOptions && !computedOptions.isInit) {
+          result = target[name] = computedOptions.get();
+        } else {
+          result = target[name];
+        }
+
+        return result;
+      }
+
+    });
+    const computedStateMap = {};
+    options.computed && each(options.computed, (name, computed) => {
+      const set = computed.set.bind(targetProxy);
+      const get = createCollectingDependents(computed.get.bind(targetProxy));
+      computedTarget[name] = void 0;
+      computedStateMap[name] = {
+        get,
+        set,
+        isInit: false
+      };
+      injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
+    });
+  }
+
   /**
    * 初始化当前组件属性
    * @param {HTMLElement} root 自定义元素组件节点
@@ -1823,6 +1855,7 @@
     initProps$1(root, options, target, targetProxy);
     initMethods$1(root, options, target, targetProxy);
     initData$1(root, options, target, targetProxy);
+    initComputed$1(root, options, target, targetProxy);
     initRender(root, options, target, targetProxy);
     return targetProxy;
   }

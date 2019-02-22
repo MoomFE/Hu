@@ -24,7 +24,7 @@ export default function initData( root, options, target, targetProxy ){
       dataTarget[ name ] = value;
 
       injectionToLit(
-        target, name, value,
+        target, name, 0,
         () => dataTargetProxy[ name ],
         value => dataTargetProxy[ name ] = value
       );
