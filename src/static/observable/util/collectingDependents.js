@@ -1,5 +1,3 @@
-import each from "../../../shared/util/each";
-
 let uid = 0;
 
 /**
