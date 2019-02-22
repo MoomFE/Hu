@@ -6313,17 +6313,17 @@
    * 为传入方法收集依赖
    */
 
-  function collectingDependents(fn) {
+  function createCollectingDependents(fn) {
     // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
     const id = uid++;
-    return function anonymous() {
+    return function collectingDependents() {
       // 对之前收集的依赖进行清空
       cleanDependents(id); // 当前方法的依赖存储
 
-      const deps = []; // 标识当前存储依赖的 ID, 后续可以通过 ID 找到它
+      const deps = []; // 将当前方法存进 deps 中
+      // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
 
-      deps.id = id;
-      deps.fn = anonymous; // 开始收集依赖
+      deps.fn = collectingDependents; // 开始收集依赖
 
       targetStack.push(deps); // 执行方法
       // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
@@ -6333,8 +6333,7 @@
       targetStack.pop(); // 存储当前方法的依赖
       // 可以在下次收集依赖的时候对这次收集的依赖进行清空
 
-      dependentsMap[id] = deps; // console.log( deps );
-
+      dependentsMap[id] = deps;
       return result;
     };
   }
@@ -6356,7 +6355,7 @@
   function observe(target) {
     // 如果创建过观察者
     // 则返回之前创建的观察者
-    if (observeMap.has(target)) return observeMap.get(target).proxy; // 否则立即创建观察者进行返回
+    if (observeMap.has(target)) return observeMap.get(target); // 否则立即创建观察者进行返回
 
     return createObserver(target);
   }
@@ -6371,42 +6370,11 @@
     /** 当前对象的 Proxy 对象 */
 
     const proxy = new Proxy(target, {
-      get(target, name) {
-        // 获取最新的依赖存储
-        const deps = targetStack[targetStack.length - 1];
+      get: createObserverProxyGetter(watch),
+      set: createObserverProxySetter(watch)
+    }); // 存储观察者对象
 
-        if (deps) {
-          // 将当前存储依赖
-          const fn = watch[name] = deps.fn; // 将当前调用链放进依赖存储中
-
-          deps.push(() => {
-            const watches = watch[name];
-            watches.splice(watches.indexOf(fn), 1);
-          });
-        }
-
-        return target[name];
-      },
-
-      set(target, name, value) {
-        const watches = watch[name];
-        target[name] = value;
-
-        if (watches && watches.length) {
-          for (const watcher of watches) watcher();
-        }
-
-        return true;
-      }
-
-    });
-    /** 存放当前对象的 Proxy 对象 / 被依赖数据 / 监听数据 */
-
-    const targetParameter = {
-      watch,
-      proxy
-    };
-    observeMap.set(target, targetParameter); // 递归创建观察者
+    observeMap.set(target, proxy); // 递归创建观察者
 
     each(target, (key, target) => {
       if (isObject(target)) {
@@ -6415,6 +6383,36 @@
     });
     return proxy;
   }
+
+  const createObserverProxyGetter = watch => (target, name) => {
+    // 获取当前在收集依赖的那个方法的 deps 对象
+    const deps = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
+
+    if (deps) {
+      // 将正在收集依赖的方法进行存储
+      // 后续移除旧依赖时或响应更新时需要用到
+      const fn = watch[name] = deps.fn; // 给 deps 对象传入一个方法, 用于移除依赖
+
+      deps.push(() => {
+        const watches = watch[name];
+        watches.splice(watches.indexOf(fn), 1);
+      });
+    }
+
+    return target[name];
+  };
+
+  const createObserverProxySetter = watch => (target, name, value) => {
+    const watches = watch[name]; // 改变值
+
+    target[name] = value; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
+
+    if (watches && watches.length) {
+      for (const watcher of watches) watcher();
+    }
+
+    return true;
+  };
 
   /**
    * 初始化当前组件 data 属性
@@ -7629,7 +7627,7 @@
      * 迫使 Lit 实例重新渲染
      */
 
-    target.$forceUpdate = collectingDependents(() => {
+    target.$forceUpdate = createCollectingDependents(() => {
       const templateResult = userRender(html$1);
 
       if (templateResult instanceof TemplateResult) {

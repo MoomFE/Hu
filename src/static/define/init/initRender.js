@@ -1,5 +1,5 @@
 import { html, TemplateResult, render } from "../../../html/index";
-import { collectingDependents } from "../../observable/util/collectingDependents";
+import { createCollectingDependents } from "../../observable/util/collectingDependents";
 
 
 export default function initRender( root, options, target, targetProxy ){
@@ -10,7 +10,7 @@ export default function initRender( root, options, target, targetProxy ){
   /**
    * 迫使 Lit 实例重新渲染
    */
-  target.$forceUpdate = collectingDependents(() => {
+  target.$forceUpdate = createCollectingDependents(() => {
     const templateResult = userRender( html );
 
     if( templateResult instanceof TemplateResult ){
