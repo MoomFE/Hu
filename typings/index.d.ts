@@ -66,6 +66,31 @@ interface Lit{
    */
   noConflict(): Lit;
 
+  /**
+   * 方法会返回一个可响应的对象代理, Lit 内部会用它来处理 data 函数返回的对象
+   * - 返回的可响应的对象代理可以直接用于渲染函数和计算属性内, 并且会在发生改变时触发相应的更新
+   * - 而对源对象直接进行修改将是不可响应的
+   * - 也可以作为最小化的跨组件状态存储器
+   * @param obj
+   */
+  observable<T>( obj: T ): T;
+
+  /**
+   * 用于创建模板字面量的对象
+   * @param strings
+   * @param values
+   */
+  html( strings: TemplateStringsArray, ...values: unknown[] ): TemplateResult;
+
+  /**
+   * 将 Lit.html 创建出的模板字面量挂载到指定 DOM 节点
+   * @param result Lit.html 的返回值
+   * @param container 挂载目标
+   * @param options.templateFactory
+   * @param options.eventContext
+   */
+  render( result: TemplateResult, container: Element | DocumentFragment, options?: { templateFactory?: TemplateFactory, eventContext?: EventTarget }): void;
+
 }
 
 declare const Lit: Lit;
@@ -99,7 +124,7 @@ interface LitOptions{
   /**
    * 定义一系列的方法以在 Lit 实例中使用
    */
-  methods: {
+  methods?: {
     [ key: string ]: ( this: $lit, ...args: any[] ) => any;
     [ key: number ]: ( this: $lit, ...args: any[] ) => any;
     [ key: symbol ]: ( this: $lit, ...args: any[] ) => any;
@@ -114,30 +139,25 @@ interface LitOptions{
     [ key: symbol ]: any;
   };
 
-  /**
-   * Lit 实例的渲染函数
-   * @param html 用于创建模板字符串的对象
-   */
-  render<T>( this: $lit, html: ( strings: TemplateStringsArray, ...values: unknown[] ) => T ): T;
+  computed?: {
+
+  };
 
   /**
-   * 方法会返回一个可响应的对象代理, Lit 内部会用它来处理 data 函数返回的对象
-   * - 返回的可响应的对象代理可以直接用于渲染函数和计算属性内, 并且会在发生改变时触发相应的更新
-   * - 而对源对象直接进行修改将是不可响应的
-   * - 也可以作为最小化的跨组件状态存储器
-   * @param obj 
+   * Lit 实例的渲染函数
+   * @param html 用于创建模板字面量的对象
    */
-  observable<T>( obj: T ): T;
+  render?( this: $lit, html: ( strings: TemplateStringsArray, ...values: unknown[] ) => TemplateResult ): TemplateResult;
 
   /**
    * 在自定义元素挂载开始之前被调用
    */
-  beforeMount( this: $lit );
+  beforeMount?( this: $lit );
 
   /**
    * 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载
    */
-  mounted( this: $lit );
+  mounted?( this: $lit );
 
 }
 
@@ -167,4 +187,16 @@ interface PropOptions<T=any> {
    * - 如果创建当前自定义元素时未定义属于当前 prop 的 attribute 时, 则取当前默认值
    */
   default?: string | number | boolean | null | undefined | (() => any)
+}
+
+/* ------------------ Lit-HTML ------------------ */
+
+class TemplateResult{
+  strings: TemplateStringsArray;
+  values: unknown[];
+  type: string;
+  processor: TemplateProcessor;
+
+  getHTML(): string;
+  getTemplateElement(): HTMLTemplateElement;
 }
