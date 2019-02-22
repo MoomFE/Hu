@@ -105,6 +105,7 @@ describe( 'Lit.define - render', () => {
 
   it( '执行 render 方法时会进行依赖收集', () => {
     const customName = window.customName;
+    let num = 0;
 
     Lit.define( customName, {
       data(){
@@ -114,6 +115,7 @@ describe( 'Lit.define - render', () => {
         };
       },
       render( html ){
+        num++;
         return html`${ this.a }${ this.b }`;
       }
     });
@@ -122,6 +124,15 @@ describe( 'Lit.define - render', () => {
     const custom = div.firstElementChild;
     const lit = custom.$lit;
 
+    expect( num ).is.equals( 1 );
+
+    lit.a = 123;
+
+    expect( num ).is.equals( 2 );
+
+    lit.b = 123;
+
+    expect( num ).is.equals( 3 );
 
     div.$remove();
   });

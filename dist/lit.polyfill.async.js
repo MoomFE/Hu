@@ -645,6 +645,7 @@
     });
   }
 
+  let uid = 0;
   /**
    * 调用堆栈
    * - 存放当前正在计算依赖的方法的 deps 依赖集合数组
@@ -653,13 +654,27 @@
 
   const targetStack = [];
   /**
+   * 依赖集合
+   * - 存放所有已收集到的依赖
+   * - { id: deps, ... }
+   */
+
+  const dependentsMap = {};
+  /**
    * 为传入方法收集依赖
    */
 
   function collectingDependents(fn) {
-    return () => {
-      // 当前方法的依赖存储
-      const deps = []; // 开始收集依赖
+    // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
+    const id = uid++;
+    return function anonymous() {
+      // 对之前收集的依赖进行清空
+      cleanDependents(id); // 当前方法的依赖存储
+
+      const deps = []; // 标识当前存储依赖的 ID, 后续可以通过 ID 找到它
+
+      deps.id = id;
+      deps.fn = anonymous; // 开始收集依赖
 
       targetStack.push(deps); // 执行方法
       // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
@@ -667,9 +682,17 @@
       const result = fn(); // 方法执行完成, 则依赖收集完成
 
       targetStack.pop(); // 存储当前方法的依赖
-      console.log(deps);
+      // 可以在下次收集依赖的时候对这次收集的依赖进行清空
+
+      dependentsMap[id] = deps; // console.log( deps );
+
       return result;
     };
+  }
+
+  function cleanDependents(id) {
+    const deps = dependentsMap[id];
+    deps && deps.forEach(fn => fn());
   }
 
   /**
@@ -691,20 +714,40 @@
 
   function createObserver(target) {
     /** 当前对象的被依赖数据 / 监听数据 */
-    const watch = {};
+    const watch = new Proxy({}, {
+      set: (target, name, value) => {
+        return (target[name] || (target[name] = [])).push(value), true;
+      }
+    });
     /** 当前对象的 Proxy 对象 */
 
     const proxy = new Proxy(target, {
       get(target, name) {
         // 获取最新的依赖存储
-        const lastTarget = targetStack[targetStack.length - 1];
+        const deps = targetStack[targetStack.length - 1];
 
-        if (lastTarget) {
-          // 将当前调用链放进依赖存储中
-          lastTarget.push([target, name]);
+        if (deps) {
+          // 将当前存储依赖
+          const fn = watch[name] = deps.fn; // 将当前调用链放进依赖存储中
+
+          deps.push(() => {
+            const watches = watch[name];
+            watches.splice(watches.indexOf(fn), 1);
+          });
         }
 
         return target[name];
+      },
+
+      set(target, name, value) {
+        const watches = watch[name];
+        target[name] = value;
+
+        if (watches && watches.length) {
+          for (const watcher of watches) watcher();
+        }
+
+        return true;
       }
 
     });

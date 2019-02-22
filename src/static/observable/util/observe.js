@@ -1,6 +1,7 @@
 import { targetStack } from "./collectingDependents";
 import each from "../../../shared/util/each";
 import isObject from "../../../shared/util/isObject";
+import has from "../../../shared/global/Reflect/has";
 
 
 /**
@@ -21,19 +22,39 @@ export function observe( target ){
 
 function createObserver( target ){
   /** 当前对象的被依赖数据 / 监听数据 */
-  const watch = {};
+  const watch = new Proxy({}, {
+    set: ( target, name, value ) => {
+      return ( target[ name ] || ( target[ name ] = [] ) ).push( value ), true
+    }
+  });
   /** 当前对象的 Proxy 对象 */
   const proxy = new Proxy( target, {
     get( target, name ){
       // 获取最新的依赖存储
-      const lastTarget = targetStack[ targetStack.length - 1 ];
+      const deps = targetStack[ targetStack.length - 1 ];
 
-      if( lastTarget ){
+      if( deps ){
+        // 将当前存储依赖
+        const fn = watch[ name ] = deps.fn;
         // 将当前调用链放进依赖存储中
-        lastTarget.push([ target, name ]);
+        deps.push(() => {
+          const watches = watch[ name ];
+          watches.splice( watches.indexOf( fn ), 1 );
+        });
       }
 
       return target[ name ];
+    },
+    set( target, name, value ){
+      const watches = watch[ name ];
+
+      target[ name ] = value;
+
+      if( watches && watches.length ){
+        for( const watcher of watches ) watcher();
+      }
+
+      return true;
     }
   });
   /** 存放当前对象的 Proxy 对象 / 被依赖数据 / 监听数据 */
