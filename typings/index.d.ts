@@ -11,12 +11,12 @@ interface $lit {
   /**
    * Lit 实例的 Shadow DOM ( 阴影 DOM ) 节点
    */
-  $el: ShadowRoot;
+  readonly $el: ShadowRoot;
 
   /**
    * Lit 实例的自定义元素节点
    */
-  $customElement: Element;
+  readonly $customElement: Element;
 
   /**
    * Lit 实例属性对象
@@ -33,6 +33,11 @@ interface $lit {
    * - 包含了声明自定义元素时的 data 方法返回的所有属性
    */
   readonly $data: Record< KEYTYPE, any >;
+  /**
+   * Lit 实例计算属性对象
+   * - 包含了声明自定义元素时的 computed 属性上定义的所有的计算属性
+   */
+  readonly $computed: Record< KEYTYPE, any >;
 
   /**
    * 迫使 Lit 实例重新渲染
