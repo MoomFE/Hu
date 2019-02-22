@@ -1,7 +1,7 @@
 import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
 import injectionToLit from "../../../shared/util/injectionToLit";
-import { observe, observeMap } from "../../observable/util/observe";
+import { observe } from "../../observable/util/observe";
 
 
 /**
