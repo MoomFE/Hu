@@ -450,6 +450,33 @@
   }
 
   /**
+   * 调用堆栈
+   * - 存放当前正在计算依赖的方法的 deps 依赖集合数组
+   * - [ deps, deps, ... ]
+   */
+
+  const targetStack = [];
+  /**
+   * 为传入方法收集依赖
+   */
+
+  function collectingDependents(fn) {
+    return () => {
+      // 当前方法的依赖存储
+      const deps = []; // 开始收集依赖
+
+      targetStack.push(deps); // 执行方法
+      // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
+
+      const result = fn(); // 方法执行完成, 则依赖收集完成
+
+      targetStack.pop(); // 存储当前方法的依赖
+      console.log(deps);
+      return result;
+    };
+  }
+
+  /**
    * 存放创建过的观察者
    */
 
@@ -467,9 +494,20 @@
   }
 
   function createObserver(target) {
+    /** 当前对象的被依赖数据 / 监听数据 */
+    const watch = {};
     /** 当前对象的 Proxy 对象 */
+
     const proxy = new Proxy(target, {
       get(target, name) {
+        // 获取最新的依赖存储
+        const lastTarget = targetStack[targetStack.length - 1];
+
+        if (lastTarget) {
+          // 将当前调用链放进依赖存储中
+          lastTarget.push([target, name]);
+        }
+
         return target[name];
       }
 
@@ -477,7 +515,7 @@
     /** 存放当前对象的 Proxy 对象 / 被依赖数据 / 监听数据 */
 
     const targetParameter = {
-      watch: [],
+      watch,
       proxy
     };
     observeMap.set(target, targetParameter); // 递归创建观察者
@@ -1703,7 +1741,7 @@
      * 迫使 Lit 实例重新渲染
      */
 
-    target.$forceUpdate = () => {
+    target.$forceUpdate = collectingDependents(() => {
       const templateResult = userRender(html$1);
 
       if (templateResult instanceof TemplateResult) {
@@ -1712,7 +1750,7 @@
           eventContext: root
         });
       }
-    };
+    });
   }
 
   /**

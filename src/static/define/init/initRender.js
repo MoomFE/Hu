@@ -1,4 +1,5 @@
 import { html, TemplateResult, render } from "../../../html/index";
+import { collectingDependents } from "../../observable/util/collectingDependents";
 
 
 export default function initRender( root, options, target, targetProxy ){
@@ -9,7 +10,7 @@ export default function initRender( root, options, target, targetProxy ){
   /**
    * 迫使 Lit 实例重新渲染
    */
-  target.$forceUpdate = () => {
+  target.$forceUpdate = collectingDependents(() => {
     const templateResult = userRender( html );
 
     if( templateResult instanceof TemplateResult ){
@@ -18,6 +19,6 @@ export default function initRender( root, options, target, targetProxy ){
         eventContext: root
       });
     }
-  }
+  });
 
 }

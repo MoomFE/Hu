@@ -103,4 +103,27 @@ describe( 'Lit.define - render', () => {
     div.$remove();
   });
 
+  it( '执行 render 方法时会进行依赖收集', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      data(){
+        return {
+          a: 1,
+          b: 2
+        };
+      },
+      render( html ){
+        return html`${ this.a }${ this.b }`;
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+
+    div.$remove();
+  });
+
 });
