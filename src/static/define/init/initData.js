@@ -1,5 +1,4 @@
 import create from "../../../shared/global/Object/create";
-import Set_Defined from "../../../shared/proxy/Set_Defined";
 import each from "../../../shared/util/each";
 import injectionToLit from "../../../shared/util/injectionToLit";
 import { observe, observeMap } from "../../observable/util/observe";

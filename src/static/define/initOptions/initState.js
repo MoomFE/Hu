@@ -3,7 +3,6 @@ import isFunction from "../../../shared/util/isFunction";
 import noop from "../../../shared/util/noop";
 import isArray from "../../../shared/global/Array/isArray";
 import isPlainObject from "../../../shared/util/isPlainObject";
-import isString from "../../../shared/util/isString";
 
 
 export default function initState( userOptions, options ){
