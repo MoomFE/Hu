@@ -125,14 +125,17 @@ describe( 'Lit.define - render', () => {
     const lit = custom.$lit;
 
     expect( num ).is.equals( 1 );
+    expect( lit.$el.textContent ).is.equals('12');
 
     lit.a = 123;
 
     expect( num ).is.equals( 2 );
+    expect( lit.$el.textContent ).is.equals('1232');
 
     lit.b = 123;
 
     expect( num ).is.equals( 3 );
+    expect( lit.$el.textContent ).is.equals('123123');
 
     div.$remove();
   });
