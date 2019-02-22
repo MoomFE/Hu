@@ -14,10 +14,7 @@ export default function initRender( root, options, target, targetProxy ){
     const templateResult = userRender( html );
 
     if( templateResult instanceof TemplateResult ){
-      render( templateResult, $el, {
-        scopeName: root.localName,
-        eventContext: root
-      });
+      render( templateResult, $el );
     }
   });
 

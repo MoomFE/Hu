@@ -1990,10 +1990,7 @@
       const templateResult = userRender(html$1);
 
       if (templateResult instanceof TemplateResult) {
-        render(templateResult, $el, {
-          scopeName: root.localName,
-          eventContext: root
-        });
+        render(templateResult, $el);
       }
     });
   }
