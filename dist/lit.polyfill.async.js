@@ -713,11 +713,7 @@
 
   function createObserver(target) {
     /** 当前对象的被依赖数据 / 监听数据 */
-    const watch = new Proxy({}, {
-      set: (target, name, value) => {
-        return (target[name] || (target[name] = [])).push(value), true;
-      }
-    });
+    const watch = {};
     /** 当前对象的 Proxy 对象 */
 
     const proxy = new Proxy(target, {
@@ -734,24 +730,36 @@
     });
     return proxy;
   }
+  /**
+   * 创建依赖收集的响应方法
+   */
+
 
   const createObserverProxyGetter = watch => (target, name) => {
     // 获取当前在收集依赖的那个方法的 deps 对象
     const deps = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
     if (deps) {
-      // 将正在收集依赖的方法进行存储
+      /** 当前参数的依赖数组 */
+      const watches = watch[name] || (watch[name] = []);
+      /** 当前正在收集依赖的方法 */
+
+      const fn = deps.fn; // 将正在收集依赖的方法进行存储
       // 后续移除旧依赖时或响应更新时需要用到
-      const fn = watch[name] = deps.fn; // 给 deps 对象传入一个方法, 用于移除依赖
+
+      watches.push(fn); // 给 deps 对象传入一个方法, 用于移除依赖
 
       deps.push(() => {
-        const watches = watch[name];
         watches.splice(watches.indexOf(fn), 1);
       });
     }
 
     return target[name];
   };
+  /**
+   * 创建响应更新方法
+   */
+
 
   const createObserverProxySetter = watch => (target, name, value) => {
     const watches = watch[name]; // 改变值
