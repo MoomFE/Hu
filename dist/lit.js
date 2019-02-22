@@ -336,18 +336,6 @@
     return (isSymbolName !== undefined ? isSymbolName : isSymbol(name)) || !isReserved(name);
   });
 
-  var Set_Defined = (
-  /**
-   * 只允许修改已定义过的变量
-   */
-  (target, name, value) => {
-    if (name in target) {
-      return target[name] = value, true;
-    }
-
-    return false;
-  });
-
   const defineProperty = Object.defineProperty;
 
   var define = (
@@ -367,87 +355,6 @@
       set
     });
   });
-
-  /**
-   * 初始化当前组件 props 属性
-   * @param {HTMLElement} root 
-   * @param {{}} options 
-   * @param {{}} target 
-   * @param {{}} targetProxy 
-   */
-
-  function initProps$1(root, options, target, targetProxy) {
-    const props = options.props;
-    const propsTarget = create(null);
-    const propsTargetProxy = target.$props = new Proxy(propsTarget, {
-      set: Set_Defined
-    }); // 尝试从标签上获取 props 属性, 否则取默认值
-
-    each(props, (name, options) => {
-      let value = null;
-
-      if (options.attr) {
-        value = root.getAttribute(options.attr);
-      } // 定义了该属性
-
-
-      if (value !== null) {
-        propsTarget[name] = (options.from || returnArg)(value);
-      } // 使用默认值
-      else {
-          propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
-        }
-    }); // 将 $props 上的属性在 $lit 上建立引用
-
-    each(props, (name, options) => {
-      canInjection(name, options.isSymbol) && define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
-    });
-  }
-
-  const has = Reflect.has;
-
-  var injectionToLit = (
-  /**
-   * 在 $lit 上建立对象的映射
-   * 
-   * @param {{}} litTarget $lit 实例
-   * @param {string} key 对象名称
-   * @param {any} value 对象值
-   * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
-   * @param {function} get 属性的 setter 方法
-   */
-  (litTarget, key, value, set, get) => {
-    // 首字母为 $ 则不允许映射到 $lit 实例中去
-    if (!canInjection(key)) return; // 若在 $lit 下有同名变量, 则删除
-
-    has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
-
-    if (set) {
-      define(litTarget, key, set, get);
-    } // 直接写入到 $lit 上
-    else {
-        litTarget[key] = value;
-      }
-  });
-
-  /**
-   * 初始化当前组件 methods 属性
-   * @param {HTMLElement} root 
-   * @param {{}} options 
-   * @param {{}} target 
-   * @param {{}} targetProxy 
-   */
-
-  function initMethods$1(root, options, target, targetProxy) {
-    const methodsTarget = create(null);
-    target.$methods = new Proxy(methodsTarget, {
-      set: Set_Defined
-    });
-    options.methods && each(options.methods, (name, value) => {
-      const method = methodsTarget[name] = value.bind(targetProxy);
-      injectionToLit(target, name, method);
-    });
-  }
 
   let uid = 0;
   /**
@@ -576,6 +483,97 @@
 
     return true;
   };
+
+  /**
+   * 初始化当前组件 props 属性
+   * @param {HTMLElement} root 
+   * @param {{}} options 
+   * @param {{}} target 
+   * @param {{}} targetProxy 
+   */
+
+  function initProps$1(root, options, target, targetProxy) {
+    const props = options.props;
+    const propsTarget = create(null);
+    const propsTargetProxy = target.$props = observe(propsTarget); // 尝试从标签上获取 props 属性, 否则取默认值
+
+    each(props, (name, options) => {
+      let value = null;
+
+      if (options.attr) {
+        value = root.getAttribute(options.attr);
+      } // 定义了该属性
+
+
+      if (value !== null) {
+        propsTarget[name] = (options.from || returnArg)(value);
+      } // 使用默认值
+      else {
+          propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
+        }
+    }); // 将 $props 上的属性在 $lit 上建立引用
+
+    each(props, (name, options) => {
+      canInjection(name, options.isSymbol) && define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
+    });
+  }
+
+  var Set_Defined = (
+  /**
+   * 只允许修改已定义过的变量
+   */
+  (target, name, value) => {
+    if (name in target) {
+      return target[name] = value, true;
+    }
+
+    return false;
+  });
+
+  const has = Reflect.has;
+
+  var injectionToLit = (
+  /**
+   * 在 $lit 上建立对象的映射
+   * 
+   * @param {{}} litTarget $lit 实例
+   * @param {string} key 对象名称
+   * @param {any} value 对象值
+   * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
+   * @param {function} get 属性的 setter 方法
+   */
+  (litTarget, key, value, set, get) => {
+    // 首字母为 $ 则不允许映射到 $lit 实例中去
+    if (!canInjection(key)) return; // 若在 $lit 下有同名变量, 则删除
+
+    has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
+
+    if (set) {
+      define(litTarget, key, set, get);
+    } // 直接写入到 $lit 上
+    else {
+        litTarget[key] = value;
+      }
+  });
+
+  /**
+   * 初始化当前组件 methods 属性
+   * @param {HTMLElement} root 
+   * @param {{}} options 
+   * @param {{}} target 
+   * @param {{}} targetProxy 
+   */
+
+  function initMethods$1(root, options, target, targetProxy) {
+    const methodsTarget = create(null);
+    target.$methods = new Proxy(methodsTarget, {
+      set: Set_Defined
+    });
+    options.methods && each(options.methods, (name, value) => {
+      const method = methodsTarget[name] = value.bind(targetProxy);
+      injectionToLit(target, name, method);
+    });
+  }
 
   /**
    * 初始化当前组件 data 属性

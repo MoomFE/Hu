@@ -3,8 +3,8 @@ import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
 import canInjection from "../../../shared/util/canInjection";
-import Set_Defined from "../../../shared/proxy/Set_Defined";
 import define from "../../../shared/util/define";
+import { observe } from "../../observable/util/observe";
 
 
 /**
@@ -18,9 +18,7 @@ export default function initProps( root, options, target, targetProxy ){
 
   const props = options.props;
   const propsTarget = create( null );
-  const propsTargetProxy = target.$props = new Proxy( propsTarget, {
-    set: Set_Defined
-  });
+  const propsTargetProxy = target.$props = observe( propsTarget );
 
   // 尝试从标签上获取 props 属性, 否则取默认值
   each( props, ( name, options ) => {
