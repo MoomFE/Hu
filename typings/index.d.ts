@@ -139,8 +139,13 @@ interface LitOptions{
     [ key: symbol ]: any;
   };
 
+  /**
+   * 定义一系列的计算属性, 会自动计算依赖, 根据依赖自动更新值
+   */
   computed?: {
-
+    [ key: string ]: (( this: $lit ) => any) | ComputedOptions;
+    [ key: number ]: (( this: $lit ) => any) | ComputedOptions;
+    [ key: symbol ]: (( this: $lit ) => any) | ComputedOptions;
   };
 
   /**
@@ -161,8 +166,12 @@ interface LitOptions{
 
 }
 
-const xxx  = new Proxy({}, {});
-
+interface ComputedOptions {
+  /** 计算属性的 getter */
+  get( this: $lit ): any;
+  /** 计算属性的 setter */
+  set( this: $lit ): void;
+}
 
 interface PropOptions<T=any> {
   /**
