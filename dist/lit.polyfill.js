@@ -7658,6 +7658,16 @@
         }
 
         return result;
+      },
+
+      set(target, name, value) {
+        const computedOptions = computedStateMap[name];
+
+        if (computedOptions) {
+          return computedOptions.set(value), true;
+        }
+
+        return false;
       }
 
     });
