@@ -190,4 +190,41 @@ describe( 'Lit.define - computed', () => {
     expect( lit.$computed ).has.property( 'a' ).that.is.equals( 1 );
   });
 
+  it( '计算属性如声明了 setter 方法, 则计算属性被写入时会调用计算属性的 setter 方法', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      data: () => ({
+        a: 123456
+      }),
+      computed: {
+        b: {
+          get(){
+            return +( this.a + '' ).split('').reverse().join('') 
+          },
+          set( value ){
+            this.a = value;
+          }
+        }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit.a ).is.equals( 123456 );
+    expect( lit.b ).is.equals( 654321 );
+
+    lit.a = 345678;
+
+    expect( lit.a ).is.equals( 345678 );
+    expect( lit.b ).is.equals( 876543 );
+
+    lit.b = 234567;
+
+    expect( lit.a ).is.equals( 234567 );
+    expect( lit.b ).is.equals( 765432 );
+  });
+
 });
