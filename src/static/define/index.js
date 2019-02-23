@@ -1,4 +1,4 @@
-import Lit from "../../shared/global/Lit/index";
+import Hu from "../../shared/global/Hu/index";
 import initOptions from "./initOptions/index";
 import init from "./init/index";
 import keys from "../../shared/global/Object/keys";
@@ -25,13 +25,13 @@ export default function define( name, options ){
     constructor(){
       super();
 
-      this.$lit = init( this, options );
+      this.$hu = init( this, options );
     }
 
     attributeChangedCallback( name, oldValue, value ){
       if( value !== oldValue ){
         /** 当前组件 $props 对象 */
-        const { $props } = this.$lit;
+        const { $props } = this.$hu;
         /** 当前属性被改动后需要修改的对应 prop */
         const props = propsMap[ name ];
 
@@ -47,11 +47,11 @@ export default function define( name, options ){
     }
 
     connectedCallback(){
-      const { $lit } = this;
+      const { $hu } = this;
 
-      options.beforeMount.call( $lit );
-      $lit.$forceUpdate();
-      options.mounted.call( $lit );
+      options.beforeMount.call( $hu );
+      $hu.$forceUpdate();
+      options.mounted.call( $hu );
     }
 
     disconnectedCallback(){
@@ -71,4 +71,4 @@ export default function define( name, options ){
   customElements.define( name, LitElement );
 }
 
-Lit.define = define;
+Hu.define = define;

@@ -22,7 +22,7 @@
       "dist": true,
       "jsconfig.json": true,
       "LICENSE": true,
-      "Lit.code-workspace": true,
+      "Hu.code-workspace": true,
       "node_modules": true,
       "package-lock.json": true,
       "src": true,

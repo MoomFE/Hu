@@ -1,9 +1,9 @@
-describe( 'Lit.define - computed', () => {
+describe( 'Hu.define - computed', () => {
 
-  it( '在 $lit 实例下会创建 $computed 对象, 存放所有的计算属性', () => {
+  it( '在 $hu 实例下会创建 $computed 对象, 存放所有的计算属性', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       computed: {
         a(){ return 123 }
       }
@@ -11,17 +11,17 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit )
+    expect( hu )
       .has.property( '$computed' )
       .that.is.deep.equals({ a: 123 });
   });
 
-  it( '首字母不为 $ 的计算属性可以在 $computed 和 $lit 下找到', () => {
+  it( '首字母不为 $ 的计算属性可以在 $computed 和 $hu 下找到', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       computed: {
         a(){ return 1 }
       }
@@ -29,16 +29,16 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit.$computed ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$computed ).has.property( 'a' ).that.is.equals( 1 );
   });
 
-  it( '首字母为 $ 的计算属性可以在 $computed 下找到, 但是不能在 $lit 下找到', () => {
+  it( '首字母为 $ 的计算属性可以在 $computed 下找到, 但是不能在 $hu 下找到', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       computed: {
         a(){ return 1 },
         $a(){ return 1 }
@@ -47,19 +47,19 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit.$computed ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$computed ).has.property( 'a' ).that.is.equals( 1 );
 
-    expect( lit ).has.not.property( '$a' );
-    expect( lit.$computed ).has.property( '$a' ).that.is.equals( 1 );
+    expect( hu ).has.not.property( '$a' );
+    expect( hu.$computed ).has.property( '$a' ).that.is.equals( 1 );
   });
 
   it( '计算属性在依赖于创建了观察者的目标对象时, 目标对象被更改, 计算属性自动更新 ( 一 )', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return {
           a: 1,
@@ -75,27 +75,27 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.c ).is.equals( 3 );
+    expect( hu.c ).is.equals( 3 );
 
-    lit.a = 2;
+    hu.a = 2;
 
-    expect( lit.c ).is.equals( 4 );
+    expect( hu.c ).is.equals( 4 );
 
-    lit.b = 998;
+    hu.b = 998;
 
-    expect( lit.c ).is.equals( 1000 );
+    expect( hu.c ).is.equals( 1000 );
   });
 
   it( '计算属性在依赖于创建了观察者的目标对象时, 目标对象被更改, 计算属性自动更新 ( 二 )', () => {
     const customName = window.customName;
-    const data = Lit.observable({
+    const data = Hu.observable({
       a: 1,
       b: 2
     });
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       computed: {
         c(){
           return data.a + data.b;
@@ -105,24 +105,24 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.c ).is.equals( 3 );
+    expect( hu.c ).is.equals( 3 );
 
     data.a = 2;
 
-    expect( lit.c ).is.equals( 4 );
+    expect( hu.c ).is.equals( 4 );
 
     data.b = 998;
 
-    expect( lit.c ).is.equals( 1000 );
+    expect( hu.c ).is.equals( 1000 );
   });
 
   it( '未访问过计算属性, 计算属性不会自动计算依赖', () => {
     const customName = window.customName;
     let isComputed = false
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       computed: {
         a(){ isComputed = true }
       }
@@ -130,11 +130,11 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
     expect( isComputed ).is.false;
 
-    lit.$computed.a;
+    hu.$computed.a;
 
     expect( isComputed ).is.true;
   });
@@ -143,7 +143,7 @@ describe( 'Lit.define - computed', () => {
     const customName = window.customName;
     let index = 0;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       computed: {
         a(){
           index++;
@@ -154,26 +154,26 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
     expect( index ).is.equals( 0 );
 
-    expect( lit.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
     expect( index ).is.equals( 1 );
 
-    expect( lit.a ).is.equals( 123 );
-    expect( lit.a ).is.equals( 123 );
-    expect( lit.a ).is.equals( 123 );
-    expect( lit.a ).is.equals( 123 );
-    expect( lit.a ).is.equals( 123 );
-    expect( lit.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
     expect( index ).is.equals( 1 );
   });
 
   it( '计算属性可以使用 JSON 的方式进行声明, 可同时传入该计算属性 setter 与 getter 方法', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       computed: {
         a: {
           get(){ return 1 },
@@ -184,16 +184,16 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit.$computed ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$computed ).has.property( 'a' ).that.is.equals( 1 );
   });
 
   it( '计算属性如声明了 setter 方法, 则计算属性被写入时会调用计算属性的 setter 方法', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data: () => ({
         a: 123456
       }),
@@ -211,20 +211,20 @@ describe( 'Lit.define - computed', () => {
 
     const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.a ).is.equals( 123456 );
-    expect( lit.b ).is.equals( 654321 );
+    expect( hu.a ).is.equals( 123456 );
+    expect( hu.b ).is.equals( 654321 );
 
-    lit.a = 345678;
+    hu.a = 345678;
 
-    expect( lit.a ).is.equals( 345678 );
-    expect( lit.b ).is.equals( 876543 );
+    expect( hu.a ).is.equals( 345678 );
+    expect( hu.b ).is.equals( 876543 );
 
-    lit.b = 234567;
+    hu.b = 234567;
 
-    expect( lit.a ).is.equals( 234567 );
-    expect( lit.b ).is.equals( 765432 );
+    expect( hu.a ).is.equals( 234567 );
+    expect( hu.b ).is.equals( 765432 );
   });
 
 });

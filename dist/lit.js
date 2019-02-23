@@ -1,10 +1,10 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.Lit = factory());
+  (global = global || self, global.Hu = factory());
 }(this, function () { 'use strict';
 
-  function Lit() {}
+  function Hu() {}
 
   const isArray = Array.isArray;
 
@@ -1785,7 +1785,7 @@
     const userRender = options.render.bind(targetProxy);
     const $el = target.$el;
     /**
-     * 迫使 Lit 实例重新渲染
+     * 迫使 Hu 实例重新渲染
      */
 
     target.$forceUpdate = createCollectingDependents(() => {
@@ -1935,26 +1935,26 @@
 
     customElements.define(name, LitElement);
   }
-  Lit.define = define$1;
+  Hu.define = define$1;
 
-  const otherLit = window.Lit;
+  const otherLit = window.Hu;
 
-  Lit.noConflict = () => {
-    if (window.Lit === Lit) window.Lit = otherLit;
-    return Lit;
+  Hu.noConflict = () => {
+    if (window.Hu === Hu) window.Hu = otherLit;
+    return Hu;
   };
 
   if (typeof window !== 'undefined') {
-    window.Lit = Lit;
+    window.Hu = Hu;
   }
 
-  Lit.html = html$1;
-  Lit.render = render;
+  Hu.html = html$1;
+  Hu.render = render;
 
-  Lit.observable = obj => {
+  Hu.observable = obj => {
     return isObject(obj) ? observe(obj) : obj;
   };
 
-  return Lit;
+  return Hu;
 
 }));

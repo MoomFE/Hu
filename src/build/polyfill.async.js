@@ -1,6 +1,6 @@
 import './polyfill/WebComponentsRoot';
 import '@webcomponents/webcomponentsjs/webcomponents-loader';
-import Lit from './index';
+import Hu from './index';
 
 
-export default Lit;
+export default Hu;

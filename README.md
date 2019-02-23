@@ -1,6 +1,6 @@
-# Lit
-Lit 是一个基于 Web Components 和 Proxy 的 MVVM 框架, 适合公用组件开发<br>
-Lit 使用了和 Vue 相似的 API, 大大减少了学习成本
+# Hu
+Hu 是一个基于 Web Components 和 Proxy 的 MVVM 框架, 适合公用组件开发<br>
+Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 
 <br>
 
@@ -25,12 +25,12 @@ Lit 使用了和 Vue 相似的 API, 大大减少了学习成本
 ## 大小 - 版本详解
 |                           | Default | Gzip   | -   | Module | Use in | Description |
 | :-                        | :-      | :-     | :-: | :-     | :-     | :-          |
-| lit.js                    | 55.16KB | 14.63KB | \| | UMD | Browser | |
-| lit.min.js                | 13.04KB | 4.78KB | \| | UMD | Browser | |
-| lit.polyfill.async.js     | 61.71KB | 16.30KB | \| | UMD | Browser | |
-| lit.polyfill.async.min.js | 15.36KB | 5.54KB | \| | UMD | Browser | |
-| lit.polyfill.js           | 219.24KB | 51.75KB | \| | UMD | Browser | |
-| lit.polyfill.min.js       | 111.31KB | 34.70KB | \| | UMD | Browser | |
+| hu.js                    | 55.13KB | 14.63KB | \| | UMD | Browser | |
+| hu.min.js                | 13.03KB | 4.78KB | \| | UMD | Browser | |
+| hu.polyfill.async.js     | 61.68KB | 16.30KB | \| | UMD | Browser | |
+| hu.polyfill.async.min.js | 15.35KB | 5.54KB | \| | UMD | Browser | |
+| hu.polyfill.js           | 219.21KB | 51.74KB | \| | UMD | Browser | |
+| hu.polyfill.min.js       | 111.31KB | 34.70KB | \| | UMD | Browser | |
 
 <br>
 

@@ -8,7 +8,7 @@ export default function initRender( root, options, target, targetProxy ){
   const { $el } = target;
 
   /**
-   * 迫使 Lit 实例重新渲染
+   * 迫使 Hu 实例重新渲染
    */
   target.$forceUpdate = createCollectingDependents(() => {
     const templateResult = userRender( html );

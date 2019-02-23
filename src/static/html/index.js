@@ -1,6 +1,6 @@
-import Lit from "../../shared/global/Lit/index";
+import Hu from "../../shared/global/Hu/index";
 import { html, render } from "../../html/index";
 
 
-Lit.html = html;
-Lit.render = render;
+Hu.html = html;
+Hu.render = render;

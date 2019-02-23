@@ -1,10 +1,10 @@
-describe( 'Lit.define - lifecycle', () => {
+describe( 'Hu.define - lifecycle', () => {
 
   it( 'beforeMount 生命周期钩子会在自定义元素挂载开始之前被调用', () => {
     const customName = window.customName;
     let isBeforeMountRun = false;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       beforeMount(){
         isBeforeMountRun = true;
       },
@@ -23,7 +23,7 @@ describe( 'Lit.define - lifecycle', () => {
     const customName = window.customName;
     let isMountedRun = false;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       mounted(){
         isMountedRun = true;
       },
@@ -40,12 +40,12 @@ describe( 'Lit.define - lifecycle', () => {
     expect( isMountedRun ).is.true;
   });
 
-  it( '生命周期钩子的 this 指向的是 $lit', () => {
+  it( '生命周期钩子的 this 指向的是 $hu', () => {
     const customName = window.customName;
     const self = [];
     const returnSelf = function(){ self.push( this ) };
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       beforeMount: returnSelf,
       mounted: returnSelf,
       render(){}
@@ -53,9 +53,9 @@ describe( 'Lit.define - lifecycle', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect([ ...new Set( self ) ]).deep.equals([ lit ]);
+    expect([ ...new Set( self ) ]).deep.equals([ hu ]);
 
     div.$remove();
   });

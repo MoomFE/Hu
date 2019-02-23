@@ -4,202 +4,6 @@
   (global = global || self, global.Hu = factory());
 }(this, function () { 'use strict';
 
-  window.WebComponents = Object.assign({
-    root: 'https://unpkg.com/@webcomponents/webcomponentsjs@%5E2/'
-  }, window.WebComponents);
-
-  /**
-   * @license
-   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-   */
-  (function () {
-    /**
-     * Basic flow of the loader process
-     *
-     * There are 4 flows the loader can take when booting up
-     *
-     * - Synchronous script, no polyfills needed
-     *   - wait for `DOMContentLoaded`
-     *   - fire WCR event, as there could not be any callbacks passed to `waitFor`
-     *
-     * - Synchronous script, polyfills needed
-     *   - document.write the polyfill bundle
-     *   - wait on the `load` event of the bundle to batch Custom Element upgrades
-     *   - wait for `DOMContentLoaded`
-     *   - run callbacks passed to `waitFor`
-     *   - fire WCR event
-     *
-     * - Asynchronous script, no polyfills needed
-     *   - wait for `DOMContentLoaded`
-     *   - run callbacks passed to `waitFor`
-     *   - fire WCR event
-     *
-     * - Asynchronous script, polyfills needed
-     *   - Append the polyfill bundle script
-     *   - wait for `load` event of the bundle
-     *   - batch Custom Element Upgrades
-     *   - run callbacks pass to `waitFor`
-     *   - fire WCR event
-     */
-
-    var polyfillsLoaded = false;
-    var whenLoadedFns = [];
-    var allowUpgrades = false;
-    var flushFn;
-
-    function fireEvent() {
-      window.WebComponents.ready = true;
-      document.dispatchEvent(new CustomEvent('WebComponentsReady', {
-        bubbles: true
-      }));
-    }
-
-    function batchCustomElements() {
-      if (window.customElements && customElements.polyfillWrapFlushCallback) {
-        customElements.polyfillWrapFlushCallback(function (flushCallback) {
-          flushFn = flushCallback;
-
-          if (allowUpgrades) {
-            flushFn();
-          }
-        });
-      }
-    }
-
-    function asyncReady() {
-      batchCustomElements();
-      ready();
-    }
-
-    function ready() {
-      // bootstrap <template> elements before custom elements
-      if (window.HTMLTemplateElement && HTMLTemplateElement.bootstrap) {
-        HTMLTemplateElement.bootstrap(window.document);
-      }
-
-      polyfillsLoaded = true;
-      runWhenLoadedFns().then(fireEvent);
-    }
-
-    function runWhenLoadedFns() {
-      allowUpgrades = false;
-      var fnsMap = whenLoadedFns.map(function (fn) {
-        return fn instanceof Function ? fn() : fn;
-      });
-      whenLoadedFns = [];
-      return Promise.all(fnsMap).then(function () {
-        allowUpgrades = true;
-        flushFn && flushFn();
-      }).catch(function (err) {
-        console.error(err);
-      });
-    }
-
-    window.WebComponents = window.WebComponents || {};
-    window.WebComponents.ready = window.WebComponents.ready || false;
-
-    window.WebComponents.waitFor = window.WebComponents.waitFor || function (waitFn) {
-      if (!waitFn) {
-        return;
-      }
-
-      whenLoadedFns.push(waitFn);
-
-      if (polyfillsLoaded) {
-        runWhenLoadedFns();
-      }
-    };
-
-    window.WebComponents._batchCustomElements = batchCustomElements;
-    var name = 'webcomponents-loader.js'; // Feature detect which polyfill needs to be imported.
-
-    var polyfills = [];
-
-    if (!('attachShadow' in Element.prototype && 'getRootNode' in Element.prototype) || window.ShadyDOM && window.ShadyDOM.force) {
-      polyfills.push('sd');
-    }
-
-    if (!window.customElements || window.customElements.forcePolyfill) {
-      polyfills.push('ce');
-    }
-
-    var needsTemplate = function () {
-      // no real <template> because no `content` property (IE and older browsers)
-      var t = document.createElement('template');
-
-      if (!('content' in t)) {
-        return true;
-      } // broken doc fragment (older Edge)
-
-
-      if (!(t.content.cloneNode() instanceof DocumentFragment)) {
-        return true;
-      } // broken <template> cloning (Edge up to at least version 17)
-
-
-      var t2 = document.createElement('template');
-      t2.content.appendChild(document.createElement('div'));
-      t.content.appendChild(t2);
-      var clone = t.cloneNode(true);
-      return clone.content.childNodes.length === 0 || clone.content.firstChild.content.childNodes.length === 0;
-    }(); // NOTE: any browser that does not have template or ES6 features
-    // must load the full suite of polyfills.
-
-
-    if (!window.Promise || !Array.from || !window.URL || !window.Symbol || needsTemplate) {
-      polyfills = ['sd-ce-pf'];
-    }
-
-    if (polyfills.length) {
-      var url;
-      var polyfillFile = 'bundles/webcomponents-' + polyfills.join('-') + '.js'; // Load it from the right place.
-
-      if (window.WebComponents.root) {
-        url = window.WebComponents.root + polyfillFile;
-      } else {
-        var script = document.querySelector('script[src*="' + name + '"]'); // Load it from the right place.
-
-        url = script.src.replace(name, polyfillFile);
-      }
-
-      var newScript = document.createElement('script');
-      newScript.src = url; // if readyState is 'loading', this script is synchronous
-
-      if (document.readyState === 'loading') {
-        // make sure custom elements are batched whenever parser gets to the injected script
-        newScript.setAttribute('onload', 'window.WebComponents._batchCustomElements()');
-        document.write(newScript.outerHTML);
-        document.addEventListener('DOMContentLoaded', ready);
-      } else {
-        newScript.addEventListener('load', function () {
-          asyncReady();
-        });
-        newScript.addEventListener('error', function () {
-          throw new Error('Could not load polyfill bundle' + url);
-        });
-        document.head.appendChild(newScript);
-      }
-    } else {
-      // if readyState is 'complete', script is loaded imperatively on a spec-compliant browser, so just fire WCR
-      if (document.readyState === 'complete') {
-        polyfillsLoaded = true;
-        fireEvent();
-      } else {
-        // this script may come between DCL and load, so listen for both, and cancel load listener if DCL fires
-        window.addEventListener('load', ready);
-        window.addEventListener('DOMContentLoaded', function () {
-          window.removeEventListener('load', ready);
-          ready();
-        });
-      }
-    }
-  })();
-
   function Hu() {}
 
   const isArray = Array.isArray;
@@ -707,7 +511,7 @@
       else {
           propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
         }
-    }); // 将 $props 上的属性在 $lit 上建立引用
+    }); // 将 $props 上的属性在 $hu 上建立引用
 
     each(props, (name, options) => {
       canInjection(name, options.isSymbol) && define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
@@ -730,23 +534,23 @@
 
   var injectionToLit = (
   /**
-   * 在 $lit 上建立对象的映射
+   * 在 $hu 上建立对象的映射
    * 
-   * @param {{}} litTarget $lit 实例
+   * @param {{}} litTarget $hu 实例
    * @param {string} key 对象名称
    * @param {any} value 对象值
    * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
    * @param {function} get 属性的 setter 方法
    */
   (litTarget, key, value, set, get) => {
-    // 首字母为 $ 则不允许映射到 $lit 实例中去
-    if (!canInjection(key)) return; // 若在 $lit 下有同名变量, 则删除
+    // 首字母为 $ 则不允许映射到 $hu 实例中去
+    if (!canInjection(key)) return; // 若在 $hu 下有同名变量, 则删除
 
     has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
 
     if (set) {
       define(litTarget, key, set, get);
-    } // 直接写入到 $lit 上
+    } // 直接写入到 $hu 上
     else {
         litTarget[key] = value;
       }
@@ -2089,13 +1893,13 @@
     const LitElement = class LitElement extends HTMLElement {
       constructor() {
         super();
-        this.$lit = init(this, options);
+        this.$hu = init(this, options);
       }
 
       attributeChangedCallback(name, oldValue, value) {
         if (value !== oldValue) {
           /** 当前组件 $props 对象 */
-          const $props = this.$lit.$props;
+          const $props = this.$hu.$props;
           /** 当前属性被改动后需要修改的对应 prop */
 
           const props = propsMap[name];
@@ -2115,10 +1919,10 @@
       }
 
       connectedCallback() {
-        const $lit = this.$lit;
-        options.beforeMount.call($lit);
-        $lit.$forceUpdate();
-        options.mounted.call($lit);
+        const $hu = this.$hu;
+        options.beforeMount.call($hu);
+        $hu.$forceUpdate();
+        options.mounted.call($hu);
       }
 
       disconnectedCallback() {}
@@ -2133,10 +1937,10 @@
   }
   Hu.define = define$1;
 
-  const otherLit = window.Hu;
+  const otherHu = window.Hu;
 
   Hu.noConflict = () => {
-    if (window.Hu === Hu) window.Hu = otherLit;
+    if (window.Hu === Hu) window.Hu = otherHu;
     return Hu;
   };
 

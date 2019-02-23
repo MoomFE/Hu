@@ -40,7 +40,7 @@ export default function initProps( root, options, target, targetProxy ){
     }
   });
 
-  // 将 $props 上的属性在 $lit 上建立引用
+  // 将 $props 上的属性在 $hu 上建立引用
   each( props, ( name, options ) => {
     canInjection( name, options.isSymbol ) &&
     define(

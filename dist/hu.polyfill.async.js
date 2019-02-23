@@ -707,7 +707,7 @@
       else {
           propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
         }
-    }); // 将 $props 上的属性在 $lit 上建立引用
+    }); // 将 $props 上的属性在 $hu 上建立引用
 
     each(props, (name, options) => {
       canInjection(name, options.isSymbol) && define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
@@ -730,23 +730,23 @@
 
   var injectionToLit = (
   /**
-   * 在 $lit 上建立对象的映射
+   * 在 $hu 上建立对象的映射
    * 
-   * @param {{}} litTarget $lit 实例
+   * @param {{}} litTarget $hu 实例
    * @param {string} key 对象名称
    * @param {any} value 对象值
    * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
    * @param {function} get 属性的 setter 方法
    */
   (litTarget, key, value, set, get) => {
-    // 首字母为 $ 则不允许映射到 $lit 实例中去
-    if (!canInjection(key)) return; // 若在 $lit 下有同名变量, 则删除
+    // 首字母为 $ 则不允许映射到 $hu 实例中去
+    if (!canInjection(key)) return; // 若在 $hu 下有同名变量, 则删除
 
     has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
 
     if (set) {
       define(litTarget, key, set, get);
-    } // 直接写入到 $lit 上
+    } // 直接写入到 $hu 上
     else {
         litTarget[key] = value;
       }
@@ -2089,13 +2089,13 @@
     const LitElement = class LitElement extends HTMLElement {
       constructor() {
         super();
-        this.$lit = init(this, options);
+        this.$hu = init(this, options);
       }
 
       attributeChangedCallback(name, oldValue, value) {
         if (value !== oldValue) {
           /** 当前组件 $props 对象 */
-          const $props = this.$lit.$props;
+          const $props = this.$hu.$props;
           /** 当前属性被改动后需要修改的对应 prop */
 
           const props = propsMap[name];
@@ -2115,10 +2115,10 @@
       }
 
       connectedCallback() {
-        const $lit = this.$lit;
-        options.beforeMount.call($lit);
-        $lit.$forceUpdate();
-        options.mounted.call($lit);
+        const $hu = this.$hu;
+        options.beforeMount.call($hu);
+        $hu.$forceUpdate();
+        options.mounted.call($hu);
       }
 
       disconnectedCallback() {}
@@ -2133,10 +2133,10 @@
   }
   Hu.define = define$1;
 
-  const otherLit = window.Hu;
+  const otherHu = window.Hu;
 
   Hu.noConflict = () => {
-    if (window.Hu === Hu) window.Hu = otherLit;
+    if (window.Hu === Hu) window.Hu = otherHu;
     return Hu;
   };
 

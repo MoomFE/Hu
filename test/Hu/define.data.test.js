@@ -1,9 +1,9 @@
-describe( 'Lit.define - data', () => {
+describe( 'Hu.define - data', () => {
 
-  it( '在 $lit 实例下会创建 $data 对象, 存放所有的属性', () => {
+  it( '在 $hu 实例下会创建 $data 对象, 存放所有的属性', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return {
           a: 1,
@@ -14,9 +14,9 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit )
+    expect( hu )
       .has.property( '$data' )
       .that.is.deep.equals({ a: 1, b: 2 });
   });
@@ -24,7 +24,7 @@ describe( 'Lit.define - data', () => {
   it( '定义 data 必须是 function 类型', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return { a: 1 };
       }
@@ -32,29 +32,29 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.$data ).is.deep.equals({ a: 1 });
+    expect( hu.$data ).is.deep.equals({ a: 1 });
   });
 
   it( '定义 data 如果不是 function 类型, 否则会被忽略定义', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data: { a: 1 }
     });
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.$data ).is.empty;
+    expect( hu.$data ).is.empty;
   });
 
-  it( '首字母不为 $ 的属性可以在 $data 和 $lit 下找到', () => {
+  it( '首字母不为 $ 的属性可以在 $data 和 $hu 下找到', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return { a: 1 };
       }
@@ -62,16 +62,16 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit.$data ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$data ).has.property( 'a' ).that.is.equals( 1 );
   });
 
-  it( '首字母为 $ 的属性可以在 $data 下找到, 但是不能在 $lit 下找到', () => {
+  it( '首字母为 $ 的属性可以在 $data 下找到, 但是不能在 $hu 下找到', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return {
           a: 1,
@@ -82,19 +82,19 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit ).has.not.property( '$b' );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.not.property( '$b' );
 
-    expect( lit.$data ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit.$data ).has.property( '$b' ).that.is.equals( 2 );
+    expect( hu.$data ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$data ).has.property( '$b' ).that.is.equals( 2 );
   });
 
-  it( '若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前变量 ( 一 )', () => {
+  it( '若在 $hu 下有同名变量, 会把 $hu 下的同名变量替换为当前变量 ( 一 )', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       props: {
         a: null
       },
@@ -105,18 +105,18 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
 
-    expect( lit.$props ).has.property( 'a' ).that.is.equals( '1' );
-    expect( lit.$data ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$props ).has.property( 'a' ).that.is.equals( '1' );
+    expect( hu.$data ).has.property( 'a' ).that.is.equals( 1 );
   });
 
-  it( '若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前变量 ( 二 )', () => {
+  it( '若在 $hu 下有同名变量, 会把 $hu 下的同名变量替换为当前变量 ( 二 )', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       methods: {
         a(){ return '1' }
       },
@@ -127,19 +127,19 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit.$data ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$data ).has.property( 'a' ).that.is.equals( 1 );
 
-    expect( lit.$methods ).has.property( 'a' ).that.is.a( 'function' );
-    expect( lit.$methods.a() ).is.equals( '1' );
+    expect( hu.$methods ).has.property( 'a' ).that.is.a( 'function' );
+    expect( hu.$methods.a() ).is.equals( '1' );
   });
 
-  it( '若在 $lit 下有同名变量, 会把 $lit 下的同名变量替换为当前变量 ( 三 )', () => {
+  it( '若在 $hu 下有同名变量, 会把 $hu 下的同名变量替换为当前变量 ( 三 )', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       props: {
         a: null
       },
@@ -153,21 +153,21 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
-    expect( lit.$data ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
+    expect( hu.$data ).has.property( 'a' ).that.is.equals( 1 );
 
-    expect( lit.$methods ).has.property( 'a' ).that.is.a( 'function' );
-    expect( lit.$methods.a() ).is.equals( '1' );
+    expect( hu.$methods ).has.property( 'a' ).that.is.a( 'function' );
+    expect( hu.$methods.a() ).is.equals( '1' );
 
-    expect( lit.$props ).has.property( 'a' ).that.is.equals( '1' );;
+    expect( hu.$props ).has.property( 'a' ).that.is.equals( '1' );;
   });
 
-  it( '执行 data 方法时, this 的指向是 $lit', () => {
+  it( '执行 data 方法时, this 的指向是 $hu', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return { a: this };
       }
@@ -175,16 +175,16 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.a ).is.equals( lit );
-    expect( lit.$data.a ).is.equals( lit );
+    expect( hu.a ).is.equals( hu );
+    expect( hu.$data.a ).is.equals( hu );
   });
 
-  it( '可以通过 $lit 对变量进行读取和更改', () => {
+  it( '可以通过 $hu 对变量进行读取和更改', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return { a: 1 }
       }
@@ -192,21 +192,21 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.a ).is.equals( 1 );
-    expect( lit.$data.a ).is.equals( 1 );
+    expect( hu.a ).is.equals( 1 );
+    expect( hu.$data.a ).is.equals( 1 );
 
-    lit.a = 123;
+    hu.a = 123;
 
-    expect( lit.a ).is.equals( 123 );
-    expect( lit.$data.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.$data.a ).is.equals( 123 );
   });
 
   it( '可以通过 $data 对变量进行读取和更改', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return { a: 1 }
       }
@@ -214,21 +214,21 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.a ).is.equals( 1 );
-    expect( lit.$data.a ).is.equals( 1 );
+    expect( hu.a ).is.equals( 1 );
+    expect( hu.$data.a ).is.equals( 1 );
 
-    lit.$data.a = 123;
+    hu.$data.a = 123;
 
-    expect( lit.a ).is.equals( 123 );
-    expect( lit.$data.a ).is.equals( 123 );
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.$data.a ).is.equals( 123 );
   });
 
-  it( '若删除 $lit 下的变量映射, 不会影响到 $data 内的变量本体', () => {
+  it( '若删除 $hu 下的变量映射, 不会影响到 $data 内的变量本体', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return { a: 1 }
       }
@@ -236,15 +236,15 @@ describe( 'Lit.define - data', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.a ).is.equals( 1 );
-    expect( lit.$data.a ).is.equals( 1 );
+    expect( hu.a ).is.equals( 1 );
+    expect( hu.$data.a ).is.equals( 1 );
 
-    delete lit.a;
+    delete hu.a;
 
-    expect( lit.a ).is.undefined;
-    expect( lit.$data.a ).is.equals( 1 );
+    expect( hu.a ).is.undefined;
+    expect( hu.$data.a ).is.equals( 1 );
   });
 
 });

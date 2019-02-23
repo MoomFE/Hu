@@ -1,19 +1,19 @@
 {
-  "name": "@moomfe/lit",
+  "name": "@moomfe/hu",
   "version": "1.0.0-bata.0",
   "description": "",
   "keywords": [],
   "author": "Wei Zhang",
   "license": "MIT",
-  "typings": "./typings/index.d.ts",
+  "typings": "./typings/hu.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MoomFE/Lit.git"
+    "url": "git+https://github.com/MoomFE/Hu.git"
   },
   "bugs": {
-    "url": "https://github.com/MoomFE/Lit/issues"
+    "url": "https://github.com/MoomFE/Hu/issues"
   },
-  "homepage": "https://github.com/MoomFE/Lit#readme",
+  "homepage": "https://github.com/MoomFE/Hu#readme",
   "scripts": {
     "build": "node_modules\\.bin\\zen build",
     "watch": "node_modules\\.bin\\zen watch watch"

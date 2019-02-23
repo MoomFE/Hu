@@ -1,5 +1,5 @@
 import '@webcomponents/webcomponentsjs/webcomponents-bundle';
-import Lit from './index';
+import Hu from './index';
 
 
-export default Lit;
+export default Hu;

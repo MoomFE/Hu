@@ -1,34 +1,34 @@
-describe( 'Lit.define - render', () => {
+describe( 'Hu.define - render', () => {
 
-  it( '项目创建后, 会将自定义元素本身作为 $customElement 变量存储在 Lit 实例中', () => {
+  it( '项目创建后, 会将自定义元素本身作为 $customElement 变量存储在 Hu 实例中', () => {
     const customName = window.customName;
 
-    Lit.define( customName );
+    Hu.define( customName );
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.$customElement ).is.equals( custom );
+    expect( hu.$customElement ).is.equals( custom );
   });
 
-  it( '项目创建后, 会将自定义元素的 Shadow DOM 作为 $el 存储在 Lit 实例中', () => {
+  it( '项目创建后, 会将自定义元素的 Shadow DOM 作为 $el 存储在 Hu 实例中', () => {
     const customName = window.customName;
 
-    Lit.define( customName );
+    Hu.define( customName );
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
-    expect( lit.$el ).is.a('ShadowRoot');
+    expect( hu.$el ).is.a('ShadowRoot');
   });
 
   it( '自定义元素被添加到 DOM 树中后会立即运行渲染方法进行渲染', () => {
     const customName = window.customName;
     let isRender = false;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       render(){
         isRender = true;
       }
@@ -45,11 +45,11 @@ describe( 'Lit.define - render', () => {
     div.$remove();
   });
 
-  it( 'Lit 实例拥有 $forceUpdate 方法, 迫使 Lit 实例重新渲染', () => {
+  it( 'Hu 实例拥有 $forceUpdate 方法, 迫使 Hu 实例重新渲染', () => {
     const customName = window.customName;
     let num = 0;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       render(){
         num++;
       }
@@ -57,15 +57,15 @@ describe( 'Lit.define - render', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
     expect( num ).is.equals( 1 );
 
-    lit.$forceUpdate();
+    hu.$forceUpdate();
     expect( num ).is.equals( 2 );
 
-    lit.$forceUpdate();
-    lit.$forceUpdate();
+    hu.$forceUpdate();
+    hu.$forceUpdate();
     expect( num ).is.equals( 4 );
 
     div.$remove();
@@ -74,7 +74,7 @@ describe( 'Lit.define - render', () => {
   it( 'render 方法首个参数 html 是一个方法, 用于创建模板字符串', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       render( html ){
         expect( html ).is.a( 'function' );
       }
@@ -86,7 +86,7 @@ describe( 'Lit.define - render', () => {
   it( 'render 方法返回使用首个参数 html 创建的模板字符串的对象用于渲染', () => {
     const customName = window.customName;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       render( html ){
         return html`<div>123</div>`
       }
@@ -94,7 +94,7 @@ describe( 'Lit.define - render', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
     const custom = div.firstElementChild;
-    const $el = custom.$lit.$el;
+    const $el = custom.$hu.$el;
 
     expect( $el.children.length ).is.equals( 1 );
     expect( $el.children[0]._nodeName ).is.equals( 'div' );
@@ -107,7 +107,7 @@ describe( 'Lit.define - render', () => {
     const customName = window.customName;
     let num = 0;
 
-    Lit.define( customName, {
+    Hu.define( customName, {
       data(){
         return {
           a: 1,
@@ -122,20 +122,20 @@ describe( 'Lit.define - render', () => {
 
     const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
     const custom = div.firstElementChild;
-    const lit = custom.$lit;
+    const hu = custom.$hu;
 
     expect( num ).is.equals( 1 );
-    expect( lit.$el.textContent ).is.equals('12');
+    expect( hu.$el.textContent ).is.equals('12');
 
-    lit.a = 123;
+    hu.a = 123;
 
     expect( num ).is.equals( 2 );
-    expect( lit.$el.textContent ).is.equals('1232');
+    expect( hu.$el.textContent ).is.equals('1232');
 
-    lit.b = 123;
+    hu.b = 123;
 
     expect( num ).is.equals( 3 );
-    expect( lit.$el.textContent ).is.equals('123123');
+    expect( hu.$el.textContent ).is.equals('123123');
 
     div.$remove();
   });

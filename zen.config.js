@@ -15,15 +15,15 @@ module.exports = {
     watch: [
       {
         from: 'src/build/index.js',
-        to: 'dist/lit.js'
+        to: 'dist/hu.js'
       },
       {
         from: 'src/build/polyfill.js',
-        to: 'dist/lit.polyfill.js'
+        to: 'dist/hu.polyfill.js'
       },
       {
         from: 'src/build/polyfill.async.js',
-        to: 'dist/lit.polyfill.async.js'
+        to: 'dist/hu.polyfill.async.js'
       }
     ],
 
@@ -31,19 +31,19 @@ module.exports = {
       {
         mode: true,
         from: 'src/build/index.js',
-        to: 'dist/lit.min.js',
+        to: 'dist/hu.min.js',
         replace: REPLACE_PRODUCTION
       },
       {
         mode: true,
         from: 'src/build/polyfill.js',
-        to: 'dist/lit.polyfill.min.js',
+        to: 'dist/hu.polyfill.min.js',
         replace: REPLACE_PRODUCTION
       },
       {
         mode: true,
         from: 'src/build/polyfill.async.js',
-        to: 'dist/lit.polyfill.async.min.js',
+        to: 'dist/hu.polyfill.async.min.js',
         replace: REPLACE_PRODUCTION
       }
     ]
@@ -61,7 +61,7 @@ module.exports = {
   ],
 
   config: {
-    name: 'Lit',
+    name: 'Hu',
     format: 'umd',
 
     rollup: true,
@@ -137,7 +137,7 @@ module.exports = {
 
     on: {
       ConfigCreated( rollup, config ){
-        if( config.name === 'Lit' && config.format === 'umd' ){
+        if( config.name === 'Hu' && config.format === 'umd' ){
           rollup.inputOptions.context = 'window';
         }
       },

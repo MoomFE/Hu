@@ -1,13 +1,13 @@
-import Lit from "../../shared/global/Lit/index";
+import Hu from "../../shared/global/Hu/index";
 
 
-const otherLit = window.Lit;
+const otherHu = window.Hu;
 
-Lit.noConflict = () => {
-  if( window.Lit === Lit ) window.Lit = otherLit;
-  return Lit;
+Hu.noConflict = () => {
+  if( window.Hu === Hu ) window.Hu = otherHu;
+  return Hu;
 }
 
 if( typeof window !== 'undefined' ){
-  window.Lit = Lit;
+  window.Hu = Hu;
 }

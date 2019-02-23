@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lit</title>
+  <title>Hu</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./Lib/mocha.css" />
   <script src="./Lib/zen.fat.js"></script>
   <script src="./Lib/mocha.js"></script>
   <script src="./Lib/chai.js"></script>
-  <script src="../dist/lit.js"></script>
+  <script src="../dist/hu.js"></script>
 </head>
 <body>
   <div id="mocha"></div>
@@ -21,14 +21,14 @@
 
     ZenJS.defineGet( window, 'customName', () => `custom-element-${ ZenJS.guid }` );
   </script>
-  <script src="./Lit/define.props.test.js"></script>
-  <script src="./Lit/define.methods.test.js"></script>
-  <script src="./Lit/define.data.test.js"></script>
-  <script src="./Lit/define.computed.test.js"></script>
-  <script src="./Lit/define.render.test.js"></script>
-  <script src="./Lit/define.lifecycle.test.js"></script>
-  <script src="./Lit/noConflict.test.js"></script>
-  <script src="./Lit/html.test.js"></script>
+  <script src="./Hu/define.props.test.js"></script>
+  <script src="./Hu/define.methods.test.js"></script>
+  <script src="./Hu/define.data.test.js"></script>
+  <script src="./Hu/define.computed.test.js"></script>
+  <script src="./Hu/define.render.test.js"></script>
+  <script src="./Hu/define.lifecycle.test.js"></script>
+  <script src="./Hu/noConflict.test.js"></script>
+  <script src="./Hu/html.test.js"></script>
   <script>
     mocha.run();
   </script>
