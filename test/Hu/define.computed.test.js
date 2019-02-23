@@ -227,4 +227,41 @@ describe( 'Hu.define - computed', () => {
     expect( hu.b ).is.equals( 765432 );
   });
 
+  it( '计算属性依赖于另一个计算属性', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1
+      }),
+      computed: {
+        b(){ return this.a * 2 },
+        c(){ return this.b * 2 },
+        d(){ return this.c * 2 },
+        e(){ return this.d * 2 },
+        f(){ return this.e * 2 }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.f ).to.equals( 32 );
+    expect( hu.e ).to.equals( 16 );
+    expect( hu.d ).to.equals( 8 );
+    expect( hu.c ).to.equals( 4 );
+    expect( hu.b ).to.equals( 2 );
+    expect( hu.a ).to.equals( 1 );
+
+    hu.a = 2;
+
+    expect( hu.f ).to.equals( 64 );
+    expect( hu.e ).to.equals( 32 );
+    expect( hu.d ).to.equals( 16 );
+    expect( hu.c ).to.equals( 8 );
+    expect( hu.b ).to.equals( 4 );
+    expect( hu.a ).to.equals( 2 );
+  });
+
 });

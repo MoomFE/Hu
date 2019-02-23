@@ -13,16 +13,13 @@ export default function initComputed( root, options, target, targetProxy ){
   const computedTargetProxyInterceptor = target.$computed = new Proxy( computedTargetProxy, {
     get( target, name ){
       const computedOptions = computedStateMap[ name ];
-      let result;
 
       if( computedOptions && !computedOptions.isInit ){
         computedOptions.isInit = true;
-        result = computedOptions.get();
-      }else{
-        result = target[ name ];
+        computedOptions.get();
       }
 
-      return result;
+      return target[ name ];
     },
     set( target, name, value ){
       const computedOptions = computedStateMap[ name ];
@@ -42,9 +39,7 @@ export default function initComputed( root, options, target, targetProxy ){
 
     computedTarget[ name ] = void 0;
     computedStateMap[ name ] = {
-      get: createCollectingDependents(() => {
-        return computedTargetProxy[ name ] = get( targetProxy );
-      }),
+      get: createCollectingDependents(() => computedTargetProxy[ name ] = get( targetProxy )),
       set,
       isInit: false
     };
