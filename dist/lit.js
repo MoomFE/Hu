@@ -1806,7 +1806,8 @@
         let result;
 
         if (computedOptions && !computedOptions.isInit) {
-          result = target[name] = computedOptions.get();
+          computedOptions.isInit = true;
+          result = computedOptions.get();
         } else {
           result = target[name];
         }
@@ -1818,10 +1819,12 @@
     const computedStateMap = {};
     options.computed && each(options.computed, (name, computed) => {
       const set = computed.set.bind(targetProxy);
-      const get = createCollectingDependents(computed.get.bind(targetProxy));
+      const get = computed.get.bind(targetProxy);
       computedTarget[name] = void 0;
       computedStateMap[name] = {
-        get,
+        get: createCollectingDependents(() => {
+          return computedTargetProxy[name] = get(targetProxy);
+        }),
         set,
         isInit: false
       };
