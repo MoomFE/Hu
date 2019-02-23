@@ -170,4 +170,24 @@ describe( 'Lit.define - computed', () => {
     expect( index ).is.equals( 1 );
   });
 
+  it( '计算属性可以使用 JSON 的方式进行声明, 可同时传入该计算属性 setter 与 getter 方法', () => {
+    const customName = window.customName;
+
+    Lit.define( customName, {
+      computed: {
+        a: {
+          get(){ return 1 },
+          set(){}
+        }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const lit = custom.$lit;
+
+    expect( lit ).has.property( 'a' ).that.is.equals( 1 );
+    expect( lit.$computed ).has.property( 'a' ).that.is.equals( 1 );
+  });
+
 });
