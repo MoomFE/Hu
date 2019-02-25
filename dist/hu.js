@@ -373,21 +373,30 @@
   const dependentsMap = {};
   /**
    * 为传入方法收集依赖
+   * @param {function} fn 需要收集依赖的方法
+   * @param {boolean} isComputed 是否是计算属性, 计算属性如果如果未被其它方法依赖, 则无需立即更新
    */
 
-  function createCollectingDependents(fn) {
+  function createCollectingDependents(fn, isComputed) {
     // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
     const id = uid++;
-    return function collectingDependents() {
+
+    const collectingDependentsGet = () => {
       // 对之前收集的依赖进行清空
-      cleanDependents(id); // 当前方法的依赖存储
+      cleanDependents(id); // 当前收集依赖的方法的一些参数
 
-      const deps = []; // 将当前方法存进 deps 中
-      // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
+      const depsOptions = {
+        // 当前方法的依赖存储数组
+        deps: [],
+        // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
+        fn: collectingDependentsGet,
+        // 判断当前计算属性是否被没有被其它方法收集了依赖
+        isCollected: isComputed && !targetStack.length // 依赖是否更新
+        // forceUpdate: true
 
-      deps.fn = collectingDependents; // 开始收集依赖
+      }; // 开始收集依赖
 
-      targetStack.push(deps); // 执行方法
+      targetStack.push(depsOptions); // 执行方法
       // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
 
       const result = fn(); // 方法执行完成, 则依赖收集完成
@@ -395,14 +404,22 @@
       targetStack.pop(); // 存储当前方法的依赖
       // 可以在下次收集依赖的时候对这次收集的依赖进行清空
 
-      dependentsMap[id] = deps;
+      dependentsMap[id] = depsOptions;
       return result;
-    };
+    }; // 存储当前收集依赖的 ID 到方法
+    // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
+
+
+    collectingDependentsGet.id = id;
+    return collectingDependentsGet;
   }
 
   function cleanDependents(id) {
-    const deps = dependentsMap[id];
-    deps && deps.forEach(fn => fn());
+    const depsOptions = dependentsMap[id];
+
+    if (depsOptions) {
+      depsOptions.deps.forEach(fn => fn());
+    }
   }
 
   /**
@@ -447,21 +464,18 @@
 
 
   const createObserverProxyGetter = watch => (target, name) => {
-    // 获取当前在收集依赖的那个方法的 deps 对象
-    const deps = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
+    // 获取当前在收集依赖的那个方法的参数
+    const depsOptions = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
-    if (deps) {
+    if (depsOptions) {
       /** 当前参数的依赖数组 */
-      const watches = watch[name] || (watch[name] = []);
-      /** 当前正在收集依赖的方法 */
-
-      const fn = deps.fn; // 将正在收集依赖的方法进行存储
+      const watches = watch[name] || (watch[name] = []); // 将正在收集依赖的方法参数进行存储
       // 后续移除旧依赖时或响应更新时需要用到
 
-      watches.push(fn); // 给 deps 对象传入一个方法, 用于移除依赖
+      watches.push(depsOptions); // 给 deps 对象传入一个方法, 用于移除依赖
 
-      deps.push(() => {
-        watches.splice(watches.indexOf(fn), 1);
+      depsOptions.deps.push(() => {
+        watches.splice(watches.indexOf(depsOptions), 1);
       });
     }
 
@@ -478,7 +492,15 @@
     target[name] = value; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
     if (watches && watches.length) {
-      for (const watcher of watches) watcher();
+      for (const depsOptions of watches) {
+        // 那个方法是没有被其它方法依赖的计算属性
+        // 通知它在下次获取时更新值
+        if (depsOptions.isCollected) {
+          depsOptions.forceUpdate = true;
+        } else {
+          depsOptions.fn();
+        }
+      }
     }
 
     return true;
@@ -1804,9 +1826,12 @@
       get(target, name) {
         const computedOptions = computedStateMap[name];
 
-        if (computedOptions && !computedOptions.isInit) {
-          computedOptions.isInit = true;
-          computedOptions.get();
+        if (computedOptions) {
+          const dependents = dependentsMap[computedOptions.id];
+
+          if (!dependents || dependents.forceUpdate) {
+            computedOptions.get();
+          }
         }
 
         return target[name];
@@ -1827,11 +1852,14 @@
     options.computed && each(options.computed, (name, computed) => {
       const set = computed.set.bind(targetProxy);
       const get = computed.get.bind(targetProxy);
-      computedTarget[name] = void 0;
+      const collectingDependentsGet = createCollectingDependents(() => {
+        return computedTargetProxy[name] = get(targetProxy);
+      }, true);
+      computedTarget[name] = null;
       computedStateMap[name] = {
-        get: createCollectingDependents(() => computedTargetProxy[name] = get(targetProxy)),
-        set,
-        isInit: false
+        id: collectingDependentsGet.id,
+        get: collectingDependentsGet,
+        set
       };
       injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
     });

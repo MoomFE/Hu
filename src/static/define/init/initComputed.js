@@ -1,7 +1,7 @@
 import create from "../../../shared/global/Object/create";
 import { observe } from "../../observable/util/observe";
 import each from "../../../shared/util/each";
-import { createCollectingDependents } from "../../observable/util/collectingDependents";
+import { createCollectingDependents, dependentsMap } from "../../observable/util/collectingDependents";
 import injectionToLit from "../../../shared/util/injectionToLit";
 
 
@@ -14,9 +14,12 @@ export default function initComputed( root, options, target, targetProxy ){
     get( target, name ){
       const computedOptions = computedStateMap[ name ];
 
-      if( computedOptions && !computedOptions.isInit ){
-        computedOptions.isInit = true;
-        computedOptions.get();
+      if( computedOptions ){
+        const dependents = dependentsMap[ computedOptions.id ];
+
+        if( !dependents || dependents.forceUpdate ){
+          computedOptions.get();
+        }
       }
 
       return target[ name ];
@@ -36,12 +39,18 @@ export default function initComputed( root, options, target, targetProxy ){
   options.computed && each( options.computed, ( name, computed ) => {
     const set = computed.set.bind( targetProxy );
     const get = computed.get.bind( targetProxy );
+    const collectingDependentsGet = createCollectingDependents(
+      () => {
+        return computedTargetProxy[ name ] = get( targetProxy )
+      },
+      true
+    );
 
-    computedTarget[ name ] = void 0;
+    computedTarget[ name ] = null;
     computedStateMap[ name ] = {
-      get: createCollectingDependents(() => computedTargetProxy[ name ] = get( targetProxy )),
-      set,
-      isInit: false
+      id: collectingDependentsGet.id,
+      get: collectingDependentsGet,
+      set
     };
 
     injectionToLit(

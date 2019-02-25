@@ -16,24 +16,31 @@ export const dependentsMap = {};
 
 /**
  * 为传入方法收集依赖
+ * @param {function} fn 需要收集依赖的方法
+ * @param {boolean} isComputed 是否是计算属性, 计算属性如果如果未被其它方法依赖, 则无需立即更新
  */
-export function createCollectingDependents( fn ){
+export function createCollectingDependents( fn, isComputed ){
   // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
   const id = uid++;
 
-  return function collectingDependents(){
+  const collectingDependentsGet = () => {
     // 对之前收集的依赖进行清空
     cleanDependents( id );
 
-    // 当前方法的依赖存储
-    const deps = [];
-
-    // 将当前方法存进 deps 中
-    // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
-    deps.fn = collectingDependents;
+    // 当前收集依赖的方法的一些参数
+    const depsOptions = {
+      // 当前方法的依赖存储数组
+      deps: [],
+      // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
+      fn: collectingDependentsGet,
+      // 判断当前计算属性是否被没有被其它方法收集了依赖
+      isCollected: isComputed && !targetStack.length,
+      // 依赖是否更新
+      // forceUpdate: true
+    };
 
     // 开始收集依赖
-    targetStack.push( deps );
+    targetStack.push( depsOptions );
 
     // 执行方法
     // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
@@ -44,14 +51,24 @@ export function createCollectingDependents( fn ){
 
     // 存储当前方法的依赖
     // 可以在下次收集依赖的时候对这次收集的依赖进行清空
-    dependentsMap[ id ] = deps;
+    dependentsMap[ id ] = depsOptions;
 
     return result;
   };
+
+  // 存储当前收集依赖的 ID 到方法
+  // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
+  collectingDependentsGet.id = id;
+
+  return collectingDependentsGet;
 }
 
 function cleanDependents( id ){
-  const deps = dependentsMap[ id ];
+  const depsOptions = dependentsMap[ id ];
 
-  deps && deps.forEach(fn => fn());
+  if( depsOptions ){
+    depsOptions.deps.forEach(
+      fn => fn()
+    );
+  }
 }
