@@ -2,7 +2,7 @@ import isArray from "../../../shared/global/Array/isArray";
 import isPlainObject from "../../../shared/util/isPlainObject";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
-import fromBooleanAttribute from "../../../shared/util/fromBooleanAttribute";
+import fromBooleanAttribute from "../util/fromBooleanAttribute";
 import isObject from "../../../shared/util/isObject";
 import rHyphenate from "../../../shared/const/rHyphenate";
 import isSymbol from "../../../shared/util/isSymbol";

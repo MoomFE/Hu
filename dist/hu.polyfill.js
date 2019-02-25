@@ -7664,48 +7664,75 @@
     });
   }
 
-  function initComputed$1(root, options, target, targetProxy) {
+  var createComputed = (
+  /**
+   * @param {{}} computedStateMap 存放计算属性的参数声明
+   * @param {{}} computed
+   * @param {any} self 计算属性的 this 指向
+   */
+  (computedStateMap, computed, self) => {
+    /** 计算属性容器对象 */
     const computedTarget = create(null);
+    /** 计算属性的观察者对象 */
+
     const computedTargetProxy = observe(computedTarget);
-    const computedTargetProxyInterceptor = target.$computed = new Proxy(computedTargetProxy, {
-      get(target, name) {
-        const computedOptions = computedStateMap[name];
+    /** 计算属性的获取与修改拦截器 */
 
-        if (computedOptions) {
-          const dependents = dependentsMap[computedOptions.id];
-
-          if (!dependents || dependents.forceUpdate) {
-            computedOptions.get();
-          }
-        }
-
-        return target[name];
-      },
-
-      set(target, name, value) {
-        const computedOptions = computedStateMap[name];
-
-        if (computedOptions) {
-          return computedOptions.set(value), true;
-        }
-
-        return false;
-      }
-
+    const computedTargetProxyInterceptor = new Proxy(computedTargetProxy, {
+      get: computedTargetProxyInterceptorGet(computedStateMap),
+      set: computedTargetProxyInterceptorSet(computedStateMap)
     });
+    computed && each(computed, (name, computed) => {
+      appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, computed);
+    });
+    return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor];
+  });
+  function appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, computed) {
+    const set = computed.set.bind(self);
+    const get = computed.get.bind(self);
+    const collectingDependentsGet = createCollectingDependents(() => {
+      return computedTargetProxy[name] = get();
+    }, true);
+    computedTarget[name] = null;
+    computedStateMap[name] = {
+      id: collectingDependentsGet.id,
+      get: collectingDependentsGet,
+      set
+    };
+  }
+
+  const computedTargetProxyInterceptorGet = computedStateMap => (target, name) => {
+    const computedOptions = computedStateMap[name];
+
+    if (computedOptions) {
+      const dependents = dependentsMap[computedOptions.id];
+
+      if (!dependents || dependents.forceUpdate) {
+        computedOptions.get();
+      }
+    }
+
+    return target[name];
+  };
+
+  const computedTargetProxyInterceptorSet = computedStateMap => (target, name, value) => {
+    const computedOptions = computedStateMap[name];
+
+    if (computedOptions) {
+      return computedOptions.set(value), true;
+    }
+
+    return false;
+  };
+
+  function initComputed$1(root, options, target, targetProxy) {
     const computedStateMap = {};
+
+    const _createComputed = createComputed(computedStateMap, options.computed, targetProxy),
+          computedTargetProxyInterceptor = _createComputed[2];
+
+    target.$computed = computedTargetProxyInterceptor;
     options.computed && each(options.computed, (name, computed) => {
-      const set = computed.set.bind(targetProxy);
-      const get = computed.get.bind(targetProxy);
-      const collectingDependentsGet = createCollectingDependents(() => {
-        return computedTargetProxy[name] = get(targetProxy);
-      }, true);
-      computedTarget[name] = null;
-      computedStateMap[name] = {
-        id: collectingDependentsGet.id,
-        get: collectingDependentsGet,
-        set
-      };
       injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
     });
   }

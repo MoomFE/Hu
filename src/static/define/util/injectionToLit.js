@@ -1,6 +1,6 @@
-import canInjection from "./canInjection";
-import has from "../global/Reflect/has";
-import define from "./define";
+import canInjection from "../../../shared/util/canInjection";
+import has from "../../../shared/global/Reflect/has";
+import define from "../../../shared/util/define";
 
 
 export default
