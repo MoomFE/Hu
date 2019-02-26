@@ -158,4 +158,53 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 对单路径进行监听, 目标对象更改立即触发回调', () => {
+    const customName = window.customName;
+    let result;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1
+      })
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    hu.$watch( 'a', ( value, oldValue ) => result = [ value, oldValue ] );
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( result ).is.deep.equals([ 2, 1 ]);
+
+    hu.a = 3;
+    expect( result ).is.deep.equals([ 3, 2 ]);
+  });
+
+  it( '使用 $watch 对复杂键路径表达式进行监听, 目标对象更改立即触发回调', () => {
+    const customName = window.customName;
+    let result;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: {
+          b: 1
+        }
+      })
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    hu.$watch( 'a.b', ( value, oldValue ) => result = [ value, oldValue ] );
+
+    expect( result ).is.undefined;
+
+    hu.a.b = 2;
+    expect( result ).is.deep.equals([ 2, 1 ]);
+  });
+
 });
