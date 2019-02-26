@@ -2,6 +2,7 @@ import create from "../../../shared/global/Object/create";
 import { observe } from "../../observable/util/observe";
 import { dependentsMap, createCollectingDependents } from "../../observable/util/collectingDependents";
 import each from "../../../shared/util/each";
+import noop from "../../../shared/util/noop";
 
 
 export default
@@ -23,7 +24,7 @@ export default
   });
 
   computed && each( computed, ( name, computed ) => {
-    appendComputed( computedTarget, computedTargetProxy, computedStateMap, self, name, computed );
+    appendComputed( computedTarget, computedTargetProxy, computedStateMap, self, name, false, computed );
   });
 
   return [
@@ -37,18 +38,18 @@ export function appendComputed(
   computedTarget, computedTargetProxy,
   computedStateMap,
   self,
-  name, computed
+  name, isWatch, computed
 ){
-  const set = computed.set.bind( self );
+  const set = computed.set ? computed.set.bind( self ) : noop;
   const get = computed.get.bind( self );
   const collectingDependentsGet = createCollectingDependents(
     () => {
       return computedTargetProxy[ name ] = get();
     },
-    true
+    !isWatch
   );
 
-  computedTarget[ name ] = null;
+  computedTarget[ name ] = void 0;
   computedStateMap[ name ] = {
     id: collectingDependentsGet.id,
     get: collectingDependentsGet,

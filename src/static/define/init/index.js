@@ -5,6 +5,7 @@ import initMethods from "./initMethods";
 import initData from "./initData";
 import initRender from "./initRender";
 import initComputed from "./initComputed";
+import initWatch from "./initWatch";
 
 
 /**
@@ -33,6 +34,7 @@ export default function init( root, options ){
   initData( root, options, target, targetProxy );
   initComputed( root, options, target, targetProxy );
   initRender( root, options, target, targetProxy );
+  initWatch( root, options, target, targetProxy );
 
   return targetProxy;
 }

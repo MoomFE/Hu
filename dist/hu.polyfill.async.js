@@ -2034,17 +2034,17 @@
       set: computedTargetProxyInterceptorSet(computedStateMap)
     });
     computed && each(computed, (name, computed) => {
-      appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, computed);
+      appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, false, computed);
     });
     return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor];
   });
-  function appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, computed) {
-    const set = computed.set.bind(self);
+  function appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, isWatch, computed) {
+    const set = computed.set ? computed.set.bind(self) : noop;
     const get = computed.get.bind(self);
     const collectingDependentsGet = createCollectingDependents(() => {
       return computedTargetProxy[name] = get();
-    }, true);
-    computedTarget[name] = null;
+    }, !isWatch);
+    computedTarget[name] = void 0;
     computedStateMap[name] = {
       id: collectingDependentsGet.id,
       get: collectingDependentsGet,
@@ -2088,6 +2088,36 @@
     });
   }
 
+  let uid$1 = 0;
+  function initWatch$1(root, options, target, targetProxy) {
+    const watchStateMap = {};
+
+    const _createComputed = createComputed(watchStateMap, null, targetProxy),
+          watchTarget = _createComputed[0],
+          watchTargetProxy = _createComputed[1],
+          watchTargetProxyInterceptor = _createComputed[2];
+
+    target.$watch = (fn, callback, options) => {
+      const name = uid$1++;
+      const watchFn = fn.bind(targetProxy);
+      const watchCallback = callback.bind(targetProxy);
+      appendComputed(watchTarget, watchTargetProxy, watchStateMap, targetProxy, name, true, {
+        get() {
+          const oldValue = watchTarget[name];
+          const value = watchFn();
+          watchCallback(value, oldValue);
+          return value;
+        }
+
+      });
+      watchTargetProxyInterceptor[name];
+
+      if (options.immediate) {
+        watchCallback(watchTarget[name], void 0);
+      }
+    };
+  }
+
   /**
    * 初始化当前组件属性
    * @param {HTMLElement} root 自定义元素组件节点
@@ -2116,6 +2146,7 @@
     initData$1(root, options, target, targetProxy);
     initComputed$1(root, options, target, targetProxy);
     initRender(root, options, target, targetProxy);
+    initWatch$1(root, options, target, targetProxy);
     return targetProxy;
   }
 
