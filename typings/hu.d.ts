@@ -40,6 +40,24 @@ interface $hu {
   readonly $computed: Record< KEYTYPE, any >;
 
   /**
+   * 观察 Hu 实例变化的一个键路径表达式
+   * @param exp 需要监听的一个键路径表达式, 每当值变化时, 会调用回调函数
+   * @param callback 回调函数得到的参数为新值和旧值
+   * @param options 监听选项
+   * @returns 返回一个方法, 运行以取消监听
+   */
+  readonly $watch( exp: string, callback: ( value, oldValue ) => void, options: WatchOptions ): () => void;
+
+  /**
+   * 观察 Hu 实例变化的计算属性函数
+   * @param fn 需要监听的一个计算属性函数, 每当返回值得出一个不同的结果时, 会调用回调函数
+   * @param callback 回调函数得到的参数为新值和旧值
+   * @param options 监听选项
+   * @returns 返回一个方法, 运行以取消监听
+   */
+  readonly $watch( fn: () => any, callback: ( value, oldValue ) => void, options: WatchOptions ): () => void;
+
+  /**
    * 迫使 Hu 实例重新渲染
    */
   readonly $forceUpdate(): void;
@@ -112,9 +130,6 @@ interface Window {
 type fromAttribute = ( value: string | null ) => any;
 type toAttribute = ( value: any ) => string | null;
 
-/**
- * Hu 实例控制自定义元素行为的选项对象
- */
 interface LitOptions{
 
   /**
@@ -201,6 +216,17 @@ interface PropOptions<T=any> {
    * - 如果创建当前自定义元素时未定义属于当前 prop 的 attribute 时, 则取当前默认值
    */
   default?: string | number | boolean | null | undefined | (() => any)
+}
+
+interface WatchOptions {
+  /**
+   * 对象内部值变化时也触发回调函数
+   */
+  deep?: false,
+  /**
+   * 立即触发回调
+   */
+  immediate?: false
 }
 
 /* ------------------ Hu-HTML ------------------ */
