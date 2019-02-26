@@ -9,12 +9,20 @@ import isObject from "../../../shared/util/isObject";
 export const observeMap = new WeakMap();
 
 /**
+ * 存放观察者对象的选项参数
+ */
+export const observeOptionsMap = new WeakMap();
+
+/**
  * 为传入对象创建观察者
  */
 export function observe( target ){
   // 如果创建过观察者
   // 则返回之前创建的观察者
   if( observeMap.has( target ) ) return observeMap.get( target );
+  // 如果传入的就是观察者对象
+  // 则直接返回
+  if( observeOptionsMap.has( target ) ) return target;
   // 否则立即创建观察者进行返回
   return createObserver( target );
 }
@@ -30,12 +38,9 @@ function createObserver( target ){
 
   // 存储观察者对象
   observeMap.set( target, proxy );
-
-  // 递归创建观察者
-  each( target, ( key, target ) => {
-    if( isObject( target ) ){
-      target[ key ] = createObserver( target );
-    }
+  // 存储观察者选项参数
+  observeOptionsMap.set( proxy, {
+    target
   });
 
   return proxy;
@@ -61,7 +66,12 @@ const createObserverProxyGetter = watch => ( target, name ) => {
     });
   }
 
-  return target[ name ];
+  const value = target[ name ];
+
+  // 如果获取的值是对象类型
+  // 则返回它的观察者对象
+  return isObject( value ) ? observe( value )
+                           : value;
 };
 
 /**
