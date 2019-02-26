@@ -428,13 +428,21 @@
 
   const observeMap = new WeakMap();
   /**
+   * 存放观察者对象的选项参数
+   */
+
+  const observeOptionsMap = new WeakMap();
+  /**
    * 为传入对象创建观察者
    */
 
   function observe(target) {
     // 如果创建过观察者
     // 则返回之前创建的观察者
-    if (observeMap.has(target)) return observeMap.get(target); // 否则立即创建观察者进行返回
+    if (observeMap.has(target)) return observeMap.get(target); // 如果传入的就是观察者对象
+    // 则直接返回
+
+    if (observeOptionsMap.has(target)) return target; // 否则立即创建观察者进行返回
 
     return createObserver(target);
   }
@@ -449,12 +457,10 @@
       set: createObserverProxySetter(watch)
     }); // 存储观察者对象
 
-    observeMap.set(target, proxy); // 递归创建观察者
+    observeMap.set(target, proxy); // 存储观察者选项参数
 
-    each(target, (key, target) => {
-      if (isObject(target)) {
-        target[key] = createObserver(target);
-      }
+    observeOptionsMap.set(proxy, {
+      target
     });
     return proxy;
   }
@@ -479,7 +485,10 @@
       });
     }
 
-    return target[name];
+    const value = target[name]; // 如果获取的值是对象类型
+    // 则返回它的观察者对象
+
+    return isObject(value) ? observe(value) : value;
   };
   /**
    * 创建响应更新方法
@@ -1892,6 +1901,42 @@
     });
   }
 
+  var isString = (
+  /**
+   * 判断传入对象是否是 String 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => value !== null && typeof value === 'string');
+
+  /**
+   * unicode letters used for parsing html tags, component names and property paths.
+   * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
+   * skipping \u10000-\uEFFFF due to it freezing up PhantomJS
+   */
+  const unicodeLetters = 'a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
+  const bail = new RegExp(`[^${unicodeLetters}.$_\\d]`);
+  /**
+   * Transplant from Vue
+   */
+
+  function parsePath(path) {
+    if (bail.test(path)) {
+      return;
+    }
+
+    var segments = path.split('.');
+    return function () {
+      let obj = this;
+
+      for (const segment of segments) {
+        if (!obj) return;
+        obj = obj[segment];
+      }
+
+      return obj;
+    };
+  }
+
   let uid$1 = 0;
   function initWatch$1(root, options, target, targetProxy) {
     const watchStateMap = {};
@@ -1901,10 +1946,24 @@
           watchTargetProxy = _createComputed[1],
           watchTargetProxyInterceptor = _createComputed[2];
 
-    target.$watch = (fn, callback, options) => {
+    target.$watch = (expOrFn, callback, options) => {
+      let watchFn; // 使用键路径表达式
+
+      if (isString(expOrFn)) {
+        watchFn = parsePath(expOrFn).bind(targetProxy);
+      } // 使用计算属性函数
+      else if (isFunction(expOrFn)) {
+          watchFn = expOrFn.bind(targetProxy);
+        } else {
+          return;
+        }
+
       options = options || {};
+      /** 当前 watch 的存储名称 */
+
       const name = uid$1++;
-      const watchFn = fn.bind(targetProxy);
+      /** 当前 watch 的回调函数 */
+
       const watchCallback = callback.bind(targetProxy);
       /** 值改变是否运行回调 */
 
