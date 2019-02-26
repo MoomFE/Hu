@@ -7747,23 +7747,31 @@
           watchTargetProxyInterceptor = _createComputed[2];
 
     target.$watch = (fn, callback, options) => {
+      options = options || {};
       const name = uid$1++;
       const watchFn = fn.bind(targetProxy);
       const watchCallback = callback.bind(targetProxy);
+      /** 值改变是否运行回调 */
+
+      let runCallback = options.immediate; // 添加监听
+
       appendComputed(watchTarget, watchTargetProxy, watchStateMap, targetProxy, name, true, {
         get() {
           const oldValue = watchTarget[name];
           const value = watchFn();
-          watchCallback(value, oldValue);
+
+          if (runCallback) {
+            watchCallback(value, oldValue);
+          }
+
           return value;
         }
 
-      });
-      watchTargetProxyInterceptor[name];
+      }); // 首次运行, 以收集依赖
 
-      if (options.immediate) {
-        watchCallback(watchTarget[name], void 0);
-      }
+      watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
+
+      runCallback = true;
     };
   }
 
