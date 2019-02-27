@@ -427,7 +427,7 @@
 
   var isEqual = (
   /**
-   * 判断传入的两个值是否不相等
+   * 判断传入的两个值是否相等
    * @param {any} value 需要判断的对象
    * @param {any} value2 需要判断的对象
    */
@@ -2127,7 +2127,7 @@
             /** 格式转换后的 value */
             const fromValue = from(value);
 
-            if ($props[name] !== fromValue) {
+            if (!isEqual($props[name], fromValue)) {
               $props[name] = fromValue;
             }
           }

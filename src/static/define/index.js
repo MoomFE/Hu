@@ -2,6 +2,7 @@ import Hu from "../../shared/global/Hu/index";
 import initOptions from "./initOptions/index";
 import init from "./init/index";
 import keys from "../../shared/global/Object/keys";
+import isEqual from "../../shared/util/isEqual";
 
 
 /**
@@ -39,7 +40,7 @@ export default function define( name, options ){
           /** 格式转换后的 value */
           const fromValue = from( value );
 
-          if( $props[ name ] !== fromValue ){
+          if( !isEqual( $props[ name ], fromValue ) ){
             $props[ name ] = fromValue;
           }
         }
