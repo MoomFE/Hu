@@ -7805,7 +7805,7 @@
           watchTargetProxyInterceptor = _createComputed[2],
           appendComputed = _createComputed[3];
 
-    target.$watch = (expOrFn, callback, options) => {
+    const watch = target.$watch = (expOrFn, callback, options) => {
       let watchFn; // 使用键路径表达式
 
       if (isString(expOrFn)) {
@@ -7846,6 +7846,8 @@
 
       runCallback = true;
     };
+
+    options.watch && each(options.watch, watch);
   }
 
   /**

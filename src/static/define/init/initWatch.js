@@ -2,6 +2,7 @@ import createComputed from "../util/createComputed";
 import isString from "../../../shared/util/isString";
 import isFunction from "../../../shared/util/isFunction";
 import parsePath from "../util/parsePath";
+import each from "../../../shared/util/each";
 
 
 let uid = 0;
@@ -17,10 +18,8 @@ export default function initWatch( root, options, target, targetProxy ){
     null, targetProxy
   );
 
+  const watch = target.$watch = ( expOrFn, callback, options ) => {
 
-  target.$watch = ( expOrFn, callback, options ) => {
-
-    
     let watchFn;
 
     // 使用键路径表达式
@@ -62,5 +61,7 @@ export default function initWatch( root, options, target, targetProxy ){
     // 下次值改变时运行回调
     runCallback = true;
   }
+
+  options.watch && each( options.watch, watch );
 
 }

@@ -1,5 +1,9 @@
 describe( 'Hu.define - watch', () => {
 
+  it( '使用 watch 对实例的属性进行监听', () => {
+
+  });
+
   it( '使用 $watch 对一个函数的返回值进行监听, 函数的 this 指向的均是 $hu', () => {
     const customName = window.customName;
 
