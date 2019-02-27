@@ -1830,12 +1830,14 @@
 
   var createComputed = (
   /**
-   * @param {{}} computedStateMap 存放计算属性的参数声明
    * @param {{}} computed
    * @param {any} self 计算属性的 this 指向
    */
-  (computedStateMap, computed, self) => {
+  (computed, self) => {
+    /** 存放计算属性的参数声明 */
+    const computedStateMap = {};
     /** 计算属性容器对象 */
+
     const computedTarget = create(null);
     /** 计算属性的观察者对象 */
 
@@ -1846,24 +1848,26 @@
       get: computedTargetProxyInterceptorGet(computedStateMap),
       set: computedTargetProxyInterceptorSet(computedStateMap)
     });
-    computed && each(computed, (name, computed) => {
-      appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, false, computed);
-    });
-    return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor];
-  });
-  function appendComputed(computedTarget, computedTargetProxy, computedStateMap, self, name, isWatch, computed) {
-    const set = computed.set ? computed.set.bind(self) : noop;
-    const get = computed.get.bind(self);
-    const collectingDependentsGet = createCollectingDependents(() => {
-      return computedTargetProxy[name] = get();
-    }, !isWatch);
-    computedTarget[name] = void 0;
-    computedStateMap[name] = {
-      id: collectingDependentsGet.id,
-      get: collectingDependentsGet,
-      set
+
+    const appendComputed = (isWatch, name, computed) => {
+      const set = computed.set ? computed.set.bind(self) : noop;
+      const get = computed.get.bind(self);
+      const collectingDependentsGet = createCollectingDependents(() => {
+        return computedTargetProxy[name] = get();
+      }, !isWatch);
+      computedTarget[name] = void 0;
+      computedStateMap[name] = {
+        id: collectingDependentsGet.id,
+        get: collectingDependentsGet,
+        set
+      };
     };
-  }
+
+    computed && each(computed, (name, computed) => {
+      appendComputed(false, name, computed);
+    });
+    return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor, appendComputed];
+  });
 
   const computedTargetProxyInterceptorGet = computedStateMap => (target, name) => {
     const computedOptions = computedStateMap[name];
@@ -1890,9 +1894,7 @@
   };
 
   function initComputed$1(root, options, target, targetProxy) {
-    const computedStateMap = {};
-
-    const _createComputed = createComputed(computedStateMap, options.computed, targetProxy),
+    const _createComputed = createComputed(options.computed, targetProxy),
           computedTargetProxyInterceptor = _createComputed[2];
 
     target.$computed = computedTargetProxyInterceptor;
@@ -1939,12 +1941,10 @@
 
   let uid$1 = 0;
   function initWatch$1(root, options, target, targetProxy) {
-    const watchStateMap = {};
-
-    const _createComputed = createComputed(watchStateMap, null, targetProxy),
+    const _createComputed = createComputed(null, targetProxy),
           watchTarget = _createComputed[0],
-          watchTargetProxy = _createComputed[1],
-          watchTargetProxyInterceptor = _createComputed[2];
+          watchTargetProxyInterceptor = _createComputed[2],
+          appendComputed = _createComputed[3];
 
     target.$watch = (expOrFn, callback, options) => {
       let watchFn; // 使用键路径表达式
@@ -1969,7 +1969,7 @@
 
       let runCallback = options.immediate; // 添加监听
 
-      appendComputed(watchTarget, watchTargetProxy, watchStateMap, targetProxy, name, true, {
+      appendComputed(true, name, {
         get() {
           const oldValue = watchTarget[name];
           const value = watchFn();

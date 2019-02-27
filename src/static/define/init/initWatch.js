@@ -1,4 +1,4 @@
-import createComputed, { appendComputed } from "../util/createComputed";
+import createComputed from "../util/createComputed";
 import isString from "../../../shared/util/isString";
 import isFunction from "../../../shared/util/isFunction";
 import parsePath from "../util/parsePath";
@@ -8,15 +8,13 @@ let uid = 0;
 
 export default function initWatch( root, options, target, targetProxy ){
 
-
-  const watchStateMap = {};
-
   const [
     watchTarget,
     watchTargetProxy,
-    watchTargetProxyInterceptor
+    watchTargetProxyInterceptor,
+    appendComputed
   ] = createComputed(
-    watchStateMap, null, targetProxy
+    null, targetProxy
   );
 
 
@@ -46,7 +44,7 @@ export default function initWatch( root, options, target, targetProxy ){
     let runCallback = options.immediate;
 
     // 添加监听
-    appendComputed( watchTarget, watchTargetProxy, watchStateMap, targetProxy, name, true, {
+    appendComputed( true, name, {
       get(){
         const oldValue = watchTarget[ name ];
         const value = watchFn();

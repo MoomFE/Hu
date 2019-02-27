@@ -6,14 +6,12 @@ import createComputed from "../util/createComputed";
 
 export default function initComputed( root, options, target, targetProxy ){
 
-  const computedStateMap = {};
-
   const [
     computedTarget,
     computedTargetProxy,
     computedTargetProxyInterceptor
   ] = createComputed(
-    computedStateMap, options.computed, targetProxy
+    options.computed, targetProxy
   );
 
   target.$computed = computedTargetProxyInterceptor;

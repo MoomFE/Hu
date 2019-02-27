@@ -7,12 +7,13 @@ import noop from "../../../shared/util/noop";
 
 export default
 /**
- * @param {{}} computedStateMap 存放计算属性的参数声明
  * @param {{}} computed
  * @param {any} self 计算属性的 this 指向
  */
-( computedStateMap, computed, self ) => {
+( computed, self ) => {
 
+  /** 存放计算属性的参数声明 */
+  const computedStateMap = {};
   /** 计算属性容器对象 */
   const computedTarget = create( null );
   /** 计算属性的观察者对象 */
@@ -23,38 +24,34 @@ export default
     set: computedTargetProxyInterceptorSet( computedStateMap )
   });
 
+  const appendComputed = ( isWatch, name, computed ) => {
+    const set = computed.set ? computed.set.bind( self ) : noop;
+    const get = computed.get.bind( self );
+    const collectingDependentsGet = createCollectingDependents(
+      () => {
+        return computedTargetProxy[ name ] = get();
+      },
+      !isWatch
+    );
+
+    computedTarget[ name ] = void 0;
+    computedStateMap[ name ] = {
+      id: collectingDependentsGet.id,
+      get: collectingDependentsGet,
+      set
+    };
+  };
+
   computed && each( computed, ( name, computed ) => {
-    appendComputed( computedTarget, computedTargetProxy, computedStateMap, self, name, false, computed );
+    appendComputed( false, name, computed );
   });
 
   return [
     computedTarget,
     computedTargetProxy,
-    computedTargetProxyInterceptor
+    computedTargetProxyInterceptor,
+    appendComputed
   ];
-}
-
-export function appendComputed(
-  computedTarget, computedTargetProxy,
-  computedStateMap,
-  self,
-  name, isWatch, computed
-){
-  const set = computed.set ? computed.set.bind( self ) : noop;
-  const get = computed.get.bind( self );
-  const collectingDependentsGet = createCollectingDependents(
-    () => {
-      return computedTargetProxy[ name ] = get();
-    },
-    !isWatch
-  );
-
-  computedTarget[ name ] = void 0;
-  computedStateMap[ name ] = {
-    id: collectingDependentsGet.id,
-    get: collectingDependentsGet,
-    set
-  };
 }
 
 
