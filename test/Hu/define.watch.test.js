@@ -1,9 +1,5 @@
 describe( 'Hu.define - watch', () => {
 
-  it( '使用 watch 对实例的属性进行监听', () => {
-
-  });
-
   it( '使用 $watch 对一个函数的返回值进行监听, 函数的 this 指向的均是 $hu', () => {
     const customName = window.customName;
 
@@ -267,6 +263,60 @@ describe( 'Hu.define - watch', () => {
     });
 
     hu.a = 2;
+  });
+
+  it( '使用 watch 对实例的属性进行监听, 传入方法', () => {
+    const customName = window.customName;
+    let result;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( result ).is.deep.equals([ 2, 1 ]);
+
+    hu.a = 6;
+    expect( result ).is.deep.equals([ 6, 2 ]);
+  });
+
+  it( '使用 watch 对实例的属性进行监听, 传入选项对象', () => {
+    const customName = window.customName;
+    let result;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1
+      }),
+      watch: {
+        a: {
+          handler: ( value, oldValue ) => result = [ value, oldValue ]
+        }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( result ).is.deep.equals([ 2, 1 ]);
+
+    hu.a = 6;
+    expect( result ).is.deep.equals([ 6, 2 ]);
   });
 
 });

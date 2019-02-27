@@ -3,6 +3,7 @@ import isString from "../../../shared/util/isString";
 import isFunction from "../../../shared/util/isFunction";
 import parsePath from "../util/parsePath";
 import each from "../../../shared/util/each";
+import isPlainObject from "../../../shared/util/isPlainObject";
 
 
 let uid = 0;
@@ -19,8 +20,11 @@ export default function initWatch( root, options, target, targetProxy ){
   );
 
   const watch = target.$watch = ( expOrFn, callback, options ) => {
-
     let watchFn;
+
+    if( isPlainObject( callback ) ){
+      return watch( expOrFn, callback.handler, callback );
+    }
 
     // 使用键路径表达式
     if( isString( expOrFn ) ){

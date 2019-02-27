@@ -2157,7 +2157,12 @@
           appendComputed = _createComputed[3];
 
     const watch = target.$watch = (expOrFn, callback, options) => {
-      let watchFn; // 使用键路径表达式
+      let watchFn;
+
+      if (isPlainObject(callback)) {
+        return watch(expOrFn, callback.handler, callback);
+      } // 使用键路径表达式
+
 
       if (isString(expOrFn)) {
         watchFn = parsePath(expOrFn).bind(targetProxy);
