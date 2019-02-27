@@ -2073,10 +2073,22 @@
       };
     };
 
+    const removeComputed = name => {
+      const computedOptions = computedStateMap[name];
+
+      if (computedOptions) {
+        const dependents = dependentsMap[computedOptions.id];
+
+        if (dependents) {
+          dependents.deps.forEach(fn => fn());
+        }
+      }
+    };
+
     computed && each(computed, (name, computed) => {
       appendComputed(false, name, computed);
     });
-    return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor, appendComputed];
+    return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor, appendComputed, removeComputed];
   });
 
   const computedTargetProxyInterceptorGet = computedStateMap => (target, name) => {
@@ -2154,7 +2166,8 @@
     const _createComputed = createComputed(null, targetProxy),
           watchTarget = _createComputed[0],
           watchTargetProxyInterceptor = _createComputed[2],
-          appendComputed = _createComputed[3];
+          appendComputed = _createComputed[3],
+          removeComputed = _createComputed[4];
 
     const watch = target.$watch = (expOrFn, callback, options) => {
       let watchFn;
@@ -2201,6 +2214,9 @@
       watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
 
       runCallback = true;
+      return () => {
+        removeComputed(name);
+      };
     };
 
     options.watch && each(options.watch, watch);

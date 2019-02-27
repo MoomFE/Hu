@@ -265,6 +265,39 @@ describe( 'Hu.define - watch', () => {
     hu.a = 2;
   });
 
+  it( '使用 $watch 方法, 会返回取消监听方法', () => {
+    const customName = window.customName;
+    let result;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1
+      })
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    const unWatch = hu.$watch( 'a', ( value, oldValue ) => {
+      result = [ value, oldValue ];
+    });
+
+    expect( result ).is.undefined;
+    hu.a = 2;
+    expect( result ).is.deep.equals([ 2, 1 ]);
+    hu.a = 3;
+    expect( result ).is.deep.equals([ 3, 2 ]);
+
+    expect( unWatch ).is.a('function');
+    unWatch();
+
+    hu.a = 4;
+    expect( result ).is.deep.equals([ 3, 2 ]);
+    hu.a = 5;
+    expect( result ).is.deep.equals([ 3, 2 ]);
+  });
+
   it( '使用 watch 对实例的属性进行监听, 传入方法', () => {
     const customName = window.customName;
     let result;

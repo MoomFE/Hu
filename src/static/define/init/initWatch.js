@@ -14,7 +14,8 @@ export default function initWatch( root, options, target, targetProxy ){
     watchTarget,
     watchTargetProxy,
     watchTargetProxyInterceptor,
-    appendComputed
+    appendComputed,
+    removeComputed
   ] = createComputed(
     null, targetProxy
   );
@@ -64,6 +65,10 @@ export default function initWatch( root, options, target, targetProxy ){
     watchTargetProxyInterceptor[ name ];
     // 下次值改变时运行回调
     runCallback = true;
+
+    return () => {
+      removeComputed( name );
+    };
   }
 
   options.watch && each( options.watch, watch );

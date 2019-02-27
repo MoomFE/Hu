@@ -42,6 +42,18 @@ export default
     };
   };
 
+  const removeComputed = name => {
+    const computedOptions = computedStateMap[ name ];
+
+    if( computedOptions ){
+      const dependents = dependentsMap[ computedOptions.id ];
+
+      if( dependents ){
+        dependents.deps.forEach( fn => fn() );
+      }
+    }
+  }
+
   computed && each( computed, ( name, computed ) => {
     appendComputed( false, name, computed );
   });
@@ -50,7 +62,8 @@ export default
     computedTarget,
     computedTargetProxy,
     computedTargetProxyInterceptor,
-    appendComputed
+    appendComputed,
+    removeComputed
   ];
 }
 
