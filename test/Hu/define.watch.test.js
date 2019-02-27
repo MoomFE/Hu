@@ -207,4 +207,62 @@ describe( 'Hu.define - watch', () => {
     expect( result ).is.deep.equals([ 2, 1 ]);
   });
 
+  it( '使用 $watch 对值进行监听, 值每被改变一次, 回调就触发一次', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1
+      })
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    hu.$watch( 'a', () => index++ );
+
+    expect( index ).is.equals( 0 );
+
+    hu.a = 2;
+    expect( index ).is.equals( 1 );
+
+    hu.a = 3;
+    expect( index ).is.equals( 2 );
+
+    hu.a = 3;
+    hu.a = 3;
+    hu.a = 3;
+    expect( index ).is.equals( 2 );
+
+    hu.a = NaN;
+    expect( index ).is.equals( 3 );
+
+    hu.a = NaN;
+    hu.a = NaN;
+    hu.a = NaN;
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 $watch 对值进行监听, 触发回调时, 值已经被更改', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1
+      })
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    hu.$watch( 'a', function( value, oldValue ){
+      expect( value ).is.equals( this.a );
+    });
+
+    hu.a = 2;
+  });
+
 });
