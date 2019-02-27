@@ -1,6 +1,6 @@
 import { targetStack } from "./collectingDependents";
-import each from "../../../shared/util/each";
 import isObject from "../../../shared/util/isObject";
+import isEqual from "../../../shared/util/isEqual";
 
 
 /**
@@ -78,6 +78,11 @@ const createObserverProxyGetter = watch => ( target, name ) => {
  * 创建响应更新方法
  */
 const createObserverProxySetter = watch => ( target, name, value ) => {
+
+  if( isEqual( target[ name ], value ) ){
+    return true;
+  }
+
   const watches = watch[ name ];
 
   // 改变值
