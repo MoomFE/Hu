@@ -1,6 +1,7 @@
 import { targetStack } from "./collectingDependents";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
+import isArray from "../../../shared/global/Array/isArray";
 
 
 /**
@@ -40,7 +41,10 @@ function createObserver( target ){
   observeMap.set( target, proxy );
   // 存储观察者选项参数
   observeOptionsMap.set( proxy, {
-    target
+    // 存储原始对象
+    target,
+    // 深度监听
+    // deepWatch: []
   });
 
   return proxy;
@@ -49,7 +53,7 @@ function createObserver( target ){
 /**
  * 创建依赖收集的响应方法
  */
-const createObserverProxyGetter = watch => ( target, name ) => {
+const createObserverProxyGetter = watch => ( target, name, targetProxy ) => {
   // 获取当前在收集依赖的那个方法的参数
   const depsOptions = targetStack[ targetStack.length - 1 ];
 
@@ -64,6 +68,22 @@ const createObserverProxyGetter = watch => ( target, name ) => {
     depsOptions.deps.push(() => {
       watches.splice( watches.indexOf( depsOptions ), 1 );
     });
+    // 深度 watcher
+    if( depsOptions.isDeep ){
+      const deepTarget = target[ name ];
+
+      if( isObject( deepTarget ) && !isArray( deepTarget ) ){
+        const deepTargetProxy = observe( deepTarget );
+        const observeOptions = observeOptionsMap.get( deepTargetProxy );
+        const deepWatch = observeOptions.deepWatch || ( observeOptions.deepWatch = [] );
+  
+        deepWatch.push( depsOptions );
+        depsOptions.deps.push(() => {
+          deepWatch.splice( deepWatch.indexOf( depsOptions ), 1 );
+        });
+      }
+      
+    }
   }
 
   const value = target[ name ];
@@ -77,13 +97,14 @@ const createObserverProxyGetter = watch => ( target, name ) => {
 /**
  * 创建响应更新方法
  */
-const createObserverProxySetter = watch => ( target, name, value ) => {
+const createObserverProxySetter = watch => ( target, name, value, targetProxy ) => {
 
   if( isEqual( target[ name ], value ) ){
     return true;
   }
 
   const watches = watch[ name ];
+  const deepWatch = observeOptionsMap.get( targetProxy ).deepWatch;
 
   // 改变值
   target[ name ] = value;
@@ -98,6 +119,13 @@ const createObserverProxySetter = watch => ( target, name, value ) => {
       }else{
         depsOptions.fn();
       }
+    }
+  }
+
+  // 深度 Watcher
+  if( deepWatch && deepWatch.length ){
+    for( const depsOptions of deepWatch ){
+      depsOptions.fn();
     }
   }
 

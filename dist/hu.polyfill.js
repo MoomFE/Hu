@@ -6220,9 +6220,10 @@
    * 为传入方法收集依赖
    * @param {function} fn 需要收集依赖的方法
    * @param {boolean} isComputed 是否是计算属性, 计算属性如果如果未被其它方法依赖, 则无需立即更新
+   * @param {boolean} isDeep 是否监听对象内部值的变化
    */
 
-  function createCollectingDependents(fn, isComputed) {
+  function createCollectingDependents(fn, isComputed, isDeep) {
     // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
     const id = uid++;
 
@@ -6236,9 +6237,11 @@
         // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
         fn: collectingDependentsGet,
         // 判断当前计算属性是否被没有被其它方法收集了依赖
-        isCollected: isComputed && !targetStack.length // 依赖是否更新
-        // forceUpdate: true
-
+        isCollected: isComputed && !targetStack.length,
+        // 依赖是否更新
+        // forceUpdate: true,
+        // 深度 watcher
+        isDeep
       }; // 开始收集依赖
 
       targetStack.push(depsOptions); // 执行方法
@@ -6315,7 +6318,10 @@
     observeMap.set(target, proxy); // 存储观察者选项参数
 
     observeOptionsMap.set(proxy, {
-      target
+      // 存储原始对象
+      target // 深度监听
+      // deepWatch: []
+
     });
     return proxy;
   }
@@ -6324,7 +6330,7 @@
    */
 
 
-  const createObserverProxyGetter = watch => (target, name) => {
+  const createObserverProxyGetter = watch => (target, name, targetProxy) => {
     // 获取当前在收集依赖的那个方法的参数
     const depsOptions = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
@@ -6337,7 +6343,21 @@
 
       depsOptions.deps.push(() => {
         watches.splice(watches.indexOf(depsOptions), 1);
-      });
+      }); // 深度 watcher
+
+      if (depsOptions.isDeep) {
+        const deepTarget = target[name];
+
+        if (isObject(deepTarget) && !isArray(deepTarget)) {
+          const deepTargetProxy = observe(deepTarget);
+          const observeOptions = observeOptionsMap.get(deepTargetProxy);
+          const deepWatch = observeOptions.deepWatch || (observeOptions.deepWatch = []);
+          deepWatch.push(depsOptions);
+          depsOptions.deps.push(() => {
+            deepWatch.splice(deepWatch.indexOf(depsOptions), 1);
+          });
+        }
+      }
     }
 
     const value = target[name]; // 如果获取的值是对象类型
@@ -6350,12 +6370,13 @@
    */
 
 
-  const createObserverProxySetter = watch => (target, name, value) => {
+  const createObserverProxySetter = watch => (target, name, value, targetProxy) => {
     if (isEqual(target[name], value)) {
       return true;
     }
 
-    const watches = watch[name]; // 改变值
+    const watches = watch[name];
+    const deepWatch = observeOptionsMap.get(targetProxy).deepWatch; // 改变值
 
     target[name] = value; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
@@ -6368,6 +6389,13 @@
         } else {
           depsOptions.fn();
         }
+      }
+    } // 深度 Watcher
+
+
+    if (deepWatch && deepWatch.length) {
+      for (const depsOptions of deepWatch) {
+        depsOptions.fn();
       }
     }
 
@@ -7708,12 +7736,12 @@
       set: computedTargetProxyInterceptorSet(computedStateMap)
     });
 
-    const appendComputed = (isWatch, name, computed) => {
+    const appendComputed = (name, computed, isComputed, isDeep) => {
       const set = computed.set ? computed.set.bind(self) : noop;
       const get = computed.get.bind(self);
       const collectingDependentsGet = createCollectingDependents(() => {
         return computedTargetProxy[name] = get();
-      }, !isWatch);
+      }, isComputed, isDeep);
       computedTarget[name] = void 0;
       computedStateMap[name] = {
         id: collectingDependentsGet.id,
@@ -7735,7 +7763,7 @@
     };
 
     computed && each(computed, (name, computed) => {
-      appendComputed(false, name, computed);
+      appendComputed(name, computed, true);
     });
     return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor, appendComputed, removeComputed];
   });
@@ -7842,11 +7870,14 @@
       /** 当前 watch 的回调函数 */
 
       const watchCallback = callback.bind(targetProxy);
+      /** 监听对象内部值的变化 */
+
+      const isDeep = !!options.deep;
       /** 值改变是否运行回调 */
 
-      let runCallback = options.immediate; // 添加监听
+      let runCallback = !!options.immediate; // 添加监听
 
-      appendComputed(true, name, {
+      appendComputed(name, {
         get() {
           const oldValue = watchTarget[name];
           const value = watchFn();
@@ -7858,7 +7889,7 @@
           return value;
         }
 
-      }); // 首次运行, 以收集依赖
+      }, false, isDeep); // 首次运行, 以收集依赖
 
       watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
 

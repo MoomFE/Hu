@@ -298,6 +298,41 @@ describe( 'Hu.define - watch', () => {
     expect( result ).is.deep.equals([ 3, 2 ]);
   });
 
+  it( '使用 deep 选项监听对象内部值的变化', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: {
+          b: 1,
+          c: 2
+        }
+      }),
+      watch: {
+        a: {
+          handler(){ index++ },
+          deep: true
+        }
+      }
+    });
+  
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.b = 2;
+    expect( index ).is.equals( 1 );
+    hu.a.b = 3;
+    expect( index ).is.equals( 2 );
+    hu.a.c = 3;
+    expect( index ).is.equals( 3 );
+    hu.a.c = 4;
+    expect( index ).is.equals( 4 );
+  });
+
   it( '使用 watch 对实例的属性进行监听, 传入方法', () => {
     const customName = window.customName;
     let result;

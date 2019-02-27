@@ -24,14 +24,15 @@ export default
     set: computedTargetProxyInterceptorSet( computedStateMap )
   });
 
-  const appendComputed = ( isWatch, name, computed ) => {
+  const appendComputed = ( name, computed, isComputed, isDeep ) => {
     const set = computed.set ? computed.set.bind( self ) : noop;
     const get = computed.get.bind( self );
     const collectingDependentsGet = createCollectingDependents(
       () => {
         return computedTargetProxy[ name ] = get();
       },
-      !isWatch
+      isComputed,
+      isDeep
     );
 
     computedTarget[ name ] = void 0;
@@ -55,7 +56,7 @@ export default
   }
 
   computed && each( computed, ( name, computed ) => {
-    appendComputed( false, name, computed );
+    appendComputed( name, computed, true );
   });
 
   return [

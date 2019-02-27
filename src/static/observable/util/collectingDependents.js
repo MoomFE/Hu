@@ -18,8 +18,9 @@ export const dependentsMap = {};
  * 为传入方法收集依赖
  * @param {function} fn 需要收集依赖的方法
  * @param {boolean} isComputed 是否是计算属性, 计算属性如果如果未被其它方法依赖, 则无需立即更新
+ * @param {boolean} isDeep 是否监听对象内部值的变化
  */
-export function createCollectingDependents( fn, isComputed ){
+export function createCollectingDependents( fn, isComputed, isDeep ){
   // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
   const id = uid++;
 
@@ -36,7 +37,9 @@ export function createCollectingDependents( fn, isComputed ){
       // 判断当前计算属性是否被没有被其它方法收集了依赖
       isCollected: isComputed && !targetStack.length,
       // 依赖是否更新
-      // forceUpdate: true
+      // forceUpdate: true,
+      // 深度 watcher
+      isDeep
     };
 
     // 开始收集依赖
