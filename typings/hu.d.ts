@@ -178,6 +178,16 @@ interface LitOptions{
   render?( this: $hu, html: ( strings: TemplateStringsArray, ...values: unknown[] ) => TemplateResult ): TemplateResult;
 
   /**
+   * 在实例初始化后立即调用, computed, watch 还未初始化
+   */
+  beforeCreate?( this: $hu );
+
+  /**
+   * 在实例创建完成后被立即调用, 挂载阶段还没开始
+   */
+  created?( this: $hu );
+
+  /**
    * 在自定义元素挂载开始之前被调用
    */
   beforeMount?( this: $hu );
