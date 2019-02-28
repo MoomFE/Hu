@@ -56,6 +56,38 @@ describe( 'Hu.define - computed', () => {
     expect( hu.$computed ).has.property( '$a' ).that.is.equals( 1 );
   });
 
+  it( '确保 $computed 对象不会被再自动包裹一层观察者', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      computed: {
+        a(){ return this.$computed }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.a ).is.equals( hu.$computed );
+  });
+
+  it( '确保 $hu 对象不会被再自动包裹一层观察者', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      computed: {
+        a(){ return this }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.a ).is.equals( hu );
+  });
+
   it( '未访问过计算属性, 计算属性不会自动运行其 getter', () => {
     const customName = window.customName;
     let isComputed = false
