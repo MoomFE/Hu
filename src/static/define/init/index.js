@@ -6,6 +6,7 @@ import initData from "./initData";
 import initRender from "./initRender";
 import initComputed from "./initComputed";
 import initWatch from "./initWatch";
+import initRootTarget from "./initRootTarget";
 
 
 /**
@@ -14,27 +15,22 @@ import initWatch from "./initWatch";
  * @param {{}} options 组件配置
  */
 export default function init( root, options ){
-  /** 当前组件对象 */
-  const target = create( null );
-  /** 当前组件代理对象 */
-  const targetProxy = new Proxy( target, {
-    set( target, name, value ){
-      if( isReserved( name ) ) return false;
-
-      target[ name ] = value;
-      return true;
-    }
-  });
+  
+  const [
+    target,
+    targetProxy,
+    targetProxyInterceptor
+  ] = initRootTarget();
 
   target.$el = root.attachShadow({ mode: 'open' });
   target.$customElement = root;
 
-  initProps( root, options, target, targetProxy );
-  initMethods( root, options, target, targetProxy );
-  initData( root, options, target, targetProxy );
-  initComputed( root, options, target, targetProxy );
-  initRender( root, options, target, targetProxy );
-  initWatch( root, options, target, targetProxy );
+  initProps( root, options, target, targetProxyInterceptor );
+  initMethods( root, options, target, targetProxyInterceptor );
+  initData( root, options, target, targetProxyInterceptor );
+  initComputed( root, options, target, targetProxyInterceptor );
+  initRender( root, options, target, targetProxyInterceptor );
+  initWatch( root, options, target, targetProxyInterceptor );
 
-  return targetProxy;
+  return targetProxyInterceptor;
 }
