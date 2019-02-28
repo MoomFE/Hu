@@ -333,6 +333,41 @@ describe( 'Hu.define - watch', () => {
     expect( index ).is.equals( 4 );
   });
 
+  it( '使用 depp 选项监听对象只监听最后一级', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: {
+          b: { c: 1 },
+          d: 2
+        }
+      }),
+      watch: {
+        'a.b.c': {
+          handler(){ index++ },
+          deep: true
+        }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.b.c = 2;
+    expect( index ).is.equals( 1 );
+
+    hu.a.b.c = 3;
+    expect( index ).is.equals( 2 );
+    
+    hu.a.d = 2;
+    expect( index ).is.equals( 2 );
+  });
+
   it( '使用 watch 对实例的属性进行监听, 传入方法', () => {
     const customName = window.customName;
     let result;
