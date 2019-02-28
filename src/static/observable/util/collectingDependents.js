@@ -1,16 +1,14 @@
 import uid from "../../../shared/util/uid";
+import isObject from "../../../shared/util/isObject";
+import isArray from "../../../shared/global/Array/isArray";
+import { targetStack } from "./index";
+import { observeProxyMap } from "./observe";
 
-/**
- * 调用堆栈
- * - 存放当前正在计算依赖的方法的 deps 依赖集合数组
- * - [ deps, deps, ... ]
- */
-export const targetStack = [];
 
 /**
  * 依赖集合
  * - 存放所有已收集到的依赖
- * - { id: deps, ... }
+ * - { id: dependentsOptions, ... }
  */
 export const dependentsMap = {};
 
@@ -20,9 +18,9 @@ export const dependentsMap = {};
  * @param {boolean} isComputed ↓
  *   - 是否是计算属性, 计算属性如果如果未被其它方法依赖, 则无需立即更新
  *   - 否则是用于创建监听方法
- * @param {boolean} isDeep 当前计算属性是否是用于创建深度监听
+ * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
  */
-export function createCollectingDependents( fn, isComputed, isDeep ){
+export function createCollectingDependents( fn, isComputed, isWatchDeep ){
   // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
   const id = uid();
   // 当前收集依赖的方法的一些参数
@@ -38,13 +36,12 @@ export function createCollectingDependents( fn, isComputed, isDeep ){
     // 判断当前计算属性是否被没有被其它方法收集了依赖
     // isCollected: false,
     // 依赖是否需要更新 ( 当 isCollected 为 true 时可用 )
-    // shouldUpdate: false,
-    // 对象深度监听
-    // isDeep
+    // shouldUpdate: false
   };
 
-  if( isDeep ){
-    dependentsOptions.isDeep = isDeep;
+  // 需要进行深度监听
+  if( isWatchDeep ){
+    dependentsOptions.watchDeep = watchDeep;
   }
 
   // 存储当前收集依赖的 ID 到方法
@@ -75,6 +72,11 @@ export function createCollectingDependents( fn, isComputed, isDeep ){
     // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
     const result = fn();
 
+    // 需要进行深度监听
+    if( isWatchDeep ){
+      dependentsOptions.watchDeep( result );
+    }
+
     // 方法执行完成, 则依赖收集完成
     targetStack.pop();
 
@@ -92,4 +94,13 @@ function cleanDeps(){
   for( const watch of this.deps ) watch.delete( this );
   // 清空依赖
   this.deps.clear();
+}
+
+/**
+ * 对依赖的最终返回值进行深度监听
+ */
+function watchDeep( result ){
+  if( isObject( result ) && !isArray( result ) ){
+    observeProxyMap.get( result ).deepWatches.add( this );
+  }
 }

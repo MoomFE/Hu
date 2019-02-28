@@ -44,7 +44,7 @@ export default function initWatch( root, options, target, targetProxy ){
     /** 当前 watch 的回调函数 */
     const watchCallback = callback.bind( targetProxy );
     /** 监听对象内部值的变化 */
-    const isDeep = !!options.deep;
+    const isWatchDeep = !!options.deep;
     /** 值改变是否运行回调 */
     let runCallback = !!options.immediate;
 
@@ -60,7 +60,7 @@ export default function initWatch( root, options, target, targetProxy ){
 
         return value;
       }
-    }, isDeep );
+    }, isWatchDeep );
 
     // 首次运行, 以收集依赖
     watchTargetProxyInterceptor[ name ];

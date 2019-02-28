@@ -1,4 +1,4 @@
-import { targetStack } from "./collectingDependents";
+import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
 
@@ -60,7 +60,7 @@ const createObserverProxyGetter = ( target, name, targetProxy ) => {
 
   // 当前有正在收集依赖的方法
   if( dependentsOptions ){
-    const { watches, deepWatches } = observeMap.get( target );
+    const watches = observeMap.get( target ).watches;
     let watch = watches.get[ name ];
 
     // 当前参数没有被监听过, 初始化监听数组
@@ -113,6 +113,13 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
       }else{
         dependentsOptions.fn();
       }
+    }
+  }
+
+  // 响应深度监听
+  if( deepWatches.size ){
+    for( const dependentsOptions of deepWatches ){
+      dependentsOptions.fn();
     }
   }
 
