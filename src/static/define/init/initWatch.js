@@ -16,7 +16,7 @@ export default function initWatch( root, options, target, targetProxy ){
     appendComputed,
     removeComputed
   ] = createComputed(
-    null, targetProxy
+    null, targetProxy, true
   );
 
   const watch = target.$watch = ( expOrFn, callback, options ) => {
@@ -60,7 +60,7 @@ export default function initWatch( root, options, target, targetProxy ){
 
         return value;
       }
-    }, true, isDeep );
+    }, isDeep );
 
     // 首次运行, 以收集依赖
     watchTargetProxyInterceptor[ name ];

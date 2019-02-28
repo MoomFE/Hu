@@ -75,22 +75,6 @@ const createObserverProxyGetter = ( target, name, targetProxy ) => {
     // 添加 watch 的信息到依赖收集去
     // 当依赖方法被重新调用, 会移除依赖
     dependentsOptions.deps.add( watch );
-
-    // 深度 watcher
-    // if( dependentsOptions.isDeep ){
-    //   const deepTarget = target[ name ];
-
-    //   if( isObject( deepTarget ) && !isArray( deepTarget ) ){
-    //     const deepTargetProxy = observe( deepTarget );
-    //     const observeOptions = observeOptionsMap.get( deepTargetProxy );
-    //     const deepWatch = observeOptions.deepWatch || ( observeOptions.deepWatch = [] );
-  
-    //     deepWatch.push( dependentsOptions );
-    //     dependentsOptions.deps.push(() => {
-    //       deepWatch.splice( deepWatch.indexOf( dependentsOptions ), 1 );
-    //     });
-      // }
-    // }
   }
 
   const value = target[ name ];
@@ -131,13 +115,6 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
       }
     }
   }
-
-  // 深度 Watcher
-  // if( deepWatch && deepWatch.length ){
-  //   for( const dependentsOptions of deepWatch ){
-  //     dependentsOptions.fn();
-  //   }
-  // }
 
   return true;
 };

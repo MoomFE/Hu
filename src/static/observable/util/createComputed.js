@@ -9,8 +9,9 @@ export default
 /**
  * @param {{}} computed
  * @param {any} self 计算属性的 this 指向
+ * @param {boolean} isWatch 当前是否用于创建监听
  */
-( computed, self ) => {
+( computed, self, isWatch ) => {
 
   /** 当前计算属性容器的子级的一些参数 */
   const computedOptionsMap = new Map();
@@ -25,9 +26,10 @@ export default
   });
 
   /** 给当前计算属性添加子级的方法 */
-  const appendComputed = createAppendComputed.call( self, computedTarget, computedTargetProxy, computedOptionsMap );
-  /** 给当前计算属性移除子级的方法 */
-  const removeComputed = createRemoveComputed.call( self, computedOptionsMap );
+  const appendComputed = createAppendComputed.call( self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch );
+  /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
+  let removeComputed = isWatch ? createRemoveComputed.call( self, computedOptionsMap )
+                               : void 0;
 
   computed && each( computed, ( name, computed ) => {
     appendComputed( name, computed );
@@ -46,14 +48,13 @@ export default
 /**
  * 返回添加单个计算属性的方法
  */
-function createAppendComputed( computedTarget, computedTargetProxy, computedOptionsMap ){
+function createAppendComputed( computedTarget, computedTargetProxy, computedOptionsMap, isWatch ){
   /**
    * @param {string} name 计算属性存储的名称
    * @param {{}} computed 计算属性 getter / setter 对象
-   * @param {boolean} isWatch 当前计算属性是否是用于创建监听
    * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
    */
-  return ( name, computed, isWatch, isWatchDeep ) => {
+  return ( name, computed, isWatchDeep ) => {
     /** 计算属性的 setter */
     const set = ( computed.set || noop ).bind( this );
     /** 计算属性的 getter */

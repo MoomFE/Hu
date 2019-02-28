@@ -6381,19 +6381,7 @@
       watch.add(dependentsOptions); // 添加 watch 的信息到依赖收集去
       // 当依赖方法被重新调用, 会移除依赖
 
-      dependentsOptions.deps.add(watch); // 深度 watcher
-      // if( dependentsOptions.isDeep ){
-      //   const deepTarget = target[ name ];
-      //   if( isObject( deepTarget ) && !isArray( deepTarget ) ){
-      //     const deepTargetProxy = observe( deepTarget );
-      //     const observeOptions = observeOptionsMap.get( deepTargetProxy );
-      //     const deepWatch = observeOptions.deepWatch || ( observeOptions.deepWatch = [] );
-      //     deepWatch.push( dependentsOptions );
-      //     dependentsOptions.deps.push(() => {
-      //       deepWatch.splice( deepWatch.indexOf( dependentsOptions ), 1 );
-      //     });
-      // }
-      // }
+      dependentsOptions.deps.add(watch);
     }
 
     const value = target[name]; // 如果获取的值是对象类型
@@ -6432,13 +6420,7 @@
           dependentsOptions.fn();
         }
       }
-    } // 深度 Watcher
-    // if( deepWatch && deepWatch.length ){
-    //   for( const dependentsOptions of deepWatch ){
-    //     dependentsOptions.fn();
-    //   }
-    // }
-
+    }
 
     return true;
   };
@@ -7760,8 +7742,9 @@
   /**
    * @param {{}} computed
    * @param {any} self 计算属性的 this 指向
+   * @param {boolean} isWatch 当前是否用于创建监听
    */
-  (computed, self) => {
+  (computed, self, isWatch) => {
     /** 当前计算属性容器的子级的一些参数 */
     const computedOptionsMap = new Map();
     /** 当前计算属性容器对象 */
@@ -7778,10 +7761,10 @@
     });
     /** 给当前计算属性添加子级的方法 */
 
-    const appendComputed = createAppendComputed.call(self, computedTarget, computedTargetProxy, computedOptionsMap);
-    /** 给当前计算属性移除子级的方法 */
+    const appendComputed = createAppendComputed.call(self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch);
+    /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
 
-    const removeComputed = createRemoveComputed.call(self, computedOptionsMap);
+    let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0;
     computed && each(computed, (name, computed) => {
       appendComputed(name, computed);
     });
@@ -7791,14 +7774,13 @@
    * 返回添加单个计算属性的方法
    */
 
-  function createAppendComputed(computedTarget, computedTargetProxy, computedOptionsMap) {
+  function createAppendComputed(computedTarget, computedTargetProxy, computedOptionsMap, isWatch) {
     /**
      * @param {string} name 计算属性存储的名称
      * @param {{}} computed 计算属性 getter / setter 对象
-     * @param {boolean} isWatch 当前计算属性是否是用于创建监听
      * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
      */
-    return (name, computed, isWatch, isWatchDeep) => {
+    return (name, computed, isWatchDeep) => {
       /** 计算属性的 setter */
       const set = (computed.set || noop).bind(this);
       /** 计算属性的 getter */
@@ -7920,7 +7902,7 @@
   }
 
   function initWatch$1(root, options, target, targetProxy) {
-    const _createComputed = createComputed(null, targetProxy),
+    const _createComputed = createComputed(null, targetProxy, true),
           watchTarget = _createComputed[0],
           watchTargetProxyInterceptor = _createComputed[2],
           appendComputed = _createComputed[3],
@@ -7969,7 +7951,7 @@
           return value;
         }
 
-      }, true, isDeep); // 首次运行, 以收集依赖
+      }, isDeep); // 首次运行, 以收集依赖
 
       watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
 
