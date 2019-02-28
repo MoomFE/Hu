@@ -7876,7 +7876,9 @@
     const _createComputed = createComputed(options.computed, targetProxy),
           computedTargetProxyInterceptor = _createComputed[2];
 
-    target.$computed = computedTargetProxyInterceptor;
+    target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
+
+    observeProxyMap.set(computedTargetProxyInterceptor, {});
     options.computed && each(options.computed, (name, computed) => {
       injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
     });
@@ -7981,6 +7983,37 @@
     options.watch && each(options.watch, watch);
   }
 
+  function initRootTarget() {
+    /** 当前组件对象 */
+    const target = create(null);
+    /** 当前组件观察者对象 */
+
+    const targetProxy = observe(target);
+    /** 当前组件观察者对象拦截器 */
+
+    const targetProxyInterceptor = new Proxy(targetProxy, {
+      set(target, name, value) {
+        if (canInjection(name)) {
+          return target[name] = value, true;
+        }
+
+        return false;
+      },
+
+      get(_, name) {
+        if (isSymbol(name) || !isReserved(name)) {
+          return targetProxy[name];
+        }
+
+        return target[name];
+      }
+
+    }); // 将拦截器伪造成观察者对象
+
+    observeProxyMap.set(targetProxyInterceptor, {});
+    return [target, targetProxy, targetProxyInterceptor];
+  }
+
   /**
    * 初始化当前组件属性
    * @param {HTMLElement} root 自定义元素组件节点
@@ -7988,29 +8021,22 @@
    */
 
   function init(root, options) {
-    /** 当前组件对象 */
-    const target = create(null);
-    /** 当前组件代理对象 */
+    const _initRootTarget = initRootTarget(),
+          target = _initRootTarget[0],
+          targetProxy = _initRootTarget[1],
+          targetProxyInterceptor = _initRootTarget[2];
 
-    const targetProxy = new Proxy(target, {
-      set(target, name, value) {
-        if (isReserved(name)) return false;
-        target[name] = value;
-        return true;
-      }
-
-    });
     target.$el = root.attachShadow({
       mode: 'open'
     });
     target.$customElement = root;
-    initProps$1(root, options, target, targetProxy);
-    initMethods$1(root, options, target, targetProxy);
-    initData$1(root, options, target, targetProxy);
-    initComputed$1(root, options, target, targetProxy);
-    initRender(root, options, target, targetProxy);
-    initWatch$1(root, options, target, targetProxy);
-    return targetProxy;
+    initProps$1(root, options, target, targetProxyInterceptor);
+    initMethods$1(root, options, target, targetProxyInterceptor);
+    initData$1(root, options, target, targetProxyInterceptor);
+    initComputed$1(root, options, target, targetProxyInterceptor);
+    initRender(root, options, target, targetProxyInterceptor);
+    initWatch$1(root, options, target, targetProxyInterceptor);
+    return targetProxyInterceptor;
   }
 
   const keys = Object.keys;
