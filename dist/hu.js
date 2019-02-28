@@ -204,7 +204,7 @@
 
   function initLifecycle(userOptions, options) {
     [
-    /** 在实例初始化之后 */
+    /** 在实例初始化后立即调用, computed, watch 还未初始化 */
     'beforeCreate',
     /** 在实例创建完成后被立即调用, 挂载阶段还没开始 */
     'created',
@@ -2188,9 +2188,11 @@
     initProps$1(root, options, target, targetProxyInterceptor);
     initMethods$1(root, options, target, targetProxyInterceptor);
     initData$1(root, options, target, targetProxyInterceptor);
-    initComputed$1(root, options, target, targetProxyInterceptor);
     initRender(root, options, target, targetProxyInterceptor);
+    options.beforeCreate.call(targetProxyInterceptor);
+    initComputed$1(root, options, target, targetProxyInterceptor);
     initWatch$1(root, options, target, targetProxyInterceptor);
+    options.created.call(targetProxyInterceptor);
     return targetProxyInterceptor;
   }
 

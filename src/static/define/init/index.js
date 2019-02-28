@@ -28,9 +28,14 @@ export default function init( root, options ){
   initProps( root, options, target, targetProxyInterceptor );
   initMethods( root, options, target, targetProxyInterceptor );
   initData( root, options, target, targetProxyInterceptor );
-  initComputed( root, options, target, targetProxyInterceptor );
   initRender( root, options, target, targetProxyInterceptor );
+
+  options.beforeCreate.call( targetProxyInterceptor );
+
+  initComputed( root, options, target, targetProxyInterceptor );
   initWatch( root, options, target, targetProxyInterceptor );
+
+  options.created.call( targetProxyInterceptor );
 
   return targetProxyInterceptor;
 }
