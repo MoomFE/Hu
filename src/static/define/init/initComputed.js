@@ -9,7 +9,6 @@ export default function initComputed( root, options, target, targetProxy ){
 
   const [
     computedTarget,
-    computedTargetProxy,
     computedTargetProxyInterceptor
   ] = createComputed(
     options.computed, targetProxy

@@ -2138,7 +2138,7 @@
     each(computed, (name, computed) => {
       appendComputed(name, computed);
     });
-    return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor, appendComputed, removeComputed];
+    return [computedTarget, computedTargetProxyInterceptor, appendComputed, removeComputed];
   });
   /**
    * 返回添加单个计算属性的方法
@@ -2227,7 +2227,7 @@
 
   function initComputed$1(root, options, target, targetProxy) {
     const _createComputed = createComputed(options.computed, targetProxy),
-          computedTargetProxyInterceptor = _createComputed[2];
+          computedTargetProxyInterceptor = _createComputed[1];
 
     target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
 
@@ -2276,9 +2276,9 @@
   function initWatch$1(root, options, target, targetProxy) {
     const _createComputed = createComputed(null, targetProxy, true),
           watchTarget = _createComputed[0],
-          watchTargetProxyInterceptor = _createComputed[2],
-          appendComputed = _createComputed[3],
-          removeComputed = _createComputed[4];
+          watchTargetProxyInterceptor = _createComputed[1],
+          appendComputed = _createComputed[2],
+          removeComputed = _createComputed[3];
 
     const watch = target.$watch = (expOrFn, callback, options) => {
       let watchFn;

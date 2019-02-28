@@ -11,7 +11,6 @@ export default function initWatch( root, options, target, targetProxy ){
 
   const [
     watchTarget,
-    watchTargetProxy,
     watchTargetProxyInterceptor,
     appendComputed,
     removeComputed

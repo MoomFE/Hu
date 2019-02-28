@@ -37,7 +37,6 @@ export default
 
   return [
     computedTarget,
-    computedTargetProxy,
     computedTargetProxyInterceptor,
     appendComputed,
     removeComputed
