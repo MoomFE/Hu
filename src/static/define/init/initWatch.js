@@ -72,6 +72,6 @@ export default function initWatch( root, options, target, targetProxy ){
     };
   }
 
-  options.watch && each( options.watch, watch );
+  each( options.watch, watch );
 
 }

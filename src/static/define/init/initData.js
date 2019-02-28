@@ -20,7 +20,7 @@ export default function initData( root, options, target, targetProxy ){
   if( options.data ){
     const data = options.data.call( targetProxy );
 
-    data && each( data, ( name, value ) => {
+    each( data, ( name, value ) => {
       dataTarget[ name ] = value;
 
       injectionToLit(

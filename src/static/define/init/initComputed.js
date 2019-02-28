@@ -20,7 +20,7 @@ export default function initComputed( root, options, target, targetProxy ){
   // 将拦截器伪造成观察者对象
   observeProxyMap.set( computedTargetProxyInterceptor, {} );
 
-  options.computed && each( options.computed, ( name, computed ) => {
+  each( options.computed, ( name, computed ) => {
     injectionToLit(
       target, name, 0,
       () => computedTargetProxyInterceptor[ name ],

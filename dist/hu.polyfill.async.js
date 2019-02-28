@@ -220,10 +220,12 @@
    * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
    */
   (obj, cb) => {
-    const keys = ownKeys(obj);
+    if (obj) {
+      const keys = ownKeys(obj);
 
-    for (let key of keys) {
-      cb(key, obj[key]);
+      for (let key of keys) {
+        cb(key, obj[key]);
+      }
     }
   });
 
@@ -774,7 +776,7 @@
     target.$methods = new Proxy(methodsTarget, {
       set: Set_Defined
     });
-    options.methods && each(options.methods, (name, value) => {
+    each(options.methods, (name, value) => {
       const method = methodsTarget[name] = value.bind(targetProxy);
       injectionToLit(target, name, method);
     });
@@ -794,7 +796,7 @@
 
     if (options.data) {
       const data = options.data.call(targetProxy);
-      data && each(data, (name, value) => {
+      each(data, (name, value) => {
         dataTarget[name] = value;
         injectionToLit(target, name, 0, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
       });
@@ -2133,7 +2135,7 @@
     /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
 
     let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0;
-    computed && each(computed, (name, computed) => {
+    each(computed, (name, computed) => {
       appendComputed(name, computed);
     });
     return [computedTarget, computedTargetProxy, computedTargetProxyInterceptor, appendComputed, removeComputed];
@@ -2230,7 +2232,7 @@
     target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
 
     observeProxyMap.set(computedTargetProxyInterceptor, {});
-    options.computed && each(options.computed, (name, computed) => {
+    each(options.computed, (name, computed) => {
       injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
     });
   }
@@ -2331,7 +2333,7 @@
       };
     };
 
-    options.watch && each(options.watch, watch);
+    each(options.watch, watch);
   }
 
   function initRootTarget() {

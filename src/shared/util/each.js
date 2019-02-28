@@ -8,9 +8,11 @@ export default
  * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
  */
 ( obj, cb ) => {
-  const keys = ownKeys( obj );
+  if( obj ){
+    const keys = ownKeys( obj );
 
-  for( let key of keys ){
-    cb( key, obj[ key ] );
+    for( let key of keys ){
+      cb( key, obj[ key ] );
+    }
   }
 }
