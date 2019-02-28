@@ -1,15 +1,11 @@
-import createComputed from "../util/createComputed";
+import createComputed from "../../observable/util/createComputed";
 import isString from "../../../shared/util/isString";
 import isFunction from "../../../shared/util/isFunction";
 import parsePath from "../util/parsePath";
 import each from "../../../shared/util/each";
 import isPlainObject from "../../../shared/util/isPlainObject";
-import { observeOptionsMap } from "../../observable/util/observe";
-import isObject from "../../../shared/util/isObject";
-import isArray from "../../../shared/global/Array/isArray";
+import uid from "../../../shared/util/uid";
 
-
-let uid = 0;
 
 export default function initWatch( root, options, target, targetProxy ){
 
@@ -44,7 +40,7 @@ export default function initWatch( root, options, target, targetProxy ){
     options = options || {};
 
     /** 当前 watch 的存储名称 */
-    const name = uid++;
+    const name = uid();
     /** 当前 watch 的回调函数 */
     const watchCallback = callback.bind( targetProxy );
     /** 监听对象内部值的变化 */
@@ -64,7 +60,7 @@ export default function initWatch( root, options, target, targetProxy ){
 
         return value;
       }
-    }, false, isDeep );
+    }, true, isDeep );
 
     // 首次运行, 以收集依赖
     watchTargetProxyInterceptor[ name ];

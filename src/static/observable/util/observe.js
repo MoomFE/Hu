@@ -1,18 +1,17 @@
 import { targetStack } from "./collectingDependents";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
-import isArray from "../../../shared/global/Array/isArray";
 
 
 /**
- * 存放创建过的观察者
+ * 存放原始对象和观察者对象及其选项参数的映射
  */
 export const observeMap = new WeakMap();
 
 /**
- * 存放观察者对象的选项参数
+ * 存放观察者对象和观察者对象选项参数的映射
  */
-export const observeOptionsMap = new WeakMap();
+export const observeProxyMap = new WeakMap();
 
 /**
  * 为传入对象创建观察者
@@ -20,32 +19,34 @@ export const observeOptionsMap = new WeakMap();
 export function observe( target ){
   // 如果创建过观察者
   // 则返回之前创建的观察者
-  if( observeMap.has( target ) ) return observeMap.get( target );
+  if( observeMap.has( target ) ) return observeMap.get( target ).proxy;
   // 如果传入的就是观察者对象
   // 则直接返回
-  if( observeOptionsMap.has( target ) ) return target;
+  if( observeProxyMap.has( target ) ) return target;
   // 否则立即创建观察者进行返回
   return createObserver( target );
 }
 
 function createObserver( target ){
-  /** 当前对象的被依赖数据 / 监听数据 */
-  const watch = {};
-  /** 当前对象的 Proxy 对象 */
+  /** 当前对象的观察者对象 */
   const proxy = new Proxy( target, {
-    get: createObserverProxyGetter( watch ),
-    set: createObserverProxySetter( watch )
+    get: createObserverProxyGetter,
+    set: createObserverProxySetter
   });
 
-  // 存储观察者对象
-  observeMap.set( target, proxy );
+  /** 观察者对象选项参数 */
+  const observeOptions = {
+    // 可以使用 observeMap 来获取观察者对象
+    proxy,
+    // 当前对象的子级的被监听数据
+    watches: new Map(),
+    // 当前对象的被深度监听数据
+    deepWatches: new Set()
+  };
+
   // 存储观察者选项参数
-  observeOptionsMap.set( proxy, {
-    // 存储原始对象
-    target,
-    // 深度监听
-    // deepWatch: []
-  });
+  observeMap.set( target, observeOptions );
+  observeProxyMap.set( proxy, observeOptions );
 
   return proxy;
 }
@@ -53,23 +54,30 @@ function createObserver( target ){
 /**
  * 创建依赖收集的响应方法
  */
-const createObserverProxyGetter = watch => ( target, name, targetProxy ) => {
+const createObserverProxyGetter = ( target, name, targetProxy ) => {
   // 获取当前在收集依赖的那个方法的参数
-  const depsOptions = targetStack[ targetStack.length - 1 ];
+  const dependentsOptions = targetStack[ targetStack.length - 1 ];
 
   // 当前有正在收集依赖的方法
-  if( depsOptions ){
-    /** 当前参数的依赖数组 */
-    const watches = watch[ name ] || ( watch[ name ] = [] );
-    // 将正在收集依赖的方法参数进行存储
-    // 后续移除旧依赖时或响应更新时需要用到
-    watches.push( depsOptions );
-    // 给 deps 对象传入一个方法, 用于移除依赖
-    depsOptions.deps.push(() => {
-      watches.splice( watches.indexOf( depsOptions ), 1 );
-    });
+  if( dependentsOptions ){
+    const { watches, deepWatches } = observeMap.get( target );
+    let watch = watches.get[ name ];
+
+    // 当前参数没有被监听过, 初始化监听数组
+    if( !watch ){
+      watch = new Set();
+      watches.set( name, watch );
+    }
+
+    // 添加依赖方法信息到 watch
+    // 当前值被改变时, 会调用依赖方法
+    watch.add( dependentsOptions );
+    // 添加 watch 的信息到依赖收集去
+    // 当依赖方法被重新调用, 会移除依赖
+    dependentsOptions.deps.add( watch );
+
     // 深度 watcher
-    // if( depsOptions.isDeep ){
+    // if( dependentsOptions.isDeep ){
     //   const deepTarget = target[ name ];
 
     //   if( isObject( deepTarget ) && !isArray( deepTarget ) ){
@@ -77,9 +85,9 @@ const createObserverProxyGetter = watch => ( target, name, targetProxy ) => {
     //     const observeOptions = observeOptionsMap.get( deepTargetProxy );
     //     const deepWatch = observeOptions.deepWatch || ( observeOptions.deepWatch = [] );
   
-    //     deepWatch.push( depsOptions );
-    //     depsOptions.deps.push(() => {
-    //       deepWatch.splice( deepWatch.indexOf( depsOptions ), 1 );
+    //     deepWatch.push( dependentsOptions );
+    //     dependentsOptions.deps.push(() => {
+    //       deepWatch.splice( deepWatch.indexOf( dependentsOptions ), 1 );
     //     });
       // }
     // }
@@ -96,35 +104,38 @@ const createObserverProxyGetter = watch => ( target, name, targetProxy ) => {
 /**
  * 创建响应更新方法
  */
-const createObserverProxySetter = watch => ( target, name, value, targetProxy ) => {
+const createObserverProxySetter = ( target, name, value, targetProxy ) => {
 
+  // 值完全相等, 不进行修改
   if( isEqual( target[ name ], value ) ){
     return true;
   }
 
-  const watches = watch[ name ];
-  // const deepWatch = observeOptionsMap.get( targetProxy ).deepWatch;
+  // 获取子级监听数据
+  const { watches, deepWatches } = observeMap.get( target );
+  // 获取当前参数的被监听数据
+  let watch = watches.get( name );
 
   // 改变值
   target[ name ] = value;
 
   // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
-  if( watches && watches.length ){
-    for( const depsOptions of watches ){
+  if( watch && watch.size ){
+    for( const dependentsOptions of watch ){
       // 那个方法是没有被其它方法依赖的计算属性
       // 通知它在下次获取时更新值
-      if( depsOptions.isCollected ){
-        depsOptions.forceUpdate = true;
+      if( dependentsOptions.isCollected ){
+        dependentsOptions.shouldUpdate = true;
       }else{
-        depsOptions.fn();
+        dependentsOptions.fn();
       }
     }
   }
 
   // 深度 Watcher
   // if( deepWatch && deepWatch.length ){
-  //   for( const depsOptions of deepWatch ){
-  //     depsOptions.fn();
+  //   for( const dependentsOptions of deepWatch ){
+  //     dependentsOptions.fn();
   //   }
   // }
 

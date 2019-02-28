@@ -1,6 +1,6 @@
 import each from "../../../shared/util/each";
 import injectionToLit from "../util/injectionToLit";
-import createComputed from "../util/createComputed";
+import createComputed from "../../observable/util/createComputed";
 
 
 
