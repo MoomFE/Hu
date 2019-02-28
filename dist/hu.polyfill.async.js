@@ -695,20 +695,18 @@
       depsOptions.deps.push(() => {
         watches.splice(watches.indexOf(depsOptions), 1);
       }); // 深度 watcher
-
-      if (depsOptions.isDeep) {
-        const deepTarget = target[name];
-
-        if (isObject(deepTarget) && !isArray(deepTarget)) {
-          const deepTargetProxy = observe(deepTarget);
-          const observeOptions = observeOptionsMap.get(deepTargetProxy);
-          const deepWatch = observeOptions.deepWatch || (observeOptions.deepWatch = []);
-          deepWatch.push(depsOptions);
-          depsOptions.deps.push(() => {
-            deepWatch.splice(deepWatch.indexOf(depsOptions), 1);
-          });
-        }
-      }
+      // if( depsOptions.isDeep ){
+      //   const deepTarget = target[ name ];
+      //   if( isObject( deepTarget ) && !isArray( deepTarget ) ){
+      //     const deepTargetProxy = observe( deepTarget );
+      //     const observeOptions = observeOptionsMap.get( deepTargetProxy );
+      //     const deepWatch = observeOptions.deepWatch || ( observeOptions.deepWatch = [] );
+      //     deepWatch.push( depsOptions );
+      //     depsOptions.deps.push(() => {
+      //       deepWatch.splice( deepWatch.indexOf( depsOptions ), 1 );
+      //     });
+      // }
+      // }
     }
 
     const value = target[name]; // 如果获取的值是对象类型
@@ -726,8 +724,8 @@
       return true;
     }
 
-    const watches = watch[name];
-    const deepWatch = observeOptionsMap.get(targetProxy).deepWatch; // 改变值
+    const watches = watch[name]; // const deepWatch = observeOptionsMap.get( targetProxy ).deepWatch;
+    // 改变值
 
     target[name] = value; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
@@ -742,13 +740,12 @@
         }
       }
     } // 深度 Watcher
+    // if( deepWatch && deepWatch.length ){
+    //   for( const depsOptions of deepWatch ){
+    //     depsOptions.fn();
+    //   }
+    // }
 
-
-    if (deepWatch && deepWatch.length) {
-      for (const depsOptions of deepWatch) {
-        depsOptions.fn();
-      }
-    }
 
     return true;
   };

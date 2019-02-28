@@ -69,21 +69,20 @@ const createObserverProxyGetter = watch => ( target, name, targetProxy ) => {
       watches.splice( watches.indexOf( depsOptions ), 1 );
     });
     // 深度 watcher
-    if( depsOptions.isDeep ){
-      const deepTarget = target[ name ];
+    // if( depsOptions.isDeep ){
+    //   const deepTarget = target[ name ];
 
-      if( isObject( deepTarget ) && !isArray( deepTarget ) ){
-        const deepTargetProxy = observe( deepTarget );
-        const observeOptions = observeOptionsMap.get( deepTargetProxy );
-        const deepWatch = observeOptions.deepWatch || ( observeOptions.deepWatch = [] );
+    //   if( isObject( deepTarget ) && !isArray( deepTarget ) ){
+    //     const deepTargetProxy = observe( deepTarget );
+    //     const observeOptions = observeOptionsMap.get( deepTargetProxy );
+    //     const deepWatch = observeOptions.deepWatch || ( observeOptions.deepWatch = [] );
   
-        deepWatch.push( depsOptions );
-        depsOptions.deps.push(() => {
-          deepWatch.splice( deepWatch.indexOf( depsOptions ), 1 );
-        });
-      }
-      
-    }
+    //     deepWatch.push( depsOptions );
+    //     depsOptions.deps.push(() => {
+    //       deepWatch.splice( deepWatch.indexOf( depsOptions ), 1 );
+    //     });
+      // }
+    // }
   }
 
   const value = target[ name ];
@@ -104,7 +103,7 @@ const createObserverProxySetter = watch => ( target, name, value, targetProxy ) 
   }
 
   const watches = watch[ name ];
-  const deepWatch = observeOptionsMap.get( targetProxy ).deepWatch;
+  // const deepWatch = observeOptionsMap.get( targetProxy ).deepWatch;
 
   // 改变值
   target[ name ] = value;
@@ -123,11 +122,11 @@ const createObserverProxySetter = watch => ( target, name, value, targetProxy ) 
   }
 
   // 深度 Watcher
-  if( deepWatch && deepWatch.length ){
-    for( const depsOptions of deepWatch ){
-      depsOptions.fn();
-    }
-  }
+  // if( deepWatch && deepWatch.length ){
+  //   for( const depsOptions of deepWatch ){
+  //     depsOptions.fn();
+  //   }
+  // }
 
   return true;
 };
