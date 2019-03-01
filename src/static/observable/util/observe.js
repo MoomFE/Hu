@@ -61,7 +61,7 @@ const createObserverProxyGetter = ( target, name, targetProxy ) => {
   // 当前有正在收集依赖的方法
   if( dependentsOptions ){
     const watches = observeMap.get( target ).watches;
-    let watch = watches.get[ name ];
+    let watch = watches.get( name );
 
     // 当前参数没有被监听过, 初始化监听数组
     if( !watch ){

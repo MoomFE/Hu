@@ -6277,7 +6277,7 @@
 
     if (dependentsOptions) {
       const watches = observeMap.get(target).watches;
-      let watch = watches.get[name]; // 当前参数没有被监听过, 初始化监听数组
+      let watch = watches.get(name); // 当前参数没有被监听过, 初始化监听数组
 
       if (!watch) {
         watch = new Set();
