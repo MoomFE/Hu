@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="./hu.js"></script>
+</head>
+<body>
+  <hu-abc></hu-abc>
+
+  <script>
+    Hu.define( 'hu-abc', {
+      data: () => ({
+        a: 1,
+        b: 2
+      })
+    });
+
+    const hu = document.querySelector('hu-abc').$hu;
+
+    hu.$watch(
+      function(){
+        return this.a + this.b;
+      },
+      ( value, oldValue ) => {
+        console.log( value, oldValue );
+      }
+    );
+
+    hu.a = 2;
+  </script>
+</body>
+</html>

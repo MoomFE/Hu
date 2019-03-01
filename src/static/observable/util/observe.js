@@ -1,6 +1,7 @@
 import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
+import eachSet from "../../../shared/util/eachSet";
 
 
 /**
@@ -95,17 +96,17 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
     return true;
   }
 
+  // 改变值
+  target[ name ] = value;
+
   // 获取子级监听数据
   const { watches, deepWatches } = observeMap.get( target );
   // 获取当前参数的被监听数据
   let watch = watches.get( name );
 
-  // 改变值
-  target[ name ] = value;
-
   // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
   if( watch && watch.size ){
-    for( const dependentsOptions of watch ){
+    eachSet( watch, dependentsOptions => {
       // 那个方法是没有被其它方法依赖的计算属性
       // 通知它在下次获取时更新值
       if( dependentsOptions.notBeingCollected ){
@@ -113,14 +114,14 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
       }else{
         dependentsOptions.fn();
       }
-    }
+    });
   }
 
   // 响应深度监听
   if( deepWatches.size ){
-    for( const dependentsOptions of deepWatches ){
+    eachSet( deepWatches, dependentsOptions => {
       dependentsOptions.fn();
-    }
+    });
   }
 
   return true;

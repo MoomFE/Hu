@@ -3,6 +3,7 @@ import isObject from "../../../shared/util/isObject";
 import isArray from "../../../shared/global/Array/isArray";
 import { targetStack } from "./index";
 import { observeProxyMap } from "./observe";
+import eachSet from "../../../shared/util/eachSet";
 
 
 /**
@@ -105,7 +106,7 @@ export function createCollectingDependents( fn, isComputed, isWatchDeep ){
  */
 function cleanDeps(){
   // 对之前收集的依赖进行清空
-  for( const watch of this.deps ) watch.delete( this );
+  eachSet( this.deps, watch => watch.delete( this ) );
   // 清空依赖
   this.deps.clear();
 }

@@ -571,6 +571,21 @@
     return !(value2 !== value && (value2 === value2 || value === value));
   });
 
+  var eachSet = (
+  /**
+   * Set 的遍历方法
+   * @param { Map | Set } obj 需要遍历的 Set 对象
+   * @param {( value:string, index: number ) => void} cb 遍历对象的方法
+   */
+  (obj, cb) => {
+    let index = 0;
+    let length = obj.size;
+
+    for (let item of obj) {
+      index < length && cb(item, index++);
+    }
+  });
+
   /**
    * 存放原始对象和观察者对象及其选项参数的映射
    */
@@ -657,20 +672,20 @@
     // 值完全相等, 不进行修改
     if (isEqual(target[name], value)) {
       return true;
-    } // 获取子级监听数据
+    } // 改变值
 
+
+    target[name] = value; // 获取子级监听数据
 
     const _observeMap$get = observeMap.get(target),
           watches = _observeMap$get.watches,
           deepWatches = _observeMap$get.deepWatches; // 获取当前参数的被监听数据
 
 
-    let watch = watches.get(name); // 改变值
-
-    target[name] = value; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
+    let watch = watches.get(name); // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
     if (watch && watch.size) {
-      for (const dependentsOptions of watch) {
+      eachSet(watch, dependentsOptions => {
         // 那个方法是没有被其它方法依赖的计算属性
         // 通知它在下次获取时更新值
         if (dependentsOptions.notBeingCollected) {
@@ -678,14 +693,14 @@
         } else {
           dependentsOptions.fn();
         }
-      }
+      });
     } // 响应深度监听
 
 
     if (deepWatches.size) {
-      for (const dependentsOptions of deepWatches) {
+      eachSet(deepWatches, dependentsOptions => {
         dependentsOptions.fn();
-      }
+      });
     }
 
     return true;
@@ -2098,8 +2113,7 @@
 
   function cleanDeps() {
     // 对之前收集的依赖进行清空
-    for (const watch of this.deps) watch.delete(this); // 清空依赖
-
+    eachSet(this.deps, watch => watch.delete(this)); // 清空依赖
 
     this.deps.clear();
   }
