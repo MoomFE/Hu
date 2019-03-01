@@ -26,12 +26,12 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 ## 大小 - 版本详解
 |                          | Default | Gzip   | -   | Module | Use in | Description |
 | :-                       | :-      | :-     | :-: | :-     | :-     | :-          |
-| hu.js                    | 63.33KB | 17.35KB | \| | UMD | Browser | |
-| hu.min.js                | 14.51KB | 5.54KB | \| | UMD | Browser | |
-| hu.polyfill.async.js     | 69.88KB | 19.03KB | \| | UMD | Browser | |
-| hu.polyfill.async.min.js | 16.83KB | 6.30KB | \| | UMD | Browser | |
-| hu.polyfill.js           | 227.41KB | 54.48KB | \| | UMD | Browser | |
-| hu.polyfill.min.js       | 112.79KB | 35.43KB | \| | UMD | Browser | |
+| hu.js                    | 64.00KB | 17.56KB | \| | UMD | Browser | |
+| hu.min.js                | 14.63KB | 5.58KB | \| | UMD | Browser | |
+| hu.polyfill.async.js     | 70.55KB | 19.25KB | \| | UMD | Browser | |
+| hu.polyfill.async.min.js | 16.95KB | 6.35KB | \| | UMD | Browser | |
+| hu.polyfill.js           | 228.08KB | 54.70KB | \| | UMD | Browser | |
+| hu.polyfill.min.js       | 112.90KB | 35.48KB | \| | UMD | Browser | |
 
 <br>
 

@@ -33,9 +33,11 @@ export function createCollectingDependents( fn, isComputed, isWatchDeep ){
     fn: collectingDependentsGet,
     // 是否初始化
     // isInit: false
-    // 判断当前计算属性是否被没有被其它方法收集了依赖
-    // isCollected: false,
-    // 依赖是否需要更新 ( 当 isCollected 为 true 时可用 )
+    // 判断当前计算属性是否被没有被其它方法收集了依赖 ( 当 isComputed 为 true 时可用 )
+    // notBeingCollected: false,
+    // 依赖于当前计算属性的那个计算属性 ( 当 isComputed 为 true 时可用 )
+    // relier: null,
+    // 依赖是否需要更新 ( 当 notBeingCollected 为 true 时可用 )
     // shouldUpdate: false
   };
 
@@ -56,14 +58,26 @@ export function createCollectingDependents( fn, isComputed, isWatchDeep ){
    * 方法的依赖收集包装
    */
   function collectingDependentsGet(){
+    // 清空依赖
+    dependentsOptions.cleanDeps();
     // 已初始化
     dependentsOptions.isInit = true;
     // 是否被收集依赖
     if( isComputed ){
-      dependentsOptions.isCollected = !targetStack.length;
+      const targetStackLength = targetStack.length;
+      let relier;
+
+      // 判断是否被收集依赖
+      // 被无依赖的计算属性收集依赖也算没有被收集依赖
+      dependentsOptions.notBeingCollected =
+        // 调用堆栈为空, 说明完全无依赖
+        !targetStackLength ||
+        // 收集依赖的是无依赖的计算属性
+        ( relier = targetStack[ targetStackLength - 1 ] ).notBeingCollected;
+
+      // 保存依赖者
+      dependentsOptions.relier = targetStackLength && relier;
     }
-    // 清空依赖
-    dependentsOptions.cleanDeps();
 
     // 开始收集依赖
     targetStack.push( dependentsOptions );

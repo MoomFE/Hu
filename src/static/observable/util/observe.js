@@ -108,8 +108,8 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
     for( const dependentsOptions of watch ){
       // 那个方法是没有被其它方法依赖的计算属性
       // 通知它在下次获取时更新值
-      if( dependentsOptions.isCollected ){
-        dependentsOptions.shouldUpdate = true;
+      if( dependentsOptions.notBeingCollected ){
+        recursionSetShouldUpdate( dependentsOptions );
       }else{
         dependentsOptions.fn();
       }
@@ -125,3 +125,15 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
 
   return true;
 };
+
+
+/**
+ * 递归提醒
+ */
+function recursionSetShouldUpdate( dependentsOptions ){
+  dependentsOptions.shouldUpdate = true;
+
+  if( dependentsOptions.relier ){
+    recursionSetShouldUpdate( dependentsOptions.relier );
+  }
+}

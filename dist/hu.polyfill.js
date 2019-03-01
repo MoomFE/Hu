@@ -6322,8 +6322,8 @@
       for (const dependentsOptions of watch) {
         // 那个方法是没有被其它方法依赖的计算属性
         // 通知它在下次获取时更新值
-        if (dependentsOptions.isCollected) {
-          dependentsOptions.shouldUpdate = true;
+        if (dependentsOptions.notBeingCollected) {
+          recursionSetShouldUpdate(dependentsOptions);
         } else {
           dependentsOptions.fn();
         }
@@ -6339,6 +6339,18 @@
 
     return true;
   };
+  /**
+   * 递归提醒
+   */
+
+
+  function recursionSetShouldUpdate(dependentsOptions) {
+    dependentsOptions.shouldUpdate = true;
+
+    if (dependentsOptions.relier) {
+      recursionSetShouldUpdate(dependentsOptions.relier);
+    }
+  }
 
   /**
    * 初始化当前组件 props 属性
@@ -7672,9 +7684,11 @@
       // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
       fn: collectingDependentsGet // 是否初始化
       // isInit: false
-      // 判断当前计算属性是否被没有被其它方法收集了依赖
-      // isCollected: false,
-      // 依赖是否需要更新 ( 当 isCollected 为 true 时可用 )
+      // 判断当前计算属性是否被没有被其它方法收集了依赖 ( 当 isComputed 为 true 时可用 )
+      // notBeingCollected: false,
+      // 依赖于当前计算属性的那个计算属性 ( 当 isComputed 为 true 时可用 )
+      // relier: null,
+      // 依赖是否需要更新 ( 当 notBeingCollected 为 true 时可用 )
       // shouldUpdate: false
 
     }; // 需要进行深度监听
@@ -7694,15 +7708,23 @@
      */
 
     function collectingDependentsGet() {
-      // 已初始化
+      // 清空依赖
+      dependentsOptions.cleanDeps(); // 已初始化
+
       dependentsOptions.isInit = true; // 是否被收集依赖
 
       if (isComputed) {
-        dependentsOptions.isCollected = !targetStack.length;
-      } // 清空依赖
+        const targetStackLength = targetStack.length;
+        let relier; // 判断是否被收集依赖
+        // 被无依赖的计算属性收集依赖也算没有被收集依赖
 
+        dependentsOptions.notBeingCollected = // 调用堆栈为空, 说明完全无依赖
+        !targetStackLength || // 收集依赖的是无依赖的计算属性
+        (relier = targetStack[targetStackLength - 1]).notBeingCollected; // 保存依赖者
 
-      dependentsOptions.cleanDeps(); // 开始收集依赖
+        dependentsOptions.relier = targetStackLength && relier;
+      } // 开始收集依赖
+
 
       targetStack.push(dependentsOptions); // 执行方法
       // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
