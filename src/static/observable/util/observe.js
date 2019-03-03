@@ -2,6 +2,7 @@ import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
 import eachSet from "../../../shared/util/eachSet";
+import getOwnPropertyDescriptor from "../../../shared/global/Object/getOwnPropertyDescriptor";
 
 
 /**
@@ -56,6 +57,12 @@ function createObserver( target ){
  * 创建依赖收集的响应方法
  */
 const createObserverProxyGetter = ( target, name, targetProxy ) => {
+
+  // 需要获取的值是使用 Object.defineProperty 定义的属性
+  if( ( getOwnPropertyDescriptor( target, name ) || {} ).get ){
+    return target[ name ];
+  }
+
   // 获取当前在收集依赖的那个方法的参数
   const dependentsOptions = targetStack[ targetStack.length - 1 ];
 
@@ -90,6 +97,12 @@ const createObserverProxyGetter = ( target, name, targetProxy ) => {
  * 创建响应更新方法
  */
 const createObserverProxySetter = ( target, name, value, targetProxy ) => {
+
+  // 需要修改的值是使用 Object.defineProperty 定义的属性
+  if( ( getOwnPropertyDescriptor( target, name ) || {} ).set ){
+    target[ name ] = value;
+    return true;
+  }
 
   // 值完全相等, 不进行修改
   if( isEqual( target[ name ], value ) ){

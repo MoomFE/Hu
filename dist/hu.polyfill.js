@@ -6235,6 +6235,8 @@
     }
   });
 
+  const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+
   /**
    * 存放原始对象和观察者对象及其选项参数的映射
    */
@@ -6287,7 +6289,12 @@
 
 
   const createObserverProxyGetter = (target, name, targetProxy) => {
-    // 获取当前在收集依赖的那个方法的参数
+    // 需要获取的值是使用 Object.defineProperty 定义的属性
+    if ((getOwnPropertyDescriptor(target, name) || {}).get) {
+      return target[name];
+    } // 获取当前在收集依赖的那个方法的参数
+
+
     const dependentsOptions = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
     if (dependentsOptions) {
@@ -6318,7 +6325,13 @@
 
 
   const createObserverProxySetter = (target, name, value, targetProxy) => {
-    // 值完全相等, 不进行修改
+    // 需要修改的值是使用 Object.defineProperty 定义的属性
+    if ((getOwnPropertyDescriptor(target, name) || {}).set) {
+      target[name] = value;
+      return true;
+    } // 值完全相等, 不进行修改
+
+
     if (isEqual(target[name], value)) {
       return true;
     } // 改变值
