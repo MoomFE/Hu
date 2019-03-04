@@ -7,6 +7,7 @@ import isObject from "../../../shared/util/isObject";
 import rHyphenate from "../../../shared/const/rHyphenate";
 import isSymbol from "../../../shared/util/isSymbol";
 import returnArg from "../../../shared/util/returnArg";
+import hyphenate from "../../../shared/util/hyphenate";
 
 
 /**
@@ -102,10 +103,10 @@ function initPropAttribute( name, prop, options ){
   // 当前 prop 的取值 attribute
   options.attr = prop && prop.attr || (
     options.isSymbol
-      //[ 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
+      // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
       ? null
       // 驼峰转为以连字符号连接的小写 attr 名称
-      : name.replace( rHyphenate, '-$1' ).toLowerCase()
+      : hyphenate( name )
   );
 
 }

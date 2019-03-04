@@ -265,6 +265,24 @@
    */
   value => value);
 
+  var cached = (
+  /**
+   * 创建一个可以缓存方法返回值的方法
+   */
+  fn => {
+    const cache = {};
+    return str => {
+      return cache[str] || (cache[str] = fn(str));
+    };
+  });
+
+  var hyphenate = /**
+   * 将驼峰转为以连字符号连接的小写名称
+   */
+  cached(name => {
+    return name.replace(rHyphenate, '-$1').toLowerCase();
+  });
+
   /**
    * 初始化组件 props 配置
    * @param {{}} userOptions 用户传入的组件配置
@@ -353,9 +371,9 @@
     // 当前 prop 是否是 Symbol 类型的
     options.isSymbol = isSymbol(name); // 当前 prop 的取值 attribute
 
-    options.attr = prop && prop.attr || (options.isSymbol //[ 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
+    options.attr = prop && prop.attr || (options.isSymbol // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
     ? null // 驼峰转为以连字符号连接的小写 attr 名称
-    : name.replace(rHyphenate, '-$1').toLowerCase());
+    : hyphenate(name));
   }
   /**
    * 初始化 options.type 变量类型
@@ -715,12 +733,11 @@
     }
   }
 
-  var isReserved = (
-  /**
+  var isReserved = /**
    * 判断字符串首字母是否为 $
    * @param {String} value
    */
-  value => {
+  cached(value => {
     const charCode = (value + '').charCodeAt(0);
     return charCode === 0x24;
   });
