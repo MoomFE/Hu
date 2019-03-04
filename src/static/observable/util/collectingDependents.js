@@ -1,9 +1,8 @@
 import uid from "../../../shared/util/uid";
 import isObject from "../../../shared/util/isObject";
-import isArray from "../../../shared/global/Array/isArray";
 import { targetStack } from "./index";
 import { observeProxyMap } from "./observe";
-import eachSet from "../../../shared/util/eachSet";
+import assign from "../../../shared/global/Object/assign";
 
 
 /**
@@ -13,111 +12,89 @@ import eachSet from "../../../shared/util/eachSet";
  */
 export const dependentsMap = {};
 
+
 /**
- * 为传入方法收集依赖
- * @param {function} fn 需要收集依赖的方法
- * @param {boolean} isComputed ↓
- *   - 是否是计算属性, 计算属性如果如果未被其它方法依赖, 则无需立即更新
- *   - 否则是用于创建监听方法
- * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
+ * 返回一个方法为传入方法收集依赖
  */
-export function createCollectingDependents( fn, isComputed, isWatchDeep ){
-  // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
-  const id = uid();
-  // 当前收集依赖的方法的一些参数
-  const dependentsOptions = {
-    // 当前方法的依赖存储数组
-    deps: new Set(),
-    // 对之前收集的依赖进行清空
-    cleanDeps,
-    // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
-    fn: collectingDependentsGet,
-    // 是否是计算属性, 否则是监听方法 ( 调试用 )
-    isComputed,
-    // 是否初始化
-    // isInit: false
-    // 判断当前计算属性是否被没有被其它方法收集了依赖 ( 当 isComputed 为 true 时可用 )
-    // notBeingCollected: false,
-    // 依赖于当前计算属性的那个计算属性 ( 当 isComputed 为 true 时可用 )
-    // relier: null,
-    // 依赖是否需要更新 ( 当 notBeingCollected 为 true 时可用 )
-    // shouldUpdate: false
-  };
-
-  // 需要进行深度监听
-  if( isWatchDeep ){
-    dependentsOptions.watchDeep = watchDeep;
-  }
-
-  // 存储当前收集依赖的 ID 到方法
-  // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
-  collectingDependentsGet.id = id;
+export function createCollectingDependents(){
+  const cd = new CollectingDependents( ...arguments );
+  const { get, id } = cd;
 
   // 存储当前方法的依赖
   // 可以在下次收集依赖的时候对这次收集的依赖进行清空
-  dependentsMap[ id ] = dependentsOptions;
+  dependentsMap[ id ] = cd;
 
+  // 存储当前收集依赖的 ID 到方法
+  // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
+  get.id = id;
+
+  return get;
+}
+
+class CollectingDependents{
   /**
-   * 方法的依赖收集包装
+   * @param {function} fn 需要收集依赖的方法
+   * @param {boolean} isComputed 是否是计算属性
+   * @param {boolean} isWatch 是否是用于创建监听方法
+   * @param {boolean} isWatchDeep 是否是用于创建深度监听
    */
-  function collectingDependentsGet(){
-    // 清空依赖
-    dependentsOptions.cleanDeps();
-    // 已初始化
-    dependentsOptions.isInit = true;
-    // 是否被收集依赖
+  constructor(
+    fn,
+    isComputed,
+    isWatch, isWatchDeep,
+    observeOptions, name
+  ){
+    // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
+    this.id = uid();
+    // 当前方法的依赖存储数组
+    this.deps = new Set();
+    // 需要收集依赖的方法
+    this.fn = fn;
+    // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
+    this.get = CollectingDependents.get.bind( this );
+    // 存储其他参数
+    this.isComputed = isComputed;
+    this.isWatch = isWatch;
+    this.isWatchDeep = isWatchDeep;
+    
     if( isComputed ){
-      const targetStackLength = targetStack.length;
-      let relier;
-
-      // 判断是否被收集依赖
-      // 被无依赖的计算属性收集依赖也算没有被收集依赖
-      dependentsOptions.notBeingCollected =
-        // 调用堆栈为空, 说明完全无依赖
-        !targetStackLength ||
-        // 收集依赖的是无依赖的计算属性
-        ( relier = targetStack[ targetStackLength - 1 ] ).notBeingCollected;
-
-      // 保存依赖者
-      dependentsOptions.relier = targetStackLength && relier;
+      this.observeOptions = observeOptions;
+      this.name = name;
     }
+  }
+  /** 传入方法的依赖收集包装 */
+  static get( result ){
+    // 清空依赖
+    this.cleanDeps();
+    // 已初始化
+    this.isInit = true;
 
     // 开始收集依赖
-    targetStack.push( dependentsOptions );
+    targetStack.push( this );
 
     // 执行方法
     // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
-    const result = fn();
+    result = this.fn();
 
     // 需要进行深度监听
-    if( isWatchDeep ){
-      dependentsOptions.watchDeep( result );
+    if( this.isWatchDeep ){
+      this.watchDeep( result );
     }
 
     // 方法执行完成, 则依赖收集完成
-    targetStack.pop();
+    targetStack.pop( this );
 
     return result;
-  };
-
-  return collectingDependentsGet;
-}
-
-/**
- * 清空收集的依赖
- */
-function cleanDeps(){
-  // 对之前收集的依赖进行清空
-  eachSet( this.deps, watch => watch.delete( this ) );
-  // 清空依赖
-  this.deps.clear();
-}
-
-/**
- * 对依赖的最终返回值进行深度监听
- */
-function watchDeep( result ){
-  if( isObject( result ) && !isArray( result ) ){
-    observeProxyMap.get( result ).deepWatches.add( this );
+  }
+  /** 清空之前收集的依赖 */
+  cleanDeps(){
+    // 对之前收集的依赖进行清空
+    for( let watch of this.deps ) watch.delete( this );
+    // 清空依赖
+    this.deps.clear();
+  }
+  /** 对依赖的最终返回值进行深度监听 */
+  watchDeep( result ){
+    isObject( result ) && observeProxyMap.get( result ).deepWatches.add( this );
   }
 }

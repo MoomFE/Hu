@@ -129,7 +129,7 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
       if( dependentsOptions.notBeingCollected ){
         recursionSetShouldUpdate( dependentsOptions );
       }else{
-        dependentsOptions.fn();
+        dependentsOptions.get();
       }
     });
   }
@@ -137,7 +137,7 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
   // 响应深度监听
   if( deepWatches.size ){
     eachSet( deepWatches, dependentsOptions => {
-      dependentsOptions.fn();
+      dependentsOptions.get();
     });
   }
 

@@ -1,5 +1,5 @@
 import create from "../../../shared/global/Object/create";
-import { observe } from "./observe";
+import { observe, observeMap } from "./observe";
 import { dependentsMap, createCollectingDependents } from "./collectingDependents";
 import each from "../../../shared/util/each";
 import noop from "../../../shared/util/noop";
@@ -47,6 +47,10 @@ export default
  * 返回添加单个计算属性的方法
  */
 function createAppendComputed( computedTarget, computedTargetProxy, computedOptionsMap, isWatch ){
+
+  const isComputed = !isWatch;
+  const observeOptions = isComputed && observeMap.get( computedTarget );
+
   /**
    * @param {string} name 计算属性存储的名称
    * @param {{}} computed 计算属性 getter / setter 对象
@@ -59,11 +63,10 @@ function createAppendComputed( computedTarget, computedTargetProxy, computedOpti
     const get = computed.get.bind( this );
     /** 计算属性的 getter 依赖收集包装 */
     const collectingDependentsGet = createCollectingDependents(
-      () => {
-        return computedTargetProxy[ name ] = get();
-      },
-      !isWatch,
-      isWatchDeep
+      () => computedTargetProxy[ name ] = get(),
+      isComputed,
+      isWatch, isWatchDeep,
+      observeOptions, name
     );
 
     // 添加占位符

@@ -202,7 +202,9 @@
 
   function Hu() {}
 
-  const isArray = Array.isArray;
+  const {
+    isArray
+  } = Array;
 
   var isPlainObject = (
   /**
@@ -211,7 +213,9 @@
    */
   value => Object.prototype.toString.call(value) === '[object Object]');
 
-  const ownKeys = Reflect.ownKeys;
+  const {
+    ownKeys
+  } = Reflect;
 
   var each = (
   /**
@@ -263,7 +267,9 @@
    */
   value => value);
 
-  const create = Object.create;
+  const {
+    create
+  } = Object;
 
   var cached = (
   /**
@@ -325,7 +331,9 @@
 
 
     each(props, (name, prop) => {
-      const attr = prop.attr;
+      const {
+        attr
+      } = prop;
 
       if (attr) {
         const map = propsMap[attr] || (propsMap[attr] = []);
@@ -445,10 +453,12 @@
   }
 
   function initState(userOptions, options) {
-    const methods = userOptions.methods,
-          data = userOptions.data,
-          computed = userOptions.computed,
-          watch = userOptions.watch;
+    const {
+      methods,
+      data,
+      computed,
+      watch
+    } = userOptions;
 
     if (methods) {
       initMethods(methods, options);
@@ -513,7 +523,9 @@
   }
 
   function initOther(userOptions, options) {
-    const render = userOptions.render; // 渲染方法
+    const {
+      render
+    } = userOptions; // 渲染方法
 
     options.render = isFunction(render) ? render : noop;
   }
@@ -533,7 +545,9 @@
     return options;
   }
 
-  const defineProperty = Object.defineProperty;
+  const {
+    defineProperty
+  } = Object;
 
   var define = (
   /**
@@ -585,7 +599,9 @@
     }
   });
 
-  const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  const {
+    getOwnPropertyDescriptor
+  } = Object;
 
   /**
    * 存放原始对象和观察者对象及其选项参数的映射
@@ -689,10 +705,10 @@
 
     target[name] = value; // 获取子级监听数据
 
-    const _observeMap$get = observeMap.get(target),
-          watches = _observeMap$get.watches,
-          deepWatches = _observeMap$get.deepWatches; // 获取当前参数的被监听数据
-
+    const {
+      watches,
+      deepWatches
+    } = observeMap.get(target); // 获取当前参数的被监听数据
 
     let watch = watches.get(name); // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
@@ -707,7 +723,7 @@
         if (dependentsOptions.notBeingCollected) {
           recursionSetShouldUpdate(dependentsOptions);
         } else {
-          dependentsOptions.fn();
+          dependentsOptions.get();
         }
       });
     } // 响应深度监听
@@ -715,7 +731,7 @@
 
     if (deepWatches.size) {
       eachSet(deepWatches, dependentsOptions => {
-        dependentsOptions.fn();
+        dependentsOptions.get();
       });
     }
 
@@ -788,7 +804,9 @@
     return isSymbol(name) || !isReserved(name);
   });
 
-  const has = Reflect.has;
+  const {
+    has
+  } = Reflect;
 
   var injectionToLit = (
   /**
@@ -849,26 +867,6 @@
         injectionToLit(target, name, 0, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
       });
     }
-  }
-
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
-  }
-
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    }
-  }
-
-  function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
   }
 
   /**
@@ -1259,9 +1257,7 @@
 
               this._parts.push(part);
             } else {
-              var _this$_parts;
-
-              (_this$_parts = this._parts).push.apply(_this$_parts, _toConsumableArray(this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options)));
+              this._parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
             }
 
             partIndex++;
@@ -2051,109 +2047,96 @@
 
   const dependentsMap = {};
   /**
-   * 为传入方法收集依赖
-   * @param {function} fn 需要收集依赖的方法
-   * @param {boolean} isComputed ↓
-   *   - 是否是计算属性, 计算属性如果如果未被其它方法依赖, 则无需立即更新
-   *   - 否则是用于创建监听方法
-   * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
+   * 返回一个方法为传入方法收集依赖
    */
 
-  function createCollectingDependents(fn, isComputed, isWatchDeep) {
-    // 当前方法收集依赖的 ID, 用于从 watcherMap ( 存储 / 读取 ) 依赖项
-    const id = uid$1(); // 当前收集依赖的方法的一些参数
-
-    const dependentsOptions = {
-      // 当前方法的依赖存储数组
-      deps: new Set(),
-      // 对之前收集的依赖进行清空
-      cleanDeps,
-      // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
-      fn: collectingDependentsGet,
-      // 是否是计算属性, 否则是监听方法 ( 调试用 )
-      isComputed // 是否初始化
-      // isInit: false
-      // 判断当前计算属性是否被没有被其它方法收集了依赖 ( 当 isComputed 为 true 时可用 )
-      // notBeingCollected: false,
-      // 依赖于当前计算属性的那个计算属性 ( 当 isComputed 为 true 时可用 )
-      // relier: null,
-      // 依赖是否需要更新 ( 当 notBeingCollected 为 true 时可用 )
-      // shouldUpdate: false
-
-    }; // 需要进行深度监听
-
-    if (isWatchDeep) {
-      dependentsOptions.watchDeep = watchDeep;
-    } // 存储当前收集依赖的 ID 到方法
-    // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
-
-
-    collectingDependentsGet.id = id; // 存储当前方法的依赖
+  function createCollectingDependents() {
+    const cd = new CollectingDependents(...arguments);
+    const {
+      get,
+      id
+    } = cd; // 存储当前方法的依赖
     // 可以在下次收集依赖的时候对这次收集的依赖进行清空
 
-    dependentsMap[id] = dependentsOptions;
+    dependentsMap[id] = cd; // 存储当前收集依赖的 ID 到方法
+    // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
+
+    get.id = id;
+    return get;
+  }
+
+  class CollectingDependents {
     /**
-     * 方法的依赖收集包装
+     * @param {function} fn 需要收集依赖的方法
+     * @param {boolean} isComputed 是否是计算属性
+     * @param {boolean} isWatch 是否是用于创建监听方法
+     * @param {boolean} isWatchDeep 是否是用于创建深度监听
      */
+    constructor(fn, isComputed, isWatch, isWatchDeep, observeOptions, name) {
+      // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
+      this.id = uid$1(); // 当前方法的依赖存储数组
 
-    function collectingDependentsGet() {
-      // 清空依赖
-      dependentsOptions.cleanDeps(); // 已初始化
+      this.deps = new Set(); // 需要收集依赖的方法
 
-      dependentsOptions.isInit = true; // 是否被收集依赖
+      this.fn = fn; // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
+
+      this.get = CollectingDependents.get.bind(this); // 存储其他参数
+
+      this.isComputed = isComputed;
+      this.isWatch = isWatch;
+      this.isWatchDeep = isWatchDeep;
 
       if (isComputed) {
-        const targetStackLength = targetStack.length;
-        let relier; // 判断是否被收集依赖
-        // 被无依赖的计算属性收集依赖也算没有被收集依赖
-
-        dependentsOptions.notBeingCollected = // 调用堆栈为空, 说明完全无依赖
-        !targetStackLength || // 收集依赖的是无依赖的计算属性
-        (relier = targetStack[targetStackLength - 1]).notBeingCollected; // 保存依赖者
-
-        dependentsOptions.relier = targetStackLength && relier;
-      } // 开始收集依赖
+        this.observeOptions = observeOptions;
+        this.name = name;
+      }
+    }
+    /** 传入方法的依赖收集包装 */
 
 
-      targetStack.push(dependentsOptions); // 执行方法
+    static get(result) {
+      // 清空依赖
+      this.cleanDeps(); // 已初始化
+
+      this.isInit = true; // 开始收集依赖
+
+      targetStack.push(this); // 执行方法
       // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
 
-      const result = fn(); // 需要进行深度监听
+      result = this.fn(); // 需要进行深度监听
 
-      if (isWatchDeep) {
-        dependentsOptions.watchDeep(result);
+      if (this.isWatchDeep) {
+        this.watchDeep(result);
       } // 方法执行完成, 则依赖收集完成
 
 
-      targetStack.pop();
+      targetStack.pop(this);
       return result;
     }
-    return collectingDependentsGet;
-  }
-  /**
-   * 清空收集的依赖
-   */
-
-  function cleanDeps() {
-    // 对之前收集的依赖进行清空
-    eachSet(this.deps, watch => watch.delete(this)); // 清空依赖
-
-    this.deps.clear();
-  }
-  /**
-   * 对依赖的最终返回值进行深度监听
-   */
+    /** 清空之前收集的依赖 */
 
 
-  function watchDeep(result) {
-    if (isObject(result) && !isArray(result)) {
-      observeProxyMap.get(result).deepWatches.add(this);
+    cleanDeps() {
+      // 对之前收集的依赖进行清空
+      for (let watch of this.deps) watch.delete(this); // 清空依赖
+
+
+      this.deps.clear();
     }
+    /** 对依赖的最终返回值进行深度监听 */
+
+
+    watchDeep(result) {
+      isObject(result) && observeProxyMap.get(result).deepWatches.add(this);
+    }
+
   }
 
   function initRender(root, options, target, targetProxy) {
     const userRender = options.render.bind(targetProxy);
-    const $el = target.$el;
+    const {
+      $el
+    } = target;
     /**
      * 迫使 Hu 实例重新渲染
      */
@@ -2203,11 +2186,14 @@
    */
 
   function createAppendComputed(computedTarget, computedTargetProxy, computedOptionsMap, isWatch) {
+    const isComputed = !isWatch;
+    const observeOptions = isComputed && observeMap.get(computedTarget);
     /**
      * @param {string} name 计算属性存储的名称
      * @param {{}} computed 计算属性 getter / setter 对象
      * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
      */
+
     return (name, computed, isWatchDeep) => {
       /** 计算属性的 setter */
       const set = (computed.set || noop).bind(this);
@@ -2216,9 +2202,7 @@
       const get = computed.get.bind(this);
       /** 计算属性的 getter 依赖收集包装 */
 
-      const collectingDependentsGet = createCollectingDependents(() => {
-        return computedTargetProxy[name] = get();
-      }, !isWatch, isWatchDeep); // 添加占位符
+      const collectingDependentsGet = createCollectingDependents(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
 
       computedTarget[name] = void 0; // 存储计算属性参数
 
@@ -2284,9 +2268,7 @@
   };
 
   function initComputed$1(root, options, target, targetProxy) {
-    const _createComputed = createComputed(options.computed, targetProxy),
-          computedTargetProxyInterceptor = _createComputed[1];
-
+    const [computedTarget, computedTargetProxyInterceptor] = createComputed(options.computed, targetProxy);
     target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
 
     observeProxyMap.set(computedTargetProxyInterceptor, {});
@@ -2331,12 +2313,7 @@
     };
   }
 
-  const _createComputed = createComputed(null, null, true),
-        watchTarget = _createComputed[0],
-        watchTargetProxyInterceptor = _createComputed[1],
-        appendComputed = _createComputed[2],
-        removeComputed = _createComputed[3];
-
+  const [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, null, true);
   function initWatch$1(root, options, target, targetProxy) {
     const watch = target.$watch = (expOrFn, callback, options) => {
       let watchFn; // 另一种写法
@@ -2431,11 +2408,7 @@
    */
 
   function init(root, options) {
-    const _initRootTarget = initRootTarget(),
-          target = _initRootTarget[0],
-          targetProxy = _initRootTarget[1],
-          targetProxyInterceptor = _initRootTarget[2];
-
+    const [target, targetProxy, targetProxyInterceptor] = initRootTarget();
     target.$el = root.attachShadow({
       mode: 'open'
     });
@@ -2451,7 +2424,9 @@
     return targetProxyInterceptor;
   }
 
-  const keys = Object.keys;
+  const {
+    keys
+  } = Object;
 
   /**
    * 定义自定义标签
@@ -2477,15 +2452,17 @@
       attributeChangedCallback(name, oldValue, value) {
         if (value !== oldValue) {
           /** 当前组件 $props 对象 */
-          const $props = this.$hu.$props;
+          const {
+            $props
+          } = this.$hu;
           /** 当前属性被改动后需要修改的对应 prop */
 
           const props = propsMap[name];
 
-          for (const _ref of props) {
-            const name = _ref.name;
-            const from = _ref.from;
-
+          for (const {
+            name,
+            from
+          } of props) {
             /** 格式转换后的 value */
             const fromValue = from(value);
 
@@ -2497,7 +2474,9 @@
       }
 
       connectedCallback() {
-        const $hu = this.$hu;
+        const {
+          $hu
+        } = this;
         options.beforeMount.call($hu);
         $hu.$forceUpdate();
         options.mounted.call($hu);
