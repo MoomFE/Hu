@@ -528,10 +528,9 @@
   /**
    * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
    * @param { string | symbol } name 需要判断的名称
-   * @param { boolean? } isSymbolName name 是否是 symbol 类型
    */
-  (name, isSymbolName) => {
-    return (isSymbolName !== undefined ? isSymbolName : isSymbol(name)) || !isReserved(name);
+  name => {
+    return isSymbol(name) || !isReserved(name);
   });
 
   const defineProperty = Object.defineProperty;
@@ -698,6 +697,10 @@
     let watch = watches.get(name); // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
     if (watch && watch.size) {
+      // Tips:
+      //       会不会有种情况, 在遍历到某一个计算属性的时候,
+      //       那个计算属性的更新导致他不再依赖当前值, 然而他还在当前循环的的组中
+      //       导致重复更新
       eachSet(watch, dependentsOptions => {
         // 那个方法是没有被其它方法依赖的计算属性
         // 通知它在下次获取时更新值
@@ -761,7 +764,9 @@
     }); // 将 $props 上的属性在 $hu 上建立引用
 
     each(props, (name, options) => {
-      canInjection(name, options.isSymbol) && define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
+      if (options.isSymbol || !isReserved(name)) {
+        define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
+      }
     });
   }
 

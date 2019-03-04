@@ -5,6 +5,8 @@ import returnArg from "../../../shared/util/returnArg";
 import canInjection from "../../../shared/util/canInjection";
 import define from "../../../shared/util/define";
 import { observe } from "../../observable/util/observe";
+import isSymbol from "../../../shared/util/isSymbol";
+import isReserved from "../../../shared/util/isReserved";
 
 
 /**
@@ -42,12 +44,13 @@ export default function initProps( root, options, target, targetProxy ){
 
   // 将 $props 上的属性在 $hu 上建立引用
   each( props, ( name, options ) => {
-    canInjection( name, options.isSymbol ) &&
-    define(
-      target, name,
-      () => propsTargetProxy[ name ],
-      value => propsTargetProxy[ name ] = value
-    );
+    if( options.isSymbol || !isReserved( name ) ){
+      define(
+        target, name,
+        () => propsTargetProxy[ name ],
+        value => propsTargetProxy[ name ] = value
+      );
+    }
   });
 
 }
