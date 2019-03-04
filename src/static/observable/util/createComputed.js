@@ -31,9 +31,8 @@ export default
   let removeComputed = isWatch ? createRemoveComputed.call( self, computedOptionsMap )
                                : void 0;
 
-  each( computed, ( name, computed ) => {
-    appendComputed( name, computed );
-  });
+  // 添加计算属性
+  each( computed, appendComputed );
 
   return [
     computedTarget,

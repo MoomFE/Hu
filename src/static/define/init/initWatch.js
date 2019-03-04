@@ -7,20 +7,21 @@ import isPlainObject from "../../../shared/util/isPlainObject";
 import uid from "../../../shared/util/uid";
 
 
-export default function initWatch( root, options, target, targetProxy ){
+const [
+  watchTarget,
+  watchTargetProxyInterceptor,
+  appendComputed,
+  removeComputed
+] = createComputed(
+  null, null, true
+);
 
-  const [
-    watchTarget,
-    watchTargetProxyInterceptor,
-    appendComputed,
-    removeComputed
-  ] = createComputed(
-    null, targetProxy, true
-  );
+export default function initWatch( root, options, target, targetProxy ){
 
   const watch = target.$watch = ( expOrFn, callback, options ) => {
     let watchFn;
 
+    // 另一种写法
     if( isPlainObject( callback ) ){
       return watch( expOrFn, callback.handler, callback );
     }
@@ -32,10 +33,13 @@ export default function initWatch( root, options, target, targetProxy ){
     // 使用计算属性函数
     else if( isFunction( expOrFn ) ){
       watchFn = expOrFn.bind( targetProxy );
-    }else{
+    }
+    // 不支持其他写法
+    else{
       return;
     }
 
+    // 初始化选项参数
     options = options || {};
 
     /** 当前 watch 的存储名称 */
@@ -49,14 +53,11 @@ export default function initWatch( root, options, target, targetProxy ){
 
     // 添加监听
     appendComputed( name, {
-      get(){
+      get: () => {
         const oldValue = watchTarget[ name ];
         const value = watchFn();
 
-        if( runCallback ){
-          watchCallback( value, oldValue );
-        }
-
+        runCallback && watchCallback( value, oldValue );
         return value;
       }
     }, isWatchDeep );
@@ -66,11 +67,13 @@ export default function initWatch( root, options, target, targetProxy ){
     // 下次值改变时运行回调
     runCallback = true;
 
+    // 返回取消监听的方法
     return () => {
       removeComputed( name );
     };
   }
 
+  // 添加监听方法
   each( options.watch, watch );
 
 }

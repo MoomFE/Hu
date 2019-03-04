@@ -2193,10 +2193,9 @@
     const appendComputed = createAppendComputed.call(self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch);
     /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
 
-    let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0;
-    each(computed, (name, computed) => {
-      appendComputed(name, computed);
-    });
+    let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0; // 添加计算属性
+
+    each(computed, appendComputed);
     return [computedTarget, computedTargetProxyInterceptor, appendComputed, removeComputed];
   });
   /**
@@ -2332,15 +2331,15 @@
     };
   }
 
-  function initWatch$1(root, options, target, targetProxy) {
-    const _createComputed = createComputed(null, targetProxy, true),
-          watchTarget = _createComputed[0],
-          watchTargetProxyInterceptor = _createComputed[1],
-          appendComputed = _createComputed[2],
-          removeComputed = _createComputed[3];
+  const _createComputed = createComputed(null, null, true),
+        watchTarget = _createComputed[0],
+        watchTargetProxyInterceptor = _createComputed[1],
+        appendComputed = _createComputed[2],
+        removeComputed = _createComputed[3];
 
+  function initWatch$1(root, options, target, targetProxy) {
     const watch = target.$watch = (expOrFn, callback, options) => {
-      let watchFn;
+      let watchFn; // 另一种写法
 
       if (isPlainObject(callback)) {
         return watch(expOrFn, callback.handler, callback);
@@ -2352,9 +2351,11 @@
       } // 使用计算属性函数
       else if (isFunction(expOrFn)) {
           watchFn = expOrFn.bind(targetProxy);
-        } else {
-          return;
-        }
+        } // 不支持其他写法
+        else {
+            return;
+          } // 初始化选项参数
+
 
       options = options || {};
       /** 当前 watch 的存储名称 */
@@ -2371,26 +2372,23 @@
       let runCallback = !!options.immediate; // 添加监听
 
       appendComputed(name, {
-        get() {
+        get: () => {
           const oldValue = watchTarget[name];
           const value = watchFn();
-
-          if (runCallback) {
-            watchCallback(value, oldValue);
-          }
-
+          runCallback && watchCallback(value, oldValue);
           return value;
         }
-
       }, isWatchDeep); // 首次运行, 以收集依赖
 
       watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
 
-      runCallback = true;
+      runCallback = true; // 返回取消监听的方法
+
       return () => {
         removeComputed(name);
       };
-    };
+    }; // 添加监听方法
+
 
     each(options.watch, watch);
   }
