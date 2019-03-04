@@ -514,25 +514,6 @@
 
   const create = Object.create;
 
-  var isReserved = (
-  /**
-   * 判断字符串首字母是否为 $
-   * @param {String} value
-   */
-  value => {
-    const charCode = (value + '').charCodeAt(0);
-    return charCode === 0x24;
-  });
-
-  var canInjection = (
-  /**
-   * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
-   * @param { string | symbol } name 需要判断的名称
-   */
-  name => {
-    return isSymbol(name) || !isReserved(name);
-  });
-
   const defineProperty = Object.defineProperty;
 
   var define = (
@@ -734,6 +715,16 @@
     }
   }
 
+  var isReserved = (
+  /**
+   * 判断字符串首字母是否为 $
+   * @param {String} value
+   */
+  value => {
+    const charCode = (value + '').charCodeAt(0);
+    return charCode === 0x24;
+  });
+
   /**
    * 初始化当前组件 props 属性
    * @param {HTMLElement} root 
@@ -770,16 +761,13 @@
     });
   }
 
-  var Set_Defined = (
+  var canInjection = (
   /**
-   * 只允许修改已定义过的变量
+   * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
+   * @param { string | symbol } name 需要判断的名称
    */
-  (target, name, value) => {
-    if (name in target) {
-      return target[name] = value, true;
-    }
-
-    return false;
+  name => {
+    return isSymbol(name) || !isReserved(name);
   });
 
   const has = Reflect.has;
@@ -817,10 +805,7 @@
    */
 
   function initMethods$1(root, options, target, targetProxy) {
-    const methodsTarget = create(null);
-    target.$methods = new Proxy(methodsTarget, {
-      set: Set_Defined
-    });
+    const methodsTarget = target.$methods = create(null);
     each(options.methods, (name, value) => {
       const method = methodsTarget[name] = value.bind(targetProxy);
       injectionToLit(target, name, method);

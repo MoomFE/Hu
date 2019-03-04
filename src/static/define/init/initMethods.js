@@ -1,6 +1,5 @@
 import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
-import Set_Defined from "../../../shared/proxy/Set_Defined";
 import injectionToLit from "../util/injectionToLit";
 
 
@@ -13,11 +12,7 @@ import injectionToLit from "../util/injectionToLit";
  */
 export default function initMethods( root, options, target, targetProxy ){
 
-  const methodsTarget = create( null );
-
-  target.$methods = new Proxy( methodsTarget, {
-    set: Set_Defined
-  });
+  const methodsTarget = target.$methods = create( null );
 
   each( options.methods, ( name, value ) => {
     const method = methodsTarget[ name ] = value.bind( targetProxy );
