@@ -517,4 +517,119 @@ describe( 'Hu.define - computed', () => {
     expect( vm.a ).to.equals( 2 );
   });
 
+  it( '多个计算属性依赖同一个变量且被互相依赖时, 不会重复更新', () => {
+    const customName = window.customName;
+    let index = 0;
+    let steps = [];
+
+    Hu.define( customName, {
+      data: () => ({
+        d1: 1
+      }),
+      computed: {
+        c1(){
+          index++;
+          steps.push('c1');
+
+          return this.d1 + this.c2;
+        },
+        c2(){
+          index++;
+          steps.push('c2');
+
+          return this.d1;
+        }
+      },
+      // 保证计算属性处于立即更新状态
+      watch: {
+        c1(){},
+        c2(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    // c1, c2 正常初始化
+    expect( steps ).is.deep.equals([ 'c1', 'c2' ]);
+    expect( hu.c1 ).is.equals( 2 );
+    expect( hu.c2 ).is.equals( 1 );
+    expect( index ).is.equals( 2 );
+
+    steps = [];
+    index = 0;
+
+    // 更新 d1 的值, 此时进入更新依赖的流程:
+    //   首先更新的是 c1
+    //     1. c1 清空以前收集的依赖
+    //     2. d1 被重新收集依赖, c2 被重新收集依赖且更新;
+    hu.d1 = 2;
+    expect( steps ).is.deep.equals([ 'c1', 'c2' ]);
+    expect( hu.c1 ).is.equals( 4 );
+    expect( hu.c2 ).is.equals( 2 );
+    expect( index ).is.equals( 2 );
+  });
+
+  // it( '计算属性的依赖被更新后, 首先触发的更新消除了的当前计算属性的更新时, 不会重复更新', () => {
+  //   const customName = window.customName;
+  //   let index = 0;
+
+  //   Hu.define( customName, {
+  //     data: () => ({
+  //       d1: 1,
+  //       d2: 1
+  //     }),
+  //     computed: {
+  //       c1(){
+  //         console.log(`计算属性 c1 ${ index ? '更新' : '初始化' } ...`);
+
+  //         this.d1;// 标记 d1 依赖
+  //         this.c2;// 标记 c2 依赖
+
+  //         return index;
+  //       },
+  //       c2(){
+  //         console.log(`计算属性 c2 ${ index ? '更新' : '初始化' } ...`);
+
+  //         this.d1;// 标记 d1 依赖
+  //         this.d2;// 标记 d1 依赖
+
+  //         return index;
+  //       }
+  //     },
+  //     watch: {
+  //       // 给 c1 添加依赖, 确保 c1 处在随时更新状态
+  //       c1: {
+  //         immediate: true,
+  //         handler( value, oldValue ){
+  //           console.log( value, oldValue );
+  //         }
+  //       },
+  //       // 给 c2 添加依赖, 确保 c2 处在随时更新状态
+  //       c2: {
+  //         immediate: true,
+  //         handler( value, oldValue ){
+  //           console.log( value, oldValue );
+  //         }
+  //       }
+  //     }
+  //   });
+
+  //   const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+  //   const custom = div.firstElementChild;
+  //   const hu = custom.$hu;
+
+  //   // 标识进入第二轮
+  //   index++;
+  //   // 更新 d1 的值, 此时进入更新依赖的流程:
+  //   //   首先更新的是 c1:
+  //   //     1. c1 清空以前收集的依赖
+  //   //     2. d1 被重新收集依赖, c2 被重新收集依赖( 未更新 ? 此处应该更新 );
+  //   //   然后更新的是 c2:
+  //   //     1. c2 清空以前收集的依赖
+  //   //     2. d1, d2 被重新收集依赖
+  //   hu.d1 = 2;
+  // });
+
 });
