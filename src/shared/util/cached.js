@@ -9,7 +9,7 @@ export default
   const cache = create( null );
 
   return str => {
-    if( str in cache ) return cache[ name ];
+    if( str in cache ) return cache[ str ];
     return cache[ str ] = fn( str );
-  } 
+  }
 }

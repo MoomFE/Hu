@@ -249,8 +249,6 @@
    */
   value => value !== null && typeof value === 'object');
 
-  var rHyphenate = /\B([A-Z])/g;
-
   var isSymbol = (
   /**
    * 判断传入对象是否是 Symbol 类型
@@ -274,10 +272,12 @@
   fn => {
     const cache = create(null);
     return str => {
-      if (str in cache) return cache[name];
+      if (str in cache) return cache[str];
       return cache[str] = fn(str);
     };
   });
+
+  var rHyphenate = /\B([A-Z])/g;
 
   var hyphenate = /**
    * 将驼峰转为以连字符号连接的小写名称
