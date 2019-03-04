@@ -422,4 +422,43 @@ describe( 'Hu.define - watch', () => {
     expect( result ).is.deep.equals([ 6, 2 ]);
   });
 
+  it( '使用 watch 对计算属性进行监听, 确保每次都能被监听到改变', () => {
+    const customName = window.customName;
+    let index = 0;
+    let result;
+
+    Hu.define( customName, {
+      data: () => ({
+        d1: 1
+      }),
+      computed: {
+        c1(){ return this.d1 }
+      },
+      watch: {
+        c1: ( value, oldValue ) => {
+          index++;
+          result = [ value, oldValue ];
+        }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( index ).is.deep.equals( 0 );
+    expect( result ).is.undefined;
+    expect( hu.c1 ).is.deep.equals( 1 );
+
+    hu.d1 = 2;
+    expect( index ).is.deep.equals( 1 );
+    expect( result ).is.deep.equals([ 2, 1 ]);
+    expect( hu.c1 ).is.deep.equals( 2 );
+
+    hu.d1 = 3;
+    expect( index ).is.deep.equals( 2 );
+    expect( result ).is.deep.equals([ 3, 2 ]);
+    expect( hu.c1 ).is.deep.equals( 3 );
+  });
+
 });
