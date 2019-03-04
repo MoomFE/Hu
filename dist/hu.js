@@ -69,14 +69,17 @@
    */
   value => value);
 
+  const create = Object.create;
+
   var cached = (
   /**
    * 创建一个可以缓存方法返回值的方法
    */
   fn => {
-    const cache = {};
+    const cache = create(null);
     return str => {
-      return cache[str] || (cache[str] = fn(str));
+      if (str in cache) return cache[name];
+      return cache[str] = fn(str);
     };
   });
 
@@ -333,8 +336,6 @@
     initOther(userOptions, options);
     return options;
   }
-
-  const create = Object.create;
 
   const defineProperty = Object.defineProperty;
 
@@ -1872,7 +1873,9 @@
       // 对之前收集的依赖进行清空
       cleanDeps,
       // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
-      fn: collectingDependentsGet // 是否初始化
+      fn: collectingDependentsGet,
+      // 是否是计算属性, 否则是监听方法 ( 调试用 )
+      isComputed // 是否初始化
       // isInit: false
       // 判断当前计算属性是否被没有被其它方法收集了依赖 ( 当 isComputed 为 true 时可用 )
       // notBeingCollected: false,
