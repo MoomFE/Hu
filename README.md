@@ -18,6 +18,7 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
   > - [剩余参数 ( Rest Parameters )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Rest_parameters)
   > - [模板字面量 ( Template literals ) or 模板字符串 ( Template Strings )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/template_strings)
   > - [计算属性名 ( Computed property names )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer#计算属性名) / [简短属性名 ( Shorthand property names )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer#属性定义) / [简短方法名 ( Shorthand method names )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer#方法定义)
+  > - [展开语法 ( Spread syntax )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
   > - [解构赋值 ( Destructuring assignment )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
   > - [类 ( Classes )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Classes)
   > - [迭代循环 ( for...of )](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/for...of)
@@ -32,7 +33,7 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 | hu.min.js                | 14.78KB | 5.68KB | \| | UMD | Browser | |
 | hu.polyfill.async.js     | 71.33KB | 19.63KB | \| | UMD | Browser | |
 | hu.polyfill.async.min.js | 17.10KB | 6.45KB | \| | UMD | Browser | |
-| hu.polyfill.js           | 228.86KB | 55.06KB | \| | UMD | Browser | |
+| hu.polyfill.js           | 226.88KB | 54.41KB | \| | UMD | Browser | |
 | hu.polyfill.min.js       | 113.05KB | 35.55KB | \| | UMD | Browser | |
 
 <br>
