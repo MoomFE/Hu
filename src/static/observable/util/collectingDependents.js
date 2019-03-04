@@ -32,6 +32,8 @@ export function createCollectingDependents( fn, isComputed, isWatchDeep ){
     cleanDeps,
     // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
     fn: collectingDependentsGet,
+    // 是否是计算属性, 否则是监听方法 ( 调试用 )
+    isComputed,
     // 是否初始化
     // isInit: false
     // 判断当前计算属性是否被没有被其它方法收集了依赖 ( 当 isComputed 为 true 时可用 )
