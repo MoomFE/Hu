@@ -2,10 +2,8 @@ import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
-import canInjection from "../../../shared/util/canInjection";
 import define from "../../../shared/util/define";
 import { observe } from "../../observable/util/observe";
-import isSymbol from "../../../shared/util/isSymbol";
 import isReserved from "../../../shared/util/isReserved";
 
 
