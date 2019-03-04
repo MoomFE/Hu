@@ -4,7 +4,6 @@ import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import fromBooleanAttribute from "../util/fromBooleanAttribute";
 import isObject from "../../../shared/util/isObject";
-import rHyphenate from "../../../shared/const/rHyphenate";
 import isSymbol from "../../../shared/util/isSymbol";
 import returnArg from "../../../shared/util/returnArg";
 import hyphenate from "../../../shared/util/hyphenate";
@@ -108,7 +107,6 @@ function initPropAttribute( name, prop, options ){
       // 驼峰转为以连字符号连接的小写 attr 名称
       : hyphenate( name )
   );
-
 }
 
 /**
