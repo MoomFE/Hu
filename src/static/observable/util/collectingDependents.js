@@ -76,8 +76,10 @@ class CollectingDependents{
   static get( result ){
     // 清空依赖
     this.cleanDeps();
-    // 已初始化
+    // 标记已初始化
     this.isInit = true;
+    // 标记计算属性已无需更新
+    if( this.isComputed ) this.shouldUpdate = false;
 
     // 开始收集依赖
     targetStack.push( this );

@@ -112,7 +112,6 @@ const computedTargetProxyInterceptorGet = computedOptionsMap => ( target, name )
 
     // 计算属性未初始化或需要更新
     if( !dependentsOptions.isInit || dependentsOptions.shouldUpdate ){
-      dependentsOptions.shouldUpdate = false;
       computedOptions.get();
     }
   }

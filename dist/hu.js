@@ -517,19 +517,28 @@
     let watch = watches.get(name); // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
     if (watch && watch.size) {
-      // Tips:
-      //       会不会有种情况, 在遍历到某一个计算属性的时候,
-      //       那个计算属性的更新导致他不再依赖当前值, 然而他还在当前循环的的组中
-      //       导致重复更新
-      eachSet(watch, dependentsOptions => {
-        // 那个方法是没有被其它方法依赖的计算属性
-        // 通知它在下次获取时更新值
-        if (dependentsOptions.notBeingCollected) {
-          dependentsOptions.shouldUpdate = true;
-        } else {
+      let executes = [];
+
+      for (let dependentsOptions of watch) {
+        // 通知所有依赖于此值的计算属性, 下次被访问时要更新值
+        if (dependentsOptions.isComputed) {
+          dependentsOptions.shouldUpdate = true; // 需要更新有依赖的计算属性
+
+          if (!dependentsOptions.notBeingCollected) {
+            executes.push(dependentsOptions);
+          }
+        } // 其它需要更新的依赖
+        else {
+            executes.push(dependentsOptions);
+          }
+      }
+
+      for (let dependentsOptions of executes) {
+        //          不是计算属性                      需要更新计算属性
+        if (!dependentsOptions.isComputed || dependentsOptions.shouldUpdate) {
           dependentsOptions.get();
         }
-      });
+      }
     } // 响应深度监听
 
 
@@ -1897,9 +1906,11 @@
 
     static get(result) {
       // 清空依赖
-      this.cleanDeps(); // 已初始化
+      this.cleanDeps(); // 标记已初始化
 
-      this.isInit = true; // 开始收集依赖
+      this.isInit = true; // 标记计算属性已无需更新
+
+      if (this.isComputed) this.shouldUpdate = false; // 开始收集依赖
 
       targetStack.push(this); // 执行方法
       // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
@@ -2079,7 +2090,6 @@
       const dependentsOptions = dependentsMap[computedOptions.id]; // 计算属性未初始化或需要更新
 
       if (!dependentsOptions.isInit || dependentsOptions.shouldUpdate) {
-        dependentsOptions.shouldUpdate = false;
         computedOptions.get();
       }
     }

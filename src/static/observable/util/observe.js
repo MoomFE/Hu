@@ -119,19 +119,30 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
 
   // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
   if( watch && watch.size ){
-    // Tips:
-    //       会不会有种情况, 在遍历到某一个计算属性的时候,
-    //       那个计算属性的更新导致他不再依赖当前值, 然而他还在当前循环的的组中
-    //       导致重复更新
-    eachSet( watch, dependentsOptions => {
-      // 那个方法是没有被其它方法依赖的计算属性
-      // 通知它在下次获取时更新值
-      if( dependentsOptions.notBeingCollected ){
+    let executes = [];
+
+    for( let dependentsOptions of watch ){
+      // 通知所有依赖于此值的计算属性, 下次被访问时要更新值
+      if( dependentsOptions.isComputed ){
         dependentsOptions.shouldUpdate = true;
-      }else{
+
+        // 需要更新有依赖的计算属性
+        if( !dependentsOptions.notBeingCollected ){
+          executes.push( dependentsOptions );
+        }
+      }
+      // 其它需要更新的依赖
+      else{
+        executes.push( dependentsOptions );
+      }
+    }
+
+    for( let dependentsOptions of executes ){
+      //          不是计算属性                      需要更新计算属性
+      if( !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
         dependentsOptions.get();
       }
-    });
+    }
   }
 
   // 响应深度监听
