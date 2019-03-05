@@ -525,7 +525,7 @@
         // 那个方法是没有被其它方法依赖的计算属性
         // 通知它在下次获取时更新值
         if (dependentsOptions.notBeingCollected) {
-          recursionSetShouldUpdate(dependentsOptions);
+          dependentsOptions.shouldUpdate = true;
         } else {
           dependentsOptions.get();
         }
@@ -541,18 +541,6 @@
 
     return true;
   };
-  /**
-   * 递归提醒
-   */
-
-
-  function recursionSetShouldUpdate(dependentsOptions) {
-    dependentsOptions.shouldUpdate = true;
-
-    if (dependentsOptions.relier) {
-      recursionSetShouldUpdate(dependentsOptions.relier);
-    }
-  }
 
   var isReserved = /**
    * 判断字符串首字母是否为 $
@@ -1886,13 +1874,24 @@
 
       this.get = CollectingDependents.get.bind(this); // 存储其他参数
 
-      this.isComputed = isComputed;
-      this.isWatch = isWatch;
-      this.isWatchDeep = isWatchDeep;
-
       if (isComputed) {
+        this.isComputed = isComputed;
         this.observeOptions = observeOptions;
-        this.name = name;
+        this.name = name; // 判断当前计算属性是否没有依赖
+
+        define(this, 'notBeingCollected', CollectingDependents.nbc.bind(this)); // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
+
+        let shouldUpdate;
+        define(this, 'shouldUpdate', () => shouldUpdate, value => {
+          (shouldUpdate = value) && CollectingDependents.ec.call(this, cd => {
+            cd.isComputed && cd.notBeingCollected && (cd.shouldUpdate = true);
+          });
+        });
+      }
+
+      if (isWatch) {
+        this.isWatch = isWatch;
+        this.isWatchDeep = isWatchDeep;
       }
     }
     /** 传入方法的依赖收集包装 */
@@ -1932,6 +1931,32 @@
 
     watchDeep(result) {
       isObject(result) && observeProxyMap.get(result).deepWatches.add(this);
+    }
+    /** 遍历依赖于当前计算属性的依赖参数 */
+
+
+    static ec(callback) {
+      let {
+        watches
+      } = this.observeOptions;
+      let watch;
+
+      if (watches && (watch = watches.get(this.name)) && watch.size) {
+        for (let cd of watch) if (callback(cd) === false) break;
+      }
+    }
+    /** 判断当前计算属性是否没有依赖 */
+
+
+    static nbc() {
+      let notBeingCollected = true;
+      CollectingDependents.ec.call(this, cd => {
+        // 依赖是监听方法          依赖是 render 方法                       依赖是计算属性且有依赖
+        if (cd.isWatch || !cd.isComputed && !cd.isWatch || cd.isComputed && !cd.notBeingCollected) {
+          return notBeingCollected = false;
+        }
+      });
+      return notBeingCollected;
     }
 
   }

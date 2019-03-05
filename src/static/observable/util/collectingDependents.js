@@ -2,7 +2,8 @@ import uid from "../../../shared/util/uid";
 import isObject from "../../../shared/util/isObject";
 import { targetStack } from "./index";
 import { observeProxyMap } from "./observe";
-import assign from "../../../shared/global/Object/assign";
+import define from "../../../shared/util/define";
+import eachSet from "../../../shared/util/eachSet";
 
 
 /**
@@ -53,13 +54,23 @@ class CollectingDependents{
     // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
     this.get = CollectingDependents.get.bind( this );
     // 存储其他参数
-    this.isComputed = isComputed;
-    this.isWatch = isWatch;
-    this.isWatchDeep = isWatchDeep;
-    
     if( isComputed ){
+      this.isComputed = isComputed;
       this.observeOptions = observeOptions;
       this.name = name;
+      // 判断当前计算属性是否没有依赖
+      define( this, 'notBeingCollected', CollectingDependents.nbc.bind( this ) );
+      // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
+      let shouldUpdate;
+      define( this, 'shouldUpdate', () => shouldUpdate, value => {
+        ( shouldUpdate = value ) && CollectingDependents.ec.call( this, cd => {
+          cd.isComputed && cd.notBeingCollected && ( cd.shouldUpdate = true );
+        });
+      });
+    }
+    if( isWatch ){
+      this.isWatch = isWatch;
+      this.isWatchDeep = isWatchDeep;
     }
   }
   /** 传入方法的依赖收集包装 */
@@ -96,5 +107,28 @@ class CollectingDependents{
   /** 对依赖的最终返回值进行深度监听 */
   watchDeep( result ){
     isObject( result ) && observeProxyMap.get( result ).deepWatches.add( this );
+  }
+  /** 遍历依赖于当前计算属性的依赖参数 */
+  static ec( callback ){
+    let { watches } = this.observeOptions;
+    let watch;
+
+    if( watches && ( watch = watches.get( this.name ) ) && watch.size ){
+      for( let cd of watch )
+        if( callback( cd ) === false ) break;
+    }
+  }
+  /** 判断当前计算属性是否没有依赖 */
+  static nbc(){
+    let notBeingCollected = true;
+
+    CollectingDependents.ec.call( this, cd => {
+      // 依赖是监听方法          依赖是 render 方法                       依赖是计算属性且有依赖
+      if( cd.isWatch || ( !cd.isComputed && !cd.isWatch ) || ( cd.isComputed && !cd.notBeingCollected ) ){
+        return notBeingCollected = false;
+      }
+    });
+
+    return notBeingCollected;
   }
 }
