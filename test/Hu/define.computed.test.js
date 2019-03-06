@@ -551,7 +551,6 @@ describe( 'Hu.define - computed', () => {
     const custom = div.firstElementChild;
     const hu = custom.$hu;
 
-    // c1, c2 正常初始化
     expect( steps ).is.deep.equals([ 'c1', 'c2' ]);
     expect( hu.c1 ).is.equals( 2 );
     expect( hu.c2 ).is.equals( 1 );
@@ -560,10 +559,6 @@ describe( 'Hu.define - computed', () => {
     steps = [];
     index = 0;
 
-    // 更新 d1 的值, 此时进入更新依赖的流程:
-    //   首先更新的是 c1
-    //     1. c1 清空以前收集的依赖
-    //     2. d1 被重新收集依赖, c2 被重新收集依赖且更新;
     hu.d1 = 2;
     expect( steps ).is.deep.equals([ 'c1', 'c2' ]);
     expect( hu.c1 ).is.equals( 4 );
@@ -571,65 +566,65 @@ describe( 'Hu.define - computed', () => {
     expect( index ).is.equals( 2 );
   });
 
-  // it( '计算属性的依赖被更新后, 首先触发的更新消除了的当前计算属性的更新时, 不会重复更新', () => {
-  //   const customName = window.customName;
-  //   let index = 0;
+  it( '计算属性的依赖被更新后, 首先触发的更新消除了的当前计算属性的更新时, 不会重复更新', () => {
+    const customName = window.customName;
+    let result = [];
+    let index = 0;
 
-  //   Hu.define( customName, {
-  //     data: () => ({
-  //       d1: 1,
-  //       d2: 1
-  //     }),
-  //     computed: {
-  //       c1(){
-  //         console.log(`计算属性 c1 ${ index ? '更新' : '初始化' } ...`);
+    Hu.define( customName, {
+      data: () => ({
+        d1: 1
+      }),
+      computed: {
+        c1(){
+          result.push('c1');
 
-  //         this.d1;// 标记 d1 依赖
-  //         this.c2;// 标记 c2 依赖
+          this.d1;// 标记 d1 依赖
+          this.c2;// 标记 c2 依赖
 
-  //         return index;
-  //       },
-  //       c2(){
-  //         console.log(`计算属性 c2 ${ index ? '更新' : '初始化' } ...`);
+          return index;
+        },
+        c2(){
+          result.push('c2');
 
-  //         this.d1;// 标记 d1 依赖
-  //         this.d2;// 标记 d1 依赖
+          if( !index ){
+            this.d1;// 只在第一轮依赖 d1
+          }
 
-  //         return index;
-  //       }
-  //     },
-  //     watch: {
-  //       // 给 c1 添加依赖, 确保 c1 处在随时更新状态
-  //       c1: {
-  //         immediate: true,
-  //         handler( value, oldValue ){
-  //           console.log( value, oldValue );
-  //         }
-  //       },
-  //       // 给 c2 添加依赖, 确保 c2 处在随时更新状态
-  //       c2: {
-  //         immediate: true,
-  //         handler( value, oldValue ){
-  //           console.log( value, oldValue );
-  //         }
-  //       }
-  //     }
-  //   });
+          return index;
+        }
+      },
+      watch: {
+        // 给 c1 添加依赖, 确保 c1 处在随时更新状态
+        c1: {
+          immediate: true,
+          handler( value, oldValue ){}
+        },
+        // 给 c2 添加依赖, 确保 c2 处在随时更新状态
+        c2: {
+          immediate: true,
+          handler( value, oldValue ){}
+        }
+      }
+    });
 
-  //   const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-  //   const custom = div.firstElementChild;
-  //   const hu = custom.$hu;
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
 
-  //   // 标识进入第二轮
-  //   index++;
-  //   // 更新 d1 的值, 此时进入更新依赖的流程:
-  //   //   首先更新的是 c1:
-  //   //     1. c1 清空以前收集的依赖
-  //   //     2. d1 被重新收集依赖, c2 被重新收集依赖( 未更新 ? 此处应该更新 );
-  //   //   然后更新的是 c2:
-  //   //     1. c2 清空以前收集的依赖
-  //   //     2. d1, d2 被重新收集依赖
-  //   hu.d1 = 2;
-  // });
+    expect( result ).is.deep.equals([ 'c1', 'c2' ]);
+    result = [];
+
+    // 标识进入第二轮
+    index++;
+    // 更新 d1 的值, 此时进入更新依赖的流程:
+    //   1. d1 被修改
+    //   2. 查找到依赖 d1 的计算属性: c1, c2 标记需要更新
+    //   3. c1 开始更新, c1 读取到 c2, c2 开始更新
+    //   4. 因 index 不再是 0, c2 不再依赖 d1
+    //   5. c2 更新完毕, c1 更新完毕
+    hu.d1 = 2;
+    expect( result ).is.deep.equals([ 'c1', 'c2' ]);
+  });
 
 });
