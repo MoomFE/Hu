@@ -147,9 +147,9 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
 
   // 响应深度监听
   if( deepWatches.size ){
-    eachSet( deepWatches, dependentsOptions => {
+    for( let dependentsOptions of deepWatches ){
       dependentsOptions.get();
-    });
+    }
   }
 
   return true;
