@@ -9,26 +9,39 @@ const REPLACE_PRODUCTION = {
 };
 
 
+const watchGroup = [
+  {
+    from: 'src/build/index.js',
+    to: 'dist/hu.js'
+  },
+  {
+    from: 'src/build/polyfill.js',
+    to: 'dist/hu.polyfill.js'
+  },
+  {
+    from: 'src/build/polyfill.async.js',
+    to: 'dist/hu.polyfill.async.js'
+  }
+];
+
+
 module.exports = {
 
   group: {
 
     watch: [
+      ...watchGroup,
       {
-        from: 'src/build/index.js',
-        to: 'dist/hu.js'
-      },
-      {
-        from: 'src/build/polyfill.js',
-        to: 'dist/hu.polyfill.js'
-      },
-      {
-        from: 'src/build/polyfill.async.js',
-        to: 'dist/hu.polyfill.async.js'
+        from: 'src/html/src/index.js',
+        to: 'src/html/index.js',
+        name: undefined,
+        format: 'es',
+        babel: false
       }
     ],
 
     build: [
+      ...watchGroup,
       {
         mode: true,
         from: 'src/build/index.js',
@@ -47,19 +60,46 @@ module.exports = {
         to: 'dist/hu.polyfill.async.min.js',
         replace: REPLACE_PRODUCTION
       }
+    ],
+
+    polyfill: [
+      {
+        from: 'src/build/webcomponentsjs/src/index.js',
+        to: 'src/build/webcomponentsjs/index.js',
+
+        rollup: true,
+        babel: false,
+        mode: false,
+
+        on: {
+          ConfigCreated( rollup ){
+            rollup.inputOptions.context = 'window';
+
+            rollup.inputOptions.plugins.push({
+              name: 'webcomponentsjs-replace',
+              transform( code, id ){
+                return code
+                  // 不支持 IE 浏览器
+                  .replace( /\/Trident\/.test\(navigator.userAgent\)/g, 'false' )
+                  .replace( /navigator.userAgent.match\("Trident"\)/g, 'false' )
+                  // 支持列表中的浏览器都支持 Object.assign
+                  .replace( /Object.assign (\|\|)/g, 'true $1' )
+                  // 支持列表中的浏览器都支持 Promise
+                  .replace( /!window.Promise/g, 'false' )
+                  // 支持列表中的浏览器都支持 HTMLTemplateElement
+                  .replace( /typeof HTMLTemplateElement/g, '"function"' )
+                  // 仅 IE 支持 setImmediate
+                  .replace( /typeof setImmediate/g, '"undefined"' )
+                  // 支持列表中的浏览器都支持 Object.getOwnPropertySymbols
+                  .replace( /(Copyright \(C\) 2015 by WebReflection.+?\*\/\s+\(function \(a, b\) \{\s+if \(!\()b in a(\)\) \{)/s, '$1 true $2' )
+              }
+            });
+          }
+        }
+      }
     ]
 
   },
-
-  pipe: [
-    {
-      from: 'src/html/src/index.js',
-      to: 'src/html/index.js',
-      name: undefined,
-      format: 'es',
-      babel: false
-    }
-  ],
 
   config: {
     name: 'Hu',
@@ -116,7 +156,7 @@ module.exports = {
 
     on: {
       ConfigCreated( rollup, config ){
-        if( config.name === 'Hu' && config.format === 'umd' ){
+        if( config.rollup && config.name === 'Hu' && config.format === 'umd' ){
           rollup.inputOptions.context = 'window';
         }
       },

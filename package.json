@@ -15,8 +15,9 @@
   },
   "homepage": "https://github.com/MoomFE/Hu#readme",
   "scripts": {
-    "build": "node_modules\\.bin\\zen build",
-    "watch": "node_modules\\.bin\\zen watch watch"
+    "build": "node_modules\\.bin\\zen build build",
+    "watch": "node_modules\\.bin\\zen watch watch",
+    "watch:polyfill": "node_modules\\.bin\\zen watch polyfill"
   },
   "devDependencies": {
     "@babel/plugin-transform-destructuring": "^7.3.2",

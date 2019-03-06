@@ -1,4 +1,4 @@
-import './polyfill/WebComponentsRoot';
+import './webcomponentsjs/config';
 import '@webcomponents/webcomponentsjs/webcomponents-loader';
 import Hu from './index';
 
