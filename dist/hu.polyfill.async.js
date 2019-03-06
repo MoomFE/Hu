@@ -202,6 +202,8 @@
 
   function Hu() {}
 
+  Hu.version = '1.0.0-bata.0';
+
   const {
     isArray
   } = Array;

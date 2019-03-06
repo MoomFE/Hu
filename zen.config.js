@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs-extra');
 
 
+const package = require('./package.json');
 const READMEPATH = path.resolve( __dirname, 'README.md' );
 const REPLACE_PRODUCTION = {
   'process.env.NODE_ENV': JSON.stringify('production')
@@ -109,7 +110,8 @@ module.exports = {
     },
 
     replace: {
-      'process.env.NODE_ENV': JSON.stringify('development')
+      'process.env.NODE_ENV': JSON.stringify('development'),
+      '__VERSION__': package.version
     },
 
     on: {
