@@ -138,8 +138,8 @@ const createObserverProxySetter = ( target, name, value, targetProxy ) => {
     }
 
     for( let dependentsOptions of executes ){
-      //          不是计算属性                      需要更新计算属性
-      if( !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
+      //     当前方法依旧是当前值的依赖               不是计算属性                      需要更新计算属性
+      if( watch.has( dependentsOptions ) && !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
         dependentsOptions.get();
       }
     }
