@@ -3,6 +3,9 @@ import initOptions from "./initOptions/index";
 import init from "./init/index";
 import keys from "../../shared/global/Object/keys";
 import initAttributeChangedCallback from "./init/initAttributeChangedCallback";
+import initConnectedCallback from "./init/initConnectedCallback";
+import initDisconnectedCallback from "./init/initDisconnectedCallback";
+import initAdoptedCallback from "./init/initAdoptedCallback";
 
 
 /**
@@ -24,23 +27,16 @@ export default function define( name, options ){
       this.$hu = init( this, options );
     }
 
-    connectedCallback(){
-      const { $hu } = this;
-
-      options.beforeMount.call( $hu );
-      $hu.$forceUpdate();
-      options.mounted.call( $hu );
-    }
-
-    disconnectedCallback(){
-
-    }
-
-    adoptedCallback(){
-
-    }
-
   }
+
+  // 自定义元素被添加到文档流
+  LitElement.prototype.connectedCallback = initConnectedCallback( options );
+
+  // 自定义元素被从文档流移除
+  LitElement.prototype.disconnectedCallback = initDisconnectedCallback( options );
+
+  // 自定义元素位置被移动
+  LitElement.prototype.adoptedCallback = initAdoptedCallback( options );
 
   // 定义需要监听的属性
   LitElement.observedAttributes = keys( options.propsMap );

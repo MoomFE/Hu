@@ -7486,6 +7486,19 @@
 	  }
 	});
 
+	var initConnectedCallback = (options => function () {
+	  const {
+	    $hu
+	  } = this;
+	  options.beforeMount.call($hu);
+	  $hu.$forceUpdate();
+	  options.mounted.call($hu);
+	});
+
+	var initDisconnectedCallback = (options => function () {});
+
+	var initAdoptedCallback = (options => function () {});
+
 	/**
 	 * 定义自定义标签
 	 * @param {string} name 标签名
@@ -7502,20 +7515,13 @@
 	      this.$hu = init(this, options);
 	    }
 
-	    connectedCallback() {
-	      const {
-	        $hu
-	      } = this;
-	      options.beforeMount.call($hu);
-	      $hu.$forceUpdate();
-	      options.mounted.call($hu);
-	    }
+	  }; // 自定义元素被添加到文档流
 
-	    disconnectedCallback() {}
+	  LitElement.prototype.connectedCallback = initConnectedCallback(options); // 自定义元素被从文档流移除
 
-	    adoptedCallback() {}
+	  LitElement.prototype.disconnectedCallback = initDisconnectedCallback(options); // 自定义元素位置被移动
 
-	  }; // 定义需要监听的属性
+	  LitElement.prototype.adoptedCallback = initAdoptedCallback(options); // 定义需要监听的属性
 
 	  LitElement.observedAttributes = keys(options.propsMap); // 监听属性更改
 
