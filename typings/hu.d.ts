@@ -75,7 +75,7 @@ interface Hu{
    * @param name 自定义元素的名称
    * @param options Hu 实例控制自定义元素行为的选项对象
    */
-  define( name: string, options: LitOptions ): void;
+  define( name: string, options: ComponentOptions ): void;
 
   /**
    * 释放 window.Hu 的控制权, 还原到定义 Hu 之前
@@ -96,7 +96,7 @@ interface Hu{
    * @param strings
    * @param values
    */
-  html( strings: TemplateStringsArray, ...values: unknown[] ): TemplateResult;
+  html: html;
 
   /**
    * 将 Hu.html 创建出的模板字面量挂载到指定 DOM 节点
@@ -128,7 +128,7 @@ interface Window {
 type fromAttribute = ( value: string | null ) => any;
 type toAttribute = ( value: any ) => string | null;
 
-interface LitOptions{
+interface ComponentOptions{
 
   /**
    * 声明需要从自定义标签上接收哪些属性
@@ -180,7 +180,7 @@ interface LitOptions{
    * Hu 实例的渲染函数
    * @param html 用于创建模板字面量的对象
    */
-  render?( this: $hu, html: ( strings: TemplateStringsArray, ...values: unknown[] ) => TemplateResult ): TemplateResult;
+  render?( this: $hu, html: html ): TemplateResult;
 
   /**
    * 在实例初始化后立即调用, computed, watch 还未初始化
@@ -251,7 +251,27 @@ interface WatchOptions {
   handler?: ( value, oldValue ) => void
 }
 
-/* ------------------ Hu-HTML ------------------ */
+/* ------------------ Lit-HTML ------------------ */
+
+interface html{
+  /**
+   * 用于创建模板字面量的对象
+   * @param strings
+   * @param values
+   */
+  ( strings: TemplateStringsArray, ...values: unknown[] ): TemplateResult;
+  /**
+   * 渲染数组时基于 key 的变化重新排列元素顺序而不是重新渲染他们
+   * @param items 需要遍历的数组
+   * @param key 数组的 key 或者一个可以返回 key 的函数 ( key 必须是在当前数组中是唯一的 )
+   * @param template 遍历数组的回调方法
+   */
+  repeat<T>(
+    items: T[],
+    key: string | ((T) => string),
+    template: ( item: T, index: number ) => TemplateResult | undefined
+  );
+}
 
 class TemplateResult{
   strings: TemplateStringsArray;
