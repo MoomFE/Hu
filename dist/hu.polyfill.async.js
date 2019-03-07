@@ -2491,15 +2491,19 @@
 
   var initAdoptedCallback = (options => function () {});
 
+  const {
+    assign
+  } = Object;
+
   /**
    * 定义自定义标签
    * @param {string} name 标签名
    * @param {{}} options 组件配置
    */
 
-  function define$1(name, options) {
+  function define$1(name, userOptions) {
     // 初始化组件配置
-    options = initOptions(options || {}); // 创建组件
+    const options = initOptions(userOptions || {}); // 创建组件
 
     const LitElement = class LitElement extends HTMLElement {
       constructor() {
@@ -2507,17 +2511,19 @@
         this.$hu = init(this, options);
       }
 
-    }; // 自定义元素被添加到文档流
+    }; // 定义需要监听的属性
 
-    LitElement.prototype.connectedCallback = initConnectedCallback(options); // 自定义元素被从文档流移除
-
-    LitElement.prototype.disconnectedCallback = initDisconnectedCallback(options); // 自定义元素位置被移动
-
-    LitElement.prototype.adoptedCallback = initAdoptedCallback(options); // 定义需要监听的属性
-
-    LitElement.observedAttributes = keys(options.propsMap); // 监听属性更改
-
-    LitElement.prototype.attributeChangedCallback = initAttributeChangedCallback(options.propsMap); // 注册组件
+    LitElement.observedAttributes = keys(options.propsMap);
+    assign(LitElement.prototype, {
+      // 自定义元素被添加到文档流
+      connectedCallback: initConnectedCallback(options),
+      // 自定义元素被从文档流移除
+      disconnectedCallback: initDisconnectedCallback(options),
+      // 自定义元素位置被移动
+      adoptedCallback: initAdoptedCallback(options),
+      // 自定义元素属性被更改
+      attributeChangedCallback: initAttributeChangedCallback(options.propsMap)
+    }); // 注册组件
 
     customElements.define(name, LitElement);
   }
