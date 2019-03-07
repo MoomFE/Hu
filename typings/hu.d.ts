@@ -107,6 +107,11 @@ interface Hu{
    */
   render( result: TemplateResult, container: Element | DocumentFragment, options?: { templateFactory?: TemplateFactory, eventContext?: EventTarget }): void;
 
+  /**
+   * 字符串形式的 Hu 安装版本号
+   */
+  version: string;
+
 }
 
 declare const Hu: Hu;
