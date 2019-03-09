@@ -1,5 +1,77 @@
 describe( 'Hu.define - lifecycle', () => {
 
+  const options = {
+    props: {
+      a: { default: 1 }
+    },
+    data: () => ({
+      b: 2
+    }),
+    methods: {
+      c: () => 3
+    },
+    computed: {
+      d: () => 4
+    }
+  };
+
+
+  it( 'beforeCreate 声明周期钩子会在实例初始化后立即调用, 但是 computed, watch 还未初始化', () => {
+    const customName = window.customName;
+    let isWatchRun = false;
+
+    Hu.define( customName, Object.assign(
+      {}, options, {
+        beforeCreate(){
+          expect( this ).has.property('a').that.is.equals( 1 );
+          expect( this ).has.property('b').that.is.equals( 2 );
+          expect( this ).has.property('c').that.is.a('function');
+          expect( this.c() ).is.equals( 3 );
+          expect( this ).has.not.property('d');
+          expect( isWatchRun ).is.false;
+        },
+        watch: {
+          a: {
+            immediate: true,
+            handler(){
+              isWatchRun = true;
+            }
+          }
+        }
+      }
+    ));
+
+    document.createElement('div').$html(`<${ customName }></${ customName }>`);
+  });
+
+  it( 'created 声明周期钩子会在实例创建完成后被立即调用, 但是挂载阶段还没开始', () => {
+    const customName = window.customName;
+    let isWatchRun = false;
+
+    Hu.define( customName, Object.assign(
+      {}, options, {
+        created(){
+          expect( this ).has.property('a').that.is.equals( 1 );
+          expect( this ).has.property('b').that.is.equals( 2 );
+          expect( this ).has.property('c').that.is.a('function');
+          expect( this.c() ).is.equals( 3 );
+          expect( this ).has.property('d').that.is.equals( 4 );
+          expect( isWatchRun ).is.true;
+        },
+        watch: {
+          a: {
+            immediate: true,
+            handler(){
+              isWatchRun = true;
+            }
+          }
+        }
+      }
+    ));
+
+    document.createElement('div').$html(`<${ customName }></${ customName }>`);
+  });
+
   it( 'beforeMount 生命周期钩子会在自定义元素挂载开始之前被调用', () => {
     const customName = window.customName;
     let isBeforeMountRun = false;
