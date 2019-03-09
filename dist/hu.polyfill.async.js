@@ -805,7 +805,7 @@
     });
   }
 
-  var canInjection = (
+  var isSymbolOrNotReserved = (
   /**
    * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
    * @param { string | symbol } name 需要判断的名称
@@ -830,7 +830,7 @@
    */
   (litTarget, key, value, set, get) => {
     // 首字母为 $ 则不允许映射到 $hu 实例中去
-    if (!canInjection(key)) return; // 若在 $hu 下有同名变量, 则删除
+    if (!isSymbolOrNotReserved(key)) return; // 若在 $hu 下有同名变量, 则删除
 
     has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
 
@@ -1169,7 +1169,7 @@
     const targetProxy = observe(target, {
       set: {
         before: (target, name) => {
-          return canInjection(name) ? null : 0;
+          return isSymbolOrNotReserved(name) ? null : 0;
         }
       },
       get: {

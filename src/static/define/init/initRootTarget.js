@@ -1,8 +1,7 @@
 import create from "../../../shared/global/Object/create";
-import isSymbol from "../../../shared/util/isSymbol";
 import isReserved from "../../../shared/util/isReserved";
-import { observe, observeProxyMap } from "../../observable/util/observe";
-import canInjection from "../../../shared/util/canInjection";
+import { observe } from "../../observable/util/observe";
+import isSymbolOrNotReserved from "../../../shared/util/isSymbolOrNotReserved";
 import isString from "../../../shared/util/isString";
 
 
@@ -13,7 +12,7 @@ export default function initRootTarget(){
   const targetProxy = observe( target, {
     set: {
       before: ( target, name ) => {
-        return canInjection( name ) ? null : 0;
+        return isSymbolOrNotReserved( name ) ? null : 0;
       }
     },
     get: {

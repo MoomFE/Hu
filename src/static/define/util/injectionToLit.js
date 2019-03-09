@@ -1,4 +1,4 @@
-import canInjection from "../../../shared/util/canInjection";
+import isSymbolOrNotReserved from "../../../shared/util/isSymbolOrNotReserved";
 import has from "../../../shared/global/Reflect/has";
 import define from "../../../shared/util/define";
 
@@ -16,7 +16,7 @@ export default
 ( litTarget, key, value, set, get ) => {
 
   // 首字母为 $ 则不允许映射到 $hu 实例中去
-  if( !canInjection( key ) ) return;
+  if( !isSymbolOrNotReserved( key ) ) return;
 
   // 若在 $hu 下有同名变量, 则删除
   has( litTarget, key ) && delete litTarget[ key ];
