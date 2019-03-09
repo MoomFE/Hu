@@ -82,4 +82,29 @@ describe( 'Hu.html', () => {
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
   });
 
+  it( '不使用 html.unsafeHTML 将会对 HTML 进行转义', () => {
+    const div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`${ '<span></span>' }`,
+      div
+    );
+
+    expect( div.firstElementChild ).is.null;
+    expect( div.innerText ).is.equals('<span></span>');
+  });
+
+  it( '使用 html.unsafeHTML 将不会对 HTML 进行转义', () => {
+    const div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`${ Hu.html.unsafeHTML('<span></span>') }`,
+      div
+    );
+
+    expect( div.firstElementChild ).is.not.null;
+    expect( div.firstElementChild.nodeName ).is.equals('SPAN');
+    expect( div.innerText ).is.equals('');
+  });
+
 });
