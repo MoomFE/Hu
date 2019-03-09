@@ -1677,7 +1677,7 @@ const html$1 = function (strings, ...values) {
 };
 
 html$1.repeat = (items, userKey, template) => {
-  const key = isString(key) ? item => item[userKey] : userKey;
+  const key = isString(userKey) ? item => item[userKey] : userKey;
   return repeat(items, key, template);
 };
 

@@ -11,8 +11,8 @@ export const html = function( strings, ...values ){
 }
 
 html.repeat = ( items, userKey, template ) => {
-  const key = isString( key ) ? item => item[ userKey ]
-                              : userKey;
+  const key = isString( userKey ) ? item => item[ userKey ]
+                                  : userKey;
   return repeat( items, key, template );
 }
 

@@ -2878,7 +2878,7 @@
   };
 
   html$1.repeat = (items, userKey, template) => {
-    const key = isString$1(key) ? item => item[userKey] : userKey;
+    const key = isString$1(userKey) ? item => item[userKey] : userKey;
     return repeat(items, key, template);
   };
 
