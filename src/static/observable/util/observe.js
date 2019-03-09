@@ -18,7 +18,7 @@ export const observeProxyMap = new WeakMap();
 /**
  * 为传入对象创建观察者
  */
-export function observe( target ){
+export function observe( target, options ){
   // 如果创建过观察者
   // 则返回之前创建的观察者
   if( observeMap.has( target ) ) return observeMap.get( target ).proxy;
@@ -26,14 +26,17 @@ export function observe( target ){
   // 则直接返回
   if( observeProxyMap.has( target ) ) return target;
   // 否则立即创建观察者进行返回
-  return createObserver( target );
+  return createObserver( target, options );
 }
 
-function createObserver( target ){
+function createObserver(
+  target,
+  options = {}
+){
   /** 当前对象的观察者对象 */
   const proxy = new Proxy( target, {
-    get: createObserverProxyGetter,
-    set: createObserverProxySetter
+    get: createObserverProxyGetter( options.get ),
+    set: createObserverProxySetter( options.set )
   });
 
   /** 观察者对象选项参数 */
@@ -58,7 +61,16 @@ function createObserver( target ){
 /**
  * 创建依赖收集的响应方法
  */
-const createObserverProxyGetter = ( target, name, targetProxy ) => {
+const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetProxy ) => {
+
+  // @return 0: 从原始对象放行
+  if( before ){
+    const beforeResult = before( target, name, targetProxy );
+
+    if( beforeResult === 0 ){
+      return target[ name ];
+    }
+  }
 
   // 需要获取的值是使用 Object.defineProperty 定义的属性
   if( ( getOwnPropertyDescriptor( target, name ) || {} ).get ){
@@ -98,7 +110,16 @@ const createObserverProxyGetter = ( target, name, targetProxy ) => {
 /**
  * 创建响应更新方法
  */
-const createObserverProxySetter = ( target, name, value, targetProxy ) => {
+const createObserverProxySetter = ({ before } = {}) => ( target, name, value, targetProxy ) => {
+
+  // @return 0: 阻止设置值
+  if( before ){
+    const beforeResult = before( target, name, value, targetProxy );
+
+    if( beforeResult === 0 ){
+      return false;
+    }
+  }
 
   // 需要修改的值是使用 Object.defineProperty 定义的属性
   if( ( getOwnPropertyDescriptor( target, name ) || {} ).set ){

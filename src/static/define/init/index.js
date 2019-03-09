@@ -16,24 +16,23 @@ export default function init( root, options ){
   
   const [
     target,
-    targetProxy,
-    targetProxyInterceptor
+    targetProxy
   ] = initRootTarget();
 
   target.$el = root.attachShadow({ mode: 'open' });
   target.$customElement = root;
 
-  initPrototype( root, options, target, targetProxyInterceptor );
-  initProps( root, options, target, targetProxyInterceptor );
-  initMethods( root, options, target, targetProxyInterceptor );
-  initData( root, options, target, targetProxyInterceptor );
+  initPrototype( root, options, target, targetProxy );
+  initProps( root, options, target, targetProxy );
+  initMethods( root, options, target, targetProxy );
+  initData( root, options, target, targetProxy );
 
-  options.beforeCreate.call( targetProxyInterceptor );
+  options.beforeCreate.call( targetProxy );
 
-  initComputed( root, options, target, targetProxyInterceptor );
-  initWatch( root, options, target, targetProxyInterceptor );
+  initComputed( root, options, target, targetProxy );
+  initWatch( root, options, target, targetProxy );
 
-  options.created.call( targetProxyInterceptor );
+  options.created.call( targetProxy );
 
-  return targetProxyInterceptor;
+  return targetProxy;
 }

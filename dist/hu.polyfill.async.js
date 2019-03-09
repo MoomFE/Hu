@@ -606,7 +606,7 @@
    * 为传入对象创建观察者
    */
 
-  function observe(target) {
+  function observe(target, options) {
     // 如果创建过观察者
     // 则返回之前创建的观察者
     if (observeMap.has(target)) return observeMap.get(target).proxy; // 如果传入的就是观察者对象
@@ -614,14 +614,14 @@
 
     if (observeProxyMap.has(target)) return target; // 否则立即创建观察者进行返回
 
-    return createObserver(target);
+    return createObserver(target, options);
   }
 
-  function createObserver(target) {
+  function createObserver(target, options = {}) {
     /** 当前对象的观察者对象 */
     const proxy = new Proxy(target, {
-      get: createObserverProxyGetter,
-      set: createObserverProxySetter
+      get: createObserverProxyGetter(options.get),
+      set: createObserverProxySetter(options.set)
     });
     /** 观察者对象选项参数 */
 
@@ -645,8 +645,19 @@
    */
 
 
-  const createObserverProxyGetter = (target, name, targetProxy) => {
-    // 需要获取的值是使用 Object.defineProperty 定义的属性
+  const createObserverProxyGetter = ({
+    before
+  } = {}) => (target, name, targetProxy) => {
+    // @return 0: 从原始对象放行
+    if (before) {
+      const beforeResult = before(target, name, targetProxy);
+
+      if (beforeResult === 0) {
+        return target[name];
+      }
+    } // 需要获取的值是使用 Object.defineProperty 定义的属性
+
+
     if ((getOwnPropertyDescriptor(target, name) || {}).get) {
       return target[name];
     } // 获取当前在收集依赖的那个方法的参数
@@ -681,8 +692,19 @@
    */
 
 
-  const createObserverProxySetter = (target, name, value, targetProxy) => {
-    // 需要修改的值是使用 Object.defineProperty 定义的属性
+  const createObserverProxySetter = ({
+    before
+  } = {}) => (target, name, value, targetProxy) => {
+    // @return 0: 阻止设置值
+    if (before) {
+      const beforeResult = before(target, name, value, targetProxy);
+
+      if (beforeResult === 0) {
+        return false;
+      }
+    } // 需要修改的值是使用 Object.defineProperty 定义的属性
+
+
     if ((getOwnPropertyDescriptor(target, name) || {}).set) {
       target[name] = value;
       return true;
@@ -1132,35 +1154,31 @@
     each(options.watch, target.$watch);
   }
 
+  var isString = (
+  /**
+   * 判断传入对象是否是 String 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => typeof value === 'string');
+
   function initRootTarget() {
     /** 当前组件对象 */
     const target = create(null);
     /** 当前组件观察者对象 */
 
-    const targetProxy = observe(target);
-    /** 当前组件观察者对象拦截器 */
-
-    const targetProxyInterceptor = new Proxy(targetProxy, {
-      set(target, name, value) {
-        if (canInjection(name)) {
-          return target[name] = value, true;
+    const targetProxy = observe(target, {
+      set: {
+        before: (target, name) => {
+          return canInjection(name) ? null : 0;
         }
-
-        return false;
       },
-
-      get(_, name) {
-        if (isSymbol(name) || !isReserved(name)) {
-          return targetProxy[name];
+      get: {
+        before: (target, name) => {
+          return isString(name) && isReserved(name) ? 0 : null;
         }
-
-        return target[name];
       }
-
-    }); // 将拦截器伪造成观察者对象
-
-    observeProxyMap.set(targetProxyInterceptor, {});
-    return [target, targetProxy, targetProxyInterceptor];
+    });
+    return [target, targetProxy];
   }
 
   /**
@@ -2848,7 +2866,7 @@
     });
   });
 
-  var isString =
+  var isString$1 =
   /**
    * 判断传入对象是否是 String 类型
    * @param {any} value 需要判断的对象
@@ -2860,18 +2878,11 @@
   };
 
   html$1.repeat = (items, userKey, template) => {
-    const key = isString(key) ? item => item[userKey] : userKey;
+    const key = isString$1(key) ? item => item[userKey] : userKey;
     return repeat(items, key, template);
   };
 
   html$1.unsafeHTML = html$1.unsafe = unsafeHTML;
-
-  var isString$1 = (
-  /**
-   * 判断传入对象是否是 String 类型
-   * @param {any} value 需要判断的对象
-   */
-  value => typeof value === 'string');
 
   /**
    * unicode letters used for parsing html tags, component names and property paths.
@@ -2946,7 +2957,7 @@
       } // 使用键路径表达式
 
 
-      if (isString$1(expOrFn)) {
+      if (isString(expOrFn)) {
         watchFn = parsePath(expOrFn).bind(targetProxy);
       } // 使用计算属性函数
       else if (isFunction(expOrFn)) {
@@ -2997,20 +3008,20 @@
    */
 
   function init(root, options) {
-    const [target, targetProxy, targetProxyInterceptor] = initRootTarget();
+    const [target, targetProxy] = initRootTarget();
     target.$el = root.attachShadow({
       mode: 'open'
     });
     target.$customElement = root;
-    initPrototype(root, options, target, targetProxyInterceptor);
-    initProps$1(root, options, target, targetProxyInterceptor);
-    initMethods$1(root, options, target, targetProxyInterceptor);
-    initData$1(root, options, target, targetProxyInterceptor);
-    options.beforeCreate.call(targetProxyInterceptor);
-    initComputed$1(root, options, target, targetProxyInterceptor);
-    initWatch$1(root, options, target, targetProxyInterceptor);
-    options.created.call(targetProxyInterceptor);
-    return targetProxyInterceptor;
+    initPrototype(root, options, target, targetProxy);
+    initProps$1(root, options, target, targetProxy);
+    initMethods$1(root, options, target, targetProxy);
+    initData$1(root, options, target, targetProxy);
+    options.beforeCreate.call(targetProxy);
+    initComputed$1(root, options, target, targetProxy);
+    initWatch$1(root, options, target, targetProxy);
+    options.created.call(targetProxy);
+    return targetProxy;
   }
 
   const {
