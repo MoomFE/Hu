@@ -271,6 +271,23 @@ interface html{
     key: string | ((T) => string),
     template: ( item: T, index: number ) => TemplateResult | undefined
   );
+
+  /**
+   * 将内容按普通 HTML 不转义直接插入到当前位置
+   *   - 在网站上动态渲染任意 HTML 是非常危险的, 因为容易导致 XSS 攻击
+   *   - 只在可信内容上使用 unsafe, 永不用在用户提交的内容上
+   * @param value 
+   */
+  unsafe( value: string );
+
+  /**
+   * 将内容按普通 HTML 不转义直接插入到当前位置
+   *   - 在网站上动态渲染任意 HTML 是非常危险的, 因为容易导致 XSS 攻击
+   *   - 只在可信内容上使用 unsafeHTML, 永不用在用户提交的内容上
+   * @param value 
+   */
+  unsafeHTML( value: string );
+
 }
 
 class TemplateResult{
