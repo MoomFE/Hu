@@ -60,5 +60,18 @@ describe( 'Hu.define - lifecycle', () => {
     div.$remove();
   });
 
+  it( '在 beforeCreate 生命周期钩子运行时, 实例上的方法应该是已经初始化了的', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      beforeCreate(){
+        expect( this.$forceUpdate ).is.a('function');
+        expect( this.$watch ).is.a('function');
+      }
+    });
+
+    document.createElement('div').$html(`<${ customName }></${ customName }>`)
+  });
+
 });
 
