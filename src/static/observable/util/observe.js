@@ -38,7 +38,9 @@ function createObserver( target ){
 
   /** 观察者对象选项参数 */
   const observeOptions = {
-    // 可以使用 observeMap 来获取观察者对象
+    // 可以使用观察者对象来获取原始对象
+    target,
+    // 可以使用原始对象来获取观察者对象
     proxy,
     // 当前对象的子级的被监听数据
     watches: new Map(),

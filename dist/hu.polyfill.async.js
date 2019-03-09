@@ -626,7 +626,9 @@
     /** 观察者对象选项参数 */
 
     const observeOptions = {
-      // 可以使用 observeMap 来获取观察者对象
+      // 可以使用观察者对象来获取原始对象
+      target,
+      // 可以使用原始对象来获取观察者对象
       proxy,
       // 当前对象的子级的被监听数据
       watches: new Map(),
@@ -3017,22 +3019,20 @@
 
   var initAttributeChangedCallback = (propsMap => function (name, oldValue, value) {
     if (value === oldValue) return;
-    /** 当前组件 $props 对象 */
-
     const {
-      $props
+      $props: propsTargetProxy
     } = this.$hu;
-    /** 当前属性被改动后需要修改的对应 prop */
-
+    const {
+      target: propsTarget
+    } = observeProxyMap.get(propsTargetProxy);
     const props = propsMap[name];
 
     for (const {
       name,
       from
     } of props) {
-      /** 格式转换后的 value */
       const fromValue = from(value);
-      isEqual($props[name], fromValue) || ($props[name] = fromValue);
+      isEqual(propsTarget[name], fromValue) || (propsTargetProxy[name] = fromValue);
     }
   });
 
