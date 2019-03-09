@@ -1,10 +1,10 @@
 import initProps from "./initProps";
 import initMethods from "./initMethods";
 import initData from "./initData";
-import initRender from "./initRender";
 import initComputed from "./initComputed";
 import initWatch from "./initWatch";
 import initRootTarget from "./initRootTarget";
+import initPrototype from "./initPrototype";
 
 
 /**
@@ -23,10 +23,10 @@ export default function init( root, options ){
   target.$el = root.attachShadow({ mode: 'open' });
   target.$customElement = root;
 
+  initPrototype( root, options, target, targetProxyInterceptor );
   initProps( root, options, target, targetProxyInterceptor );
   initMethods( root, options, target, targetProxyInterceptor );
   initData( root, options, target, targetProxyInterceptor );
-  initRender( root, options, target, targetProxyInterceptor );
 
   options.beforeCreate.call( targetProxyInterceptor );
 
