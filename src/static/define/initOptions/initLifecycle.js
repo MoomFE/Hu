@@ -5,9 +5,9 @@ import noop from "../../../shared/util/noop";
 export default function initLifecycle( userOptions, options ){
 
   [
-    /** 在实例初始化后立即调用, computed, watch 还未初始化 */
+    /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
     'beforeCreate',
-    /** 在实例创建完成后被立即调用, 挂载阶段还没开始 */
+    /** 在实例创建完成后被立即调用, 但是挂载阶段还没开始 */
     'created',
     /** 在自定义元素挂载开始之前被调用 */
     'beforeMount',
