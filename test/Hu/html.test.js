@@ -107,4 +107,69 @@ describe( 'Hu.html', () => {
     expect( div.innerText ).is.equals('');
   });
 
+  it( '使用 :class 时可以使用 JSON 的方式进行赋值', () => {
+    const div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`<div :class=${{ a: true }}></div>`,
+      div
+    );
+
+    const child = div.firstElementChild;
+    expect( child.className ).is.equals( 'a' );
+
+    Hu.render(
+      Hu.html`<div :class=${{ a: false }}></div>`,
+      div
+    );
+    expect( child.className ).is.equals( '' );
+
+    Hu.render(
+      Hu.html`<div :class=${{ a: true, b: false, c: true }}></div>`,
+      div
+    );
+    expect( child.className ).is.equals( 'a c' );
+
+    Hu.render(
+      Hu.html`<div :class=${{ 'a b c': true, b: false }}></div>`,
+      div
+    );
+    expect( child.className ).is.equals( 'a c' );
+  });
+
+  it( '使用 :class 时可以使用数组的方式进行赋值', () => {
+    var div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`<div :class=${[ 'a' ]}></div>`,
+      div
+    );
+
+    const child = div.firstElementChild;
+    expect( child.className ).is.equals( 'a' );
+
+    Hu.render(
+      Hu.html`<div :class=${[ 'a', 'b' ]}></div>`,
+      div
+    );
+    expect( child.className ).is.equals( 'a b' );
+    
+    Hu.render(
+      Hu.html`<div :class=${[ 'a', 'b', { b: false }, 'c' ]}></div>`,
+      div
+    );
+    expect( child.className ).is.equals( 'a c' );
+  });
+
+  it( '正常使用 :class 进行赋值', () => {
+    var div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`<div :class="${'a b c'}"></div>`,
+      div
+    );
+
+    expect( div.firstElementChild.className ).is.equals( 'a b c' );
+  });
+
 });

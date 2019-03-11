@@ -1627,6 +1627,99 @@ var isString = (
  */
 value => typeof value === 'string');
 
+var rWhitespace = /\s+/;
+
+const {
+  isArray
+} = Array;
+
+const {
+  ownKeys
+} = Reflect;
+
+var each = (
+/**
+ * 对象遍历方法
+ * @param {{}} obj 需要遍历的对象
+ * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
+ */
+(obj, cb) => {
+  if (obj) {
+    const keys = ownKeys(obj);
+
+    for (let key of keys) {
+      cb(key, obj[key]);
+    }
+  }
+});
+
+const classesMap = new WeakMap();
+class ClassPart {
+  constructor(element) {
+    this.element = element;
+  }
+
+  parse(classes, value) {
+    switch (typeof value) {
+      case 'string':
+        {
+          value.split(rWhitespace).forEach(name => {
+            return classes[name] = true;
+          });
+          break;
+        }
+
+
+      case 'object':
+        {
+          if (isArray(value)) {
+            value.forEach(name => {
+              return this.parse(classes, name);
+            });
+          } else {
+            each(value, (name, truthy) => {
+              return truthy ? this.parse(classes, name) : delete classes[name];
+            });
+          }
+        }
+    }
+  }
+
+  setValue(value) {
+    this.parse(this.value = {}, value);
+  }
+
+  commit() {
+    const {
+      value: classes,
+      element: {
+        classList
+      }
+    } = this; // 非首次运行
+
+    if (classesMap.has(this)) {
+      const oldClasses = classesMap.get(this); // 移除旧 class
+
+      each(oldClasses, name => {
+        name in classes || classList.remove(name);
+      }); // 添加新 class
+
+      each(classes, name => {
+        name in oldClasses || classList.add(name);
+      });
+    } // 首次运行
+    else {
+        each(classes, name => {
+          return classList.add(name);
+        });
+      } // 保存最新的 classes
+
+
+    classesMap.set(this, classes);
+  }
+
+}
+
 class TemplateProcessor {
   handleAttributeExpressions(element, name, strings, options) {
     const prefix = name[0]; // 用于绑定 DOM 属性 ( property )
@@ -1646,6 +1739,10 @@ class TemplateProcessor {
             // 扩展属性支持
             if (prefix === ':') {
               name = name.slice(1);
+
+              if (name in attrHandler) {
+                return [new attrHandler[name](element, name, strings)];
+              }
             } // 正常属性
 
 
@@ -1661,6 +1758,13 @@ class TemplateProcessor {
 }
 
 var templateProcessor = new TemplateProcessor();
+/**
+ * 存放指定属性的特殊处理
+ */
+
+const attrHandler = {
+  'class': ClassPart
+};
 
 const html$1 = function (strings, ...values) {
   return new TemplateResult(strings, values, 'html', templateProcessor);

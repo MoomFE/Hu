@@ -5,6 +5,7 @@ import {
   NodePart,
   PropertyCommitter
 } from 'lit-html/lib/parts';
+import { ClassPart } from './parts';
 
 
 class TemplateProcessor{
@@ -34,6 +35,12 @@ class TemplateProcessor{
       // 扩展属性支持
       if( prefix === ':' ){
         name = name.slice(1);
+
+        if( name in attrHandler ){
+          return [
+            new attrHandler[ name ]( element, name, strings )
+          ];
+        }
       }
 
       // 正常属性
@@ -47,3 +54,11 @@ class TemplateProcessor{
 }
 
 export default new TemplateProcessor();
+
+
+/**
+ * 存放指定属性的特殊处理
+ */
+const attrHandler = {
+  'class': ClassPart
+};
