@@ -1,7 +1,6 @@
-(function (factory) {
-	typeof define === 'function' && define.amd ? define(factory) :
-	factory();
-}(function () { 'use strict';
+typeof window !== "undefined" &&
+(function () {
+	'use strict';
 
 	/**
 	@license @nocompile
@@ -5322,4 +5321,4 @@
 	  })) : ih();
 	}).call(window);
 
-}));
+}());

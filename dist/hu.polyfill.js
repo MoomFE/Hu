@@ -4,9 +4,7 @@
 	(global = global || self, global.Hu = factory());
 }(this, function () { 'use strict';
 
-	(function (factory) {
-	  typeof define === 'function' && define.amd ? define(factory) : factory();
-	})(function () {
+	typeof window !== "undefined" && function () {
 	  /**
 	  @license @nocompile
 	  Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -5208,7 +5206,7 @@
 	      ih();
 	    })) : ih();
 	  }).call(window);
-	});
+	}();
 
 	function Hu() {}
 
@@ -5561,7 +5559,7 @@
 	  defineProperty
 	} = Object;
 
-	var define$1 = (
+	var define = (
 	/**
 	 * 在传入对象上定义可枚举可删除的一个新属性
 	 * 
@@ -5808,7 +5806,7 @@
 
 	  each(props, (name, options) => {
 	    if (options.isSymbol || !isReserved(name)) {
-	      define$1(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
+	      define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
 	    }
 	  });
 	}
@@ -5843,7 +5841,7 @@
 	  has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
 
 	  if (set) {
-	    define$1(litTarget, key, set, get);
+	    define(litTarget, key, set, get);
 	  } // 直接写入到 $hu 上
 	  else {
 	      litTarget[key] = value;
@@ -5943,9 +5941,9 @@
 	      this.observeOptions = observeOptions;
 	      this.name = name; // 判断当前计算属性是否没有依赖
 
-	      define$1(this, 'notBeingCollected', CollectingDependents.nbc.bind(this)); // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
+	      define(this, 'notBeingCollected', CollectingDependents.nbc.bind(this)); // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
 
-	      define$1(this, 'shouldUpdate', () => shouldUpdate, value => {
+	      define(this, 'shouldUpdate', () => shouldUpdate, value => {
 	        if (shouldUpdate = value) this.ssu();
 	      });
 	    }
@@ -8078,7 +8076,7 @@
 	 * @param {{}} options 组件配置
 	 */
 
-	function define$2(name, userOptions) {
+	function define$1(name, userOptions) {
 	  // 初始化组件配置
 	  const options = initOptions(userOptions || {}); // 创建组件
 
@@ -8104,7 +8102,7 @@
 
 	  customElements.define(name, LitElement);
 	}
-	Hu.define = define$2;
+	Hu.define = define$1;
 
 	const otherHu = window.Hu;
 

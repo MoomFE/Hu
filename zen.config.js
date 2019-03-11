@@ -70,10 +70,12 @@ module.exports = {
         rollup: true,
         babel: false,
         mode: false,
+        format: 'iife',
 
         on: {
           ConfigCreated( rollup ){
             rollup.inputOptions.context = 'window';
+            rollup.outputOptions.banner = 'typeof window !== "undefined" &&';
 
             rollup.inputOptions.plugins.push({
               name: 'webcomponentsjs-replace',
