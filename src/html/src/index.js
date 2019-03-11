@@ -1,13 +1,14 @@
-import { TemplateResult, defaultTemplateProcessor } from 'lit-html';
+import { TemplateResult } from 'lit-html';
 import { repeat } from 'lit-html/directives/repeat';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import isString from '../../shared/util/isString';
+import huTemplateProcessor from './HuTemplateProcessor';
 
 
 export { TemplateResult, render } from 'lit-html';
 
 export const html = function( strings, ...values ){
-  return new TemplateResult( strings, values, 'html', defaultTemplateProcessor );
+  return new TemplateResult( strings, values, 'html', huTemplateProcessor );
 }
 
 html.repeat = ( items, userKey, template ) => {

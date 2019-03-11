@@ -7225,53 +7225,6 @@
 	 */
 
 	/**
-	 * Creates Parts when a template is instantiated.
-	 */
-
-
-	class DefaultTemplateProcessor {
-	  /**
-	   * Create parts for an attribute-position binding, given the event, attribute
-	   * name, and string literals.
-	   *
-	   * @param element The element containing the binding
-	   * @param name  The attribute name
-	   * @param strings The string literals. There are always at least two strings,
-	   *   event for fully-controlled bindings with a single expression.
-	   */
-	  handleAttributeExpressions(element, name, strings, options) {
-	    const prefix = name[0];
-
-	    if (prefix === '.') {
-	      const comitter = new PropertyCommitter(element, name.slice(1), strings);
-	      return comitter.parts;
-	    }
-
-	    if (prefix === '@') {
-	      return [new EventPart(element, name.slice(1), options.eventContext)];
-	    }
-
-	    if (prefix === '?') {
-	      return [new BooleanAttributePart(element, name.slice(1), strings)];
-	    }
-
-	    const comitter = new AttributeCommitter(element, name, strings);
-	    return comitter.parts;
-	  }
-	  /**
-	   * Create parts for a text-position binding.
-	   * @param templateFactory
-	   */
-
-
-	  handleTextExpression(options) {
-	    return new NodePart(options);
-	  }
-
-	}
-
-	const defaultTemplateProcessor = new DefaultTemplateProcessor();
-	/**
 	 * @license
 	 * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
 	 * This code may only be used under the BSD style license found at
@@ -7289,6 +7242,7 @@
 	 * The default TemplateFactory which caches Templates keyed on
 	 * result.type and result.strings.
 	 */
+
 
 	function templateFactory(result) {
 	  let templateCache = templateCaches.get(result.type);
@@ -7879,8 +7833,43 @@
 	 */
 	value => typeof value === 'string';
 
+	class HuTemplateProcessor {
+	  handleAttributeExpressions(element, name, strings, options) {
+	    const prefix = name[0]; // 用于绑定 DOM 属性 ( property )
+
+	    if (prefix === '.') {
+	      const comitter = new PropertyCommitter(element, name.slice(1), strings);
+	      return comitter.parts;
+	    } // 事件绑定
+	    else if (prefix === '@') {
+	        return [new EventPart(element, name.slice(1), options.eventContext)];
+	      } // 若属性的值为真则保留 DOM 属性
+	      // 否则移除 DOM 属性
+	      else if (prefix === '?') {
+	          return [new BooleanAttributePart(element, name.slice(1), strings)];
+	        } // 正常属性或扩展属性支持
+	        else {
+	            // 扩展属性支持
+	            if (prefix === ':') {
+	              name = name.slice(1);
+	            } // 正常属性
+
+
+	            const comitter = new AttributeCommitter(element, name, strings);
+	            return comitter.parts;
+	          }
+	  }
+
+	  handleTextExpression(options) {
+	    return new NodePart(options);
+	  }
+
+	}
+
+	const huTemplateProcessor = new HuTemplateProcessor();
+
 	const html$1 = function (strings, ...values) {
-	  return new TemplateResult(strings, values, 'html', defaultTemplateProcessor);
+	  return new TemplateResult(strings, values, 'html', huTemplateProcessor);
 	};
 
 	html$1.repeat = (items, userKey, template) => {
