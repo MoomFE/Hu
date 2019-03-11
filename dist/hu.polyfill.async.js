@@ -2827,7 +2827,7 @@
    */
   value => typeof value === 'string';
 
-  class HuTemplateProcessor {
+  class TemplateProcessor {
     handleAttributeExpressions(element, name, strings, options) {
       const prefix = name[0]; // 用于绑定 DOM 属性 ( property )
 
@@ -2860,10 +2860,10 @@
 
   }
 
-  const huTemplateProcessor = new HuTemplateProcessor();
+  var templateProcessor = new TemplateProcessor();
 
   const html$1 = function (strings, ...values) {
-    return new TemplateResult(strings, values, 'html', huTemplateProcessor);
+    return new TemplateResult(strings, values, 'html', templateProcessor);
   };
 
   html$1.repeat = (items, userKey, template) => {

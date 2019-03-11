@@ -7,7 +7,7 @@ import {
 } from 'lit-html/lib/parts';
 
 
-class HuTemplateProcessor{
+class TemplateProcessor{
   handleAttributeExpressions( element, name, strings, options ){
     const prefix = name[0];
 
@@ -46,6 +46,4 @@ class HuTemplateProcessor{
   }
 }
 
-const huTemplateProcessor = new HuTemplateProcessor();
-
-export default huTemplateProcessor;
+export default new TemplateProcessor();
