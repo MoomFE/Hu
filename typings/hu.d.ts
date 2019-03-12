@@ -48,7 +48,7 @@ interface $hu {
    * @param options 监听选项
    * @returns 返回一个方法, 运行以取消监听
    */
-  readonly $watch( expOrFn: string | (() => any), callback: ( value, oldValue ) => void, options: WatchOptions ): () => void;
+  readonly $watch( expOrFn: string | (() => any), callback: ( this: $hu, value, oldValue ) => void, options: WatchOptions ): () => void;
 
   /**
    * 迫使 Hu 实例重新渲染
@@ -172,8 +172,8 @@ interface ComponentOptions{
    *  - 值是回调函数或者一个包含选项的对象
    */
   watch?: {
-    [ key: string ]: (( value, oldValue ) => void) | WatchOptions;
-    [ key: number ]: (( value, oldValue ) => void) | WatchOptions;
+    [ key: string ]: (( this: $hu, value, oldValue ) => void) | WatchOptions;
+    [ key: number ]: (( this: $hu, value, oldValue ) => void) | WatchOptions;
   };
 
   /**
@@ -248,7 +248,7 @@ interface WatchOptions {
   /**
    * 回调函数得到的参数为新值和旧值
    */
-  handler?: ( value, oldValue ) => void
+  handler?: ( this: $hu, value, oldValue ) => void
 }
 
 /* ------------------ Lit-HTML ------------------ */
