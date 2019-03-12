@@ -30,20 +30,18 @@ class TemplateProcessor{
         new BooleanAttributePart( element, name.slice(1), strings )
       ];
     }
-    // 正常属性或扩展属性支持
-    else{
-      // 扩展属性支持
-      if( prefix === ':' ){
-        name = name.slice(1);
+    // 扩展属性支持
+    else if( prefix === ':' ){
+      const [ currentName, ...options ] = name.slice(1).split('.');
 
-        if( name in attrHandler ){
-          return [
-            new attrHandler[ name ]( element, name, strings )
-          ];
-        }
+      if( currentName in attrHandler ){
+        return [
+          new attrHandler[ currentName ]( element, currentName, strings, options )
+        ];
       }
-
-      // 正常属性
+    }
+    // 正常属性
+    else{
       const comitter = new AttributeCommitter( element, name, strings );
       return comitter.parts;
     }
