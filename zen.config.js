@@ -29,16 +29,7 @@ module.exports = {
 
   group: {
 
-    watch: [
-      ...watchGroup,
-      {
-        from: 'src/html/src/index.js',
-        to: 'src/html/index.js',
-        name: undefined,
-        format: 'es',
-        babel: false
-      }
-    ],
+    watch: watchGroup,
 
     build: [
       ...watchGroup,

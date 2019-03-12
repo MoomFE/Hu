@@ -1,6 +1,6 @@
-import rWhitespace from "../../../shared/const/rWhitespace";
-import isArray from "../../../shared/global/Array/isArray";
-import each from "../../../shared/util/each";
+import rWhitespace from "../../shared/const/rWhitespace";
+import isArray from "../../shared/global/Array/isArray";
+import each from "../../shared/util/each";
 
 
 /**

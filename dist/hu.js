@@ -1024,10 +1024,10 @@
     directives.set(d, true);
     return d;
   };
-
   const isDirective = o => {
     return typeof o === 'function' && directives.has(o);
   };
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1045,8 +1045,6 @@
   /**
    * True if the custom elements polyfill is in use.
    */
-
-
   const isCEPolyfill = window.customElements !== undefined && window.customElements.polyfillWrapFlushCallback !== undefined;
   /**
    * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
@@ -1069,7 +1067,6 @@
    * (exclusive), from `container`.
    */
 
-
   const removeNodes = (container, startNode, endNode = null) => {
     let node = startNode;
 
@@ -1079,6 +1076,7 @@
       node = n;
     }
   };
+
   /**
    * @license
    * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
@@ -1097,14 +1095,13 @@
    * A sentinel value that signals that a value was handled by a directive and
    * should not be written to the DOM.
    */
-
-
   const noChange = {};
   /**
    * A sentinel value that signals a NodePart to fully clear its content.
    */
 
   const nothing = {};
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1123,7 +1120,6 @@
    * An expression marker with embedded unique key to avoid collision with
    * possible text in templates.
    */
-
   const marker = `{{lit-${String(Math.random()).slice(2)}}}`;
   /**
    * An expression marker used text-positions, multi-binding attributes, and
@@ -1298,10 +1294,8 @@
     }
 
   }
-
   const isTemplatePartActive = part => part.index !== -1; // Allows `document.createComment('')` to be renamed for a
   // small manual size-savings.
-
 
   const createMarker = () => document.createComment('');
   /**
@@ -1330,8 +1324,8 @@
    *    * (') then any non-(')
    */
 
-
   const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1345,7 +1339,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-
   /**
    * An instance of a `Template` that can be attached to the DOM and updated
    * with new values.
@@ -1442,6 +1435,7 @@
     }
 
   }
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1455,12 +1449,10 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-
   /**
    * The return type of `html`, which holds a Template and the values from
    * interpolated expressions.
    */
-
 
   class TemplateResult {
     constructor(strings, values, type, processor) {
@@ -1513,6 +1505,7 @@
     }
 
   }
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -1526,8 +1519,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-
-
   const isPrimitive = value => {
     return value === null || !(typeof value === 'object' || typeof value === 'function');
   };
@@ -1535,7 +1526,6 @@
    * Sets attribute values for AttributeParts, so that the value is only set once
    * even if there are multiple parts for an attribute.
    */
-
 
   class AttributeCommitter {
     constructor(element, name, strings) {
@@ -1593,7 +1583,6 @@
     }
 
   }
-
   class AttributePart {
     constructor(comitter) {
       this.value = undefined;
@@ -1627,7 +1616,6 @@
     }
 
   }
-
   class NodePart {
     constructor(options) {
       this.value = undefined;
@@ -1838,7 +1826,6 @@
    * ''. If the value is falsey, the attribute is removed.
    */
 
-
   class BooleanAttributePart {
     constructor(element, name, strings) {
       this.value = undefined;
@@ -1893,7 +1880,6 @@
    * a string first.
    */
 
-
   class PropertyCommitter extends AttributeCommitter {
     constructor(element, name, strings) {
       super(element, name, strings);
@@ -1921,12 +1907,10 @@
     }
 
   }
-
   class PropertyPart extends AttributePart {} // Detect event listener options support. If the `capture` property is read
   // from the options object, then options are supported. If not, then the thrid
   // argument to add/removeEventListener is interpreted as the boolean capture
   // value so we should only pass the `capture` property.
-
 
   let eventOptionsSupported = false;
 
@@ -2000,25 +1984,11 @@
   // the third argument of add/removeEventListener. IE11 doesn't support options
   // at all. Chrome 41 only reads `capture` if the argument is an object.
 
-
   const getOptions = o => o && (eventOptionsSupported ? {
     capture: o.capture,
     passive: o.passive,
     once: o.once
   } : o.capture);
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
 
   /**
    * @license
@@ -2034,11 +2004,23 @@
    * http://polymer.github.io/PATENTS.txt
    */
 
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
   /**
    * The default TemplateFactory which caches Templates keyed on
    * result.type and result.strings.
    */
-
 
   function templateFactory(result) {
     let templateCache = templateCaches.get(result.type);
@@ -2074,8 +2056,8 @@
     templateCache.stringsArray.set(result.strings, template);
     return template;
   }
-
   const templateCaches = new Map();
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -2089,7 +2071,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-
   const parts = new WeakMap();
   /**
    * Renders a template to a container.
@@ -2121,6 +2102,7 @@
     part.setValue(result);
     part.commit();
   };
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -2137,8 +2119,8 @@
   // This line will be used in regexes to search for lit-html usage.
   // TODO(justinfagnani): inject version number at build time
 
-
   (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -2573,6 +2555,7 @@
       keyListCache.set(containerPart, newKeys);
     };
   });
+
   /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
@@ -2622,40 +2605,11 @@
     });
   });
 
-  var isString$1 =
-  /**
-   * 判断传入对象是否是 String 类型
-   * @param {any} value 需要判断的对象
-   */
-  value => typeof value === 'string';
-
   var rWhitespace = /\s+/;
-  const {
-    isArray: isArray$1
-  } = Array;
-  const {
-    ownKeys: ownKeys$1
-  } = Reflect;
 
-  var each$1 =
-  /**
-   * 对象遍历方法
-   * @param {{}} obj 需要遍历的对象
-   * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
-   */
-  (obj, cb) => {
-    if (obj) {
-      const keys = ownKeys$1(obj);
-
-      for (let key of keys) {
-        cb(key, obj[key]);
-      }
-    }
-  };
   /**
    * 存放上次设置的 class 内容
    */
-
 
   const classesMap = new WeakMap();
   /**
@@ -2672,14 +2626,15 @@
           break;
         }
 
+
       case 'object':
         {
-          if (isArray$1(value)) {
+          if (isArray(value)) {
             value.forEach(name => {
               return parseClass(classes, name);
             });
           } else {
-            each$1(value, (name, truthy) => {
+            each(value, (name, truthy) => {
               return truthy ? parseClass(classes, name) : delete classes[name];
             });
           }
@@ -2707,16 +2662,16 @@
       if (classesMap.has(this)) {
         const oldClasses = classesMap.get(this); // 移除旧 class
 
-        each$1(oldClasses, name => {
+        each(oldClasses, name => {
           name in classes || classList.remove(name);
         }); // 添加新 class
 
-        each$1(classes, name => {
+        each(classes, name => {
           name in oldClasses || classList.add(name);
         });
       } // 首次运行
       else {
-          each$1(classes, name => {
+          each(classes, name => {
             return classList.add(name);
           });
         } // 保存最新的 classes
@@ -2727,30 +2682,15 @@
 
   }
 
-  const {
-    create: create$1
-  } = Object;
-
-  var cached$1 =
-  /**
-   * 创建一个可以缓存方法返回值的方法
-   */
-  fn => {
-    const cache = create$1(null);
-    return str => {
-      if (str in cache) return cache[str];
-      return cache[str] = fn(str);
-    };
-  };
-
   var rListDelimiter = /;(?![^(]*\))/g;
+
   var rPropertyDelimiter = /:(.+)/;
-  var parseStyleText =
-  /**
-  * 解析 style 字符串, 转换为 JSON 格式
-  * @param {String} value
-  */
-  cached$1(styleText => {
+
+  var parseStyleText = /**
+   * 解析 style 字符串, 转换为 JSON 格式
+   * @param {String} value
+   */
+  cached(styleText => {
     const styles = {};
     styleText.split(rListDelimiter).forEach(item => {
       if (item) {
@@ -2763,14 +2703,7 @@
     });
     return styles;
   });
-  var rHyphenate$1 = /\B([A-Z])/g;
-  var hyphenate$1 =
-  /**
-  * 将驼峰转为以连字符号连接的小写名称
-  */
-  cached$1(name => {
-    return name.replace(rHyphenate$1, '-$1').toLowerCase();
-  });
+
   /**
    * 存放上次设置的 style 内容
    */
@@ -2787,15 +2720,16 @@
           return parseStyle(styles, parseStyleText(value));
         }
 
+
       case 'object':
         {
-          if (isArray$1(value)) {
+          if (isArray(value)) {
             value.forEach(value => {
               return parseStyle(styles, value);
             });
           } else {
-            each$1(value, (name, value) => {
-              return styles[hyphenate$1(name)] = value;
+            each(value, (name, value) => {
+              return styles[hyphenate(name)] = value;
             });
           }
         }
@@ -2820,11 +2754,11 @@
       } = this;
       const oldStyles = styleMap.get(this); // 移除旧 style
 
-      each$1(oldStyles, (name, value) => {
+      each(oldStyles, (name, value) => {
         name in styles || style.removeProperty(name);
       }); // 添加 style
 
-      each$1(styles, (name, value) => {
+      each(styles, (name, value) => {
         style.setProperty(name, value);
       }); // 保存最新的 styles
 
@@ -2882,7 +2816,7 @@
   };
 
   html$1.repeat = (items, userKey, template) => {
-    const key = isString$1(userKey) ? item => item[userKey] : userKey;
+    const key = isString(userKey) ? item => item[userKey] : userKey;
     return repeat(items, key, template);
   };
 

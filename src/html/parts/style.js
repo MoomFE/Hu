@@ -1,7 +1,7 @@
-import isArray from "../../../shared/global/Array/isArray";
-import each from "../../../shared/util/each";
-import parseStyleText from "../../../shared/util/parseStyleText";
-import hyphenate from "../../../shared/util/hyphenate";
+import isArray from "../../shared/global/Array/isArray";
+import each from "../../shared/util/each";
+import parseStyleText from "../../shared/util/parseStyleText";
+import hyphenate from "../../shared/util/hyphenate";
 
 
 /**
