@@ -1,3 +1,4 @@
+import ClassPart from './parts/class';
 import {
   AttributeCommitter,
   BooleanAttributePart,
@@ -5,7 +6,6 @@ import {
   NodePart,
   PropertyCommitter
 } from 'lit-html/lib/parts';
-import { ClassPart } from './parts';
 
 
 class TemplateProcessor{

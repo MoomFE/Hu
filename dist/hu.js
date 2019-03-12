@@ -2652,41 +2652,48 @@
       }
     }
   };
+  /**
+   * 存放上次设置的 class 内容
+   */
+
 
   const classesMap = new WeakMap();
+  /**
+   * 格式化用户传入的 class 内容
+   */
+
+  function parseClass(classes, value) {
+    switch (typeof value) {
+      case 'string':
+        {
+          value.split(rWhitespace).forEach(name => {
+            return classes[name] = true;
+          });
+          break;
+        }
+
+      case 'object':
+        {
+          if (isArray$1(value)) {
+            value.forEach(name => {
+              return parseClass(classes, name);
+            });
+          } else {
+            each$1(value, (name, truthy) => {
+              return truthy ? parseClass(classes, name) : delete classes[name];
+            });
+          }
+        }
+    }
+  }
 
   class ClassPart {
     constructor(element) {
       this.element = element;
     }
 
-    parse(classes, value) {
-      switch (typeof value) {
-        case 'string':
-          {
-            value.split(rWhitespace).forEach(name => {
-              return classes[name] = true;
-            });
-            break;
-          }
-
-        case 'object':
-          {
-            if (isArray$1(value)) {
-              value.forEach(name => {
-                return this.parse(classes, name);
-              });
-            } else {
-              each$1(value, (name, truthy) => {
-                return truthy ? this.parse(classes, name) : delete classes[name];
-              });
-            }
-          }
-      }
-    }
-
     setValue(value) {
-      this.parse(this.value = {}, value);
+      parseClass(this.value = {}, value);
     }
 
     commit() {
