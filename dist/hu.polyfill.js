@@ -7931,6 +7931,112 @@
 
 	}
 
+	const {
+	  create: create$1
+	} = Object;
+
+	var cached$1 =
+	/**
+	 * 创建一个可以缓存方法返回值的方法
+	 */
+	fn => {
+	  const cache = create$1(null);
+	  return str => {
+	    if (str in cache) return cache[str];
+	    return cache[str] = fn(str);
+	  };
+	};
+
+	var rListDelimiter = /;(?![^(]*\))/g;
+	var rPropertyDelimiter = /:(.+)/;
+	var parseStyleText =
+	/**
+	* 解析 style 字符串, 转换为 JSON 格式
+	* @param {String} value
+	*/
+	cached$1(styleText => {
+	  const styles = {};
+	  styleText.split(rListDelimiter).forEach(item => {
+	    if (item) {
+	      const tmp = item.split(rPropertyDelimiter);
+
+	      if (tmp.length > 1) {
+	        styles[tmp[0].trim()] = tmp[1].trim();
+	      }
+	    }
+	  });
+	  return styles;
+	});
+	var rHyphenate$1 = /\B([A-Z])/g;
+	var hyphenate$1 =
+	/**
+	* 将驼峰转为以连字符号连接的小写名称
+	*/
+	cached$1(name => {
+	  return name.replace(rHyphenate$1, '-$1').toLowerCase();
+	});
+	/**
+	 * 存放上次设置的 style 内容
+	 */
+
+	const styleMap = new WeakMap();
+	/**
+	 * 格式化用户传入的 style 内容
+	 */
+
+	function parseStyle(styles, value) {
+	  switch (typeof value) {
+	    case 'string':
+	      {
+	        return parseStyle(styles, parseStyleText(value));
+	      }
+
+	    case 'object':
+	      {
+	        if (isArray$1(value)) {
+	          value.forEach(value => {
+	            return parseStyle(styles, value);
+	          });
+	        } else {
+	          each$1(value, (name, value) => {
+	            return styles[hyphenate$1(name)] = value;
+	          });
+	        }
+	      }
+	  }
+	}
+
+	class stylePart {
+	  constructor(element) {
+	    this.element = element;
+	  }
+
+	  setValue(value) {
+	    parseStyle(this.value = {}, value);
+	  }
+
+	  commit() {
+	    const {
+	      value: styles,
+	      element: {
+	        style
+	      }
+	    } = this;
+	    const oldStyles = styleMap.get(this); // 移除旧 style
+
+	    each$1(oldStyles, (name, value) => {
+	      name in styles || style.removeProperty(name);
+	    }); // 添加 style
+
+	    each$1(styles, (name, value) => {
+	      style.setProperty(name, value);
+	    }); // 保存最新的 styles
+
+	    styleMap.set(this, styles);
+	  }
+
+	}
+
 	class TemplateProcessor {
 	  handleAttributeExpressions(element, name, strings, options) {
 	    const prefix = name[0]; // 用于绑定 DOM 属性 ( property )
@@ -7971,7 +8077,8 @@
 	 */
 
 	const attrHandler = {
-	  'class': ClassPart
+	  class: ClassPart,
+	  style: stylePart
 	};
 
 	const html$1 = function (strings, ...values) {

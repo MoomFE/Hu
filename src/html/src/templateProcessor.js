@@ -6,6 +6,7 @@ import {
   NodePart,
   PropertyCommitter
 } from 'lit-html/lib/parts';
+import stylePart from './parts/style';
 
 
 class TemplateProcessor{
@@ -58,5 +59,6 @@ export default new TemplateProcessor();
  * 存放指定属性的特殊处理
  */
 const attrHandler = {
-  'class': ClassPart
+  class: ClassPart,
+  style: stylePart
 };
