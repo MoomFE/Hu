@@ -107,6 +107,17 @@ describe( 'Hu.html', () => {
     expect( div.innerText ).is.equals('');
   });
 
+  it( '正常使用 :class 进行赋值', () => {
+    var div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`<div :class="${'a b c'}"></div>`,
+      div
+    );
+
+    expect( div.firstElementChild.className ).is.equals( 'a b c' );
+  });
+
   it( '使用 :class 时可以使用 JSON 的方式进行赋值', () => {
     const div = document.createElement('div');
 
@@ -161,15 +172,41 @@ describe( 'Hu.html', () => {
     expect( child.className ).is.equals( 'a c' );
   });
 
-  it( '正常使用 :class 进行赋值', () => {
+  it( '正常使用 :style 进行赋值', () => {
     var div = document.createElement('div');
 
     Hu.render(
-      Hu.html`<div :class="${'a b c'}"></div>`,
+      Hu.html`<div :style="${'width: 100px; height: 120px'}"></div>`,
       div
     );
 
-    expect( div.firstElementChild.className ).is.equals( 'a b c' );
+    expect( div.firstElementChild.style.width ).is.equals( '100px' );
+    expect( div.firstElementChild.style.height ).is.equals( '120px' );
   });
+
+  it( '使用 :style 时可以使用 JSON 的方式进行赋值', () => {
+    var div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`<div :style="${{ width: '100px', height: '120px' }}"></div>`,
+      div
+    );
+
+    expect( div.firstElementChild.style.width ).is.equals( '100px' );
+    expect( div.firstElementChild.style.height ).is.equals( '120px' );
+  });
+
+  it( '使用 :style 时可以使用数组的方式进行赋值', () => {
+    var div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`<div :style="${[ "width: 100px", { height: '120px' } ]}"></div>`,
+      div
+    );
+
+    expect( div.firstElementChild.style.width ).is.equals( '100px' );
+    expect( div.firstElementChild.style.height ).is.equals( '120px' );
+  });
+
 
 });
