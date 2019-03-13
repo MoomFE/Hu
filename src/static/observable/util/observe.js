@@ -49,7 +49,9 @@ function createObserver(
     // 当前对象的子级的被监听数据
     watches: new Map(),
     // 当前对象的被深度监听数据
-    deepWatches: new Set()
+    deepWatches: new Set(),
+    // 上次的值
+    lastValue: new Map()
   };
 
   // 存储观察者选项参数
@@ -81,9 +83,12 @@ const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetPro
   // 获取当前在收集依赖的那个方法的参数
   const dependentsOptions = targetStack[ targetStack.length - 1 ];
 
+  // 观察者选项参数
+  const observeOptions = observeMap.get( target );
+
   // 当前有正在收集依赖的方法
   if( dependentsOptions ){
-    const watches = observeMap.get( target ).watches;
+    const { watches } = observeOptions;
     let watch = watches.get( name );
 
     // 当前参数没有被监听过, 初始化监听数组
@@ -101,6 +106,9 @@ const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetPro
   }
 
   const value = target[ name ];
+
+  // 存储本次值
+  observeOptions.lastValue.set( name, value );
 
   // 如果获取的值是对象类型
   // 则返回它的观察者对象
@@ -128,8 +136,11 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
     return true;
   }
 
+  // 观察者选项参数
+  const observeOptions = observeMap.get( target );
+
   // 值完全相等, 不进行修改
-  if( isEqual( target[ name ], value ) ){
+  if( isEqual( observeOptions.lastValue.get( name ), value ) ){
     return true;
   }
 
