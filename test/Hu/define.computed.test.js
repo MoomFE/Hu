@@ -627,4 +627,334 @@ describe( 'Hu.define - computed', () => {
     expect( result ).is.deep.equals([ 'c1', 'c2' ]);
   });
 
+  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 一 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        json: {}
+      }),
+      computed: {
+        a(){
+          const json = {};
+          for( const name of Reflect.ownKeys( this.json ) ){
+            json[ name ] = this.json[ name ];
+          }
+          return json;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const bbb = Symbol('bbb');
+
+    expect( hu.a ).is.deep.equals({});
+
+    hu.json.aaa = 1;
+    hu.json[ bbb ] = 2;
+
+    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
+  });
+
+  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        json: {}
+      }),
+      computed: {
+        a(){
+          const json = {};
+          for( const name of Object.keys( this.json ) ){
+            json[ name ] = this.json[ name ];
+          }
+          return json;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const bbb = Symbol('bbb');
+
+    expect( hu.a ).is.deep.equals({});
+
+    hu.json.aaa = 1;
+    hu.json[ bbb ] = 2;
+
+    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
+  });
+
+  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 三 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        json: {}
+      }),
+      computed: {
+        a(){
+          const json = {};
+          for( const name in this.json ){
+            json[ name ] = this.json[ name ];
+          }
+          return json;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const bbb = Symbol('bbb');
+
+    expect( hu.a ).is.deep.equals({});
+
+    hu.json.aaa = 1;
+    hu.json[ bbb ] = 2;
+
+    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
+  });
+
+  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 四 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        json: {}
+      }),
+      computed: {
+        a(){
+          const json = {};
+          for( const name of Object.getOwnPropertyNames( this.json ) ){
+            json[ name ] = this.json[ name ];
+          }
+          return json;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const bbb = Symbol('bbb');
+
+    expect( hu.a ).is.deep.equals({});
+
+    hu.json.aaa = 1;
+    hu.json[ bbb ] = 2;
+
+    expect( hu.a ).is.deep.equals({ aaa: 1 });
+  });
+
+  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 五 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        json: {}
+      }),
+      computed: {
+        a(){
+          const json = {};
+          for( const name of Object.getOwnPropertySymbols( this.json ) ){
+            json[ name ] = this.json[ name ];
+          }
+          return json;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const bbb = Symbol('bbb');
+
+    expect( hu.a ).is.deep.equals({});
+
+    hu.json.aaa = 1;
+    hu.json[ bbb ] = 2;
+
+    expect( hu.a ).is.deep.equals({ [ bbb ]: 2 });
+  });
+
+  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 六 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        json: {}
+      }),
+      computed: {
+        a(){
+          const arr = [];
+          for( const value of Object.values( this.json ) ){
+            arr.push( value );
+          }
+          return arr;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+    
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const bbb = Symbol('bbb');
+
+    expect( hu.a ).is.deep.equals([]);
+
+    hu.json.aaa = 1;
+    hu.json[ bbb ] = 2;
+
+    expect( hu.a ).is.deep.equals([ 1 ]);
+  });
+
+  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 七 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        json: {}
+      }),
+      computed: {
+        a(){
+          const json = {};
+          for( const [ name, value ] of Object.entries( this.json ) ){
+            json[ name ] = value;
+          }
+          return json;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const bbb = Symbol('bbb');
+
+    expect( hu.a ).is.deep.equals({});
+
+    hu.json.aaa = 1;
+    hu.json[ bbb ] = 2;
+
+    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
+  });
+
+  it( '在计算属性中遍历数组时, 若数组内部元素被更改, 计算属性也会被触发 ( 一 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        arr: []
+      }),
+      computed: {
+        a(){
+          const arr = [];
+          for( const item of this.arr ) arr.push( item );
+          return arr;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.a ).is.deep.equals([]);
+
+    hu.arr.push( 1 );
+
+    expect( hu.a ).is.deep.equals([ 1 ]);
+  });
+
+  it( '在计算属性中遍历数组时, 若数组内部元素被更改, 计算属性也会被触发 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        arr: []
+      }),
+      computed: {
+        a(){
+          const arr = [];
+          for( const index in this.arr ) arr.push( this.arr[ index ] );
+          return arr;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.a ).is.deep.equals([]);
+
+    hu.arr.push( 1 );
+
+    expect( hu.a ).is.deep.equals([ 1 ]);
+  });
+
+  it( '在计算属性中遍历数组时, 若数组内部元素被更改, 计算属性也会被触发 ( 三 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        arr: []
+      }),
+      computed: {
+        a(){
+          const arr = [];
+          this.arr.forEach( item => {
+            arr.push( item );
+          });
+          return arr;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.a ).is.deep.equals([]);
+
+    hu.arr.push( 1 );
+
+    expect( hu.a ).is.deep.equals([ 1 ]);
+  });
+
 });
