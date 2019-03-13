@@ -3,6 +3,7 @@ import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
 import getOwnPropertyDescriptor from "../../../shared/global/Object/getOwnPropertyDescriptor";
 import ownKeys from "../../../shared/global/Reflect/ownKeys";
+import create from "../../../shared/global/Object/create";
 
 
 /**
@@ -51,7 +52,7 @@ function createObserver(
     // 当前对象的被深度监听数据
     deepWatches: new Set(),
     // 上次的值
-    lastValue: new Map()
+    lastValue: create( null )
   };
 
   // 存储观察者选项参数
@@ -105,10 +106,8 @@ const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetPro
     dependentsOptions.deps.add( watch );
   }
 
-  const value = target[ name ];
-
   // 存储本次值
-  observeOptions.lastValue.set( name, value );
+  const value = observeOptions.lastValue[ name ] = target[ name ];
 
   // 如果获取的值是对象类型
   // 则返回它的观察者对象
@@ -138,9 +137,12 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
 
   // 观察者选项参数
   const observeOptions = observeMap.get( target );
+  // 旧值
+  const oldValue = name in observeOptions.lastValue ? observeOptions.lastValue[ name ]
+                                                    : target[ name ];
 
   // 值完全相等, 不进行修改
-  if( isEqual( observeOptions.lastValue.get( name ), value ) ){
+  if( isEqual( oldValue, value ) ){
     return true;
   }
 

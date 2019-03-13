@@ -636,7 +636,7 @@
       // 当前对象的被深度监听数据
       deepWatches: new Set(),
       // 上次的值
-      lastValue: new Map()
+      lastValue: create(null)
     }; // 存储观察者选项参数
 
     observeMap.set(target, observeOptions);
@@ -687,11 +687,10 @@
       // 当依赖方法被重新调用, 会移除依赖
 
       dependentsOptions.deps.add(watch);
-    }
+    } // 存储本次值
 
-    const value = target[name]; // 存储本次值
 
-    observeOptions.lastValue.set(name, value); // 如果获取的值是对象类型
+    const value = observeOptions.lastValue[name] = target[name]; // 如果获取的值是对象类型
     // 则返回它的观察者对象
 
     return isObject(value) ? observe(value) : value;
@@ -720,9 +719,11 @@
     } // 观察者选项参数
 
 
-    const observeOptions = observeMap.get(target); // 值完全相等, 不进行修改
+    const observeOptions = observeMap.get(target); // 旧值
 
-    if (isEqual(observeOptions.lastValue.get(name), value)) {
+    const oldValue = name in observeOptions.lastValue ? observeOptions.lastValue[name] : target[name]; // 值完全相等, 不进行修改
+
+    if (isEqual(oldValue, value)) {
       return true;
     } // 改变值
 
