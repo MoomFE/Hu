@@ -394,10 +394,6 @@
     getOwnPropertyDescriptor
   } = Object;
 
-  const {
-    keys
-  } = Object;
-
   /**
    * 存放原始对象和观察者对象及其选项参数的映射
    */
@@ -567,7 +563,14 @@
     return true;
   };
   /**
-   * 响应 Reflect.ownKeys / Object.keys / for ... of 的依赖收集
+   * 响应以下方式的依赖收集:
+   *   - for ... in
+   *   - Object.keys
+   *   - Object.values
+   *   - Object.entries
+   *   - Object.getOwnPropertyNames
+   *   - Object.getOwnPropertySymbols
+   *   - Reflect.ownKeys
    */
 
 
@@ -584,7 +587,7 @@
       deepWatches.add(dependentsOptions);
     }
 
-    return keys(target);
+    return ownKeys(target);
   };
 
   var isReserved = /**
@@ -2986,6 +2989,10 @@
     options.created.call(targetProxy);
     return targetProxy;
   }
+
+  const {
+    keys
+  } = Object;
 
   var initAttributeChangedCallback = (propsMap => function (name, oldValue, value) {
     if (value === oldValue) return;

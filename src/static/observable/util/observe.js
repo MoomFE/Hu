@@ -2,7 +2,7 @@ import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
 import getOwnPropertyDescriptor from "../../../shared/global/Object/getOwnPropertyDescriptor";
-import keys from "../../../shared/global/Object/keys";
+import ownKeys from "../../../shared/global/Reflect/ownKeys";
 
 
 /**
@@ -180,7 +180,14 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
 };
 
 /**
- * 响应 Reflect.ownKeys / Object.keys / for ... of 的依赖收集
+ * 响应以下方式的依赖收集:
+ *   - for ... in
+ *   - Object.keys
+ *   - Object.values
+ *   - Object.entries
+ *   - Object.getOwnPropertyNames
+ *   - Object.getOwnPropertySymbols
+ *   - Reflect.ownKeys
  */
 const observerProxyOwnKeys = ( target ) => {
 
@@ -195,5 +202,5 @@ const observerProxyOwnKeys = ( target ) => {
     deepWatches.add( dependentsOptions );
   }
 
-  return keys( target );
+  return ownKeys( target );
 }
