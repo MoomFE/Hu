@@ -632,7 +632,7 @@
       // 可以使用原始对象来获取观察者对象
       proxy,
       // 当前对象的子级的被监听数据
-      watches: new Map(),
+      watches: create(null),
       // 当前对象的被深度监听数据
       deepWatches: new Set(),
       // 上次的值
@@ -674,11 +674,11 @@
       const {
         watches
       } = observeOptions;
-      let watch = watches.get(name); // 当前参数没有被监听过, 初始化监听数组
+      let watch = watches[name]; // 当前参数没有被监听过, 初始化监听数组
 
       if (!watch) {
         watch = new Set();
-        watches.set(name, watch);
+        watches[name] = watch;
       } // 添加依赖方法信息到 watch
       // 当前值被改变时, 会调用依赖方法
 
@@ -735,7 +735,7 @@
       deepWatches
     } = observeMap.get(target); // 获取当前参数的被监听数据
 
-    let watch = watches.get(name); // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
+    let watch = watches[name]; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
     if (watch && watch.size) {
       let executes = [];
@@ -931,7 +931,7 @@
    * - { id: dependentsOptions, ... }
    */
 
-  const dependentsMap = {};
+  const dependentsMap = create(null);
   /**
    * 返回一个方法为传入方法收集依赖
    */
@@ -1032,7 +1032,7 @@
       } = this.observeOptions;
       let watch;
 
-      if (watches && (watch = watches.get(this.name)) && watch.size) {
+      if (watches && (watch = watches[this.name]) && watch.size) {
         for (let cd of watch) if (callback(cd) === false) break;
       }
     }

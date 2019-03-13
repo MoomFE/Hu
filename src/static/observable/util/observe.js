@@ -48,7 +48,7 @@ function createObserver(
     // 可以使用原始对象来获取观察者对象
     proxy,
     // 当前对象的子级的被监听数据
-    watches: new Map(),
+    watches: create( null ),
     // 当前对象的被深度监听数据
     deepWatches: new Set(),
     // 上次的值
@@ -90,12 +90,12 @@ const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetPro
   // 当前有正在收集依赖的方法
   if( dependentsOptions ){
     const { watches } = observeOptions;
-    let watch = watches.get( name );
+    let watch = watches[ name ];
 
     // 当前参数没有被监听过, 初始化监听数组
     if( !watch ){
       watch = new Set();
-      watches.set( name, watch );
+      watches[ name ] = watch;
     }
 
     // 添加依赖方法信息到 watch
@@ -152,7 +152,7 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
   // 获取子级监听数据
   const { watches, deepWatches } = observeMap.get( target );
   // 获取当前参数的被监听数据
-  let watch = watches.get( name );
+  let watch = watches[ name ];
 
   // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
   if( watch && watch.size ){

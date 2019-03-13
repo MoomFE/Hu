@@ -3,6 +3,7 @@ import isObject from "../../../shared/util/isObject";
 import { targetStack } from "./index";
 import { observeProxyMap } from "./observe";
 import define from "../../../shared/util/define";
+import create from "../../../shared/global/Object/create";
 
 
 /**
@@ -10,7 +11,7 @@ import define from "../../../shared/util/define";
  * - 存放所有已收集到的依赖
  * - { id: dependentsOptions, ... }
  */
-export const dependentsMap = {};
+export const dependentsMap = create( null );
 
 
 /**
@@ -111,7 +112,7 @@ class CollectingDependents{
     let { watches } = this.observeOptions;
     let watch;
 
-    if( watches && ( watch = watches.get( this.name ) ) && watch.size ){
+    if( watches && ( watch = watches[ this.name ] ) && watch.size ){
       for( let cd of watch )
         if( callback( cd ) === false ) break;
     }
