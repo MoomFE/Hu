@@ -1,8 +1,8 @@
 import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
-import eachSet from "../../../shared/util/eachSet";
 import getOwnPropertyDescriptor from "../../../shared/global/Object/getOwnPropertyDescriptor";
+import keys from "../../../shared/global/Object/keys";
 
 
 /**
@@ -36,7 +36,8 @@ function createObserver(
   /** 当前对象的观察者对象 */
   const proxy = new Proxy( target, {
     get: createObserverProxyGetter( options.get ),
-    set: createObserverProxySetter( options.set )
+    set: createObserverProxySetter( options.set ),
+    ownKeys: observerProxyOwnKeys
   });
 
   /** 观察者对象选项参数 */
@@ -177,3 +178,22 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
 
   return true;
 };
+
+/**
+ * 响应 Reflect.ownKeys / Object.keys / for ... of 的依赖收集
+ */
+const observerProxyOwnKeys = ( target ) => {
+
+  // 获取当前在收集依赖的那个方法的参数
+  const dependentsOptions = targetStack[ targetStack.length - 1 ];
+
+  // 当前有正在收集依赖的方法
+  if( dependentsOptions ){
+    // 深度监听数据
+    const { deepWatches } = observeMap.get( target );
+    // 标识深度监听
+    deepWatches.add( dependentsOptions );
+  }
+
+  return keys( target );
+}

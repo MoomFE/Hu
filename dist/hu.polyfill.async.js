@@ -592,6 +592,10 @@
     getOwnPropertyDescriptor
   } = Object;
 
+  const {
+    keys
+  } = Object;
+
   /**
    * 存放原始对象和观察者对象及其选项参数的映射
    */
@@ -621,7 +625,8 @@
     /** 当前对象的观察者对象 */
     const proxy = new Proxy(target, {
       get: createObserverProxyGetter(options.get),
-      set: createObserverProxySetter(options.set)
+      set: createObserverProxySetter(options.set),
+      ownKeys: observerProxyOwnKeys
     });
     /** 观察者对象选项参数 */
 
@@ -758,6 +763,26 @@
     }
 
     return true;
+  };
+  /**
+   * 响应 Reflect.ownKeys / Object.keys / for ... of 的依赖收集
+   */
+
+
+  const observerProxyOwnKeys = target => {
+    // 获取当前在收集依赖的那个方法的参数
+    const dependentsOptions = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
+
+    if (dependentsOptions) {
+      // 深度监听数据
+      const {
+        deepWatches
+      } = observeMap.get(target); // 标识深度监听
+
+      deepWatches.add(dependentsOptions);
+    }
+
+    return keys(target);
   };
 
   var isReserved = /**
@@ -3159,10 +3184,6 @@
     options.created.call(targetProxy);
     return targetProxy;
   }
-
-  const {
-    keys
-  } = Object;
 
   var initAttributeChangedCallback = (propsMap => function (name, oldValue, value) {
     if (value === oldValue) return;
