@@ -6,6 +6,7 @@ import initWatch from "./initWatch";
 import initRootTarget from "./initRootTarget";
 import initPrototype from "./initPrototype";
 import initOptions from "./initOptions";
+import initInfo from "./initInfo";
 
 
 /**
@@ -13,8 +14,8 @@ import initOptions from "./initOptions";
  * @param {HTMLElement} root 自定义元素组件节点
  * @param {{}} options 组件配置
  */
-export default function init( root, options, userOptions ){
-  
+export default function init( root, options, name, userOptions ){
+
   const [
     target,
     targetProxy
@@ -23,8 +24,9 @@ export default function init( root, options, userOptions ){
   target.$el = root.attachShadow({ mode: 'open' });
   target.$customElement = root;
 
-  initPrototype( root, options, target, targetProxy );
   initOptions( root, options, target, targetProxy, userOptions );
+  initInfo( root, options, target, targetProxy, name );
+  initPrototype( root, options, target, targetProxy );
 
   initProps( root, options, target, targetProxy );
   initMethods( root, options, target, targetProxy );

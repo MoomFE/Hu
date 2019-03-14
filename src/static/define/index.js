@@ -31,7 +31,7 @@ export default function define( name, userOptions ){
     constructor(){
       super();
 
-      this.$hu = init( this, options, userOptions );
+      this.$hu = init( this, options, name, userOptions );
     }
 
   }

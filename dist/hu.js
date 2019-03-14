@@ -3003,12 +3003,26 @@
     };
   }
 
+  /**
+   * 使观察者对象只读 ( 不可删, 不可写 )
+   */
+  var observeReadonly = {
+    set: {
+      before: () => 0
+    },
+    deleteProperty: {
+      before: () => 0
+    }
+  };
+
   function initOptions$1(root, options, target, targetProxy, userOptions) {
-    target.$options = observe(userOptions, {
-      set: {
-        before: () => 0
-      }
-    });
+    target.$options = observe(userOptions, observeReadonly);
+  }
+
+  function initInfo(root, options, target, targetProxy, name) {
+    target.$info = observe({
+      name
+    }, observeReadonly);
   }
 
   /**
@@ -3017,14 +3031,15 @@
    * @param {{}} options 组件配置
    */
 
-  function init(root, options, userOptions) {
+  function init(root, options, name, userOptions) {
     const [target, targetProxy] = initRootTarget();
     target.$el = root.attachShadow({
       mode: 'open'
     });
     target.$customElement = root;
-    initPrototype(root, options, target, targetProxy);
     initOptions$1(root, options, target, targetProxy, userOptions);
+    initInfo(root, options, target, targetProxy, name);
+    initPrototype(root, options, target, targetProxy);
     initProps$1(root, options, target, targetProxy);
     initMethods$1(root, options, target, targetProxy);
     initData$1(root, options, target, targetProxy);
@@ -3090,7 +3105,7 @@
     const LitElement = class LitElement extends HTMLElement {
       constructor() {
         super();
-        this.$hu = init(this, options, userOptions);
+        this.$hu = init(this, options, name, userOptions);
       }
 
     }; // 定义需要监听的属性
