@@ -45,6 +45,12 @@ interface $hu {
    * - 需要在初始化选项中包含自定义属性时会有用处
    */
   readonly $options: Record< KEYTYPE, any >;
+  /**
+   * Hu 实例信息选项
+   * - 只读
+   * - 包含了当前实例的各种信息及状态
+   */
+  readonly $info: Record< KEYTYPE, any >;
 
   /**
    * 观察 Hu 实例变化的一个键路径表达式或计算属性函数
