@@ -38,6 +38,13 @@ interface $hu {
    * - 包含了声明自定义元素时的 computed 属性上定义的所有的计算属性
    */
   readonly $computed: Record< KEYTYPE, any >;
+  /**
+   * Hu 实例初始化选项
+   * - 只读
+   * - 包含了 Hu 的初始化选项
+   * - 需要在初始化选项中包含自定义属性时会有用处
+   */
+  readonly $options: Record< KEYTYPE, any >;
 
   /**
    * 观察 Hu 实例变化的一个键路径表达式或计算属性函数
