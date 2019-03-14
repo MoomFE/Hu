@@ -394,6 +394,10 @@
     getOwnPropertyDescriptor
   } = Object;
 
+  const {
+    deleteProperty
+  } = Reflect;
+
   /**
    * 存放原始对象和观察者对象及其选项参数的映射
    */
@@ -424,7 +428,8 @@
     const proxy = new Proxy(target, {
       get: createObserverProxyGetter(options.get),
       set: createObserverProxySetter(options.set),
-      ownKeys: observerProxyOwnKeys
+      ownKeys: observerProxyOwnKeys,
+      deleteProperty: createObserverProxyDeleteProperty(options.deleteProperty)
     });
     /** 观察者对象选项参数 */
 
@@ -599,6 +604,21 @@
     }
 
     return ownKeys(target);
+  };
+
+  const createObserverProxyDeleteProperty = ({
+    before
+  } = {}) => (target, name) => {
+    // @return 0: 禁止删除
+    if (before) {
+      const beforeResult = before(target, name);
+
+      if (beforeResult === 0) {
+        return false;
+      }
+    }
+
+    return deleteProperty(target, name);
   };
 
   var isReserved = /**
@@ -1014,6 +1034,11 @@
         }
       },
       get: {
+        before: (target, name) => {
+          return isString(name) && isReserved(name) ? 0 : null;
+        }
+      },
+      deleteProperty: {
         before: (target, name) => {
           return isString(name) && isReserved(name) ? 0 : null;
         }

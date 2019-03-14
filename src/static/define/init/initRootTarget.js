@@ -19,6 +19,11 @@ export default function initRootTarget(){
       before: ( target, name ) => {
         return isString( name ) && isReserved( name ) ? 0 : null;
       }
+    },
+    deleteProperty: {
+      before: ( target, name ) => {
+        return isString( name ) && isReserved( name ) ? 0 : null;
+      }
     }
   });
 

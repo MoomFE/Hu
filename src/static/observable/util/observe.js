@@ -4,6 +4,7 @@ import isEqual from "../../../shared/util/isEqual";
 import getOwnPropertyDescriptor from "../../../shared/global/Object/getOwnPropertyDescriptor";
 import ownKeys from "../../../shared/global/Reflect/ownKeys";
 import create from "../../../shared/global/Object/create";
+import deleteProperty from "../../../shared/global/Reflect/deleteProperty";
 
 
 /**
@@ -38,7 +39,8 @@ function createObserver(
   const proxy = new Proxy( target, {
     get: createObserverProxyGetter( options.get ),
     set: createObserverProxySetter( options.set ),
-    ownKeys: observerProxyOwnKeys
+    ownKeys: observerProxyOwnKeys,
+    deleteProperty: createObserverProxyDeleteProperty( options.deleteProperty )
   });
 
   /** 观察者对象选项参数 */
@@ -216,4 +218,18 @@ const observerProxyOwnKeys = ( target ) => {
   }
 
   return ownKeys( target );
+}
+
+const createObserverProxyDeleteProperty = ({ before } = {}) => ( target, name ) =>{
+
+  // @return 0: 禁止删除
+  if( before ){
+    const beforeResult = before( target, name );
+
+    if( beforeResult === 0 ){
+      return false;
+    }
+  }
+
+  return deleteProperty( target, name );
 }
