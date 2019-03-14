@@ -1,6 +1,6 @@
 describe( 'Hu', () => {
 
-  it( '实例创建后在实例上会有 $options 选项, 包含了实例初始化选项', () => {
+  it( '实例创建后在实例上会有 $options 选项, 包含了实例初始化选项, 且不可更改', () => {
     const customName = window.customName;
     const data = () => ({
       asd: 123456
@@ -16,6 +16,9 @@ describe( 'Hu', () => {
     const hu = custom.$hu;
 
     expect( hu.$data ).is.deep.equals({ asd: 123456 });
+    expect( hu.$options ).is.deep.equals({ asd: 123, data });
+
+    hu.$options.asd = 456;
     expect( hu.$options ).is.deep.equals({ asd: 123, data });
   });
 
