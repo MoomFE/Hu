@@ -140,4 +140,27 @@ describe( 'Hu.define - render', () => {
     div.$remove();
   });
 
+  it( '同一个自定义元素只有首次被添加到 DOM 节点中时会主动触发 render', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      render: () => index++
+    });
+
+    expect( index ).is.equals( 0 );
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+
+    expect( index ).is.equals( 1 );
+
+    div.removeChild( custom );
+    div.appendChild( custom );
+
+    expect( index ).is.equals( 1 );
+
+    div.$remove();
+  });
+
 });
