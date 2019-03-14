@@ -50,7 +50,16 @@ interface $hu {
    * - 只读
    * - 包含了当前实例的各种信息及状态
    */
-  readonly $info: Record< KEYTYPE, any >;
+  readonly $info: {
+    /**
+     * 当前自定义元素的名称
+     */
+    name: String,
+    /**
+     * 标识当前自定义元素的首次挂载是否已完成
+     */
+    isMounted: Boolean
+  };
 
   /**
    * 观察 Hu 实例变化的一个键路径表达式或计算属性函数
