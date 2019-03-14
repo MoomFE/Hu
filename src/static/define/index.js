@@ -16,8 +16,14 @@ import assign from "../../shared/global/Object/assign";
  */
 export default function define( name, userOptions ){
 
+  // 克隆一份用户配置
+  userOptions = assign(
+    {},
+    userOptions
+  );
+
   // 初始化组件配置
-  const options = initOptions( userOptions || {} );
+  const options = initOptions( userOptions );
 
   // 创建组件
   const LitElement = class LitElement extends HTMLElement{
@@ -25,7 +31,7 @@ export default function define( name, userOptions ){
     constructor(){
       super();
 
-      this.$hu = init( this, options );
+      this.$hu = init( this, options, userOptions );
     }
 
   }

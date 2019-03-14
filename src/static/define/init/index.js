@@ -5,6 +5,7 @@ import initComputed from "./initComputed";
 import initWatch from "./initWatch";
 import initRootTarget from "./initRootTarget";
 import initPrototype from "./initPrototype";
+import initOptions from "./initOptions";
 
 
 /**
@@ -12,7 +13,7 @@ import initPrototype from "./initPrototype";
  * @param {HTMLElement} root 自定义元素组件节点
  * @param {{}} options 组件配置
  */
-export default function init( root, options ){
+export default function init( root, options, userOptions ){
   
   const [
     target,
@@ -23,6 +24,8 @@ export default function init( root, options ){
   target.$customElement = root;
 
   initPrototype( root, options, target, targetProxy );
+  initOptions( root, options, target, targetProxy, userOptions );
+
   initProps( root, options, target, targetProxy );
   initMethods( root, options, target, targetProxy );
   initData( root, options, target, targetProxy );
