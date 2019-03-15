@@ -5212,10 +5212,6 @@ typeof window !== "undefined" && function () {
   }).call(window);
 }();
 
-function Hu() {}
-
-Hu.version = '1.0.0-bata.0';
-
 const {
   isArray
 } = Array;
@@ -8311,9 +8307,9 @@ const {
 } = Object;
 
 /**
- * 定义自定义标签
+ * 定义自定义元素
  * @param {string} name 标签名
- * @param {{}} options 组件配置
+ * @param {{}} userOptions 组件配置
  */
 
 function define$1(name, userOptions) {
@@ -8344,24 +8340,49 @@ function define$1(name, userOptions) {
 
   customElements.define(name, LitElement);
 }
-Hu.define = define$1;
+/**
+ * 用于构建非自定义元素的 Hu 实例
+ * @param {{}} userOptions 
+ */
+
+function defineInstance(userOptions) {
+  // 克隆一份用户配置
+  userOptions = assign({}, userOptions); // 初始化组件配置
+
+  const options = initOptions(userOptions); // 创建实例
+
+  const $hu = init(this, options, name, userOptions);
+  return $hu;
+}
+
+function Hu() {}
+const HuProxy = new Proxy(Hu, {
+  construct(target, [userOptions]) {
+    const $hu = defineInstance(userOptions);
+    return $hu;
+  }
+
+});
+Hu.version = '1.0.0-bata.0';
+
+HuProxy.define = define$1;
 
 const otherHu = window.Hu;
 
-Hu.noConflict = () => {
-  if (window.Hu === Hu) window.Hu = otherHu;
-  return Hu;
+HuProxy.noConflict = () => {
+  if (window.Hu === HuProxy) window.Hu = otherHu;
+  return HuProxy;
 };
 
 if (typeof window !== 'undefined') {
-  window.Hu = Hu;
+  window.Hu = HuProxy;
 }
 
-Hu.html = html$1;
-Hu.render = render;
+HuProxy.html = html$1;
+HuProxy.render = render;
 
-Hu.observable = obj => {
+HuProxy.observable = obj => {
   return isObject(obj) ? observe(obj) : obj;
 };
 
-module.exports = Hu;
+module.exports = HuProxy;
