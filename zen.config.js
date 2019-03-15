@@ -4,6 +4,14 @@ const fs = require('fs-extra');
 
 const package = require('./package.json');
 const READMEPATH = path.resolve( __dirname, 'README.md' );
+const banner =
+`/*!
+ * ${ package.title } v${ package.version }
+ * ${ package.homepage }
+ * 
+ * (c) 2018-present ${ package.author }
+ * Released under the MIT License.
+ */`;
 const REPLACE_PRODUCTION = {
   'process.env.NODE_ENV': JSON.stringify('production')
 };
@@ -111,6 +119,9 @@ module.exports = {
   config: {
     name: 'Hu',
     format: 'umd',
+
+    banner,
+    bannerIsComment: false,
 
     rollup: true,
 

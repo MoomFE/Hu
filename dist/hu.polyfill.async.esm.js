@@ -1,3 +1,11 @@
+/*!
+ * Hu.js v1.0.0-bata.0
+ * https://github.com/MoomFE/Hu
+ * 
+ * (c) 2018-present Wei Zhang
+ * Released under the MIT License.
+ */
+
 if (typeof window !== 'undefined') {
   window.WebComponents = Object.assign({
     root: 'https://unpkg.com/@webcomponents/webcomponentsjs@%5E2/'

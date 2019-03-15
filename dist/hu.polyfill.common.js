@@ -1,3 +1,11 @@
+/*!
+ * Hu.js v1.0.0-bata.0
+ * https://github.com/MoomFE/Hu
+ * 
+ * (c) 2018-present Wei Zhang
+ * Released under the MIT License.
+ */
+
 'use strict';
 
 typeof window !== "undefined" && function () {

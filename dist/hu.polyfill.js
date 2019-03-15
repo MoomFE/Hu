@@ -1,3 +1,11 @@
+/*!
+ * Hu.js v1.0.0-bata.0
+ * https://github.com/MoomFE/Hu
+ * 
+ * (c) 2018-present Wei Zhang
+ * Released under the MIT License.
+ */
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
