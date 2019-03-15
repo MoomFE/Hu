@@ -3,8 +3,13 @@
   "version": "1.0.0-bata.0",
   "description": "",
   "keywords": [],
+  "title": "Hu.js",
   "author": "Wei Zhang",
   "license": "MIT",
+  "main": "dist/hu.common.js",
+  "module": "dist/hu.esm.js",
+  "unpkg": "dist/hu.js",
+  "jsdelivr": "dist/hu.js",
   "typings": "./typings/hu.d.ts",
   "repository": {
     "type": "git",
@@ -13,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/MoomFE/Hu/issues"
   },
-  "homepage": "https://github.com/MoomFE/Hu#readme",
+  "homepage": "https://github.com/MoomFE/Hu",
   "scripts": {
     "build": "node_modules\\.bin\\zen build build",
     "watch": "node_modules\\.bin\\zen watch watch",
@@ -22,7 +27,7 @@
   "devDependencies": {
     "@babel/plugin-transform-destructuring": "^7.3.2",
     "@babel/plugin-transform-spread": "^7.2.2",
-    "@moomfe/zen-cli": "^1.0.0-beta.59",
+    "@moomfe/zen-cli": "^1.0.0-beta.60",
     "@moomfe/zenjs": "^5.0.0-beta.5",
     "@webcomponents/webcomponentsjs": "^2.2.7",
     "chai": "^4.2.0",
