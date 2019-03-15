@@ -24,34 +24,50 @@ const watchGroup = [
   }
 ];
 
+const buildGroup = [
+  ...watchGroup,
+  ...watchGroup.map( config => {
+    return Object.$assign( null, config, {
+      mode: true,
+      to: config.to.replace( /\.js$/, '.min.js' ),
+      replace: REPLACE_PRODUCTION
+    });
+  })
+];
+
+[ ...buildGroup ]
+// CommonJS
+.$each( config => {
+  if( config.mode ) return;
+
+  const newConfig = Object.$assign( null, config, {
+    format: 'cjs',
+    to: config.to.replace( /\.js$/, '.common.js' )
+  });
+
+  buildGroup.push( newConfig );
+})
+.$each( config => {
+  if( config.mode ) return;
+
+  const newConfig = Object.$assign( null, config, {
+    format: 'es',
+    to: config.to.replace( /\.js$/, '.esm.js' )
+  });
+
+  buildGroup.push( newConfig );
+});
+
 
 module.exports = {
 
   group: {
 
+    // UMD
     watch: watchGroup,
 
-    build: [
-      ...watchGroup,
-      {
-        mode: true,
-        from: 'src/build/index.js',
-        to: 'dist/hu.min.js',
-        replace: REPLACE_PRODUCTION
-      },
-      {
-        mode: true,
-        from: 'src/build/polyfill.js',
-        to: 'dist/hu.polyfill.min.js',
-        replace: REPLACE_PRODUCTION
-      },
-      {
-        mode: true,
-        from: 'src/build/polyfill.async.js',
-        to: 'dist/hu.polyfill.async.min.js',
-        replace: REPLACE_PRODUCTION
-      }
-    ],
+    // UMD / CommonJS / ES Module
+    build: buildGroup,
 
     polyfill: [
       {
