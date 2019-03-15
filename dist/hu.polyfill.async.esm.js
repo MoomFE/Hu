@@ -3070,9 +3070,9 @@ const attrHandler = {
   style: stylePart
 };
 
-const html$1 = function (strings, ...values) {
+function html$1(strings, ...values) {
   return new TemplateResult(strings, values, 'html', templateProcessor);
-};
+}
 
 html$1.repeat = (items, userKey, template) => {
   const key = isString(userKey) ? item => item[userKey] : userKey;
@@ -3373,8 +3373,20 @@ if (typeof window !== 'undefined') {
   window.Hu = HuProxy;
 }
 
+function render$1(result, container) {
+  if (arguments.length > 1) {
+    return render(result, container);
+  }
+
+  container = result;
+  return function () {
+    const result = html$1.apply(null, arguments);
+    return render(result, container);
+  };
+}
+
 HuProxy.html = html$1;
-HuProxy.render = render;
+HuProxy.render = render$1;
 
 HuProxy.observable = obj => {
   return isObject(obj) ? observe(obj) : obj;

@@ -1,5 +1,5 @@
 import { createCollectingDependents } from "../../observable/util/collectingDependents";
-import { TemplateResult, html, render } from "../../../html/index";
+import html, { TemplateResult, render } from "../../../html/index";
 import createComputed from "../../observable/util/createComputed";
 import isPlainObject from "../../../shared/util/isPlainObject";
 import isString from "../../../shared/util/isString";
