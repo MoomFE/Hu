@@ -5,7 +5,7 @@ import { observeProxyMap } from "../../observable/util/observe";
 
 
 
-export default function initComputed( root, options, target, targetProxy ){
+export default function initComputed( options, target, targetProxy ){
 
   const [
     computedTarget,

@@ -6,12 +6,11 @@ import { observe } from "../../observable/util/observe";
 
 /**
  * 初始化当前组件 data 属性
- * @param {HTMLElement} root 
  * @param {{}} options 
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
-export default function initData( root, options, target, targetProxy ){
+export default function initData( options, target, targetProxy ){
 
   const dataTarget = create( null );
 

@@ -9,15 +9,15 @@ import uid from "../../../shared/util/uid";
 
 
 export default function initPrototype( root, options, target, targetProxy ){
-  initForceUpdate( root, options, target, targetProxy );
-  initWatch( root, options, target, targetProxy );
+  initForceUpdate( options, target, targetProxy );
+  initWatch( target, targetProxy );
 }
 
 
 /**
  * 初始化 $hu.$forceUpdate 方法
  */
-function initForceUpdate( root, options, target, targetProxy ){
+function initForceUpdate( options, target, targetProxy ){
   const userRender = options.render.bind( targetProxy );
   const { $el } = target;
 
@@ -36,7 +36,7 @@ function initForceUpdate( root, options, target, targetProxy ){
 /**
  * 初始化 $hu.$watch 方法
  */
-function initWatch( root, options, target, targetProxy ){
+function initWatch( target, targetProxy ){
   const [
     watchTarget,
     watchTargetProxyInterceptor,

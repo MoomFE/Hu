@@ -5,12 +5,11 @@ import injectionToLit from "../util/injectionToLit";
 
 /**
  * 初始化当前组件 methods 属性
- * @param {HTMLElement} root 
  * @param {{}} options 
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
-export default function initMethods( root, options, target, targetProxy ){
+export default function initMethods( options, target, targetProxy ){
 
   const methodsTarget = target.$methods = create( null );
 

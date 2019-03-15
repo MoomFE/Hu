@@ -5909,13 +5909,12 @@ var injectionToLit = (
 
 /**
  * 初始化当前组件 methods 属性
- * @param {HTMLElement} root 
  * @param {{}} options 
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
 
-function initMethods$1(root, options, target, targetProxy) {
+function initMethods$1(options, target, targetProxy) {
   const methodsTarget = target.$methods = create(null);
   each(options.methods, (name, value) => {
     const method = methodsTarget[name] = value.bind(targetProxy);
@@ -5925,13 +5924,12 @@ function initMethods$1(root, options, target, targetProxy) {
 
 /**
  * 初始化当前组件 data 属性
- * @param {HTMLElement} root 
  * @param {{}} options 
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
 
-function initData$1(root, options, target, targetProxy) {
+function initData$1(options, target, targetProxy) {
   const dataTarget = create(null);
   const dataTargetProxy = target.$data = observe(dataTarget);
 
@@ -6204,7 +6202,7 @@ const computedTargetProxyInterceptorSet = computedOptionsMap => (target, name, v
   return false;
 };
 
-function initComputed$1(root, options, target, targetProxy) {
+function initComputed$1(options, target, targetProxy) {
   const [computedTarget, computedTargetProxyInterceptor] = createComputed(options.computed, targetProxy);
   target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
 
@@ -6214,7 +6212,7 @@ function initComputed$1(root, options, target, targetProxy) {
   });
 }
 
-function initWatch$1(root, options, target, targetProxy) {
+function initWatch$1(options, target, targetProxy) {
   // 添加监听方法
   each(options.watch, target.$watch);
 }
@@ -8120,14 +8118,14 @@ function parsePath(path) {
 }
 
 function initPrototype(root, options, target, targetProxy) {
-  initForceUpdate(root, options, target, targetProxy);
-  initWatch$2(root, options, target, targetProxy);
+  initForceUpdate(options, target, targetProxy);
+  initWatch$2(target, targetProxy);
 }
 /**
  * 初始化 $hu.$forceUpdate 方法
  */
 
-function initForceUpdate(root, options, target, targetProxy) {
+function initForceUpdate(options, target, targetProxy) {
   const userRender = options.render.bind(targetProxy);
   const {
     $el
@@ -8149,7 +8147,7 @@ function initForceUpdate(root, options, target, targetProxy) {
  */
 
 
-function initWatch$2(root, options, target, targetProxy) {
+function initWatch$2(target, targetProxy) {
   const [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, null, true);
   /**
    * 监听 Hu 实例对象
@@ -8219,11 +8217,11 @@ var observeReadonly = {
   }
 };
 
-function initOptions$1(root, options, target, targetProxy, userOptions) {
+function initOptions$1(target, userOptions) {
   target.$options = observe(userOptions, observeReadonly);
 }
 
-function initInfo(root, options, target, targetProxy, name) {
+function initInfo(target, name) {
   target.$info = observe({
     name
   }, observeReadonly);
@@ -8233,6 +8231,8 @@ function initInfo(root, options, target, targetProxy, name) {
  * 初始化当前组件属性
  * @param {HTMLElement} root 自定义元素组件节点
  * @param {{}} options 组件配置
+ * @param {string} name 组件名称
+ * @param {{}} userOptions 用户组件配置
  */
 
 function init(root, options, name, userOptions) {
@@ -8241,15 +8241,15 @@ function init(root, options, name, userOptions) {
     mode: 'open'
   });
   target.$customElement = root;
-  initOptions$1(root, options, target, targetProxy, userOptions);
-  initInfo(root, options, target, targetProxy, name);
+  initOptions$1(target, userOptions);
+  initInfo(target, name);
   initPrototype(root, options, target, targetProxy);
   initProps$1(root, options, target, targetProxy);
-  initMethods$1(root, options, target, targetProxy);
-  initData$1(root, options, target, targetProxy);
+  initMethods$1(options, target, targetProxy);
+  initData$1(options, target, targetProxy);
   options.beforeCreate.call(targetProxy);
-  initComputed$1(root, options, target, targetProxy);
-  initWatch$1(root, options, target, targetProxy);
+  initComputed$1(options, target, targetProxy);
+  initWatch$1(options, target, targetProxy);
   options.created.call(targetProxy);
   return targetProxy;
 }

@@ -13,6 +13,8 @@ import initInfo from "./initInfo";
  * 初始化当前组件属性
  * @param {HTMLElement} root 自定义元素组件节点
  * @param {{}} options 组件配置
+ * @param {string} name 组件名称
+ * @param {{}} userOptions 用户组件配置
  */
 export default function init( root, options, name, userOptions ){
 
@@ -24,18 +26,18 @@ export default function init( root, options, name, userOptions ){
   target.$el = root.attachShadow({ mode: 'open' });
   target.$customElement = root;
 
-  initOptions( root, options, target, targetProxy, userOptions );
-  initInfo( root, options, target, targetProxy, name );
+  initOptions( target, userOptions );
+  initInfo( target, name );
   initPrototype( root, options, target, targetProxy );
 
   initProps( root, options, target, targetProxy );
-  initMethods( root, options, target, targetProxy );
-  initData( root, options, target, targetProxy );
+  initMethods( options, target, targetProxy );
+  initData( options, target, targetProxy );
 
   options.beforeCreate.call( targetProxy );
 
-  initComputed( root, options, target, targetProxy );
-  initWatch( root, options, target, targetProxy );
+  initComputed( options, target, targetProxy );
+  initWatch( options, target, targetProxy );
 
   options.created.call( targetProxy );
 
