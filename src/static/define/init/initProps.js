@@ -9,12 +9,13 @@ import isReserved from "../../../shared/util/isReserved";
 
 /**
  * 初始化当前组件 props 属性
+ * @param {boolean} isCustomElement 是否是初始化自定义元素
  * @param {HTMLElement} root 
  * @param {{}} options 
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
-export default function initProps( root, options, target, targetProxy ){
+export default function initProps( isCustomElement, root, options, target, targetProxy ){
 
   const props = options.props;
   const propsTarget = create( null );
@@ -24,7 +25,7 @@ export default function initProps( root, options, target, targetProxy ){
   each( props, ( name, options ) => {
     let value = null;
 
-    if( options.attr ){
+    if( isCustomElement && options.attr ){
       value = root.getAttribute( options.attr );
     }
 

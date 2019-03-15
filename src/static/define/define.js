@@ -30,7 +30,7 @@ export default function define( name, userOptions ){
     constructor(){
       super();
 
-      this.$hu = init( this, options, name, userOptions );
+      this.$hu = init( true, this, options, name, userOptions );
     }
 
   }
@@ -69,7 +69,7 @@ export function defineInstance( userOptions ){
   const options = initOptions( userOptions );
 
   // 创建实例
-  const $hu = init( this, options, name, userOptions );
+  const $hu = init( false, this, options, name, userOptions );
 
   return $hu;
 }

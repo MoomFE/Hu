@@ -19,7 +19,6 @@ export default function initPrototype( root, options, target, targetProxy ){
  */
 function initForceUpdate( options, target, targetProxy ){
   const userRender = options.render.bind( targetProxy );
-  const { $el } = target;
 
   /**
    * 迫使 Hu 实例重新渲染
@@ -28,7 +27,7 @@ function initForceUpdate( options, target, targetProxy ){
     const templateResult = userRender( html );
 
     if( templateResult instanceof TemplateResult ){
-      render( templateResult, $el );
+      render( templateResult, target.$el );
     }
   });
 }

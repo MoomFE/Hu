@@ -636,13 +636,14 @@
 
   /**
    * 初始化当前组件 props 属性
+   * @param {boolean} isCustomElement 是否是初始化自定义元素
    * @param {HTMLElement} root 
    * @param {{}} options 
    * @param {{}} target 
    * @param {{}} targetProxy 
    */
 
-  function initProps$1(root, options, target, targetProxy) {
+  function initProps$1(isCustomElement, root, options, target, targetProxy) {
     const props = options.props;
     const propsTarget = create(null);
     const propsTargetProxy = target.$props = observe(propsTarget); // 尝试从标签上获取 props 属性, 否则取默认值
@@ -650,7 +651,7 @@
     each(props, (name, options) => {
       let value = null;
 
-      if (options.attr) {
+      if (isCustomElement && options.attr) {
         value = root.getAttribute(options.attr);
       } // 定义了该属性
 
@@ -2927,9 +2928,6 @@
 
   function initForceUpdate(options, target, targetProxy) {
     const userRender = options.render.bind(targetProxy);
-    const {
-      $el
-    } = target;
     /**
      * 迫使 Hu 实例重新渲染
      */
@@ -2938,7 +2936,7 @@
       const templateResult = userRender(html$1);
 
       if (templateResult instanceof TemplateResult) {
-        render(templateResult, $el);
+        render(templateResult, target.$el);
       }
     });
   }
@@ -3023,28 +3021,33 @@
 
   function initInfo(target, name) {
     target.$info = observe({
-      name
+      name: name || `anonymous-${uid$1()}`
     }, observeReadonly);
   }
 
   /**
    * 初始化当前组件属性
+   * @param {boolean} isCustomElement 是否是初始化自定义元素
    * @param {HTMLElement} root 自定义元素组件节点
    * @param {{}} options 组件配置
    * @param {string} name 组件名称
    * @param {{}} userOptions 用户组件配置
    */
 
-  function init(root, options, name, userOptions) {
+  function init(isCustomElement, root, options, name, userOptions) {
     const [target, targetProxy] = initRootTarget();
-    target.$el = root.attachShadow({
-      mode: 'open'
-    });
-    target.$customElement = root;
+
+    if (isCustomElement) {
+      target.$el = root.attachShadow({
+        mode: 'open'
+      });
+      target.$customElement = root;
+    }
+
     initOptions$1(target, userOptions);
     initInfo(target, name);
     initPrototype(root, options, target, targetProxy);
-    initProps$1(root, options, target, targetProxy);
+    initProps$1(isCustomElement, root, options, target, targetProxy);
     initMethods$1(options, target, targetProxy);
     initData$1(options, target, targetProxy);
     options.beforeCreate.call(targetProxy);
@@ -3121,7 +3124,7 @@
     const LitElement = class LitElement extends HTMLElement {
       constructor() {
         super();
-        this.$hu = init(this, options, name, userOptions);
+        this.$hu = init(true, this, options, name, userOptions);
       }
 
     }; // 定义需要监听的属性
@@ -3151,7 +3154,7 @@
 
     const options = initOptions(userOptions); // 创建实例
 
-    const $hu = init(this, options, name, userOptions);
+    const $hu = init(false, this, options, name, userOptions);
     return $hu;
   }
 
