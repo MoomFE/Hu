@@ -38,21 +38,19 @@ const buildGroup = [
 [ ...buildGroup ]
 // CommonJS
 .$each( config => {
-  if( config.mode ) return;
-
   const newConfig = Object.$assign( null, config, {
     format: 'cjs',
-    to: config.to.replace( /\.js$/, '.common.js' )
+    to: config.mode ? config.to.replace( /\.min\.js$/, '.common.min.js' )
+                    : config.to.replace( /\.js$/, '.common.js' )
   });
 
   buildGroup.push( newConfig );
 })
 .$each( config => {
-  if( config.mode ) return;
-
   const newConfig = Object.$assign( null, config, {
     format: 'es',
-    to: config.to.replace( /\.js$/, '.esm.js' )
+    to: config.mode ? config.to.replace( /\.min\.js$/, '.esm.min.js' )
+                    : config.to.replace( /\.js$/, '.esm.js' )
   });
 
   buildGroup.push( newConfig );
@@ -171,7 +169,7 @@ module.exports = {
       },
       WriteFile( rollup, config, path, size, gzipSize ){
         const name = path.split('\\').$get( -1 );
-        const rSearch = new RegExp(`(\\|\\s${ name }\\s+\\|\\s)[0-9\\.]+(KB\\s\\|\\s)[0-9\\.]+(KB\\s\\|)`);
+        const rSearch = new RegExp(`(\\|\\s+${ name }\\s+\\(\\s+)[0-9\\.]+(KB\\s+\\/\\s+)[0-9\\.]+(KB\\s+\\)\\s+\\|)`);
         const readmeContent = fs.readFileSync( READMEPATH, 'utf-8' );
 
         if( rSearch.test( readmeContent ) ){
