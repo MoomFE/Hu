@@ -169,7 +169,7 @@ module.exports = {
       },
       WriteFile( rollup, config, path, size, gzipSize ){
         const name = path.split('\\').$get( -1 );
-        const rSearch = new RegExp(`(\\|\\s+\\*\\*${ name }\\*\\*<br><small>)[0-9\\.]+(KB\\s+/\\s+)[0-9\\.]+(KB</small>\\s+\\|)`);
+        const rSearch = new RegExp(`(\\|\\s+\\*\\*${ name }\\*\\*<br>)[0-9\\.]+(KB\\s+/\\s+)[0-9\\.]+(KB\\s+\\|)`);
         const readmeContent = fs.readFileSync( READMEPATH, 'utf-8' );
 
         if( rSearch.test( readmeContent ) ){
