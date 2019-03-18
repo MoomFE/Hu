@@ -51,6 +51,36 @@ describe( 'Hu.instance', () => {
     }
   });
 
+  it( '实例 $info 选项的各个参数', () => {
+    const customName = window.customName;
+
+    Hu.define( customName );
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const { $info } = custom.$hu;
+
+    expect( $info.name ).is.equals( customName );
+    expect( $info.isMounted ).is.false;
+    expect( $info.isCustomElement ).is.true;
+
+    div.$appendTo( document.body );
+
+    expect( $info.name ).is.equals( customName );
+    expect( $info.isMounted ).is.true;
+    expect( $info.isCustomElement ).is.true;
+
+    div.$remove();
+
+    // ------
+
+    const { $info: $info2 } = new Hu();
+
+    expect( /anonymous-/.test( $info2.name ) ).is.true;
+    expect( $info2.isMounted ).is.false;
+    expect( $info2.isCustomElement ).is.false;
+  });
+
   it( '实例创建后所有前缀为 $ 的私有选项全部不能进行修改及删除', () => {
     const customName = window.customName;
 
