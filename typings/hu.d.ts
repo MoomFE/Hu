@@ -54,12 +54,25 @@ interface $hu {
     /**
      * 当前自定义元素的名称
      */
-    name: String,
+    name: String;
     /**
-     * 标识当前自定义元素的首次挂载是否已完成
+     * 标识当前实例的首次挂载是否已完成
      */
-    isMounted: Boolean
+    isMounted: Boolean;
+    /**
+     * 标识当前实例是否是自定义元素
+     */
+    isCustomElement: Boolean;
   };
+  /**
+   * 在下次 DOM 更新循环结束之后执行回调, 在修改数据之后立即使用这个方法, 可以获取更新后的 DOM
+   * @param callback 需要执行的回调
+   */
+  readonly $nextTick( callback: ( this: $hu ) => void ): void;
+  /**
+   * 返回一个 Promise 对象, 在下次 DOM 更新循环结束之后执行, 在修改数据之后立即使用这个方法, 可以获取更新后的 DOM
+   */
+  readonly $nextTick(): Promise;
 
   /**
    * 观察 Hu 实例变化的一个键路径表达式或计算属性函数
@@ -133,6 +146,18 @@ interface Hu{
    * 字符串形式的 Hu 安装版本号
    */
   version: string;
+
+  /**
+   * 在下次 DOM 更新循环结束之后执行回调, 在修改数据之后立即使用这个方法, 可以获取更新后的 DOM
+   * @param callback 需要执行的回调
+   * @param context 回调的 this 对象
+   * 
+   */
+  nextTick<T>( callback: ( this: T ) => void, context: T ): void;
+  /**
+   * 返回一个 Promise 对象, 在下次 DOM 更新循环结束之后执行, 在修改数据之后立即使用这个方法, 可以获取更新后的 DOM
+   */
+  nextTick<T>( context: T ): Promise<T>;
 
 }
 
