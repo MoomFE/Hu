@@ -179,7 +179,7 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
     for( let dependentsOptions of executes ){
       //             当前方法依旧是当前值的依赖且不是计算属性                          需要更新计算属性
       if( watch.has( dependentsOptions ) && !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
-        dependentsOptions.get();
+        dependentsOptions.update();
       }
     }
   }
@@ -187,7 +187,7 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
   // 响应深度监听
   if( deepWatches.size ){
     for( let dependentsOptions of deepWatches ){
-      dependentsOptions.get();
+      dependentsOptions.update();
     }
   }
 

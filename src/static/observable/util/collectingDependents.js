@@ -4,6 +4,7 @@ import { targetStack } from "./index";
 import { observeProxyMap } from "./observe";
 import define from "../../../shared/util/define";
 import create from "../../../shared/global/Object/create";
+import { queueUpdate } from "./scheduler";
 
 
 /**
@@ -93,6 +94,14 @@ class CollectingDependents{
     targetStack.pop( this );
 
     return result;
+  }
+  /** 依赖的重新收集 */
+  update(){
+    if( this.isWatch ){
+      queueUpdate( this );
+    }else{
+      this.get();
+    }
   }
   /** 清空之前收集的依赖 */
   cleanDeps(){

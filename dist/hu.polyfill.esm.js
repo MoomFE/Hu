@@ -5766,7 +5766,7 @@ const createObserverProxySetter = ({
     for (let dependentsOptions of executes) {
       //             当前方法依旧是当前值的依赖且不是计算属性                          需要更新计算属性
       if (watch.has(dependentsOptions) && !dependentsOptions.isComputed || dependentsOptions.shouldUpdate) {
-        dependentsOptions.get();
+        dependentsOptions.update();
       }
     }
   } // 响应深度监听
@@ -5774,7 +5774,7 @@ const createObserverProxySetter = ({
 
   if (deepWatches.size) {
     for (let dependentsOptions of deepWatches) {
-      dependentsOptions.get();
+      dependentsOptions.update();
     }
   }
 
@@ -5948,6 +5948,77 @@ var uid$1 = (
  */
 () => '' + uid++);
 
+const inBrowser = typeof window !== 'undefined';
+const UA = inBrowser && window.navigator.userAgent.toLowerCase();
+const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
+
+const callbacks = [];
+let pending = false;
+
+function flushCallbacks() {
+  pending = false;
+  const copies = callbacks.slice(0);
+  callbacks.length = 0;
+
+  for (let copy of copies) copy();
+}
+
+const resolve = Promise.resolve();
+
+const timerFunc = () => {
+  resolve.then(flushCallbacks);
+
+  if (isIOS) {
+    setTimeout(noop);
+  }
+};
+
+function nextTick(callback, ctx) {
+  let resolve;
+  callbacks.push(() => {
+    if (callback) {
+      callback.call(ctx);
+    } else {
+      resolve(ctx);
+    }
+  });
+
+  if (!pending) {
+    pending = true;
+    timerFunc();
+  }
+
+  if (!callback) {
+    return new Promise(_resolve => {
+      resolve = _resolve;
+    });
+  }
+}
+
+const queue = new Set();
+let waiting = false;
+function queueUpdate(dependentsOptions) {
+  if (queue.has(dependentsOptions)) {
+    return;
+  } else {
+    queue.add(dependentsOptions);
+  }
+
+  if (!waiting) {
+    waiting = false;
+    nextTick(flushSchedulerQueue);
+  }
+}
+
+function flushSchedulerQueue() {
+  for (let dependentsOptions of queue) {
+    dependentsOptions.get();
+  }
+
+  queue.clear();
+  waiting = false;
+}
+
 /**
  * 依赖集合
  * - 存放所有已收集到的依赖
@@ -6027,6 +6098,16 @@ class CollectingDependents {
 
     targetStack.pop(this);
     return result;
+  }
+  /** 依赖的重新收集 */
+
+
+  update() {
+    if (this.isWatch) {
+      queueUpdate(this);
+    } else {
+      this.get();
+    }
   }
   /** 清空之前收集的依赖 */
 
@@ -8112,53 +8193,6 @@ function parsePath(path) {
 
     return obj;
   };
-}
-
-const inBrowser = typeof window !== 'undefined';
-const UA = inBrowser && window.navigator.userAgent.toLowerCase();
-const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
-
-const callbacks = [];
-let pending = false;
-
-function flushCallbacks() {
-  pending = false;
-  const copies = callbacks.slice(0);
-  callbacks.length = 0;
-
-  for (let copy of copies) copy();
-}
-
-const resolve = Promise.resolve();
-
-const timerFunc = () => {
-  resolve.then(flushCallbacks);
-
-  if (isIOS) {
-    setTimeout(noop);
-  }
-};
-
-function nextTick(callback, ctx) {
-  let resolve;
-  callbacks.push(() => {
-    if (callback) {
-      callback.call(ctx);
-    } else {
-      resolve(ctx);
-    }
-  });
-
-  if (!pending) {
-    pending = true;
-    timerFunc();
-  }
-
-  if (!callback) {
-    return new Promise(_resolve => {
-      resolve = _resolve;
-    });
-  }
 }
 
 function initPrototype(root, options, target, targetProxy) {
