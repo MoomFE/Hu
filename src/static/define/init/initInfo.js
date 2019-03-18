@@ -3,10 +3,12 @@ import observeReadonly from "../../../shared/const/observeReadonly";
 import uid from "../../../shared/util/uid";
 
 
-export default function initInfo( target, name ){
+export default function initInfo( isCustomElement, target, name ){
   target.$info = observe(
     {
-      name: name || `anonymous-${ uid() }`
+      name: name || `anonymous-${ uid() }`,
+      isMounted: false,
+      isCustomElement
     },
     observeReadonly
   );

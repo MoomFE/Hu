@@ -30,7 +30,7 @@ export default function init( isCustomElement, root, options, name, userOptions 
   }
 
   initOptions( target, userOptions );
-  initInfo( target, name );
+  initInfo( isCustomElement, target, name );
   initPrototype( root, options, target, targetProxy );
 
   initProps( isCustomElement, root, options, target, targetProxy );

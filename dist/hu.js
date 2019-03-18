@@ -3107,9 +3107,11 @@
     target.$options = observe(userOptions, observeReadonly);
   }
 
-  function initInfo(target, name) {
+  function initInfo(isCustomElement, target, name) {
     target.$info = observe({
-      name: name || `anonymous-${uid$1()}`
+      name: name || `anonymous-${uid$1()}`,
+      isMounted: false,
+      isCustomElement
     }, observeReadonly);
   }
 
@@ -3133,7 +3135,7 @@
     }
 
     initOptions$1(target, userOptions);
-    initInfo(target, name);
+    initInfo(isCustomElement, target, name);
     initPrototype(root, options, target, targetProxy);
     initProps$1(isCustomElement, root, options, target, targetProxy);
     initMethods$1(options, target, targetProxy);
