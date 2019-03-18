@@ -60,8 +60,6 @@ class CollectingDependents{
       this.isComputed = isComputed;
       this.observeOptions = observeOptions;
       this.name = name;
-      // 判断当前计算属性是否没有依赖
-      define( this, 'notBeingCollected', CollectingDependents.nbc.bind( this ) );
       // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
       define( this, 'shouldUpdate', () => shouldUpdate, value => {
         if( shouldUpdate = value ) this.ssu();
@@ -120,22 +118,22 @@ class CollectingDependents{
   /** 仅为计算属性时使用 -> 递归设置当前计算属性的依赖计算属性需要更新 ( set should update ) */
   ssu(){
     this.ec( cd => {
-      if( cd.isComputed && cd.notBeingCollected ){
+      if( cd.isComputed && cd.lazy ){
         cd.shouldUpdate = true;
       }
     });
   }
-  /** 仅为计算属性时使用 -> 判断当前计算属性是否没有依赖 ( not being collected ) */
-  static nbc(){
-    let notBeingCollected = true;
+  /** 仅为计算属性时使用 -> 判断当前计算属性是否没有依赖 */
+  get lazy(){
+    let lazy = true;
 
     this.ec( cd => {
-      // 依赖是监听方法          依赖是 render 方法                       依赖是计算属性且有依赖
-      if( cd.isWatch || ( !cd.isComputed && !cd.isWatch ) || ( cd.isComputed && !cd.notBeingCollected ) ){
-        return notBeingCollected = false;
+      // 依赖是监听方法          依赖是 render 方法                依赖是计算属性且有依赖
+      if( cd.isWatch || ( !cd.isComputed && !cd.isWatch ) || ( cd.isComputed && !cd.lazy ) ){
+        return lazy = false;
       }
     });
 
-    return notBeingCollected;
+    return lazy;
   }
 }

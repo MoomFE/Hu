@@ -166,7 +166,7 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
         dependentsOptions.shouldUpdate = true;
 
         // 需要更新有依赖的计算属性
-        if( !dependentsOptions.notBeingCollected ){
+        if( !dependentsOptions.lazy ){
           executes.push( dependentsOptions );
         }
       }
@@ -177,7 +177,7 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
     }
 
     for( let dependentsOptions of executes ){
-      //     当前方法依旧是当前值的依赖               不是计算属性                      需要更新计算属性
+      //             当前方法依旧是当前值的依赖且不是计算属性                          需要更新计算属性
       if( watch.has( dependentsOptions ) && !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
         dependentsOptions.get();
       }
