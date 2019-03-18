@@ -6,11 +6,13 @@ import isString from "../../../shared/util/isString";
 import isFunction from "../../../shared/util/isFunction";
 import parsePath from "../util/parsePath";
 import uid from "../../../shared/util/uid";
+import nextTick from "../../nextTick/nextTick";
 
 
 export default function initPrototype( root, options, target, targetProxy ){
   initForceUpdate( options, target, targetProxy );
   initWatch( target, targetProxy );
+  initNextTick( target, targetProxy );
 }
 
 
@@ -100,4 +102,11 @@ function initWatch( target, targetProxy ){
       removeComputed( name );
     };
   }
+}
+
+/**
+ * 初始化 $hu.$nextTick 方法
+ */
+function initNextTick( target, targetProxy ){
+  target.$nextTick = callback => nextTick( callback, targetProxy );
 }

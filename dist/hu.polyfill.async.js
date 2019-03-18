@@ -3116,9 +3116,57 @@
     };
   }
 
+  const inBrowser = typeof window !== 'undefined';
+  const UA = inBrowser && window.navigator.userAgent.toLowerCase();
+  const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
+
+  const callbacks = [];
+  let pending = false;
+
+  function flushCallbacks() {
+    pending = false;
+    const copies = callbacks.slice(0);
+    callbacks.length = 0;
+
+    for (let copy of copies) copy();
+  }
+
+  const resolve = Promise.resolve();
+
+  const timerFunc = () => {
+    resolve.then(flushCallbacks);
+
+    if (isIOS) {
+      setTimeout(noop);
+    }
+  };
+
+  function nextTick(callback, ctx) {
+    let resolve;
+    callbacks.push(() => {
+      if (callback) {
+        callback.call(ctx);
+      } else {
+        resolve(ctx);
+      }
+    });
+
+    if (!pending) {
+      pending = true;
+      timerFunc();
+    }
+
+    if (!callback) {
+      return new Promise(_resolve => {
+        resolve = _resolve;
+      });
+    }
+  }
+
   function initPrototype(root, options, target, targetProxy) {
     initForceUpdate(options, target, targetProxy);
     initWatch$2(target, targetProxy);
+    initNextTick(target, targetProxy);
   }
   /**
    * 初始化 $hu.$forceUpdate 方法
@@ -3199,6 +3247,14 @@
         removeComputed(name);
       };
     };
+  }
+  /**
+   * 初始化 $hu.$nextTick 方法
+   */
+
+
+  function initNextTick(target, targetProxy) {
+    target.$nextTick = callback => nextTick(callback, targetProxy);
   }
 
   /**
@@ -3397,6 +3453,8 @@
   HuProxy.observable = obj => {
     return isObject(obj) ? observe(obj) : obj;
   };
+
+  HuProxy.nextTick = nextTick;
 
   return HuProxy;
 
