@@ -461,7 +461,7 @@ describe( 'Hu.define - watch', () => {
     expect( hu.c1 ).is.deep.equals( 3 );
   });
 
-  it( '使用 watch 监听值是异步的( 不一致 )', () => {
+  it( '使用 watch 监听值是异步的', ( done ) => {
     const customName = window.customName;
     let index = 0;
 
@@ -483,10 +483,14 @@ describe( 'Hu.define - watch', () => {
     expect( index ).is.equals( 0 );
 
     hu.a = 2;
-    expect( index ).is.equals( 1 );
+    expect( index ).is.equals( 0 );
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      done();
+    });
   });
 
-  it( '使用 watch 监听值是异步的( Vue )', () => {
+  it( '使用 watch 监听值是异步的( Vue )', ( done ) => {
     let index = 0;
 
     const vm = new Vue({
@@ -506,6 +510,7 @@ describe( 'Hu.define - watch', () => {
     expect( index ).is.equals( 0 );
     vm.$nextTick(() => {
       expect( index ).is.equals( 1 );
+      done();
     });
   });
 
