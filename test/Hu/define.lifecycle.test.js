@@ -42,6 +42,8 @@ describe( 'Hu.define - lifecycle', () => {
     ));
 
     document.createElement('div').$html(`<${ customName }></${ customName }>`);
+
+    expect( isWatchRun ).is.true;
   });
 
   it( 'created 声明周期钩子会在实例创建完成后被立即调用, 但是挂载阶段还没开始', () => {
@@ -70,6 +72,8 @@ describe( 'Hu.define - lifecycle', () => {
     ));
 
     document.createElement('div').$html(`<${ customName }></${ customName }>`);
+
+    expect( isWatchRun ).is.true;
   });
 
   it( 'beforeMount 生命周期钩子会在自定义元素挂载开始之前被调用', () => {
@@ -89,6 +93,8 @@ describe( 'Hu.define - lifecycle', () => {
       .$html(`<${ customName }></${ customName }>`)
       .$appendTo( document.body )
       .$remove();
+    
+    expect( isBeforeMountRun ).is.true;
   });
 
   it( 'mounted 生命周期钩子会在自定义元素挂载开始之后被调用', () => {
@@ -142,7 +148,12 @@ describe( 'Hu.define - lifecycle', () => {
       }
     });
 
-    document.createElement('div').$html(`<${ customName }></${ customName }>`)
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.$forceUpdate ).is.a('function');
+    expect( hu.$watch ).is.a('function');
   });
 
 });
