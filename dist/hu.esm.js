@@ -2931,20 +2931,26 @@ class HuConstructor {
     const isWatchDeep = !!options.deep;
     /** 值改变是否运行回调 */
 
-    let runCallback = !!options.immediate; // 添加监听
+    let immediate,
+        runCallback = immediate = !!options.immediate; // 添加监听
 
     appendComputed(name, {
       get: () => {
         const oldValue = watchTarget[name];
         const value = watchFn();
-        runCallback && watchCallback(value, oldValue);
+
+        if (runCallback && (immediate || !isEqual(value, oldValue))) {
+          watchCallback(value, oldValue);
+        }
+
         return value;
       }
     }, isWatchDeep); // 首次运行, 以收集依赖
 
     watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
 
-    runCallback = true; // 返回取消监听的方法
+    runCallback = true;
+    immediate = false; // 返回取消监听的方法
 
     return () => {
       removeComputed(name);
