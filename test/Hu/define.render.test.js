@@ -1,29 +1,5 @@
 describe( 'Hu.define - render', () => {
 
-  it( '项目创建后, 会将自定义元素本身作为 $customElement 变量存储在 Hu 实例中', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.$customElement ).is.equals( custom );
-  });
-
-  it( '项目创建后, 会将自定义元素的 Shadow DOM 作为 $el 存储在 Hu 实例中', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.$el ).is.a('ShadowRoot');
-  });
-
   it( '自定义元素被添加到 DOM 树中后会立即运行渲染方法进行渲染', () => {
     const customName = window.customName;
     let isRender = false;
@@ -41,32 +17,6 @@ describe( 'Hu.define - render', () => {
     div.$appendTo( document.body );
 
     expect( isRender ).is.true;
-
-    div.$remove();
-  });
-
-  it( 'Hu 实例拥有 $forceUpdate 方法, 迫使 Hu 实例重新渲染', () => {
-    const customName = window.customName;
-    let num = 0;
-
-    Hu.define( customName, {
-      render(){
-        num++;
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( num ).is.equals( 1 );
-
-    hu.$forceUpdate();
-    expect( num ).is.equals( 2 );
-
-    hu.$forceUpdate();
-    hu.$forceUpdate();
-    expect( num ).is.equals( 4 );
 
     div.$remove();
   });
