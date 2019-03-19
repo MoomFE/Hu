@@ -5,7 +5,7 @@ import isArray from "../../../shared/global/Array/isArray";
 import isPlainObject from "../../../shared/util/isPlainObject";
 
 
-export default function initState( userOptions, options ){
+export default function initState( isCustomElement, userOptions, options ){
 
   const {
     methods,
@@ -18,7 +18,7 @@ export default function initState( userOptions, options ){
     initMethods( methods, options );
   }
   if( data ){
-    initData( data, options );
+    initData( isCustomElement, data, options );
   }
   if( computed ){
     initComputed( computed, options );
@@ -39,10 +39,10 @@ function initMethods( userMethods, options ){
   });
 }
 
-function initData( userData, options ){
-  isFunction( userData ) && (
-    options.data = userData
-  );
+function initData( isCustomElement, userData, options ){
+  if( isFunction( userData ) || !isCustomElement && isPlainObject( userData ) ){
+    options.data = userData;
+  }
 }
 
 function initComputed( userComputed, options ){

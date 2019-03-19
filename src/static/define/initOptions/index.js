@@ -20,7 +20,7 @@ export default function initOptions( isCustomElement, name, _userOptions ){
   const options = optionsMap[ name ] = {};
 
   initProps( userOptions, options );
-  initState( userOptions, options );
+  initState( isCustomElement, userOptions, options );
   initLifecycle( userOptions, options );
   initOther( isCustomElement, userOptions, options );
 

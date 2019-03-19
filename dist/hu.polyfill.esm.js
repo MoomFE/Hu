@@ -5953,7 +5953,7 @@ function initLifecycle(userOptions, options) {
   });
 }
 
-function initState(userOptions, options) {
+function initState(isCustomElement, userOptions, options) {
   const {
     methods,
     data,
@@ -5966,7 +5966,7 @@ function initState(userOptions, options) {
   }
 
   if (data) {
-    initData(data, options);
+    initData(isCustomElement, data, options);
   }
 
   if (computed) {
@@ -5985,8 +5985,10 @@ function initMethods(userMethods, options) {
   });
 }
 
-function initData(userData, options) {
-  isFunction(userData) && (options.data = userData);
+function initData(isCustomElement, userData, options) {
+  if (isFunction(userData) || !isCustomElement && isPlainObject(userData)) {
+    options.data = userData;
+  }
 }
 
 function initComputed(userComputed, options) {
@@ -6055,7 +6057,7 @@ function initOptions(isCustomElement, name, _userOptions) {
 
   const options = optionsMap[name] = {};
   initProps(userOptions, options);
-  initState(userOptions, options);
+  initState(isCustomElement, userOptions, options);
   initLifecycle(userOptions, options);
   initOther(isCustomElement, userOptions, options);
   return [userOptions, options];
@@ -8317,10 +8319,13 @@ function initMethods$1(options, target, targetProxy) {
 function initData$1(options, target, targetProxy) {
   const dataTarget = create(null);
   const dataTargetProxy = target.$data = observe(dataTarget);
+  const {
+    data
+  } = options;
 
-  if (options.data) {
-    const data = options.data.call(targetProxy);
-    each(data, (name, value) => {
+  if (data) {
+    const dataObj = isFunction(data) ? data.call(targetProxy) : data;
+    each(dataObj, (name, value) => {
       dataTarget[name] = value;
       injectionToLit(target, name, 0, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
     });

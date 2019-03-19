@@ -2,6 +2,7 @@ import create from "../../../shared/global/Object/create";
 import each from "../../../shared/util/each";
 import injectionToLit from "../util/injectionToLit";
 import { observe } from "../../observable/util/observe";
+import isFunction from "../../../shared/util/isFunction";
 
 
 /**
@@ -16,10 +17,12 @@ export default function initData( options, target, targetProxy ){
 
   const dataTargetProxy = target.$data = observe( dataTarget );
 
-  if( options.data ){
-    const data = options.data.call( targetProxy );
+  const { data } = options;
 
-    each( data, ( name, value ) => {
+  if( data ){
+    const dataObj = isFunction( data ) ? data.call( targetProxy ) : data;
+
+    each( dataObj, ( name, value ) => {
       dataTarget[ name ] = value;
 
       injectionToLit(
