@@ -171,6 +171,7 @@ describe( 'Hu.define - render', () => {
     });
   });
 
+
   // it( '同一个自定义元素只有首次被添加到 DOM 节点中时会主动触发 render', () => {
   //   const customName = window.customName;
   //   let index = 0;
