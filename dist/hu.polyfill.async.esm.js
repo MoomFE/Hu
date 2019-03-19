@@ -3137,8 +3137,11 @@ class HuConstructor {
         const oldValue = watchTarget[name];
         const value = watchFn();
 
-        if (runCallback && (immediate || !isEqual(value, oldValue))) {
-          watchCallback(value, oldValue);
+        if (runCallback) {
+          //   首次运行             值不一样        值一样的话, 判断是否是深度监听
+          if (immediate || !isEqual(value, oldValue) || isWatchDeep) {
+            watchCallback(value, oldValue);
+          }
         }
 
         return value;
