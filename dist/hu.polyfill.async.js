@@ -1023,12 +1023,17 @@
     };
   }
 
-  function initOther(userOptions, options) {
+  function initOther(isCustomElement, userOptions, options) {
     const {
       render
     } = userOptions; // 渲染方法
 
     options.render = isFunction(render) ? render : noop;
+
+    if (inBrowser && !isCustomElement) {
+      // 挂载目标
+      options.el = userOptions.el || undefined;
+    }
   }
 
   const {
@@ -1038,11 +1043,12 @@
   const optionsMap = {};
   /**
    * 初始化组件配置
+   * @param {boolean} isCustomElement 是否是初始化自定义元素
    * @param {string} name 自定义元素标签名
    * @param {{}} _userOptions 用户传入的组件配置
    */
 
-  function initOptions(name, _userOptions) {
+  function initOptions(isCustomElement, name, _userOptions) {
     /** 克隆一份用户配置 */
     const userOptions = assign({}, _userOptions);
     /** 格式化后的组件配置 */
@@ -1051,7 +1057,7 @@
     initProps(userOptions, options);
     initState(userOptions, options);
     initLifecycle(userOptions, options);
-    initOther(userOptions, options);
+    initOther(isCustomElement, userOptions, options);
     return [userOptions, options];
   }
 
@@ -3137,6 +3143,42 @@
         };
       };
     }
+
+    $mount(selectors) {
+      const {
+        $info
+      } = this; // 首次挂载
+
+      if (!$info.isMounted) {
+        // 使用 new 创建的实例
+        if (!$info.isCustomElement) {
+          const el = selectors && (isString(selectors) ? document.querySelector(selectors) : selectors);
+
+          if (!el || el === document.body || el === document.documentElement) {
+            return this;
+          }
+
+          observeProxyMap.get(this).target.$el = el;
+        }
+        /** 当前实例的实例配置 */
+
+
+        const options = optionsMap[$info.name];
+        /** 当前实例 $info 原始对象 */
+
+        const infoTarget = observeProxyMap.get($info).target; // 运行 beforeMount 生命周期方法
+
+        options.beforeMount.call(this); // 执行 render 方法, 进行渲染
+
+        this.$forceUpdate(); // 标记首次实例挂载已完成
+
+        infoTarget.isMounted = true; // 运行 mounted 生命周期方法
+
+        options.mounted.call(this);
+      }
+
+      return this;
+    }
     /**
      * 在下次 DOM 更新循环结束之后执行回调
      */
@@ -3334,13 +3376,18 @@
     initComputed$1(options, target, targetProxy);
     initWatch$1(options, target, targetProxy);
     options.created.call(targetProxy);
+
+    if (!isCustomElement && options.el) {
+      targetProxy.$mount(options.el);
+    }
+
     return targetProxy;
   }
 
   const Hu = new Proxy(HuConstructor, {
     construct(HuConstructor$$1, [_userOptions]) {
       const name = 'anonymous-' + uid$1();
-      const [userOptions, options] = initOptions(name, _userOptions);
+      const [userOptions, options] = initOptions(false, name, _userOptions);
       const targetProxy = init(false, void 0, name, options, userOptions);
       return targetProxy;
     }
@@ -3371,27 +3418,6 @@
     }
   });
 
-  var initConnectedCallback = (options => function () {
-    const {
-      $hu,
-      $hu: {
-        $info
-      }
-    } = this;
-
-    if (!$info.isMounted) {
-      const infoTarget = observeProxyMap.get($info).target; // 运行 beforeMount 生命周期方法
-
-      options.beforeMount.call($hu); // 执行 render 方法, 进行渲染
-
-      $hu.$forceUpdate(); // 标记首次实例挂载已完成
-
-      infoTarget.isMounted = true; // 运行 mounted 生命周期方法
-
-      options.mounted.call($hu);
-    }
-  });
-
   var initDisconnectedCallback = (options => function () {});
 
   var initAdoptedCallback = (options => function () {});
@@ -3403,7 +3429,7 @@
    */
 
   function define$1(name, _userOptions) {
-    const [userOptions, options] = initOptions(name, _userOptions);
+    const [userOptions, options] = initOptions(true, name, _userOptions);
 
     class HuElement extends HTMLElement {
       constructor() {
@@ -3417,7 +3443,7 @@
     HuElement.observedAttributes = keys(options.propsMap);
     assign(HuElement.prototype, {
       // 自定义元素被添加到文档流
-      connectedCallback: initConnectedCallback(options),
+      connectedCallback,
       // 自定义元素被从文档流移除
       disconnectedCallback: initDisconnectedCallback(options),
       // 自定义元素位置被移动
@@ -3427,6 +3453,10 @@
     }); // 注册组件
 
     customElements.define(name, HuElement);
+  }
+
+  function connectedCallback() {
+    this.$hu.$mount();
   }
 
   Hu.define = define$1;

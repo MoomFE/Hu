@@ -40,5 +40,9 @@ export default function init( isCustomElement, root, name, options, userOptions 
 
   options.created.call( targetProxy );
 
+  if( !isCustomElement && options.el ){
+    targetProxy.$mount( options.el );
+  }
+
   return targetProxy;
 }
