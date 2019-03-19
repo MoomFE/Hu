@@ -86,6 +86,13 @@ interface $hu {
   readonly $watch( expOrFn: string | (() => any), callback: ( this: $hu, value, oldValue ) => void, options: WatchOptions ): () => void;
 
   /**
+   * 如果 Hu 实例在实例化时没有收到 el 选项, 则它处于"未挂载"状态, 没有关联的 DOM 元素. 可以使用 hu.$mount() 手动地挂载一个未挂载的实例
+   * @param elementOrSelector 提供一个在页面上已存在的 DOM 元素作为 Hu 实例的挂载目标. 可以是 CSS 选择器或是一个 HTMLElement 实例
+   * @returns 返回实例自身
+   */
+  readonly $mount( elementOrSelector: Element | string ): this;
+
+  /**
    * 迫使 Hu 实例重新渲染
    */
   readonly $forceUpdate(): void;
@@ -104,6 +111,11 @@ interface Element {
  * Hu 静态对象
  */
 interface Hu{
+
+  /**
+   * @param options Hu 实例控制元素行为的选项对象
+   */
+  new( options: ComponentOptions ): $hu;
 
   /**
    * 定义一个全局的自定义元素
@@ -176,6 +188,12 @@ type fromAttribute = ( value: string | null ) => any;
 type toAttribute = ( value: any ) => string | null;
 
 interface ComponentOptions{
+
+  /**
+   * 提供一个在页面上已存在的 DOM 元素作为 Hu 实例的挂载目标. 可以是 CSS 选择器或是一个 HTMLElement 实例
+   * - 只在由 new 创建的实例中使用
+   */
+  el?: Element | string;
 
   /**
    * 声明需要从自定义标签上接收哪些属性
