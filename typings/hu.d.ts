@@ -86,6 +86,16 @@ interface $hu {
   readonly $watch( expOrFn: string | (() => any), callback: ( this: $hu, value, oldValue ) => void, options: WatchOptions ): () => void;
 
   /**
+   * 观察 Hu 实例变化的一个键路径表达式或计算属性函数
+   * @param expOrFn 值可以是:
+   *            - 需要监听的一个键路径表达式, 每当值变化时, 会调用回调函数
+   *            - 需要监听的一个计算属性函数, 每当返回值得出一个不同的结果时, 会调用回调函数
+   * @param options 监听选项
+   * @returns 返回一个方法, 运行以取消监听
+   */
+  readonly $watch( expOrFn: string | (() => any), options: WatchOptions ): () => void;
+
+  /**
    * 如果 Hu 实例在实例化时没有收到 el 选项, 则它处于"未挂载"状态, 没有关联的 DOM 元素. 可以使用 hu.$mount() 手动地挂载一个未挂载的实例
    * @param elementOrSelector 提供一个在页面上已存在的 DOM 元素作为 Hu 实例的挂载目标. 可以是 CSS 选择器或是一个 HTMLElement 实例
    * @returns 返回实例自身
