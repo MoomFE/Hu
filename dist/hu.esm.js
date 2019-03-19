@@ -2889,10 +2889,7 @@ class HuConstructor {
 
       if ($el) {
         const templateResult = options.render.call(targetProxy, html$1);
-
-        if (templateResult instanceof TemplateResult) {
-          render(templateResult, $el);
-        }
+        render(templateResult, $el);
       }
     });
   }

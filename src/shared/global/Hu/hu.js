@@ -1,7 +1,7 @@
 import nextTick from "../../../static/nextTick/nextTick";
 import { createCollectingDependents } from "../../../static/observable/util/collectingDependents";
 import { optionsMap } from "../../../static/define/initOptions/index";
-import html, { TemplateResult, render } from "../../../html/index";
+import html, { render } from "../../../html/index";
 import { observe, observeProxyMap } from "../../../static/observable/util/observe";
 import isSymbolOrNotReserved from "../../util/isSymbolOrNotReserved";
 import isString from "../../util/isString";
@@ -33,10 +33,7 @@ export default class HuConstructor{
 
       if( $el ){
         const templateResult = options.render.call( targetProxy, html );
-
-        if( templateResult instanceof TemplateResult ){
-          render( templateResult, $el );
-        }
+        render( templateResult, $el );
       }
     });
   }
