@@ -1,17 +1,19 @@
-import { defineInstance } from "../../../static/define/define";
+import HuConstructor from "./hu";
+import init from "../../../static/define/init/index";
+import uid from "../../util/uid";
+import initOptions from "../../../static/define/initOptions/index";
 
 
-export function Hu(){
-  
-}
+const Hu = new Proxy( HuConstructor, {
+  construct( HuConstructor, [ _userOptions ] ){
+    const name = 'anonymous-' + uid();
+    const [ userOptions, options ] = initOptions( name, _userOptions );
+    const targetProxy = init( false, void 0, name, options, userOptions );
 
-const HuProxy = new Proxy( Hu, {
-  construct( target, [ userOptions ] ){
-    const $hu = defineInstance( userOptions )
-    return $hu;
+    return targetProxy;
   }
 });
 
 Hu.version = '__VERSION__';
 
-export default HuProxy;
+export default Hu;

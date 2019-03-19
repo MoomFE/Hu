@@ -210,226 +210,9 @@
     }
   })();
 
-  const {
-    isArray
-  } = Array;
-
-  var isPlainObject = (
-  /**
-   * 判断传入对象是否是纯粹的对象
-   * @param {any} value 需要判断的对象
-   */
-  value => Object.prototype.toString.call(value) === '[object Object]');
-
-  const {
-    ownKeys
-  } = Reflect;
-
-  var each = (
-  /**
-   * 对象遍历方法
-   * @param {{}} obj 需要遍历的对象
-   * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
-   */
-  (obj, cb) => {
-    if (obj) {
-      const keys = ownKeys(obj);
-
-      for (let key of keys) {
-        cb(key, obj[key]);
-      }
-    }
-  });
-
-  var isFunction = (
-  /**
-   * 判断传入对象是否是 Function 类型
-   * @param {any} value 需要判断的对象
-   */
-  value => typeof value === 'function');
-
-  var fromBooleanAttribute = (
-  /**
-   * 序列化为 Boolean 属性
-   */
-  value => value !== null);
-
-  var isObject = (
-  /**
-   * 判断传入对象是否是 Object 类型且不为 null
-   * @param {any} value 需要判断的对象
-   */
-  value => value !== null && typeof value === 'object');
-
-  var isSymbol = (
-  /**
-   * 判断传入对象是否是 Symbol 类型
-   * @param {any} value 需要判断的对象
-   */
-  value => typeof value === 'symbol');
-
-  var returnArg = (
-  /**
-   * 返回传入的首个参数
-   * @param {any} value 需要返回的参数
-   */
-  value => value);
-
-  const {
-    create
-  } = Object;
-
-  var cached = (
-  /**
-   * 创建一个可以缓存方法返回值的方法
-   */
-  fn => {
-    const cache = create(null);
-    return str => {
-      if (str in cache) return cache[str];
-      return cache[str] = fn(str);
-    };
-  });
-
-  var rHyphenate = /\B([A-Z])/g;
-
-  var hyphenate = /**
-   * 将驼峰转为以连字符号连接的小写名称
-   */
-  cached(name => {
-    return name.replace(rHyphenate, '-$1').toLowerCase();
-  });
-
-  /**
-   * 初始化组件 props 配置
-   * @param {{}} userOptions 用户传入的组件配置
-   * @param {{}} options 格式化后的组件配置
-   */
-
-  function initProps(userOptions, options) {
-    /** 格式化后的 props 配置 */
-    const props = options.props = {};
-    /** 最终的 prop 与取值 attribute 的映射 */
-
-    const propsMap = options.propsMap = {};
-    /** 用户传入的 props 配置 */
-
-    const userProps = userOptions.props;
-    /** 用户传入的 props 配置是否是数组 */
-
-    let propsIsArray = false; // 去除不合法参数
-
-    if (userProps == null || !((propsIsArray = isArray(userProps)) || isPlainObject(userProps))) {
-      return;
-    } // 格式化数组参数
-
-
-    if (propsIsArray) {
-      if (!userProps.length) return;
-
-      for (let name of userProps) {
-        props[name] = initProp(name, null);
-      }
-    } // 格式化 JSON 参数
-    else {
-        each(userProps, (name, prop) => {
-          props[name] = initProp(name, prop);
-        });
-      } // 生成 propsMap
-
-
-    each(props, (name, prop) => {
-      const {
-        attr
-      } = prop;
-
-      if (attr) {
-        const map = propsMap[attr] || (propsMap[attr] = []);
-        map.push({
-          name,
-          from: prop.from || returnArg
-        });
-      }
-    });
-  }
-  /**
-   * 格式化组件 prop 配置
-   * @param { string | symbol } name prop 名称
-   * @param { {} | null } prop 用户传入的 prop
-   */
-
-  function initProp(name, prop) {
-    /** 格式化后的 props 配置 */
-    const options = {};
-    initPropAttribute(name, prop, options);
-
-    if (prop) {
-      // 单纯设置变量类型
-      if (isFunction(prop)) {
-        options.from = prop;
-      } // 高级用法
-      else {
-          initPropType(prop, options);
-          initPropDefault(prop, options);
-        }
-    } // 如果传入值是 Boolean 类型, 则需要另外处理
-
-
-    if (options.from === Boolean) {
-      options.from = fromBooleanAttribute;
-    }
-
-    return options;
-  }
-  /**
-   * 初始化 options.attr
-   */
-
-
-  function initPropAttribute(name, prop, options) {
-    // 当前 prop 是否是 Symbol 类型的
-    options.isSymbol = isSymbol(name); // 当前 prop 的取值 attribute
-
-    options.attr = prop && prop.attr || (options.isSymbol // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
-    ? null // 驼峰转为以连字符号连接的小写 attr 名称
-    : hyphenate(name));
-  }
-  /**
-   * 初始化 options.type 变量类型
-   */
-
-
-  function initPropType(prop, options) {
-    const type = prop.type;
-
-    if (type != null) {
-      // String || Number || Boolean || function( value ){ return value };
-      if (isFunction(type)) {
-        options.from = type;
-      } // {
-      //   from(){}
-      //   to(){}
-      // }
-      else if (isPlainObject(type)) {
-          if (isFunction(type.from)) options.from = type.from;
-          if (isFunction(type.to)) options.to = type.to;
-        }
-    }
-  }
-  /**
-   * 初始化 options.default 默认值
-   */
-
-
-  function initPropDefault(prop, options) {
-    if ('default' in prop) {
-      const $default = prop.default;
-
-      if (isFunction($default) || !isObject($default)) {
-        options.default = $default;
-      }
-    }
-  }
+  const inBrowser = typeof window !== 'undefined';
+  const UA = inBrowser && window.navigator.userAgent.toLowerCase();
+  const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
 
   var noop = (
   /**
@@ -437,143 +220,62 @@
    */
   () => {});
 
-  function initLifecycle(userOptions, options) {
-    [
-    /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
-    'beforeCreate',
-    /** 在实例创建完成后被立即调用, 但是挂载阶段还没开始 */
-    'created',
-    /** 在自定义元素挂载开始之前被调用 */
-    'beforeMount',
-    /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
-    'mounted',
-    /** 数据更新时调用, 还未更新组件 DOM */
-    'beforeUpdate',
-    /** 数据更新时调用, 已更新组件 DOM */
-    'updated',
-    /** 实例销毁之前调用。在这一步，实例仍然完全可用 */
-    'beforeDestroy',
-    /** 实例销毁后调用 */
-    'destroyed'].forEach(name => {
-      const lifecycle = userOptions[name];
-      options[name] = isFunction(lifecycle) ? lifecycle : noop;
-    });
+  const callbacks = [];
+  let pending = false;
+
+  function flushCallbacks() {
+    pending = false;
+    const copies = callbacks.slice(0);
+    callbacks.length = 0;
+
+    for (let copy of copies) copy();
   }
 
-  function initState(userOptions, options) {
-    const {
-      methods,
-      data,
-      computed,
-      watch
-    } = userOptions;
+  const resolve = Promise.resolve();
 
-    if (methods) {
-      initMethods(methods, options);
+  const timerFunc = () => {
+    resolve.then(flushCallbacks);
+
+    if (isIOS) {
+      setTimeout(noop);
     }
+  };
 
-    if (data) {
-      initData(data, options);
-    }
-
-    if (computed) {
-      initComputed(computed, options);
-    }
-
-    if (watch) {
-      initWatch(watch, options);
-    }
-  }
-
-  function initMethods(userMethods, options) {
-    const methods = options.methods = {};
-    each(userMethods, (key, method) => {
-      isFunction(method) && (methods[key] = method);
-    });
-  }
-
-  function initData(userData, options) {
-    isFunction(userData) && (options.data = userData);
-  }
-
-  function initComputed(userComputed, options) {
-    const computed = options.computed = {};
-    each(userComputed, (key, userComputed) => {
-      if (userComputed) {
-        const isFn = isFunction(userComputed);
-        const get = isFn ? userComputed : userComputed.get || noop;
-        const set = isFn ? noop : userComputed.set || noop;
-        computed[key] = {
-          get,
-          set
-        };
-      }
-    });
-  }
-
-  function initWatch(userWatch, options) {
-    const watch = options.watch = {};
-    each(userWatch, (key, handler) => {
-      if (isArray(handler)) {
-        for (const handler of handler) {
-          createWatcher(key, handler, watch);
-        }
+  function nextTick(callback, ctx) {
+    let resolve;
+    callbacks.push(() => {
+      if (callback) {
+        callback.call(ctx);
       } else {
-        createWatcher(key, handler, watch);
+        resolve(ctx);
       }
     });
+
+    if (!pending) {
+      pending = true;
+      timerFunc();
+    }
+
+    if (!callback) {
+      return new Promise(_resolve => {
+        resolve = _resolve;
+      });
+    }
   }
 
-  function createWatcher(key, handler, watch) {
-    watch[key] = isPlainObject(handler) ? handler : {
-      handler
-    };
-  }
-
-  function initOther(userOptions, options) {
-    const {
-      render
-    } = userOptions; // 渲染方法
-
-    options.render = isFunction(render) ? render : noop;
-  }
-
+  let uid = 0;
+  var uid$1 = (
   /**
-   * 初始化组件配置
-   * @param {{}} userOptions 用户传入的组件配置
+   * 返回一个字符串 UID
    */
+  () => '' + uid++);
 
-  function initOptions(userOptions) {
-    /** 格式化后的组件配置 */
-    const options = {};
-    initProps(userOptions, options);
-    initState(userOptions, options);
-    initLifecycle(userOptions, options);
-    initOther(userOptions, options);
-    return options;
-  }
-
-  const {
-    defineProperty
-  } = Object;
-
-  var define = (
+  var isObject = (
   /**
-   * 在传入对象上定义可枚举可删除的一个新属性
-   * 
-   * @param {any} 需要定义属性的对象
-   * @param {string} attribute 需要定义的属性名称
-   * @param {function} get 属性的 getter 方法
-   * @param {function} set 属性的 setter 方法
+   * 判断传入对象是否是 Object 类型且不为 null
+   * @param {any} value 需要判断的对象
    */
-  (obj, attribute, get, set) => {
-    defineProperty(obj, attribute, {
-      enumerable: true,
-      configurable: true,
-      get,
-      set
-    });
-  });
+  value => value !== null && typeof value === 'object');
 
   /**
    * 调用堆栈
@@ -594,6 +296,14 @@
 
   const {
     getOwnPropertyDescriptor
+  } = Object;
+
+  const {
+    ownKeys
+  } = Reflect;
+
+  const {
+    create
   } = Object;
 
   const {
@@ -823,177 +533,27 @@
     return deleteProperty(target, name);
   };
 
-  var isReserved = /**
-   * 判断字符串首字母是否为 $
-   * @param {String} value
-   */
-  cached(value => {
-    const charCode = (value + '').charCodeAt(0);
-    return charCode === 0x24;
-  });
-
-  /**
-   * 初始化当前组件 props 属性
-   * @param {boolean} isCustomElement 是否是初始化自定义元素
-   * @param {HTMLElement} root 
-   * @param {{}} options 
-   * @param {{}} target 
-   * @param {{}} targetProxy 
-   */
-
-  function initProps$1(isCustomElement, root, options, target, targetProxy) {
-    const props = options.props;
-    const propsTarget = create(null);
-    const propsTargetProxy = target.$props = observe(propsTarget); // 尝试从标签上获取 props 属性, 否则取默认值
-
-    each(props, (name, options) => {
-      let value = null;
-
-      if (isCustomElement && options.attr) {
-        value = root.getAttribute(options.attr);
-      } // 定义了该属性
-
-
-      if (value !== null) {
-        propsTarget[name] = (options.from || returnArg)(value);
-      } // 使用默认值
-      else {
-          propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
-        }
-    }); // 将 $props 上的属性在 $hu 上建立引用
-
-    each(props, (name, options) => {
-      if (options.isSymbol || !isReserved(name)) {
-        define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
-      }
-    });
-  }
-
-  var isSymbolOrNotReserved = (
-  /**
-   * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
-   * @param { string | symbol } name 需要判断的名称
-   */
-  name => {
-    return isSymbol(name) || !isReserved(name);
-  });
-
   const {
-    has
-  } = Reflect;
+    defineProperty
+  } = Object;
 
-  var injectionToLit = (
+  var define = (
   /**
-   * 在 $hu 上建立对象的映射
+   * 在传入对象上定义可枚举可删除的一个新属性
    * 
-   * @param {{}} litTarget $hu 实例
-   * @param {string} key 对象名称
-   * @param {any} value 对象值
-   * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
-   * @param {function} get 属性的 setter 方法
+   * @param {any} 需要定义属性的对象
+   * @param {string} attribute 需要定义的属性名称
+   * @param {function} get 属性的 getter 方法
+   * @param {function} set 属性的 setter 方法
    */
-  (litTarget, key, value, set, get) => {
-    // 首字母为 $ 则不允许映射到 $hu 实例中去
-    if (!isSymbolOrNotReserved(key)) return; // 若在 $hu 下有同名变量, 则删除
-
-    has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
-
-    if (set) {
-      define(litTarget, key, set, get);
-    } // 直接写入到 $hu 上
-    else {
-        litTarget[key] = value;
-      }
+  (obj, attribute, get, set) => {
+    defineProperty(obj, attribute, {
+      enumerable: true,
+      configurable: true,
+      get,
+      set
+    });
   });
-
-  /**
-   * 初始化当前组件 methods 属性
-   * @param {{}} options 
-   * @param {{}} target 
-   * @param {{}} targetProxy 
-   */
-
-  function initMethods$1(options, target, targetProxy) {
-    const methodsTarget = target.$methods = create(null);
-    each(options.methods, (name, value) => {
-      const method = methodsTarget[name] = value.bind(targetProxy);
-      injectionToLit(target, name, method);
-    });
-  }
-
-  /**
-   * 初始化当前组件 data 属性
-   * @param {{}} options 
-   * @param {{}} target 
-   * @param {{}} targetProxy 
-   */
-
-  function initData$1(options, target, targetProxy) {
-    const dataTarget = create(null);
-    const dataTargetProxy = target.$data = observe(dataTarget);
-
-    if (options.data) {
-      const data = options.data.call(targetProxy);
-      each(data, (name, value) => {
-        dataTarget[name] = value;
-        injectionToLit(target, name, 0, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
-      });
-    }
-  }
-
-  let uid = 0;
-  var uid$1 = (
-  /**
-   * 返回一个字符串 UID
-   */
-  () => '' + uid++);
-
-  const inBrowser = typeof window !== 'undefined';
-  const UA = inBrowser && window.navigator.userAgent.toLowerCase();
-  const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
-
-  const callbacks = [];
-  let pending = false;
-
-  function flushCallbacks() {
-    pending = false;
-    const copies = callbacks.slice(0);
-    callbacks.length = 0;
-
-    for (let copy of copies) copy();
-  }
-
-  const resolve = Promise.resolve();
-
-  const timerFunc = () => {
-    resolve.then(flushCallbacks);
-
-    if (isIOS) {
-      setTimeout(noop);
-    }
-  };
-
-  function nextTick(callback, ctx) {
-    let resolve;
-    callbacks.push(() => {
-      if (callback) {
-        callback.call(ctx);
-      } else {
-        resolve(ctx);
-      }
-    });
-
-    if (!pending) {
-      pending = true;
-      timerFunc();
-    }
-
-    if (!callback) {
-      return new Promise(_resolve => {
-        resolve = _resolve;
-      });
-    }
-  }
 
   const queue = new Set();
   let waiting = false;
@@ -1164,167 +724,335 @@
 
   }
 
-  var createComputed = (
+  const {
+    isArray
+  } = Array;
+
+  var isPlainObject = (
   /**
-   * @param {{}} computed
-   * @param {any} self 计算属性的 this 指向
-   * @param {boolean} isWatch 当前是否用于创建监听
-   */
-  (computed, self, isWatch) => {
-    /** 当前计算属性容器的子级的一些参数 */
-    const computedOptionsMap = new Map();
-    /** 当前计算属性容器对象 */
-
-    const computedTarget = create(null);
-    /** 当前计算属性容器的观察者对象 */
-
-    const computedTargetProxy = observe(computedTarget);
-    /** 当前计算属性容器的获取与修改拦截器 */
-
-    const computedTargetProxyInterceptor = new Proxy(computedTargetProxy, {
-      get: computedTargetProxyInterceptorGet(computedOptionsMap),
-      set: computedTargetProxyInterceptorSet(computedOptionsMap)
-    });
-    /** 给当前计算属性添加子级的方法 */
-
-    const appendComputed = createAppendComputed.call(self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch);
-    /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
-
-    let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0; // 添加计算属性
-
-    each(computed, appendComputed);
-    return [computedTarget, computedTargetProxyInterceptor, appendComputed, removeComputed];
-  });
-  /**
-   * 返回添加单个计算属性的方法
-   */
-
-  function createAppendComputed(computedTarget, computedTargetProxy, computedOptionsMap, isWatch) {
-    const isComputed = !isWatch;
-    const observeOptions = isComputed && observeMap.get(computedTarget);
-    /**
-     * @param {string} name 计算属性存储的名称
-     * @param {{}} computed 计算属性 getter / setter 对象
-     * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
-     */
-
-    return (name, computed, isWatchDeep) => {
-      /** 计算属性的 setter */
-      const set = (computed.set || noop).bind(this);
-      /** 计算属性的 getter */
-
-      const get = computed.get.bind(this);
-      /** 计算属性的 getter 依赖收集包装 */
-
-      const collectingDependentsGet = createCollectingDependents(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
-
-      computedTarget[name] = void 0; // 存储计算属性参数
-
-      computedOptionsMap.set(name, {
-        id: collectingDependentsGet.id,
-        get: collectingDependentsGet,
-        set
-      });
-    };
-  }
-  /**
-   * 返回移除单个计算属性的方法
-   */
-
-
-  function createRemoveComputed(computedOptionsMap) {
-    /**
-     * @param name 需要移除的计算属性
-     */
-    return name => {
-      // 获取计算属性的参数
-      const computedOptions = computedOptionsMap.get(name); // 有这个计算属性
-
-      if (computedOptions) {
-        // 清空依赖
-        dependentsMap[computedOptions.id].cleanDeps();
-      }
-    };
-  }
-  /**
-   * 返回计算属性的获取拦截器
-   */
-
-
-  const computedTargetProxyInterceptorGet = computedOptionsMap => (target, name) => {
-    // 获取计算属性的参数
-    const computedOptions = computedOptionsMap.get(name); // 防止用户通过 $computed 获取不存在的计算属性
-
-    if (computedOptions) {
-      const dependentsOptions = dependentsMap[computedOptions.id]; // 计算属性未初始化或需要更新
-
-      if (!dependentsOptions.isInit || dependentsOptions.shouldUpdate) {
-        computedOptions.get();
-      }
-    }
-
-    return target[name];
-  };
-  /**
-   * 返回计算属性的设置拦截器
-   */
-
-
-  const computedTargetProxyInterceptorSet = computedOptionsMap => (target, name, value) => {
-    const computedOptions = computedOptionsMap.get(name); // 防止用户通过 $computed 设置不存在的计算属性
-
-    if (computedOptions) {
-      return computedOptions.set(value), true;
-    }
-
-    return false;
-  };
-
-  function initComputed$1(options, target, targetProxy) {
-    const [computedTarget, computedTargetProxyInterceptor] = createComputed(options.computed, targetProxy);
-    target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
-
-    observeProxyMap.set(computedTargetProxyInterceptor, {});
-    each(options.computed, (name, computed) => {
-      injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
-    });
-  }
-
-  function initWatch$1(options, target, targetProxy) {
-    // 添加监听方法
-    each(options.watch, target.$watch);
-  }
-
-  var isString = (
-  /**
-   * 判断传入对象是否是 String 类型
+   * 判断传入对象是否是纯粹的对象
    * @param {any} value 需要判断的对象
    */
-  value => typeof value === 'string');
+  value => Object.prototype.toString.call(value) === '[object Object]');
 
-  function initRootTarget() {
-    /** 当前组件对象 */
-    const target = create(null);
-    /** 当前组件观察者对象 */
+  var each = (
+  /**
+   * 对象遍历方法
+   * @param {{}} obj 需要遍历的对象
+   * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
+   */
+  (obj, cb) => {
+    if (obj) {
+      const keys = ownKeys(obj);
 
-    const targetProxy = observe(target, {
-      set: {
-        before: (target, name) => {
-          return isSymbolOrNotReserved(name) ? null : 0;
-        }
-      },
-      get: {
-        before: (target, name) => {
-          return isString(name) && isReserved(name) ? 0 : null;
-        }
-      },
-      deleteProperty: {
-        before: (target, name) => {
-          return isString(name) && isReserved(name) ? 0 : null;
-        }
+      for (let key of keys) {
+        cb(key, obj[key]);
+      }
+    }
+  });
+
+  var isFunction = (
+  /**
+   * 判断传入对象是否是 Function 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => typeof value === 'function');
+
+  var fromBooleanAttribute = (
+  /**
+   * 序列化为 Boolean 属性
+   */
+  value => value !== null);
+
+  var isSymbol = (
+  /**
+   * 判断传入对象是否是 Symbol 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => typeof value === 'symbol');
+
+  var returnArg = (
+  /**
+   * 返回传入的首个参数
+   * @param {any} value 需要返回的参数
+   */
+  value => value);
+
+  var cached = (
+  /**
+   * 创建一个可以缓存方法返回值的方法
+   */
+  fn => {
+    const cache = create(null);
+    return str => {
+      if (str in cache) return cache[str];
+      return cache[str] = fn(str);
+    };
+  });
+
+  var rHyphenate = /\B([A-Z])/g;
+
+  var hyphenate = /**
+   * 将驼峰转为以连字符号连接的小写名称
+   */
+  cached(name => {
+    return name.replace(rHyphenate, '-$1').toLowerCase();
+  });
+
+  /**
+   * 初始化组件 props 配置
+   * @param {{}} userOptions 用户传入的组件配置
+   * @param {{}} options 格式化后的组件配置
+   */
+
+  function initProps(userOptions, options) {
+    /** 格式化后的 props 配置 */
+    const props = options.props = {};
+    /** 最终的 prop 与取值 attribute 的映射 */
+
+    const propsMap = options.propsMap = {};
+    /** 用户传入的 props 配置 */
+
+    const userProps = userOptions.props;
+    /** 用户传入的 props 配置是否是数组 */
+
+    let propsIsArray = false; // 去除不合法参数
+
+    if (userProps == null || !((propsIsArray = isArray(userProps)) || isPlainObject(userProps))) {
+      return;
+    } // 格式化数组参数
+
+
+    if (propsIsArray) {
+      if (!userProps.length) return;
+
+      for (let name of userProps) {
+        props[name] = initProp(name, null);
+      }
+    } // 格式化 JSON 参数
+    else {
+        each(userProps, (name, prop) => {
+          props[name] = initProp(name, prop);
+        });
+      } // 生成 propsMap
+
+
+    each(props, (name, prop) => {
+      const {
+        attr
+      } = prop;
+
+      if (attr) {
+        const map = propsMap[attr] || (propsMap[attr] = []);
+        map.push({
+          name,
+          from: prop.from || returnArg
+        });
       }
     });
-    return [target, targetProxy];
+  }
+  /**
+   * 格式化组件 prop 配置
+   * @param { string | symbol } name prop 名称
+   * @param { {} | null } prop 用户传入的 prop
+   */
+
+  function initProp(name, prop) {
+    /** 格式化后的 props 配置 */
+    const options = {};
+    initPropAttribute(name, prop, options);
+
+    if (prop) {
+      // 单纯设置变量类型
+      if (isFunction(prop)) {
+        options.from = prop;
+      } // 高级用法
+      else {
+          initPropType(prop, options);
+          initPropDefault(prop, options);
+        }
+    } // 如果传入值是 Boolean 类型, 则需要另外处理
+
+
+    if (options.from === Boolean) {
+      options.from = fromBooleanAttribute;
+    }
+
+    return options;
+  }
+  /**
+   * 初始化 options.attr
+   */
+
+
+  function initPropAttribute(name, prop, options) {
+    // 当前 prop 是否是 Symbol 类型的
+    options.isSymbol = isSymbol(name); // 当前 prop 的取值 attribute
+
+    options.attr = prop && prop.attr || (options.isSymbol // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
+    ? null // 驼峰转为以连字符号连接的小写 attr 名称
+    : hyphenate(name));
+  }
+  /**
+   * 初始化 options.type 变量类型
+   */
+
+
+  function initPropType(prop, options) {
+    const type = prop.type;
+
+    if (type != null) {
+      // String || Number || Boolean || function( value ){ return value };
+      if (isFunction(type)) {
+        options.from = type;
+      } // {
+      //   from(){}
+      //   to(){}
+      // }
+      else if (isPlainObject(type)) {
+          if (isFunction(type.from)) options.from = type.from;
+          if (isFunction(type.to)) options.to = type.to;
+        }
+    }
+  }
+  /**
+   * 初始化 options.default 默认值
+   */
+
+
+  function initPropDefault(prop, options) {
+    if ('default' in prop) {
+      const $default = prop.default;
+
+      if (isFunction($default) || !isObject($default)) {
+        options.default = $default;
+      }
+    }
+  }
+
+  function initLifecycle(userOptions, options) {
+    [
+    /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
+    'beforeCreate',
+    /** 在实例创建完成后被立即调用, 但是挂载阶段还没开始 */
+    'created',
+    /** 在自定义元素挂载开始之前被调用 */
+    'beforeMount',
+    /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
+    'mounted',
+    /** 数据更新时调用, 还未更新组件 DOM */
+    'beforeUpdate',
+    /** 数据更新时调用, 已更新组件 DOM */
+    'updated',
+    /** 实例销毁之前调用。在这一步，实例仍然完全可用 */
+    'beforeDestroy',
+    /** 实例销毁后调用 */
+    'destroyed'].forEach(name => {
+      const lifecycle = userOptions[name];
+      options[name] = isFunction(lifecycle) ? lifecycle : noop;
+    });
+  }
+
+  function initState(userOptions, options) {
+    const {
+      methods,
+      data,
+      computed,
+      watch
+    } = userOptions;
+
+    if (methods) {
+      initMethods(methods, options);
+    }
+
+    if (data) {
+      initData(data, options);
+    }
+
+    if (computed) {
+      initComputed(computed, options);
+    }
+
+    if (watch) {
+      initWatch(watch, options);
+    }
+  }
+
+  function initMethods(userMethods, options) {
+    const methods = options.methods = {};
+    each(userMethods, (key, method) => {
+      isFunction(method) && (methods[key] = method);
+    });
+  }
+
+  function initData(userData, options) {
+    isFunction(userData) && (options.data = userData);
+  }
+
+  function initComputed(userComputed, options) {
+    const computed = options.computed = {};
+    each(userComputed, (key, userComputed) => {
+      if (userComputed) {
+        const isFn = isFunction(userComputed);
+        const get = isFn ? userComputed : userComputed.get || noop;
+        const set = isFn ? noop : userComputed.set || noop;
+        computed[key] = {
+          get,
+          set
+        };
+      }
+    });
+  }
+
+  function initWatch(userWatch, options) {
+    const watch = options.watch = {};
+    each(userWatch, (key, handler) => {
+      if (isArray(handler)) {
+        for (const handler of handler) {
+          createWatcher(key, handler, watch);
+        }
+      } else {
+        createWatcher(key, handler, watch);
+      }
+    });
+  }
+
+  function createWatcher(key, handler, watch) {
+    watch[key] = isPlainObject(handler) ? handler : {
+      handler
+    };
+  }
+
+  function initOther(userOptions, options) {
+    const {
+      render
+    } = userOptions; // 渲染方法
+
+    options.render = isFunction(render) ? render : noop;
+  }
+
+  const {
+    assign
+  } = Object;
+
+  const optionsMap = {};
+  /**
+   * 初始化组件配置
+   * @param {string} name 自定义元素标签名
+   * @param {{}} _userOptions 用户传入的组件配置
+   */
+
+  function initOptions(name, _userOptions) {
+    /** 克隆一份用户配置 */
+    const userOptions = assign({}, _userOptions);
+    /** 格式化后的组件配置 */
+
+    const options = optionsMap[name] = {};
+    initProps(userOptions, options);
+    initState(userOptions, options);
+    initLifecycle(userOptions, options);
+    initOther(userOptions, options);
+    return [userOptions, options];
   }
 
   /**
@@ -2949,6 +2677,13 @@
     });
   });
 
+  var isString = (
+  /**
+   * 判断传入对象是否是 String 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => typeof value === 'string');
+
   var rWhitespace = /\s+/;
 
   /**
@@ -3166,6 +2901,24 @@
 
   html$1.unsafeHTML = html$1.unsafe = unsafeHTML;
 
+  var isReserved = /**
+   * 判断字符串首字母是否为 $
+   * @param {String} value
+   */
+  cached(value => {
+    const charCode = (value + '').charCodeAt(0);
+    return charCode === 0x24;
+  });
+
+  var isSymbolOrNotReserved = (
+  /**
+   * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
+   * @param { string | symbol } name 需要判断的名称
+   */
+  name => {
+    return isSymbol(name) || !isReserved(name);
+  });
+
   /**
    * unicode letters used for parsing html tags, component names and property paths.
    * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
@@ -3195,98 +2948,336 @@
     };
   }
 
-  function initPrototype(root, options, target, targetProxy) {
-    initForceUpdate(options, target, targetProxy);
-    initWatch$2(target, targetProxy);
-    initNextTick(target, targetProxy);
-  }
+  var createComputed = (
   /**
-   * 初始化 $hu.$forceUpdate 方法
+   * @param {{}} computed
+   * @param {any} self 计算属性的 this 指向
+   * @param {boolean} isWatch 当前是否用于创建监听
    */
+  (computed, self, isWatch) => {
+    /** 当前计算属性容器的子级的一些参数 */
+    const computedOptionsMap = new Map();
+    /** 当前计算属性容器对象 */
 
-  function initForceUpdate(options, target, targetProxy) {
-    const userRender = options.render.bind(targetProxy);
-    /**
-     * 迫使 Hu 实例重新渲染
-     */
+    const computedTarget = create(null);
+    /** 当前计算属性容器的观察者对象 */
 
-    target.$forceUpdate = createCollectingDependents(() => {
-      const templateResult = userRender(html$1);
+    const computedTargetProxy = observe(computedTarget);
+    /** 当前计算属性容器的获取与修改拦截器 */
 
-      if (templateResult instanceof TemplateResult) {
-        render(templateResult, target.$el);
-      }
+    const computedTargetProxyInterceptor = new Proxy(computedTargetProxy, {
+      get: computedTargetProxyInterceptorGet(computedOptionsMap),
+      set: computedTargetProxyInterceptorSet(computedOptionsMap)
     });
-  }
+    /** 给当前计算属性添加子级的方法 */
+
+    const appendComputed = createAppendComputed.call(self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch);
+    /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
+
+    let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0; // 添加计算属性
+
+    each(computed, appendComputed);
+    return [computedTarget, computedTargetProxyInterceptor, appendComputed, removeComputed];
+  });
   /**
-   * 初始化 $hu.$watch 方法
+   * 返回添加单个计算属性的方法
    */
 
-
-  function initWatch$2(target, targetProxy) {
-    const [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, null, true);
+  function createAppendComputed(computedTarget, computedTargetProxy, computedOptionsMap, isWatch) {
+    const isComputed = !isWatch;
+    const observeOptions = isComputed && observeMap.get(computedTarget);
     /**
-     * 监听 Hu 实例对象
+     * @param {string} name 计算属性存储的名称
+     * @param {{}} computed 计算属性 getter / setter 对象
+     * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
      */
 
-    target.$watch = function watch(expOrFn, callback, options) {
-      let watchFn; // 另一种写法
+    return (name, computed, isWatchDeep) => {
+      /** 计算属性的 setter */
+      const set = (computed.set || noop).bind(this);
+      /** 计算属性的 getter */
 
-      if (isPlainObject(callback)) {
-        return watch(expOrFn, callback.handler, callback);
-      } // 使用键路径表达式
+      const get = computed.get.bind(this);
+      /** 计算属性的 getter 依赖收集包装 */
 
+      const collectingDependentsGet = createCollectingDependents(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
 
-      if (isString(expOrFn)) {
-        watchFn = parsePath(expOrFn).bind(targetProxy);
-      } // 使用计算属性函数
-      else if (isFunction(expOrFn)) {
-          watchFn = expOrFn.bind(targetProxy);
-        } // 不支持其他写法
-        else {
-            return;
-          } // 初始化选项参数
+      computedTarget[name] = void 0; // 存储计算属性参数
 
-
-      options = options || {};
-      /** 当前 watch 的存储名称 */
-
-      const name = uid$1();
-      /** 当前 watch 的回调函数 */
-
-      const watchCallback = callback.bind(targetProxy);
-      /** 监听对象内部值的变化 */
-
-      const isWatchDeep = !!options.deep;
-      /** 值改变是否运行回调 */
-
-      let runCallback = !!options.immediate; // 添加监听
-
-      appendComputed(name, {
-        get: () => {
-          const oldValue = watchTarget[name];
-          const value = watchFn();
-          runCallback && watchCallback(value, oldValue);
-          return value;
-        }
-      }, isWatchDeep); // 首次运行, 以收集依赖
-
-      watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
-
-      runCallback = true; // 返回取消监听的方法
-
-      return () => {
-        removeComputed(name);
-      };
+      computedOptionsMap.set(name, {
+        id: collectingDependentsGet.id,
+        get: collectingDependentsGet,
+        set
+      });
     };
   }
   /**
-   * 初始化 $hu.$nextTick 方法
+   * 返回移除单个计算属性的方法
    */
 
 
-  function initNextTick(target, targetProxy) {
-    target.$nextTick = callback => nextTick(callback, targetProxy);
+  function createRemoveComputed(computedOptionsMap) {
+    /**
+     * @param name 需要移除的计算属性
+     */
+    return name => {
+      // 获取计算属性的参数
+      const computedOptions = computedOptionsMap.get(name); // 有这个计算属性
+
+      if (computedOptions) {
+        // 清空依赖
+        dependentsMap[computedOptions.id].cleanDeps();
+      }
+    };
+  }
+  /**
+   * 返回计算属性的获取拦截器
+   */
+
+
+  const computedTargetProxyInterceptorGet = computedOptionsMap => (target, name) => {
+    // 获取计算属性的参数
+    const computedOptions = computedOptionsMap.get(name); // 防止用户通过 $computed 获取不存在的计算属性
+
+    if (computedOptions) {
+      const dependentsOptions = dependentsMap[computedOptions.id]; // 计算属性未初始化或需要更新
+
+      if (!dependentsOptions.isInit || dependentsOptions.shouldUpdate) {
+        computedOptions.get();
+      }
+    }
+
+    return target[name];
+  };
+  /**
+   * 返回计算属性的设置拦截器
+   */
+
+
+  const computedTargetProxyInterceptorSet = computedOptionsMap => (target, name, value) => {
+    const computedOptions = computedOptionsMap.get(name); // 防止用户通过 $computed 设置不存在的计算属性
+
+    if (computedOptions) {
+      return computedOptions.set(value), true;
+    }
+
+    return false;
+  };
+
+  class HuConstructor {
+    constructor(name) {
+      /** 当前实例的实例配置 */
+      const options = optionsMap[name];
+      /** 当前实例对象 */
+
+      const target = this;
+      /** 当前实例观察者对象 */
+
+      const targetProxy = observe(target, proxyOptions);
+      /** 数据监听相关 */
+
+      const [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, null, true);
+      /** 迫使 Hu 实例重新渲染 */
+
+      this.$forceUpdate = createCollectingDependents(() => {
+        const templateResult = options.render.call(targetProxy, html$1);
+
+        if (templateResult instanceof TemplateResult) {
+          render(templateResult, this.$el);
+        }
+      });
+      /** 监听 Hu 实例对象 */
+
+      this.$watch = (expOrFn, callback, options) => {
+        let watchFn; // 另一种写法
+
+        if (isPlainObject(callback)) {
+          return this.$watch(expOrFn, callback.handler, callback);
+        } // 使用键路径表达式
+
+
+        if (isString(expOrFn)) {
+          watchFn = parsePath(expOrFn).bind(targetProxy);
+        } // 使用计算属性函数
+        else if (isFunction(expOrFn)) {
+            watchFn = expOrFn.bind(targetProxy);
+          } // 不支持其他写法
+          else return; // 初始化选项参数
+
+
+        options = options || {};
+        /** 当前 watch 的存储名称 */
+
+        const name = uid$1();
+        /** 当前 watch 的回调函数 */
+
+        const watchCallback = callback.bind(targetProxy);
+        /** 监听对象内部值的变化 */
+
+        const isWatchDeep = !!options.deep;
+        /** 值改变是否运行回调 */
+
+        let runCallback = !!options.immediate; // 添加监听
+
+        appendComputed(name, {
+          get: () => {
+            const oldValue = watchTarget[name];
+            const value = watchFn();
+            runCallback && watchCallback(value, oldValue);
+            return value;
+          }
+        }, isWatchDeep); // 首次运行, 以收集依赖
+
+        watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
+
+        runCallback = true; // 返回取消监听的方法
+
+        return () => {
+          removeComputed(name);
+        };
+      };
+    }
+    /**
+     * 在下次 DOM 更新循环结束之后执行回调
+     */
+
+
+    $nextTick(callback) {
+      return nextTick(callback, this);
+    }
+
+  }
+  const proxyOptions = {
+    set: {
+      before: (target, name) => {
+        return isSymbolOrNotReserved(name) ? null : 0;
+      }
+    },
+    get: {
+      before: (target, name) => {
+        return isString(name) && isReserved(name) ? 0 : null;
+      }
+    },
+    deleteProperty: {
+      before: (target, name) => {
+        return isString(name) && isReserved(name) ? 0 : null;
+      }
+    }
+  };
+
+  /**
+   * 初始化当前组件 props 属性
+   * @param {boolean} isCustomElement 是否是初始化自定义元素
+   * @param {HTMLElement} root 
+   * @param {{}} options 
+   * @param {{}} target 
+   * @param {{}} targetProxy 
+   */
+
+  function initProps$1(isCustomElement, root, options, target, targetProxy) {
+    const props = options.props;
+    const propsTarget = create(null);
+    const propsTargetProxy = target.$props = observe(propsTarget); // 尝试从标签上获取 props 属性, 否则取默认值
+
+    each(props, (name, options) => {
+      let value = null;
+
+      if (isCustomElement && options.attr) {
+        value = root.getAttribute(options.attr);
+      } // 定义了该属性
+
+
+      if (value !== null) {
+        propsTarget[name] = (options.from || returnArg)(value);
+      } // 使用默认值
+      else {
+          propsTarget[name] = isFunction(options.default) ? options.default.call(targetProxy) : options.default;
+        }
+    }); // 将 $props 上的属性在 $hu 上建立引用
+
+    each(props, (name, options) => {
+      if (options.isSymbol || !isReserved(name)) {
+        define(target, name, () => propsTargetProxy[name], value => propsTargetProxy[name] = value);
+      }
+    });
+  }
+
+  const {
+    has
+  } = Reflect;
+
+  var injectionToLit = (
+  /**
+   * 在 $hu 上建立对象的映射
+   * 
+   * @param {{}} litTarget $hu 实例
+   * @param {string} key 对象名称
+   * @param {any} value 对象值
+   * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
+   * @param {function} get 属性的 setter 方法
+   */
+  (litTarget, key, value, set, get) => {
+    // 首字母为 $ 则不允许映射到 $hu 实例中去
+    if (!isSymbolOrNotReserved(key)) return; // 若在 $hu 下有同名变量, 则删除
+
+    has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
+
+    if (set) {
+      define(litTarget, key, set, get);
+    } // 直接写入到 $hu 上
+    else {
+        litTarget[key] = value;
+      }
+  });
+
+  /**
+   * 初始化当前组件 methods 属性
+   * @param {{}} options 
+   * @param {{}} target 
+   * @param {{}} targetProxy 
+   */
+
+  function initMethods$1(options, target, targetProxy) {
+    const methodsTarget = target.$methods = create(null);
+    each(options.methods, (name, value) => {
+      const method = methodsTarget[name] = value.bind(targetProxy);
+      injectionToLit(target, name, method);
+    });
+  }
+
+  /**
+   * 初始化当前组件 data 属性
+   * @param {{}} options 
+   * @param {{}} target 
+   * @param {{}} targetProxy 
+   */
+
+  function initData$1(options, target, targetProxy) {
+    const dataTarget = create(null);
+    const dataTargetProxy = target.$data = observe(dataTarget);
+
+    if (options.data) {
+      const data = options.data.call(targetProxy);
+      each(data, (name, value) => {
+        dataTarget[name] = value;
+        injectionToLit(target, name, 0, () => dataTargetProxy[name], value => dataTargetProxy[name] = value);
+      });
+    }
+  }
+
+  function initComputed$1(options, target, targetProxy) {
+    const [computedTarget, computedTargetProxyInterceptor] = createComputed(options.computed, targetProxy);
+    target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
+
+    observeProxyMap.set(computedTargetProxyInterceptor, {});
+    each(options.computed, (name, computed) => {
+      injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
+    });
+  }
+
+  function initWatch$1(options, target, targetProxy) {
+    // 添加监听方法
+    each(options.watch, target.$watch);
   }
 
   /**
@@ -3301,13 +3292,12 @@
     }
   };
 
-  function initOptions$1(target, userOptions) {
-    target.$options = observe(userOptions, observeReadonly);
-  }
+  function initOptions$1(isCustomElement, name, target, userOptions) {
+    // Hu 的初始化选项
+    target.$options = observe(userOptions, observeReadonly); // Hu 实例信息选项
 
-  function initInfo(isCustomElement, target, name) {
     target.$info = observe({
-      name: name || `anonymous-${uid$1()}`,
+      name,
       isMounted: false,
       isCustomElement
     }, observeReadonly);
@@ -3317,13 +3307,17 @@
    * 初始化当前组件属性
    * @param {boolean} isCustomElement 是否是初始化自定义元素
    * @param {HTMLElement} root 自定义元素组件节点
-   * @param {{}} options 组件配置
    * @param {string} name 组件名称
+   * @param {{}} options 组件配置
    * @param {{}} userOptions 用户组件配置
    */
 
-  function init(isCustomElement, root, options, name, userOptions) {
-    const [target, targetProxy] = initRootTarget();
+  function init(isCustomElement, root, name, options, userOptions) {
+    /** 当前实例对象 */
+    const target = new HuConstructor(name);
+    /** 当前实例观察者对象 */
+
+    const targetProxy = observeMap.get(target).proxy;
 
     if (isCustomElement) {
       target.$el = root.attachShadow({
@@ -3332,9 +3326,7 @@
       target.$customElement = root;
     }
 
-    initOptions$1(target, userOptions);
-    initInfo(isCustomElement, target, name);
-    initPrototype(root, options, target, targetProxy);
+    initOptions$1(isCustomElement, name, target, userOptions);
     initProps$1(isCustomElement, root, options, target, targetProxy);
     initMethods$1(options, target, targetProxy);
     initData$1(options, target, targetProxy);
@@ -3344,6 +3336,17 @@
     options.created.call(targetProxy);
     return targetProxy;
   }
+
+  const Hu = new Proxy(HuConstructor, {
+    construct(HuConstructor$$1, [_userOptions]) {
+      const name = 'anonymous-' + uid$1();
+      const [userOptions, options] = initOptions(name, _userOptions);
+      const targetProxy = init(false, void 0, name, options, userOptions);
+      return targetProxy;
+    }
+
+  });
+  Hu.version = '1.0.0-bata.0';
 
   const {
     keys
@@ -3393,32 +3396,26 @@
 
   var initAdoptedCallback = (options => function () {});
 
-  const {
-    assign
-  } = Object;
-
   /**
    * 定义自定义元素
    * @param {string} name 标签名
-   * @param {{}} userOptions 组件配置
+   * @param {{}} _userOptions 组件配置
    */
 
-  function define$1(name, userOptions) {
-    // 克隆一份用户配置
-    userOptions = assign({}, userOptions); // 初始化组件配置
+  function define$1(name, _userOptions) {
+    const [userOptions, options] = initOptions(name, _userOptions);
 
-    const options = initOptions(userOptions); // 创建组件
-
-    const LitElement = class LitElement extends HTMLElement {
+    class HuElement extends HTMLElement {
       constructor() {
         super();
-        this.$hu = init(true, this, options, name, userOptions);
+        this.$hu = init(true, this, name, options, userOptions);
       }
 
-    }; // 定义需要监听的属性
+    } // 定义需要监听的属性
 
-    LitElement.observedAttributes = keys(options.propsMap);
-    assign(LitElement.prototype, {
+
+    HuElement.observedAttributes = keys(options.propsMap);
+    assign(HuElement.prototype, {
       // 自定义元素被添加到文档流
       connectedCallback: initConnectedCallback(options),
       // 自定义元素被从文档流移除
@@ -3429,44 +3426,20 @@
       attributeChangedCallback: initAttributeChangedCallback(options.propsMap)
     }); // 注册组件
 
-    customElements.define(name, LitElement);
-  }
-  /**
-   * 用于构建非自定义元素的 Hu 实例
-   * @param {{}} userOptions 
-   */
-
-  function defineInstance(userOptions) {
-    // 克隆一份用户配置
-    userOptions = assign({}, userOptions); // 初始化组件配置
-
-    const options = initOptions(userOptions); // 创建实例
-
-    const $hu = init(false, this, options, name, userOptions);
-    return $hu;
+    customElements.define(name, HuElement);
   }
 
-  function Hu() {}
-  const HuProxy = new Proxy(Hu, {
-    construct(target, [userOptions]) {
-      const $hu = defineInstance(userOptions);
-      return $hu;
-    }
-
-  });
-  Hu.version = '1.0.0-bata.0';
-
-  HuProxy.define = define$1;
+  Hu.define = define$1;
 
   const otherHu = window.Hu;
 
-  HuProxy.noConflict = () => {
-    if (window.Hu === HuProxy) window.Hu = otherHu;
-    return HuProxy;
+  Hu.noConflict = () => {
+    if (window.Hu === Hu) window.Hu = otherHu;
+    return Hu;
   };
 
   if (typeof window !== 'undefined') {
-    window.Hu = HuProxy;
+    window.Hu = Hu;
   }
 
   function render$1(result, container) {
@@ -3481,15 +3454,15 @@
     };
   }
 
-  HuProxy.html = html$1;
-  HuProxy.render = render$1;
+  Hu.html = html$1;
+  Hu.render = render$1;
 
-  HuProxy.observable = obj => {
+  Hu.observable = obj => {
     return isObject(obj) ? observe(obj) : obj;
   };
 
-  HuProxy.nextTick = nextTick;
+  Hu.nextTick = nextTick;
 
-  return HuProxy;
+  return Hu;
 
 }));
