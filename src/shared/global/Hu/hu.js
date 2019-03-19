@@ -24,20 +24,21 @@ export default class HuConstructor{
   constructor( name ){
     /** 当前实例的实例配置 */
     const options = optionsMap[ name ];
-    /** 当前实例对象 */
-    const target = this;
     /** 当前实例观察者对象 */
-    const targetProxy = observe( target, proxyOptions );
+    const targetProxy = observe( this, proxyOptions );
 
     /** 迫使 Hu 实例重新渲染 */
     this.$forceUpdate = createCollectingDependents(() => {
-      const templateResult = options.render.call( targetProxy, html );
+      const { $el } = this;
 
-      if( templateResult instanceof TemplateResult ){
-        render( templateResult, this.$el );
+      if( $el ){
+        const templateResult = options.render.call( targetProxy, html );
+
+        if( templateResult instanceof TemplateResult ){
+          render( templateResult, $el );
+        }
       }
     });
-
   }
 
   /** 监听 Hu 实例对象 */
