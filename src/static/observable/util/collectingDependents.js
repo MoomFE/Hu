@@ -97,7 +97,7 @@ class CollectingDependents{
   }
   /** 依赖的重新收集 */
   update(){
-    if( this.isWatch ){
+    if( this.isWatch || !this.isComputed ){
       queueUpdate( this );
     }else{
       this.get();
