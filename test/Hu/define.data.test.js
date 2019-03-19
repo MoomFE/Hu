@@ -51,6 +51,14 @@ describe( 'Hu.define - data', () => {
     expect( hu.$data ).is.empty;
   });
 
+  it( '使用 new 创建的 Hu 实例, data 可以为 JSON', () => {
+    const hu = new Hu({
+      data: { a: 1 }
+    });
+
+    expect( hu.$data ).is.deep.equals({ a: 1 });
+  });
+
   it( '首字母不为 $ 的属性可以在 $data 和 $hu 下找到', () => {
     const customName = window.customName;
 
