@@ -108,4 +108,54 @@ describe( 'Hu.instance', () => {
     }
   });
 
+  it( '使用 new 创建实例', () => {
+    const div = document.createElement('div');
+    const steps = [];
+
+    new Hu({
+      el: div,
+      render( html ){
+        steps.push('render');
+        return html`<span>123</span>`;
+      },
+      beforeMount(){
+        steps.push('beforeMount');
+      },
+      mounted(){
+        steps.push('mounted');
+      }
+    });
+
+    steps.push('created');
+
+    expect( div.firstElementChild.nodeName ).is.equals('SPAN');
+    expect( div.innerText ).is.equals( '123' );
+    expect( steps ).is.deep.equals([ 'beforeMount', 'render', 'mounted', 'created' ]);
+  });
+
+  it( '使用 new 创建实例 - 使用 $mount 挂载实例', () => {
+    const div = document.createElement('div');
+    const steps = [];
+
+    const hu = new Hu({
+      render( html ){
+        steps.push('render');
+        return html`<span>123</span>`;
+      },
+      beforeMount(){
+        steps.push('beforeMount');
+      },
+      mounted(){
+        steps.push('mounted');
+      }
+    });
+
+    steps.push('created');
+
+    expect( hu.$mount( div ) ).is.equals( hu );
+    expect( div.firstElementChild.nodeName ).is.equals('SPAN');
+    expect( div.innerText ).is.equals( '123' );
+    expect( steps ).is.deep.equals([ 'created', 'beforeMount', 'render', 'mounted' ]);
+  });
+
 });
