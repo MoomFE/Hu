@@ -171,28 +171,59 @@ describe( 'Hu.define - render', () => {
     });
   });
 
+  it( '由自定义元素创建的实例会在自定义元素首次被添加到 DOM 节点中时才会主动触发 render 方法进行渲染', () => {
+    const customName = window.customName;
+    let index = 0;
 
-  // it( '同一个自定义元素只有首次被添加到 DOM 节点中时会主动触发 render', () => {
-  //   const customName = window.customName;
-  //   let index = 0;
+    Hu.define( customName, {
+      render: () => index++
+    });
 
-  //   Hu.define( customName, {
-  //     render: () => index++
-  //   });
+    expect( index ).is.equals( 0 );
 
-  //   expect( index ).is.equals( 0 );
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
 
-  //   const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
-  //   const custom = div.firstElementChild;
+    expect( index ).is.equals( 0 );
 
-  //   expect( index ).is.equals( 1 );
+    div.$appendTo( document.body );
 
-  //   div.removeChild( custom );
-  //   div.appendChild( custom );
+    expect( index ).is.equals( 1 );
 
-  //   expect( index ).is.equals( 1 );
+    div.removeChild( custom );
 
-  //   div.$remove();
-  // });
+    expect( index ).is.equals( 1 );
+
+    div.appendChild( custom );
+
+    expect( index ).is.equals( 1 );
+
+    div.$remove();
+  });
+
+  it( '由 new 创建的实例将在首次绑定 el 时才会主动触发 render 方法进行渲染', () => {
+    let index = 0;
+
+    new Hu({
+      el: document.createElement('div'),
+      render: () => index++
+    });
+
+    expect( index ).is.equals( 1 );
+  });
+
+  it( '由 new 创建的实例将在首次绑定 el 时才会主动触发 render 方法进行渲染 ( 二 )', () => {
+    const div = document.createElement('div');
+    let index = 0;
+    const hu = new Hu({
+      render: () => index++
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.$mount( div );
+
+    expect( index ).is.equals( 1 );
+  });
 
 });
