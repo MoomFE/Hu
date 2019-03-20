@@ -1,269 +1,42 @@
 describe( 'Hu.define - computed', () => {
 
-  it( '在 $hu 实例下会创建 $computed 对象, 存放所有的计算属性', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
+  it( '计算属性未被访问时, 将不会自动运行', () => {
+    let isComputedGet = false;
+    const hu = new Hu({
       computed: {
-        a(){ return 123 }
+        a: () => isComputedGet = true
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu )
-      .has.property( '$computed' )
-      .that.is.deep.equals({ a: 123 });
-  });
-
-  it( '首字母不为 $ 的计算属性可以在 $computed 和 $hu 下找到', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      computed: {
-        a(){ return 1 }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
-    expect( hu.$computed ).has.property( 'a' ).that.is.equals( 1 );
-  });
-
-  it( '首字母为 $ 的计算属性可以在 $computed 下找到, 但是不能在 $hu 下找到', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      computed: {
-        a(){ return 1 },
-        $a(){ return 1 }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
-    expect( hu.$computed ).has.property( 'a' ).that.is.equals( 1 );
-
-    expect( hu ).has.not.property( '$a' );
-    expect( hu.$computed ).has.property( '$a' ).that.is.equals( 1 );
-  });
-
-  it( '确保 $computed 对象不会被再自动包裹一层观察者', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      computed: {
-        a(){ return this.$computed }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.a ).is.equals( hu.$computed );
-  });
-
-  it( '确保 $hu 对象不会被再自动包裹一层观察者', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      computed: {
-        a(){ return this }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.a ).is.equals( hu );
-  });
-
-  it( '未访问过计算属性, 计算属性不会自动运行其 getter', () => {
-    const customName = window.customName;
-    let isComputed = false
-
-    Hu.define( customName, {
-      computed: {
-        a(){ isComputed = true }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( isComputed ).is.false;
+    expect( isComputedGet ).is.false;
 
     hu.a;
 
-    expect( isComputed ).is.true;
+    expect( isComputedGet ).is.true;
   });
 
-  it( '未访问过计算属性, 计算属性不会自动运行其 getter ( Vue )', () => {
-    let isComputed = false
-
+  it( '计算属性未被访问时, 将不会自动运行 ( Vue )', () => {
+    let isComputedGet = false;
     const vm = new Vue({
       computed: {
-        a(){ isComputed = true }
+        a: () => isComputedGet = true
       }
     });
 
-    expect( isComputed ).is.false;
+    expect( isComputedGet ).is.false;
 
     vm.a;
 
-    expect( isComputed ).is.true;
+    expect( isComputedGet ).is.true;
   });
 
-  it( '每次访问计算属性的 getter, 都会重新计算依赖', () => {
-    const customName = window.customName;
+  it( '计算属性运行时会进行依赖收集并缓存值, 若依赖未更新, 那么再进行访问时会直接读取缓存', () => {
     let index = 0;
-
-    Hu.define( customName, {
-      data: () => ({
+    const hu = new Hu({
+      data: {
         a: 1,
         b: 2
-      }),
-      computed: {
-        c(){ return index ? this.b : this.a }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.c ).is.equals( 1 );
-
-    hu.a = 11;
-    expect( hu.c ).is.equals( 11 );
-
-    hu.a = 111;
-    expect( hu.c ).is.equals( 111 );
-
-    index++
-    expect( hu.c ).is.equals( 111 );
-
-    hu.a = 1111;
-    expect( hu.c ).is.equals( 2 );
-
-    hu.a = 11111;
-    expect( hu.c ).is.equals( 2 );
-
-    hu.b = 22;
-    expect( hu.c ).is.equals( 22 );
-
-    hu.b = 222;
-    expect( hu.c ).is.equals( 222 );
-
-    index--;
-    expect( hu.c ).is.equals( 222 );
-
-    hu.b = 2222;
-    expect( hu.c ).is.equals( 11111 );
-  });
-
-  it( '每次访问计算属性的 getter, 都会重新计算依赖 ( Vue )', () => {
-    let index = 0;
-
-    const vm = new Vue({
-      data: () => ({
-        a: 1,
-        b: 2
-      }),
-      computed: {
-        c(){ return index ? this.b : this.a }
-      }
-    });
-
-    expect( vm.c ).is.equals( 1 );
-
-    vm.a = 11;
-    expect( vm.c ).is.equals( 11 );
-
-    vm.a = 111;
-    expect( vm.c ).is.equals( 111 );
-
-    index++
-    expect( vm.c ).is.equals( 111 );
-
-    vm.a = 1111;
-    expect( vm.c ).is.equals( 2 );
-
-    vm.a = 11111;
-    expect( vm.c ).is.equals( 2 );
-
-    vm.b = 22;
-    expect( vm.c ).is.equals( 22 );
-
-    vm.b = 222;
-    expect( vm.c ).is.equals( 222 );
-
-    index--;
-    expect( vm.c ).is.equals( 222 );
-
-    vm.b = 2222;
-    expect( vm.c ).is.equals( 11111 );
-  });
-
-  it( '若计算属性依赖于创建了观察者的目标对象, 则只有首次访问和目标对象更改后的首次访问会触发计算属性的 getter', () => {
-    const customName = window.customName;
-    let index = 0;
-
-    Hu.define( customName, {
-      data: () => ({
-        a: 1,
-        b: 2
-      }),
-      computed: {
-        c(){
-          index++;
-          return this.a + this.b;
-        }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( index ).is.equals( 0 );
-    expect( hu.c ).is.equals( 3 );
-    expect( index ).is.equals( 1 );
-    expect( hu.c ).is.equals( 3 );
-    expect( index ).is.equals( 1 );
-    expect( hu.c ).is.equals( 3 );
-    expect( index ).is.equals( 1 );
-
-    hu.a = 998;
-
-    expect( index ).is.equals( 1 );
-    expect( hu.c ).is.equals( 1000 );
-    expect( index ).is.equals( 2 );
-    expect( hu.c ).is.equals( 1000 );
-    expect( index ).is.equals( 2 );
-    expect( hu.c ).is.equals( 1000 );
-    expect( index ).is.equals( 2 );
-  });
-
-  it( '若计算属性依赖于创建了观察者的目标对象, 则只有首次访问和目标对象更改后的首次访问会触发计算属性的 getter ( Vue )', () => {
-    let index = 0;
-
-    const vm = new Vue({
-      data: () => ({
-        a: 1,
-        b: 2
-      }),
+      },
       computed: {
         c(){
           index++;
@@ -273,202 +46,556 @@ describe( 'Hu.define - computed', () => {
     });
 
     expect( index ).is.equals( 0 );
-    expect( vm.c ).is.equals( 3 );
-    expect( index ).is.equals( 1 );
-    expect( vm.c ).is.equals( 3 );
-    expect( index ).is.equals( 1 );
-    expect( vm.c ).is.equals( 3 );
+
+    hu.c;
     expect( index ).is.equals( 1 );
 
-    vm.a = 998;
-
-    expect( index ).is.equals( 1 );
-    expect( vm.c ).is.equals( 1000 );
-    expect( index ).is.equals( 2 );
-    expect( vm.c ).is.equals( 1000 );
-    expect( index ).is.equals( 2 );
-    expect( vm.c ).is.equals( 1000 );
-    expect( index ).is.equals( 2 );
-  });
-
-  it( '若计算属性不依赖于创建了观察者的目标对象, 无论如何都只有第一次访问会触发计算属性的 getter', () => {
-    const customName = window.customName;
-    let index = 0;
-
-    Hu.define( customName, {
-      computed: {
-        a(){
-          index++;
-          return 123;
-        }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( index ).is.equals( 0 );
-
-    expect( hu.a ).is.equals( 123 );
+    hu.c;
     expect( index ).is.equals( 1 );
 
-    expect( hu.a ).is.equals( 123 );
-    expect( hu.a ).is.equals( 123 );
-    expect( hu.a ).is.equals( 123 );
-    expect( hu.a ).is.equals( 123 );
-    expect( hu.a ).is.equals( 123 );
-    expect( hu.a ).is.equals( 123 );
+    hu.c;
     expect( index ).is.equals( 1 );
   });
 
-  it( '若计算属性不依赖于创建了观察者的目标对象, 无论如何都只有第一次访问会触发计算属性的 getter ( Vue )', () => {
+  it( '计算属性运行时会进行依赖收集并缓存值, 若依赖未更新, 那么再进行访问时会直接读取缓存 ( Vue )', () => {
     let index = 0;
-
     const vm = new Vue({
+      data: {
+        a: 1,
+        b: 2
+      },
       computed: {
-        a(){
+        c(){
           index++;
-          return 123;
+          return this.a + this.b;
         }
       }
     });
 
     expect( index ).is.equals( 0 );
 
-    expect( vm.a ).is.equals( 123 );
+    vm.c;
     expect( index ).is.equals( 1 );
 
-    expect( vm.a ).is.equals( 123 );
-    expect( vm.a ).is.equals( 123 );
-    expect( vm.a ).is.equals( 123 );
-    expect( vm.a ).is.equals( 123 );
-    expect( vm.a ).is.equals( 123 );
-    expect( vm.a ).is.equals( 123 );
+    vm.c;
+    expect( index ).is.equals( 1 );
+
+    vm.c;
     expect( index ).is.equals( 1 );
   });
 
-  it( '计算属性可以使用 JSON 的方式进行声明, 可同时传入 setter 与 getter 方法', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
+  it( '计算属性运行时会进行依赖收集并缓存值, 若依赖更新, 那么在下次访问时会重新运行计算方法', () => {
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        a: 1,
+        b: 2
+      },
       computed: {
-        a: {
-          get(){ return 1 },
-          set(){}
+        c(){
+          index++;
+          return this.a + this.b;
         }
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
+    expect( index ).is.equals( 0 );
 
-    expect( hu ).has.property( 'a' ).that.is.equals( 1 );
-    expect( hu.$computed ).has.property( 'a' ).that.is.equals( 1 );
+    hu.c;
+    expect( index ).is.equals( 1 );
+
+    hu.c;
+    expect( index ).is.equals( 1 );
+
+    hu.c;
+    expect( index ).is.equals( 1 );
+
+    hu.a = 2;
+    expect( index ).is.equals( 1 );
+    hu.c;
+    expect( index ).is.equals( 2 );
+
+    hu.a = 3;
+    hu.b = 3;
+    expect( index ).is.equals( 2 );
+    hu.c;
+    expect( index ).is.equals( 3 );
   });
 
-  it( '计算属性可以使用 JSON 的方式进行声明, 可同时传入 setter 与 getter 方法 ( Vue )', () => {
+  it( '计算属性运行时会进行依赖收集并缓存值, 若依赖更新, 那么在下次访问时会重新运行计算方法 ( Vue )', () => {
+    let index = 0;
     const vm = new Vue({
+      data: {
+        a: 1,
+        b: 2
+      },
       computed: {
-        a: {
-          get(){ return 1 },
-          set(){}
+        c(){
+          index++;
+          return this.a + this.b;
         }
       }
     });
 
-    expect( vm ).has.property( 'a' ).that.is.equals( 1 );
+    expect( index ).is.equals( 0 );
+
+    vm.c;
+    expect( index ).is.equals( 1 );
+
+    vm.c;
+    expect( index ).is.equals( 1 );
+
+    vm.c;
+    expect( index ).is.equals( 1 );
+
+    vm.a = 2;
+    expect( index ).is.equals( 1 );
+    vm.c;
+    expect( index ).is.equals( 2 );
+
+    vm.a = 3;
+    vm.b = 3;
+    expect( index ).is.equals( 2 );
+    vm.c;
+    expect( index ).is.equals( 3 );
   });
 
-  it( '计算属性如声明了 setter 方法, 则计算属性被写入时会调用计算属性的 setter 方法', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
-        a: 123456
-      }),
-      computed: {
-        b: {
-          get(){
-            return +( this.a + '' ).split('').reverse().join('')
-          },
-          set( value ){
-            this.a = value;
-          }
-        }
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.a ).is.equals( 123456 );
-    expect( hu.b ).is.equals( 654321 );
-
-    hu.a = 345678;
-
-    expect( hu.a ).is.equals( 345678 );
-    expect( hu.b ).is.equals( 876543 );
-
-    hu.b = 234567;
-
-    expect( hu.a ).is.equals( 234567 );
-    expect( hu.b ).is.equals( 765432 );
-  });
-
-  it( '计算属性如声明了 setter 方法, 则计算属性被写入时会调用计算属性的 setter 方法 ( Vue )', () => {
-    const vm = new Vue({
-      data: () => ({
-        a: 123456
-      }),
-      computed: {
-        b: {
-          get(){
-            return +( this.a + '' ).split('').reverse().join('')
-          },
-          set( value ){
-            this.a = value;
-          }
-        }
-      }
-    });
-
-    expect( vm.a ).is.equals( 123456 );
-    expect( vm.b ).is.equals( 654321 );
-
-    vm.a = 345678;
-
-    expect( vm.a ).is.equals( 345678 );
-    expect( vm.b ).is.equals( 876543 );
-
-    vm.b = 234567;
-
-    expect( vm.a ).is.equals( 234567 );
-    expect( vm.b ).is.equals( 765432 );
-  });
-
-  it( '计算属性可以被互相依赖', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
+  it( '计算属性不会对非观察者对象收集依赖', () => {
+    let index = 0;
+    const hu = new Hu({
+      data: {
         a: 1
-      }),
+      },
+      computed: {
+        b(){
+          return index + this.a;
+        }
+      }
+    });
+
+    expect( hu.b ).is.equals( 1 );
+
+    hu.a++;
+    expect( hu.b ).is.equals( 2 );
+    
+    hu.a++;
+    expect( hu.b ).is.equals( 3 );
+
+    index++;
+    expect( hu.b ).is.equals( 3 );
+
+    index++;
+    expect( hu.b ).is.equals( 3 );
+
+    hu.a++;
+    expect( hu.b ).is.equals( 6 );
+  });
+
+  it( '计算属性不会对非观察者对象收集依赖 ( Vue )', () => {
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      computed: {
+        b(){
+          return index + this.a;
+        }
+      }
+    });
+
+    expect( vm.b ).is.equals( 1 );
+
+    vm.a++;
+    expect( vm.b ).is.equals( 2 );
+    
+    vm.a++;
+    expect( vm.b ).is.equals( 3 );
+
+    index++;
+    expect( vm.b ).is.equals( 3 );
+
+    index++;
+    expect( vm.b ).is.equals( 3 );
+
+    vm.a++;
+    expect( vm.b ).is.equals( 6 );
+  });
+
+  it( '计算属性每次运行时都会进行依赖收集, 只会响应最新的依赖', () => {
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        a: 2,
+        b: 4
+      },
+      computed: {
+        c(){
+          return index++ ? this.b : this.a;
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    // 目前依赖在 a
+    expect( hu.c ).is.equals( 2 );
+    expect( index ).is.equals( 1 );
+
+    expect( hu.c ).is.equals( 2 );
+    expect( index ).is.equals( 1 );
+
+    hu.a = 3;
+    expect( index ).is.equals( 1 );
+    // 依赖被改为 b
+    expect( hu.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+
+    hu.a = 5;
+    expect( index ).is.equals( 2 );
+    expect( hu.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+
+    hu.b = 6;
+    expect( index ).is.equals( 2 );
+    expect( hu.c ).is.equals( 6 );
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '计算属性每次运行时都会进行依赖收集, 只会响应最新的依赖 ( Vue )', () => {
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        a: 2,
+        b: 4
+      },
+      computed: {
+        c(){
+          return index++ ? this.b : this.a;
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    // 目前依赖在 a
+    expect( vm.c ).is.equals( 2 );
+    expect( index ).is.equals( 1 );
+
+    expect( vm.c ).is.equals( 2 );
+    expect( index ).is.equals( 1 );
+
+    vm.a = 3;
+    expect( index ).is.equals( 1 );
+    // 依赖被改为 b
+    expect( vm.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+
+    vm.a = 5;
+    expect( index ).is.equals( 2 );
+    expect( vm.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+
+    vm.b = 6;
+    expect( index ).is.equals( 2 );
+    expect( vm.c ).is.equals( 6 );
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '计算属性被监听方法依赖时, 当计算属性的依赖被更新, 计算属性会重新运行计算方法', ( done ) => {
+    let result;
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        a: 1,
+        b: 2
+      },
+      computed: {
+        c(){
+          index++;
+          return this.a + this.b;
+        }
+      },
+      watch: {
+        c: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( index ).is.equals( 1 );
+    expect( result ).is.undefined;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      hu.a = 3;
+      hu.b = 4;
+      expect( index ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 4, 3 ]);
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 3 );
+        expect( result ).is.deep.equals([ 7, 4 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '计算属性被监听方法依赖时, 当计算属性的依赖被更新, 计算属性会重新运行计算方法 ( Vue )', ( done ) => {
+    let result;
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        a: 1,
+        b: 2
+      },
+      computed: {
+        c(){
+          index++;
+          return this.a + this.b;
+        }
+      },
+      watch: {
+        c: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( result ).is.undefined;
+
+    vm.a = 2;
+    expect( index ).is.equals( 1 );
+    expect( result ).is.undefined;
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      vm.a = 3;
+      vm.b = 4;
+      expect( index ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 4, 3 ]);
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 3 );
+        expect( result ).is.deep.equals([ 7, 4 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '计算属性被监听方法依赖时, 当计算属性的依赖被更新后又被读取, 那么在下一 tick 计算属性不会再运行', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        a: 1,
+        b: 2
+      },
+      computed: {
+        c(){
+          index++;
+          return this.a + this.b;
+        }
+      },
+      watch: {
+        c: {
+          immediate: true,
+          handler: () => {}
+        }
+      }
+    });
+
+    // 计算属性被监听属性初始化
+    expect( index ).is.equals( 1 );
+
+    // 再次访问计算属性是读取的缓存
+    expect( hu.c ).is.equals( 3 );
+    expect( index ).is.equals( 1 );
+
+    // 更新计算属性的依赖
+    // 此时计算属性还未更新
+    hu.a = 2;
+    expect( index ).is.equals( 1 );
+
+    // 读取计算属性, 计算属性已更新
+    expect( hu.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+    hu.$nextTick(() => {
+      expect( hu.c ).is.equals( 4 );
+      expect( index ).is.equals( 2 );
+
+      done();
+    });
+  });
+  
+  it( '计算属性被监听方法依赖时, 当计算属性的依赖被更新后又被读取, 那么在下一 tick 计算属性不会再运行 ( Vue )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        a: 1,
+        b: 2
+      },
+      computed: {
+        c(){
+          index++;
+          return this.a + this.b;
+        }
+      },
+      watch: {
+        c: {
+          immediate: true,
+          handler: () => {}
+        }
+      }
+    });
+
+    // 计算属性被监听属性初始化
+    expect( index ).is.equals( 1 );
+
+    // 再次访问计算属性是读取的缓存
+    expect( vm.c ).is.equals( 3 );
+    expect( index ).is.equals( 1 );
+
+    // 更新计算属性的依赖
+    // 此时计算属性还未更新
+    vm.a = 2;
+    expect( index ).is.equals( 1 );
+
+    // 读取计算属性, 计算属性已更新
+    expect( vm.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+    vm.$nextTick(() => {
+      expect( vm.c ).is.equals( 4 );
+      expect( index ).is.equals( 2 );
+
+      done();
+    });
+  });
+
+  it( '计算属性被监听方法依赖时, 当计算属性的依赖被更新, 计算属性会重新运行计算方法, 监听方法会异步调用', ( done ) => {
+    let result;
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        a: 1,
+        b: 2
+      },
+      computed: {
+        c(){
+          index++;
+          return this.a + this.b;
+        }
+      },
+      watch: {
+        c: {
+          immediate: true,
+          handler: ( value, oldValue ) => result = [ value, oldValue ]
+        }
+      }
+    });
+
+    // 计算属性被监听属性初始化
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 再次访问计算属性是读取的缓存
+    expect( hu.c ).is.equals( 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 更新计算属性的依赖
+    // 此时计算属性还未更新
+    hu.a = 2;
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 读取计算属性
+    // 计算属性已更新, 但是监听属性还未触发
+    expect( hu.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 在下一 tick, 监听属性被触发
+    hu.$nextTick(() => {
+      expect( hu.c ).is.equals( 4 );
+      expect( index ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '计算属性被监听方法依赖时, 当计算属性的依赖被更新, 计算属性会重新运行计算方法, 监听方法会异步调用 ( Vue )', ( done ) => {
+    let result;
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        a: 1,
+        b: 2
+      },
+      computed: {
+        c(){
+          index++;
+          return this.a + this.b;
+        }
+      },
+      watch: {
+        c: {
+          immediate: true,
+          handler: ( value, oldValue ) => result = [ value, oldValue ]
+        }
+      }
+    });
+
+    // 计算属性被监听属性初始化
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 再次访问计算属性是读取的缓存
+    expect( vm.c ).is.equals( 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 更新计算属性的依赖
+    // 此时计算属性还未更新
+    vm.a = 2;
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 读取计算属性
+    // 计算属性已更新, 但是监听属性还未触发
+    expect( vm.c ).is.equals( 4 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 3, undefined ]);
+
+    // 在下一 tick, 监听属性被触发
+    vm.$nextTick(() => {
+      expect( vm.c ).is.equals( 4 );
+      expect( index ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '计算属性的计算可以依赖于另一个计算属性', () => {
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
       computed: {
         b(){ return this.a * 2 },
         c(){ return this.b * 2 },
         d(){ return this.c * 2 },
         e(){ return this.d * 2 },
-        f(){ return this.e * 2 }
+        f(){ return this.e * 2 },
+        g(){ return this.f * 2 }
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
+    expect( hu.g ).to.equals( 64 );
     expect( hu.f ).to.equals( 32 );
     expect( hu.e ).to.equals( 16 );
     expect( hu.d ).to.equals( 8 );
@@ -478,6 +605,7 @@ describe( 'Hu.define - computed', () => {
 
     hu.a = 2;
 
+    expect( hu.g ).to.equals( 128 );
     expect( hu.f ).to.equals( 64 );
     expect( hu.e ).to.equals( 32 );
     expect( hu.d ).to.equals( 16 );
@@ -486,20 +614,22 @@ describe( 'Hu.define - computed', () => {
     expect( hu.a ).to.equals( 2 );
   });
 
-  it( '计算属性可以被互相依赖( Vue )', () => {
+  it( '计算属性的计算可以依赖于另一个计算属性 ( Vue )', () => {
     const vm = new Vue({
-      data: () => ({
+      data: {
         a: 1
-      }),
+      },
       computed: {
         b(){ return this.a * 2 },
         c(){ return this.b * 2 },
         d(){ return this.c * 2 },
         e(){ return this.d * 2 },
-        f(){ return this.e * 2 }
+        f(){ return this.e * 2 },
+        g(){ return this.f * 2 }
       }
     });
 
+    expect( vm.g ).to.equals( 64 );
     expect( vm.f ).to.equals( 32 );
     expect( vm.e ).to.equals( 16 );
     expect( vm.d ).to.equals( 8 );
@@ -509,6 +639,7 @@ describe( 'Hu.define - computed', () => {
 
     vm.a = 2;
 
+    expect( vm.g ).to.equals( 128 );
     expect( vm.f ).to.equals( 64 );
     expect( vm.e ).to.equals( 32 );
     expect( vm.d ).to.equals( 16 );
@@ -517,191 +648,121 @@ describe( 'Hu.define - computed', () => {
     expect( vm.a ).to.equals( 2 );
   });
 
-  it( '多个计算属性依赖同一个变量且被互相依赖时, 不会重复更新', () => {
-    const customName = window.customName;
-    let index = 0;
-    let steps = [];
-
-    Hu.define( customName, {
-      data: () => ({
-        d1: 1
-      }),
-      computed: {
-        c1(){
-          index++;
-          steps.push('c1');
-
-          return this.d1 + this.c2;
-        },
-        c2(){
-          index++;
-          steps.push('c2');
-
-          return this.d1;
-        }
+  it( '计算属性的计算可以依赖于另一个计算属性 ( 二 )', () => {
+    let result;
+    const hu = new Hu({
+      data: {
+        a: 1
       },
-      // 保证计算属性处于立即更新状态
-      watch: {
-        c1(){},
-        c2(){}
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( steps ).is.deep.equals([ 'c1', 'c2' ]);
-    expect( hu.c1 ).is.equals( 2 );
-    expect( hu.c2 ).is.equals( 1 );
-    expect( index ).is.equals( 2 );
-
-    steps = [];
-    index = 0;
-
-    hu.d1 = 2;
-    expect( steps ).is.deep.equals([ 'c1', 'c2' ]);
-    expect( hu.c1 ).is.equals( 4 );
-    expect( hu.c2 ).is.equals( 2 );
-    expect( index ).is.equals( 2 );
-  });
-
-  it( '计算属性的依赖被更新后, 首先触发的更新消除了的当前计算属性的更新时, 不会重复更新', () => {
-    const customName = window.customName;
-    let result = [];
-    let index = 0;
-
-    Hu.define( customName, {
-      data: () => ({
-        d1: 1
-      }),
       computed: {
-        c1(){
-          result.push('c1');
-
-          this.d1;// 标记 d1 依赖
-          this.c2;// 标记 c2 依赖
-
-          return index;
-        },
-        c2(){
-          result.push('c2');
-
-          if( !index ){
-            this.d1;// 只在第一轮依赖 d1
-          }
-
-          return index;
-        }
+        b(){ return this.a * 2 },
+        c(){ return this.b * 2 },
+        d(){ return this.c * 2 },
+        e(){ return this.d * 2 },
+        f(){ return this.e * 2 },
+        g(){ return this.f * 2 }
       },
       watch: {
-        // 给 c1 添加依赖, 确保 c1 处在随时更新状态
-        c1: {
+        g: {
           immediate: true,
-          handler( value, oldValue ){}
-        },
-        // 给 c2 添加依赖, 确保 c2 处在随时更新状态
-        c2: {
+          handler: ( value, oldValue ) => result = [ value, oldValue ]
+        }
+      }
+    });
+
+    expect( result ).is.deep.equals([ 64, undefined ]);
+
+    hu.a = 2;
+    expect( result ).is.deep.equals([ 64, undefined ]);
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 128, 64 ]);
+    });
+  });
+
+  it( '计算属性的计算可以依赖于另一个计算属性 ( 二 ) ( Vue )', () => {
+    let result;
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      computed: {
+        b(){ return this.a * 2 },
+        c(){ return this.b * 2 },
+        d(){ return this.c * 2 },
+        e(){ return this.d * 2 },
+        f(){ return this.e * 2 },
+        g(){ return this.f * 2 }
+      },
+      watch: {
+        g: {
           immediate: true,
-          handler( value, oldValue ){}
+          handler: ( value, oldValue ) => result = [ value, oldValue ]
         }
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
+    expect( result ).is.deep.equals([ 64, undefined ]);
 
-    expect( result ).is.deep.equals([ 'c1', 'c2' ]);
-    result = [];
-
-    // 标识进入第二轮
-    index++;
-    // 更新 d1 的值, 此时进入更新依赖的流程:
-    //   1. d1 被修改
-    //   2. 查找到依赖 d1 的计算属性: c1, c2 标记需要更新
-    //   3. c1 开始更新, c1 读取到 c2, c2 开始更新
-    //   4. 因 index 不再是 0, c2 不再依赖 d1
-    //   5. c2 更新完毕, c1 更新完毕
-    hu.d1 = 2;
-    expect( result ).is.deep.equals([ 'c1', 'c2' ]);
+    vm.a = 2;
+    expect( result ).is.deep.equals([ 64, undefined ]);
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 128, 64 ]);
+    });
   });
 
-  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 一 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
-        json: {}
-      }),
-      computed: {
-        a(){
-          const json = {};
-          for( const name of Reflect.ownKeys( this.json ) ){
-            json[ name ] = this.json[ name ];
-          }
-          return json;
-        }
+  it( '计算属性可以传入一个对象, 包含了当前计算属性的 setter 与 getter 方法', () => {
+    const hu = new Hu({
+      data: {
+        a: 1
       },
-      watch: {
-        a(){}
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-    const bbb = Symbol('bbb');
-
-    expect( hu.a ).is.deep.equals({});
-
-    hu.json.aaa = 1;
-    hu.json[ bbb ] = 2;
-
-    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
-  });
-
-  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 二 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
-        json: {}
-      }),
       computed: {
-        a(){
-          const json = {};
-          for( const name of Object.keys( this.json ) ){
-            json[ name ] = this.json[ name ];
+        b: {
+          get(){
+            return this.a * 2
+          },
+          set( value ){
+            this.a = value;
           }
-          return json;
         }
-      },
-      watch: {
-        a(){}
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-    const bbb = Symbol('bbb');
+    expect( hu.b ).is.equals( 2 );
 
-    expect( hu.a ).is.deep.equals({});
+    hu.b = 2;
 
-    hu.json.aaa = 1;
-    hu.json[ bbb ] = 2;
-
-    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
+    expect( hu.b ).is.equals( 4 );
   });
 
-  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 三 )', () => {
-    const customName = window.customName;
+  it( '计算属性可以传入一个对象, 包含了当前计算属性的 setter 与 getter 方法 ( Vue )', () => {
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      computed: {
+        b: {
+          get(){
+            return this.a * 2
+          },
+          set( value ){
+            this.a = value;
+          }
+        }
+      }
+    });
 
-    Hu.define( customName, {
-      data: () => ({
+    expect( vm.b ).is.equals( 2 );
+
+    vm.b = 2;
+
+    expect( vm.b ).is.equals( 4 );
+  });
+
+  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( for ... in )', () => {
+    const hu = new Hu({
+      data: {
         json: {}
-      }),
+      },
       computed: {
         a(){
           const json = {};
@@ -716,30 +777,36 @@ describe( 'Hu.define - computed', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-    const bbb = Symbol('bbb');
-
     expect( hu.a ).is.deep.equals({});
 
     hu.json.aaa = 1;
-    hu.json[ bbb ] = 2;
+    hu.json.bbb = 2;
 
-    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2
+    });
+
+    const ccc = Symbol('ccc');
+
+    hu.json[ ccc ] = 3;
+
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2,
+      [ ccc ]: 3
+    });
   });
 
-  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 四 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
+  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Reflect.ownKeys )', () => {
+    const hu = new Hu({
+      data: {
         json: {}
-      }),
+      },
       computed: {
         a(){
           const json = {};
-          for( const name of Object.getOwnPropertyNames( this.json ) ){
+          for( const name of Reflect.ownKeys( this.json ) ){
             json[ name ] = this.json[ name ];
           }
           return json;
@@ -750,30 +817,36 @@ describe( 'Hu.define - computed', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-    const bbb = Symbol('bbb');
-
     expect( hu.a ).is.deep.equals({});
 
     hu.json.aaa = 1;
-    hu.json[ bbb ] = 2;
+    hu.json.bbb = 2;
 
-    expect( hu.a ).is.deep.equals({ aaa: 1 });
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2
+    });
+
+    const ccc = Symbol('ccc');
+
+    hu.json[ ccc ] = 3;
+
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2,
+      [ ccc ]: 3
+    });
   });
 
-  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 五 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
+  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.keys )', () => {
+    const hu = new Hu({
+      data: {
         json: {}
-      }),
+      },
       computed: {
         a(){
           const json = {};
-          for( const name of Object.getOwnPropertySymbols( this.json ) ){
+          for( const name of Object.keys( this.json ) ){
             json[ name ] = this.json[ name ];
           }
           return json;
@@ -784,26 +857,32 @@ describe( 'Hu.define - computed', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-    const bbb = Symbol('bbb');
-
     expect( hu.a ).is.deep.equals({});
 
     hu.json.aaa = 1;
-    hu.json[ bbb ] = 2;
+    hu.json.bbb = 2;
 
-    expect( hu.a ).is.deep.equals({ [ bbb ]: 2 });
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2
+    });
+
+    const ccc = Symbol('ccc');
+
+    hu.json[ ccc ] = 3;
+
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2,
+      [ ccc ]: 3
+    });
   });
 
-  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 六 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
+  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.values )', () => {
+    const hu = new Hu({
+      data: {
         json: {}
-      }),
+      },
       computed: {
         a(){
           const arr = [];
@@ -817,27 +896,26 @@ describe( 'Hu.define - computed', () => {
         a(){}
       }
     });
-    
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-    const bbb = Symbol('bbb');
 
     expect( hu.a ).is.deep.equals([]);
 
     hu.json.aaa = 1;
-    hu.json[ bbb ] = 2;
+    hu.json.bbb = 2;
 
-    expect( hu.a ).is.deep.equals([ 1 ]);
+    expect( hu.a ).is.deep.equals([ 1, 2 ]);
+
+    const ccc = Symbol('ccc');
+
+    hu.json[ ccc ] = 3;
+
+    expect( hu.a ).is.deep.equals([ 1, 2 ]);
   });
 
-  it( '在计算属性中遍历 JSON 时, 若 JSON 内部元素被更改, 计算属性也会被触发 ( 七 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
+  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.entries )', () => {
+    const hu = new Hu({
+      data: {
         json: {}
-      }),
+      },
       computed: {
         a(){
           const json = {};
@@ -852,31 +930,77 @@ describe( 'Hu.define - computed', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-    const bbb = Symbol('bbb');
+    expect( hu.a ).is.deep.equals({});
+
+    hu.json.aaa = 1;
+    hu.json.bbb = 2;
+
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2
+    });
+
+    const ccc = Symbol('ccc');
+
+    hu.json[ ccc ] = 3;
+
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2
+    });
+  });
+
+  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.getOwnPropertyNames )', () => {
+    const hu = new Hu({
+      data: {
+        json: {}
+      },
+      computed: {
+        a(){
+          const json = {};
+          for( const name of Object.getOwnPropertyNames( this.json ) ){
+            json[ name ] = this.json[ name ];
+          }
+          return json;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
 
     expect( hu.a ).is.deep.equals({});
 
     hu.json.aaa = 1;
-    hu.json[ bbb ] = 2;
+    hu.json.bbb = 2;
 
-    expect( hu.a ).is.deep.equals({ aaa: 1, [ bbb ]: 2 });
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2
+    });
+
+    const ccc = Symbol('ccc');
+
+    hu.json[ ccc ] = 3;
+
+    expect( hu.a ).is.deep.equals({
+      aaa: 1,
+      bbb: 2
+    });
   });
 
-  it( '在计算属性中遍历数组时, 若数组内部元素被更改, 计算属性也会被触发 ( 一 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
-        arr: []
-      }),
+  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.getOwnPropertySymbols )', () => {
+    const hu = new Hu({
+      data: {
+        json: {}
+      },
       computed: {
         a(){
-          const arr = [];
-          for( const item of this.arr ) arr.push( item );
-          return arr;
+          const json = {};
+          for( const name of Object.getOwnPropertySymbols( this.json ) ){
+            json[ name ] = this.json[ name ];
+          }
+          return json;
         }
       },
       watch: {
@@ -884,54 +1008,83 @@ describe( 'Hu.define - computed', () => {
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
+    expect( hu.a ).is.deep.equals({});
 
-    expect( hu.a ).is.deep.equals([]);
+    hu.json.aaa = 1;
+    hu.json.bbb = 2;
 
-    hu.arr.push( 1 );
+    expect( hu.a ).is.deep.equals({});
 
-    expect( hu.a ).is.deep.equals([ 1 ]);
+    const ccc = Symbol('ccc');
+
+    hu.json[ ccc ] = 3;
+
+    expect( hu.a ).is.deep.equals({
+      [ ccc ]: 3
+    });
   });
 
-  it( '在计算属性中遍历数组时, 若数组内部元素被更改, 计算属性也会被触发 ( 二 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
+  it( '计算属性在计算时需要遍历数组时, 若数组内部元素被更改, 计算属性也会触发 ( for ... in )', () => {
+    const hu = new Hu({
+      data: {
         arr: []
-      }),
+      },
       computed: {
         a(){
           const arr = [];
-          for( const index in this.arr ) arr.push( this.arr[ index ] );
+          for( const index in this.arr ){
+            arr.push(
+              this.arr[ index ]
+            );
+          }
           return arr;
         }
-      },
-      watch: {
-        a(){}
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
+    expect( hu.a ).is.deep.equals([]);
+
+    hu.arr.push( 2 );
+
+    expect( hu.a ).is.deep.equals([ 2 ]);
+    
+    hu.arr.push( 3 );
+
+    expect( hu.a ).is.deep.equals([ 2, 3 ]);
+  });
+
+  it( '计算属性在计算时需要遍历数组时, 若数组内部元素被更改, 计算属性也会触发 ( for ... of )', () => {
+    const hu = new Hu({
+      data: {
+        arr: []
+      },
+      computed: {
+        a(){
+          const arr = [];
+          for( const item of this.arr ){
+            arr.push( item );
+          }
+          return arr;
+        }
+      }
+    });
 
     expect( hu.a ).is.deep.equals([]);
 
-    hu.arr.push( 1 );
+    hu.arr.push( 2 );
 
-    expect( hu.a ).is.deep.equals([ 1 ]);
+    expect( hu.a ).is.deep.equals([ 2 ]);
+    
+    hu.arr.push( 3 );
+
+    expect( hu.a ).is.deep.equals([ 2, 3 ]);
   });
 
-  it( '在计算属性中遍历数组时, 若数组内部元素被更改, 计算属性也会被触发 ( 三 )', () => {
-    const customName = window.customName;
-
-    Hu.define( customName, {
-      data: () => ({
+  it( '计算属性在计算时需要遍历数组时, 若数组内部元素被更改, 计算属性也会触发 ( Array.prototype.forEach )', () => {
+    const hu = new Hu({
+      data: {
         arr: []
-      }),
+      },
       computed: {
         a(){
           const arr = [];
@@ -940,21 +1093,18 @@ describe( 'Hu.define - computed', () => {
           });
           return arr;
         }
-      },
-      watch: {
-        a(){}
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
     expect( hu.a ).is.deep.equals([]);
 
-    hu.arr.push( 1 );
+    hu.arr.push( 2 );
 
-    expect( hu.a ).is.deep.equals([ 1 ]);
+    expect( hu.a ).is.deep.equals([ 2 ]);
+    
+    hu.arr.push( 3 );
+
+    expect( hu.a ).is.deep.equals([ 2, 3 ]);
   });
 
 });
