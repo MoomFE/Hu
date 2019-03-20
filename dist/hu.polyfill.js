@@ -8334,12 +8334,30 @@
 	  }
 	}
 
+	var isEmptyObject = (
+	/**
+	 * 判断传入对象是否是一个空对象
+	 * @param {any} value 需要判断的对象
+	 */
+	value => {
+	  for (let item in value) return false;
+
+	  return true;
+	});
+
 	function initComputed$1(options, target, targetProxy) {
+	  const computed = options.computed; // 如果定义当前实例时未定义 computed 属性
+	  // 则当前实例的 $computed 就是个普通的观察者对象
+
+	  if (isEmptyObject(computed)) {
+	    return target.$computed = observe(create(null));
+	  }
+
 	  const [computedTarget, computedTargetProxyInterceptor] = createComputed(options.computed, targetProxy);
 	  target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
 
 	  observeProxyMap.set(computedTargetProxyInterceptor, {});
-	  each(options.computed, (name, computed) => {
+	  each(computed, (name, computed) => {
 	    injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
 	  });
 	}
