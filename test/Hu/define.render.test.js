@@ -119,58 +119,6 @@ describe( 'Hu.define - render', () => {
     expect( isRender ).is.true;
   });
 
-  it( '执行 render 方法时会进行依赖收集', ( done ) => {
-    const customName = window.customName;
-    let num = 0
-
-    Hu.define( customName, {
-      data: () => ({
-        a: 1,
-        b: 2
-      }),
-      render( html ){
-        num++;
-        return html`${ this.a }${ this.b }`;
-      }
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( num ).is.equals( 1 );
-    expect( hu.$el.textContent ).is.equals('12');
-
-    hu.a = 123;
-
-    expect( num ).is.equals( 1 );
-    expect( hu.$el.textContent ).is.equals('12');
-    hu.$nextTick(() => {
-      expect( num ).is.equals( 2 );
-      expect( hu.$el.textContent ).is.equals('1232');
-
-      hu.b = 456;
-      expect( num ).is.equals( 2 );
-      expect( hu.$el.textContent ).is.equals('1232');
-      hu.$nextTick(() => {
-        expect( num ).is.equals( 3 );
-        expect( hu.$el.textContent ).is.equals('123456');
-
-        hu.a = 1;
-        hu.b = 2;
-        expect( num ).is.equals( 3 );
-        expect( hu.$el.textContent ).is.equals('123456');
-        hu.$nextTick(() => {
-          expect( num ).is.equals( 4 );
-          expect( hu.$el.textContent ).is.equals('12');
-
-          div.$remove();
-          done();
-        });
-      });
-    });
-  });
-
   it( '由自定义元素创建的实例会在自定义元素首次被添加到 DOM 节点中时才会主动触发 render 方法进行渲染', () => {
     const customName = window.customName;
     let index = 0;
@@ -224,6 +172,104 @@ describe( 'Hu.define - render', () => {
     hu.$mount( div );
 
     expect( index ).is.equals( 1 );
+  });
+
+  it( '执行 render 方法时会进行依赖收集', ( done ) => {
+    const customName = window.customName;
+    let num = 0
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1,
+        b: 2
+      }),
+      render( html ){
+        num++;
+        return html`${ this.a }${ this.b }`;
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( num ).is.equals( 1 );
+    expect( hu.$el.textContent ).is.equals('12');
+
+    hu.a = 123;
+
+    expect( num ).is.equals( 1 );
+    expect( hu.$el.textContent ).is.equals('12');
+    hu.$nextTick(() => {
+      expect( num ).is.equals( 2 );
+      expect( hu.$el.textContent ).is.equals('1232');
+
+      hu.b = 456;
+      expect( num ).is.equals( 2 );
+      expect( hu.$el.textContent ).is.equals('1232');
+      hu.$nextTick(() => {
+        expect( num ).is.equals( 3 );
+        expect( hu.$el.textContent ).is.equals('123456');
+
+        hu.a = 1;
+        hu.b = 2;
+        expect( num ).is.equals( 3 );
+        expect( hu.$el.textContent ).is.equals('123456');
+        hu.$nextTick(() => {
+          expect( num ).is.equals( 4 );
+          expect( hu.$el.textContent ).is.equals('12');
+
+          div.$remove();
+          done();
+        });
+      });
+    });
+  });
+
+  it( '当 render 的依赖被更新后, 将会在下一个 tick 触发 render 方法重新渲染', ( done ) => {
+    const div = document.createElement('div');
+    let index = 0;
+    const data = Hu.observable({
+      a: 1,
+      b: 2
+    });
+    const hu = new Hu({
+      el: div,
+      render(){
+        index++;
+        return data.a + data.b;
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( div.innerText ).is.equals('3');
+
+    data.a = 2;
+    expect( index ).is.equals( 1 );
+    expect( div.innerText ).is.equals('3');
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+      expect( div.innerText ).is.equals('4');
+
+      data.b = 3;
+      expect( index ).is.equals( 2 );
+      expect( div.innerText ).is.equals('4');
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 3 );
+        expect( div.innerText ).is.equals('5');
+
+        data.a = 1;
+        data.b = 2;
+        expect( index ).is.equals( 3 );
+        expect( div.innerText ).is.equals('5');
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+          expect( div.innerText ).is.equals('3');
+
+          done();
+        });
+      });
+    });
   });
 
 });
