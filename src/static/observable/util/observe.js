@@ -153,11 +153,14 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
 
   // 获取子级监听数据
   const { watches, deepWatches } = observeMap.get( target );
-  // 获取当前参数的被监听数据
-  let watch = watches[ name ];
+  // 获取当前参数的被监听数据和父级对象深度监听数据的集合
+  let watch = [
+    ...( watches[ name ] || [] ),
+    ...deepWatches
+  ];
 
   // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
-  if( watch && watch.size ){
+  if( watch.length ){
     let executes = [];
 
     for( let dependentsOptions of watch ){
@@ -177,17 +180,10 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
     }
 
     for( let dependentsOptions of executes ){
-      //             当前方法依旧是当前值的依赖且不是计算属性                          需要更新计算属性
-      if( watch.has( dependentsOptions ) && !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
+      //           不是计算属性                      需要更新的计算属性
+      if( !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
         dependentsOptions.update();
       }
-    }
-  }
-
-  // 响应深度监听
-  if( deepWatches.size ){
-    for( let dependentsOptions of deepWatches ){
-      dependentsOptions.update();
     }
   }
 
