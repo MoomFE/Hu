@@ -14,11 +14,26 @@ export default ( name, target, targetProxy ) => {
       const $el = target.$el;
 
       if( $el ){
-        const result = userRender.call( targetProxy, html );
-        render( result, $el );
+        render( userRender.call( targetProxy, html ), $el );
+        target.$refs = getRefs( $el );
       }
     });
   }else{
     target.$forceUpdate = noop;
   }
+}
+
+function getRefs( root ){
+  const refs = {};
+  const elems = root.querySelectorAll('[ref]');
+
+  if( elems.length ){
+    Array.from( elems ).forEach( elem => {
+      const name = elem.getAttribute('ref');
+      refs[ name ] = refs[ name ] ? [].concat( refs[ name ], elem )
+                                  : elem;
+    });
+  }
+
+  return Object.freeze( refs );
 }
