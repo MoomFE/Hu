@@ -3,6 +3,7 @@ import { observe, observeMap } from "./observe";
 import { dependentsMap, createCollectingDependents } from "./collectingDependents";
 import each from "../../../shared/util/each";
 import noop from "../../../shared/util/noop";
+import returnFalse from "../../../shared/util/returnFalse";
 
 
 export default
@@ -22,7 +23,8 @@ export default
   /** 当前计算属性容器的获取与修改拦截器 */
   const computedTargetProxyInterceptor = new Proxy( computedTargetProxy, {
     get: computedTargetProxyInterceptorGet( computedOptionsMap ),
-    set: computedTargetProxyInterceptorSet( computedOptionsMap )
+    set: computedTargetProxyInterceptorSet( computedOptionsMap ),
+    deleteProperty: returnFalse
   });
 
   /** 给当前计算属性添加子级的方法 */

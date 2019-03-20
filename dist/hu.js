@@ -2754,6 +2754,12 @@
     };
   }
 
+  var returnFalse = (
+  /**
+   * 返回 false
+   */
+  () => false);
+
   var createComputed = (
   /**
    * @param {{}} computed
@@ -2773,7 +2779,8 @@
 
     const computedTargetProxyInterceptor = new Proxy(computedTargetProxy, {
       get: computedTargetProxyInterceptorGet(computedOptionsMap),
-      set: computedTargetProxyInterceptorSet(computedOptionsMap)
+      set: computedTargetProxyInterceptorSet(computedOptionsMap),
+      deleteProperty: returnFalse
     });
     /** 给当前计算属性添加子级的方法 */
 
