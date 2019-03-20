@@ -97,11 +97,7 @@ class CollectingDependents{
   }
   /** 依赖的重新收集 */
   update(){
-    if( this.isWatch || !this.isComputed ){
-      queueUpdate( this );
-    }else{
-      this.get();
-    }
+    queueUpdate( this );
   }
   /** 清空之前收集的依赖 */
   cleanDeps(){

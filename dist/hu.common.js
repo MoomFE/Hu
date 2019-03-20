@@ -461,11 +461,7 @@ class CollectingDependents {
 
 
   update() {
-    if (this.isWatch || !this.isComputed) {
-      queueUpdate(this);
-    } else {
-      this.get();
-    }
+    queueUpdate(this);
   }
   /** 清空之前收集的依赖 */
 
