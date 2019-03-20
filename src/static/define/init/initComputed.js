@@ -3,8 +3,10 @@ import injectionToLit from "../util/injectionToLit";
 import createComputed from "../../observable/util/createComputed";
 import { observeProxyMap, observe } from "../../observable/util/observe";
 import isEmptyObject from "../../../shared/util/isEmptyObject";
-import create from "../../../shared/global/Object/create";
+import observeReadonly from "../../../shared/const/observeReadonly";
 
+
+let emptyComputed;
 
 
 export default function initComputed( options, target, targetProxy ){
@@ -14,8 +16,8 @@ export default function initComputed( options, target, targetProxy ){
   // 如果定义当前实例时未定义 computed 属性
   // 则当前实例的 $computed 就是个普通的观察者对象
   if( isEmptyObject( computed ) ){
-    return target.$computed = observe(
-      create( null )
+    return target.$computed = emptyComputed || (
+      emptyComputed = observe({}, observeReadonly)
     );
   }
 

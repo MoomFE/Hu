@@ -3342,12 +3342,25 @@ value => {
   return true;
 });
 
+/**
+ * 使观察者对象只读 ( 不可删, 不可写 )
+ */
+var observeReadonly = {
+  set: {
+    before: () => 0
+  },
+  deleteProperty: {
+    before: () => 0
+  }
+};
+
+let emptyComputed;
 function initComputed$1(options, target, targetProxy) {
   const computed = options.computed; // 如果定义当前实例时未定义 computed 属性
   // 则当前实例的 $computed 就是个普通的观察者对象
 
   if (isEmptyObject(computed)) {
-    return target.$computed = observe(create(null));
+    return target.$computed = emptyComputed || (emptyComputed = observe({}, observeReadonly));
   }
 
   const [computedTarget, computedTargetProxyInterceptor] = createComputed(options.computed, targetProxy);
@@ -3365,18 +3378,6 @@ function initWatch$1(options, target, targetProxy) {
     return targetProxy.$watch(expOrFn, options);
   });
 }
-
-/**
- * 使观察者对象只读 ( 不可删, 不可写 )
- */
-var observeReadonly = {
-  set: {
-    before: () => 0
-  },
-  deleteProperty: {
-    before: () => 0
-  }
-};
 
 function initOptions$1(isCustomElement, name, target, userOptions) {
   // Hu 的初始化选项
