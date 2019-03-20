@@ -65,6 +65,12 @@ interface $hu {
     isCustomElement: Boolean;
   };
   /**
+   * 一个持有注册过 ref 引用特性的所有 DOM 元素的对象
+   */
+  readonly $refs: {
+    [ key: string ]: Element | Element[]
+  },
+  /**
    * 在下次 DOM 更新循环结束之后执行回调, 在修改数据之后立即使用这个方法, 可以获取更新后的 DOM
    * @param callback 需要执行的回调
    */
