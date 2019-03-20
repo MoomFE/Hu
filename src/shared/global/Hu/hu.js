@@ -12,6 +12,7 @@ import isFunction from "../../util/isFunction";
 import uid from "../../util/uid";
 import createComputed from "../../../static/observable/util/createComputed";
 import isEqual from "../../util/isEqual";
+import initForceUpdate from "./init/initForceUpdate";
 
 
 /**
@@ -22,20 +23,10 @@ const watcherMap = new WeakMap();
 
 export default class HuConstructor{
   constructor( name ){
-    /** 当前实例的实例配置 */
-    const options = optionsMap[ name ];
     /** 当前实例观察者对象 */
     const targetProxy = observe( this, proxyOptions );
 
-    /** 迫使 Hu 实例重新渲染 */
-    this.$forceUpdate = createCollectingDependents(() => {
-      const { $el } = this;
-
-      if( $el ){
-        const templateResult = options.render.call( targetProxy, html );
-        render( templateResult, $el );
-      }
-    });
+    initForceUpdate( name, this, targetProxy );
   }
 
   /** 监听 Hu 实例对象 */

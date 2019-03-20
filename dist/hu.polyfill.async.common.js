@@ -1035,7 +1035,7 @@ function initOther(isCustomElement, userOptions, options) {
     render
   } = userOptions; // 渲染方法
 
-  options.render = isFunction(render) ? render : noop;
+  options.render = isFunction(render) ? render : null;
 
   if (inBrowser && !isCustomElement) {
     // 挂载目标
@@ -3084,6 +3084,26 @@ const computedTargetProxyInterceptorSet = computedOptionsMap => (target, name, v
   return false;
 };
 
+/** 迫使 Hu 实例重新渲染 */
+
+var initForceUpdate = ((name, target, targetProxy) => {
+  /** 当前实例的实例配置 */
+  const userRender = optionsMap[name].render;
+
+  if (userRender) {
+    target.$forceUpdate = createCollectingDependents(() => {
+      const $el = target.$el;
+
+      if ($el) {
+        const result = userRender.call(targetProxy, html$1);
+        render(result, $el);
+      }
+    });
+  } else {
+    target.$forceUpdate = noop;
+  }
+});
+
 /**
  * 存放每个实例的 watch 数据
  */
@@ -3091,23 +3111,9 @@ const computedTargetProxyInterceptorSet = computedOptionsMap => (target, name, v
 const watcherMap = new WeakMap();
 class HuConstructor {
   constructor(name) {
-    /** 当前实例的实例配置 */
-    const options = optionsMap[name];
     /** 当前实例观察者对象 */
-
     const targetProxy = observe(this, proxyOptions);
-    /** 迫使 Hu 实例重新渲染 */
-
-    this.$forceUpdate = createCollectingDependents(() => {
-      const {
-        $el
-      } = this;
-
-      if ($el) {
-        const templateResult = options.render.call(targetProxy, html$1);
-        render(templateResult, $el);
-      }
-    });
+    initForceUpdate(name, this, targetProxy);
   }
   /** 监听 Hu 实例对象 */
 
