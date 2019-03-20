@@ -357,6 +357,16 @@ describe( 'Hu.instance', () => {
     expect( num ).is.equals( 4 );
   });
 
+  it( '实例上的 $forceUpdate 方法在实例未定义 render 时, 将是一个空方法', () => {
+    const hu = new Hu();
+    const hu2 = new Hu({
+      render(){}
+    });
+
+    expect( hu.$forceUpdate.toString() ).is.equals('() => {}');
+    expect( hu.$forceUpdate.toString() ).is.not.equals( hu2.$forceUpdate.toString() );
+  });
+
   it( '实例上的 $computed 属性会存放所有定义了的计算属性', () => {
     const $$a = Symbol('$$a');
     const hu = new Hu({
