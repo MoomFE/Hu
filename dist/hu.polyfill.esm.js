@@ -5235,6 +5235,7 @@ var isEqual = (
 });
 
 const {
+  prototype,
   assign,
   create,
   keys,
@@ -5259,6 +5260,17 @@ const {
 } = Reflect;
 
 var emptyObject = freeze({});
+
+var isFunction = (
+/**
+ * 判断传入对象是否是 Function 类型
+ * @param {any} value 需要判断的对象
+ */
+value => typeof value === 'function');
+
+const {
+  hasOwnProperty
+} = prototype;
 
 /**
  * 存放原始对象和观察者对象及其选项参数的映射
@@ -5332,6 +5344,13 @@ const createObserverProxyGetter = ({
 
   if ((getOwnPropertyDescriptor(target, name) || emptyObject).get) {
     return target[name];
+  } // 获取当前值
+
+
+  const value = target[name]; // 如果获取的是原型上的方法
+
+  if (isFunction(value) && !hasOwnProperty.call(target, name) && has(target, name)) {
+    return value;
   } // 获取当前在收集依赖的那个方法的参数
 
 
@@ -5359,7 +5378,7 @@ const createObserverProxyGetter = ({
   } // 存储本次值
 
 
-  const value = observeOptions.lastValue[name] = target[name]; // 如果获取的值是对象类型
+  observeOptions.lastValue[name] = value; // 如果获取的值是对象类型
   // 则返回它的观察者对象
 
   return isObject(value) ? observe(value) : value;
@@ -5460,6 +5479,10 @@ const observerProxyOwnKeys = target => {
 
   return ownKeys(target);
 };
+/**
+ * 创建响应从观察者对象删除值的方法
+ */
+
 
 const createObserverProxyDeleteProperty = ({
   before
@@ -5564,13 +5587,6 @@ var each = (
     }
   }
 });
-
-var isFunction = (
-/**
- * 判断传入对象是否是 Function 类型
- * @param {any} value 需要判断的对象
- */
-value => typeof value === 'function');
 
 var fromBooleanAttribute = (
 /**

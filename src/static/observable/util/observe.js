@@ -2,8 +2,10 @@ import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
 import { create } from "../../../shared/global/Object/index";
-import { getOwnPropertyDescriptor, deleteProperty, ownKeys } from "../../../shared/global/Reflect/index";
+import { getOwnPropertyDescriptor, deleteProperty, ownKeys, has } from "../../../shared/global/Reflect/index";
 import emptyObject from "../../../shared/const/emptyObject";
+import isFunction from "../../../shared/util/isFunction";
+import { hasOwnProperty } from "../../../shared/global/Object/prototype";
 
 
 /**
@@ -82,6 +84,14 @@ const createObserverProxyGetter = ({ before } = emptyObject) => ( target, name, 
     return target[ name ];
   }
 
+  // 获取当前值
+  const value = target[ name ];
+
+  // 如果获取的是原型上的方法
+  if( isFunction( value ) && !hasOwnProperty.call( target, name ) && has( target, name ) ){
+    return value;
+  }
+
   // 获取当前在收集依赖的那个方法的参数
   const dependentsOptions = targetStack[ targetStack.length - 1 ];
 
@@ -108,7 +118,7 @@ const createObserverProxyGetter = ({ before } = emptyObject) => ( target, name, 
   }
 
   // 存储本次值
-  const value = observeOptions.lastValue[ name ] = target[ name ];
+  observeOptions.lastValue[ name ] = value;
 
   // 如果获取的值是对象类型
   // 则返回它的观察者对象
@@ -215,7 +225,10 @@ const observerProxyOwnKeys = ( target ) => {
   return ownKeys( target );
 }
 
-const createObserverProxyDeleteProperty = ({ before } = emptyObject) => ( target, name ) =>{
+/**
+ * 创建响应从观察者对象删除值的方法
+ */
+const createObserverProxyDeleteProperty = ({ before } = emptyObject) => ( target, name ) => {
 
   // @return 0: 禁止删除
   if( before ){
