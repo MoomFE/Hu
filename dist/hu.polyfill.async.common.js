@@ -417,7 +417,7 @@ const createObserverProxySetter = ({
   const {
     watches,
     deepWatches
-  } = observeMap.get(target); // 获取当前参数的被监听数据和父级对象深度监听数据的集合
+  } = observeOptions; // 获取当前参数的被监听数据和父级对象深度监听数据的集合
 
   let watch = [...(watches[name] || []), ...deepWatches]; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 

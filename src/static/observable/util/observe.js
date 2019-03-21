@@ -161,7 +161,7 @@ const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, 
   target[ name ] = value;
 
   // 获取子级监听数据
-  const { watches, deepWatches } = observeMap.get( target );
+  const { watches, deepWatches } = observeOptions;
   // 获取当前参数的被监听数据和父级对象深度监听数据的集合
   let watch = [
     ...( watches[ name ] || [] ),
