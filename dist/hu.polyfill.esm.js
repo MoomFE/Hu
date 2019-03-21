@@ -5210,65 +5210,12 @@ typeof window !== "undefined" && function () {
   }).call(window);
 }();
 
-const inBrowser = typeof window !== 'undefined';
-const UA = inBrowser && window.navigator.userAgent.toLowerCase();
-const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
-
-var noop = (
 /**
- * 空方法
+ * 调用堆栈
+ * - 存放当前正在计算依赖的方法的 dependentsOptions 依赖集合数组
+ * - [ dependentsOptions, dependentsOptions, ... ]
  */
-() => {});
-
-const callbacks = [];
-let pending = false;
-
-function flushCallbacks() {
-  pending = false;
-  const copies = callbacks.slice(0);
-  callbacks.length = 0;
-
-  for (let copy of copies) copy();
-}
-
-const resolve = Promise.resolve();
-
-const timerFunc = () => {
-  resolve.then(flushCallbacks);
-
-  if (isIOS) {
-    setTimeout(noop);
-  }
-};
-
-function nextTick(callback, ctx) {
-  let resolve;
-  callbacks.push(() => {
-    if (callback) {
-      callback.call(ctx);
-    } else {
-      resolve(ctx);
-    }
-  });
-
-  if (!pending) {
-    pending = true;
-    timerFunc();
-  }
-
-  if (!callback) {
-    return new Promise(_resolve => {
-      resolve = _resolve;
-    });
-  }
-}
-
-let uid = 0;
-var uid$1 = (
-/**
- * 返回一个字符串 UID
- */
-() => '' + uid++);
+const targetStack = [];
 
 var isObject = (
 /**
@@ -5276,13 +5223,6 @@ var isObject = (
  * @param {any} value 需要判断的对象
  */
 value => value !== null && typeof value === 'object');
-
-/**
- * 调用堆栈
- * - 存放当前正在计算依赖的方法的 dependentsOptions 依赖集合数组
- * - [ dependentsOptions, dependentsOptions, ... ]
- */
-const targetStack = [];
 
 var isEqual = (
 /**
@@ -5526,6 +5466,405 @@ const createObserverProxyDeleteProperty = ({
   return deleteProperty(target, name);
 };
 
+var isSymbol = (
+/**
+ * 判断传入对象是否是 Symbol 类型
+ * @param {any} value 需要判断的对象
+ */
+value => typeof value === 'symbol');
+
+var cached = (
+/**
+ * 创建一个可以缓存方法返回值的方法
+ */
+fn => {
+  const cache = create(null);
+  return str => {
+    if (str in cache) return cache[str];
+    return cache[str] = fn(str);
+  };
+});
+
+var isReserved = /**
+ * 判断字符串首字母是否为 $
+ * @param {String} value
+ */
+cached(value => {
+  const charCode = (value + '').charCodeAt(0);
+  return charCode === 0x24;
+});
+
+var isSymbolOrNotReserved = (
+/**
+ * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
+ * @param { string | symbol } name 需要判断的名称
+ */
+name => {
+  return isSymbol(name) || !isReserved(name);
+});
+
+var isString = (
+/**
+ * 判断传入对象是否是 String 类型
+ * @param {any} value 需要判断的对象
+ */
+value => typeof value === 'string');
+
+var observeHu = {
+  set: {
+    before: (target, name) => {
+      return isSymbolOrNotReserved(name) ? null : 0;
+    }
+  },
+  get: {
+    before: (target, name) => {
+      return isString(name) && isReserved(name) ? 0 : null;
+    }
+  },
+  deleteProperty: {
+    before: (target, name) => {
+      return isString(name) && isReserved(name) ? 0 : null;
+    }
+  }
+};
+
+const {
+  isArray
+} = Array;
+
+var isPlainObject = (
+/**
+ * 判断传入对象是否是纯粹的对象
+ * @param {any} value 需要判断的对象
+ */
+value => Object.prototype.toString.call(value) === '[object Object]');
+
+var each = (
+/**
+ * 对象遍历方法
+ * @param {{}} obj 需要遍历的对象
+ * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
+ */
+(obj, cb) => {
+  if (obj) {
+    const keys = ownKeys(obj);
+
+    for (let key of keys) {
+      cb(key, obj[key]);
+    }
+  }
+});
+
+var isFunction = (
+/**
+ * 判断传入对象是否是 Function 类型
+ * @param {any} value 需要判断的对象
+ */
+value => typeof value === 'function');
+
+var fromBooleanAttribute = (
+/**
+ * 序列化为 Boolean 属性
+ */
+value => value !== null);
+
+var returnArg = (
+/**
+ * 返回传入的首个参数
+ * @param {any} value 需要返回的参数
+ */
+value => value);
+
+var rHyphenate = /\B([A-Z])/g;
+
+var hyphenate = /**
+ * 将驼峰转为以连字符号连接的小写名称
+ */
+cached(name => {
+  return name.replace(rHyphenate, '-$1').toLowerCase();
+});
+
+/**
+ * 初始化组件 props 配置
+ * @param {{}} userOptions 用户传入的组件配置
+ * @param {{}} options 格式化后的组件配置
+ */
+
+function initProps(userOptions, options) {
+  /** 格式化后的 props 配置 */
+  const props = options.props = {};
+  /** 最终的 prop 与取值 attribute 的映射 */
+
+  const propsMap = options.propsMap = {};
+  /** 用户传入的 props 配置 */
+
+  const userProps = userOptions.props;
+  /** 用户传入的 props 配置是否是数组 */
+
+  let propsIsArray = false; // 去除不合法参数
+
+  if (userProps == null || !((propsIsArray = isArray(userProps)) || isPlainObject(userProps))) {
+    return;
+  } // 格式化数组参数
+
+
+  if (propsIsArray) {
+    if (!userProps.length) return;
+
+    for (let name of userProps) {
+      props[name] = initProp(name, null);
+    }
+  } // 格式化 JSON 参数
+  else {
+      each(userProps, (name, prop) => {
+        props[name] = initProp(name, prop);
+      });
+    } // 生成 propsMap
+
+
+  each(props, (name, prop) => {
+    const {
+      attr
+    } = prop;
+
+    if (attr) {
+      const map = propsMap[attr] || (propsMap[attr] = []);
+      map.push({
+        name,
+        from: prop.from || returnArg
+      });
+    }
+  });
+}
+/**
+ * 格式化组件 prop 配置
+ * @param { string | symbol } name prop 名称
+ * @param { {} | null } prop 用户传入的 prop
+ */
+
+function initProp(name, prop) {
+  /** 格式化后的 props 配置 */
+  const options = {};
+  initPropAttribute(name, prop, options);
+
+  if (prop) {
+    // 单纯设置变量类型
+    if (isFunction(prop)) {
+      options.from = prop;
+    } // 高级用法
+    else {
+        initPropType(prop, options);
+        initPropDefault(prop, options);
+      }
+  } // 如果传入值是 Boolean 类型, 则需要另外处理
+
+
+  if (options.from === Boolean) {
+    options.from = fromBooleanAttribute;
+  }
+
+  return options;
+}
+/**
+ * 初始化 options.attr
+ */
+
+
+function initPropAttribute(name, prop, options) {
+  // 当前 prop 是否是 Symbol 类型的
+  options.isSymbol = isSymbol(name); // 当前 prop 的取值 attribute
+
+  options.attr = prop && prop.attr || (options.isSymbol // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
+  ? null // 驼峰转为以连字符号连接的小写 attr 名称
+  : hyphenate(name));
+}
+/**
+ * 初始化 options.type 变量类型
+ */
+
+
+function initPropType(prop, options) {
+  const type = prop.type;
+
+  if (type != null) {
+    // String || Number || Boolean || function( value ){ return value };
+    if (isFunction(type)) {
+      options.from = type;
+    } // {
+    //   from(){}
+    //   to(){}
+    // }
+    else if (isPlainObject(type)) {
+        if (isFunction(type.from)) options.from = type.from;
+        if (isFunction(type.to)) options.to = type.to;
+      }
+  }
+}
+/**
+ * 初始化 options.default 默认值
+ */
+
+
+function initPropDefault(prop, options) {
+  if ('default' in prop) {
+    const $default = prop.default;
+
+    if (isFunction($default) || !isObject($default)) {
+      options.default = $default;
+    }
+  }
+}
+
+var noop = (
+/**
+ * 空方法
+ */
+() => {});
+
+function initLifecycle(userOptions, options) {
+  [
+  /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
+  'beforeCreate',
+  /** 在实例创建完成后被立即调用, 但是挂载阶段还没开始 */
+  'created',
+  /** 在自定义元素挂载开始之前被调用 */
+  'beforeMount',
+  /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
+  'mounted',
+  /** 数据更新时调用, 还未更新组件 DOM */
+  'beforeUpdate',
+  /** 数据更新时调用, 已更新组件 DOM */
+  'updated',
+  /** 实例销毁之前调用。在这一步，实例仍然完全可用 */
+  'beforeDestroy',
+  /** 实例销毁后调用 */
+  'destroyed'].forEach(name => {
+    const lifecycle = userOptions[name];
+    options[name] = isFunction(lifecycle) ? lifecycle : noop;
+  });
+}
+
+function initState(isCustomElement, userOptions, options) {
+  const {
+    methods,
+    data,
+    computed,
+    watch
+  } = userOptions;
+
+  if (methods) {
+    initMethods(methods, options);
+  }
+
+  if (data) {
+    initData(isCustomElement, data, options);
+  }
+
+  if (computed) {
+    initComputed(computed, options);
+  }
+
+  if (watch) {
+    initWatch(watch, options);
+  }
+}
+
+function initMethods(userMethods, options) {
+  const methods = options.methods = {};
+  each(userMethods, (key, method) => {
+    isFunction(method) && (methods[key] = method);
+  });
+}
+
+function initData(isCustomElement, userData, options) {
+  if (isFunction(userData) || !isCustomElement && isPlainObject(userData)) {
+    options.data = userData;
+  }
+}
+
+function initComputed(userComputed, options) {
+  const computed = options.computed = {};
+  each(userComputed, (key, userComputed) => {
+    if (userComputed) {
+      const isFn = isFunction(userComputed);
+      const get = isFn ? userComputed : userComputed.get || noop;
+      const set = isFn ? noop : userComputed.set || noop;
+      computed[key] = {
+        get,
+        set
+      };
+    }
+  });
+}
+
+function initWatch(userWatch, options) {
+  const watch = options.watch = {};
+  each(userWatch, (key, handler) => {
+    if (isArray(handler)) {
+      for (const handler of handler) {
+        createWatcher(key, handler, watch);
+      }
+    } else {
+      createWatcher(key, handler, watch);
+    }
+  });
+}
+
+function createWatcher(key, handler, watch) {
+  watch[key] = isPlainObject(handler) ? handler : {
+    handler
+  };
+}
+
+const inBrowser = typeof window !== 'undefined';
+const UA = inBrowser && window.navigator.userAgent.toLowerCase();
+const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
+
+function initOther(isCustomElement, userOptions, options) {
+  const {
+    render
+  } = userOptions; // 渲染方法
+
+  options.render = isFunction(render) ? render : null;
+
+  if (inBrowser && !isCustomElement) {
+    // 挂载目标
+    options.el = userOptions.el || undefined;
+  }
+}
+
+const {
+  assign
+} = Object;
+
+const optionsMap = {};
+/**
+ * 初始化组件配置
+ * @param {boolean} isCustomElement 是否是初始化自定义元素
+ * @param {string} name 自定义元素标签名
+ * @param {{}} _userOptions 用户传入的组件配置
+ */
+
+function initOptions(isCustomElement, name, _userOptions) {
+  /** 克隆一份用户配置 */
+  const userOptions = assign({}, _userOptions);
+  /** 格式化后的组件配置 */
+
+  const options = optionsMap[name] = {};
+  initProps(userOptions, options);
+  initState(isCustomElement, userOptions, options);
+  initLifecycle(userOptions, options);
+  initOther(isCustomElement, userOptions, options);
+  return [userOptions, options];
+}
+
+let uid = 0;
+var uid$1 = (
+/**
+ * 返回一个字符串 UID
+ */
+() => '' + uid++);
+
 const {
   defineProperty
 } = Object;
@@ -5547,6 +5886,49 @@ var define = (
     set
   });
 });
+
+const callbacks = [];
+let pending = false;
+
+function flushCallbacks() {
+  pending = false;
+  const copies = callbacks.slice(0);
+  callbacks.length = 0;
+
+  for (let copy of copies) copy();
+}
+
+const resolve = Promise.resolve();
+
+const timerFunc = () => {
+  resolve.then(flushCallbacks);
+
+  if (isIOS) {
+    setTimeout(noop);
+  }
+};
+
+function nextTick(callback, ctx) {
+  let resolve;
+  callbacks.push(() => {
+    if (callback) {
+      callback.call(ctx);
+    } else {
+      resolve(ctx);
+    }
+  });
+
+  if (!pending) {
+    pending = true;
+    timerFunc();
+  }
+
+  if (!callback) {
+    return new Promise(_resolve => {
+      resolve = _resolve;
+    });
+  }
+}
 
 /** 异步更新队列 */
 
@@ -5731,345 +6113,6 @@ class CollectingDependents {
     return lazy;
   }
 
-}
-
-const {
-  isArray
-} = Array;
-
-var isPlainObject = (
-/**
- * 判断传入对象是否是纯粹的对象
- * @param {any} value 需要判断的对象
- */
-value => Object.prototype.toString.call(value) === '[object Object]');
-
-var each = (
-/**
- * 对象遍历方法
- * @param {{}} obj 需要遍历的对象
- * @param {( key:string, value: any ) => {}} cb 遍历对象的方法
- */
-(obj, cb) => {
-  if (obj) {
-    const keys = ownKeys(obj);
-
-    for (let key of keys) {
-      cb(key, obj[key]);
-    }
-  }
-});
-
-var isFunction = (
-/**
- * 判断传入对象是否是 Function 类型
- * @param {any} value 需要判断的对象
- */
-value => typeof value === 'function');
-
-var fromBooleanAttribute = (
-/**
- * 序列化为 Boolean 属性
- */
-value => value !== null);
-
-var isSymbol = (
-/**
- * 判断传入对象是否是 Symbol 类型
- * @param {any} value 需要判断的对象
- */
-value => typeof value === 'symbol');
-
-var returnArg = (
-/**
- * 返回传入的首个参数
- * @param {any} value 需要返回的参数
- */
-value => value);
-
-var cached = (
-/**
- * 创建一个可以缓存方法返回值的方法
- */
-fn => {
-  const cache = create(null);
-  return str => {
-    if (str in cache) return cache[str];
-    return cache[str] = fn(str);
-  };
-});
-
-var rHyphenate = /\B([A-Z])/g;
-
-var hyphenate = /**
- * 将驼峰转为以连字符号连接的小写名称
- */
-cached(name => {
-  return name.replace(rHyphenate, '-$1').toLowerCase();
-});
-
-/**
- * 初始化组件 props 配置
- * @param {{}} userOptions 用户传入的组件配置
- * @param {{}} options 格式化后的组件配置
- */
-
-function initProps(userOptions, options) {
-  /** 格式化后的 props 配置 */
-  const props = options.props = {};
-  /** 最终的 prop 与取值 attribute 的映射 */
-
-  const propsMap = options.propsMap = {};
-  /** 用户传入的 props 配置 */
-
-  const userProps = userOptions.props;
-  /** 用户传入的 props 配置是否是数组 */
-
-  let propsIsArray = false; // 去除不合法参数
-
-  if (userProps == null || !((propsIsArray = isArray(userProps)) || isPlainObject(userProps))) {
-    return;
-  } // 格式化数组参数
-
-
-  if (propsIsArray) {
-    if (!userProps.length) return;
-
-    for (let name of userProps) {
-      props[name] = initProp(name, null);
-    }
-  } // 格式化 JSON 参数
-  else {
-      each(userProps, (name, prop) => {
-        props[name] = initProp(name, prop);
-      });
-    } // 生成 propsMap
-
-
-  each(props, (name, prop) => {
-    const {
-      attr
-    } = prop;
-
-    if (attr) {
-      const map = propsMap[attr] || (propsMap[attr] = []);
-      map.push({
-        name,
-        from: prop.from || returnArg
-      });
-    }
-  });
-}
-/**
- * 格式化组件 prop 配置
- * @param { string | symbol } name prop 名称
- * @param { {} | null } prop 用户传入的 prop
- */
-
-function initProp(name, prop) {
-  /** 格式化后的 props 配置 */
-  const options = {};
-  initPropAttribute(name, prop, options);
-
-  if (prop) {
-    // 单纯设置变量类型
-    if (isFunction(prop)) {
-      options.from = prop;
-    } // 高级用法
-    else {
-        initPropType(prop, options);
-        initPropDefault(prop, options);
-      }
-  } // 如果传入值是 Boolean 类型, 则需要另外处理
-
-
-  if (options.from === Boolean) {
-    options.from = fromBooleanAttribute;
-  }
-
-  return options;
-}
-/**
- * 初始化 options.attr
- */
-
-
-function initPropAttribute(name, prop, options) {
-  // 当前 prop 是否是 Symbol 类型的
-  options.isSymbol = isSymbol(name); // 当前 prop 的取值 attribute
-
-  options.attr = prop && prop.attr || (options.isSymbol // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
-  ? null // 驼峰转为以连字符号连接的小写 attr 名称
-  : hyphenate(name));
-}
-/**
- * 初始化 options.type 变量类型
- */
-
-
-function initPropType(prop, options) {
-  const type = prop.type;
-
-  if (type != null) {
-    // String || Number || Boolean || function( value ){ return value };
-    if (isFunction(type)) {
-      options.from = type;
-    } // {
-    //   from(){}
-    //   to(){}
-    // }
-    else if (isPlainObject(type)) {
-        if (isFunction(type.from)) options.from = type.from;
-        if (isFunction(type.to)) options.to = type.to;
-      }
-  }
-}
-/**
- * 初始化 options.default 默认值
- */
-
-
-function initPropDefault(prop, options) {
-  if ('default' in prop) {
-    const $default = prop.default;
-
-    if (isFunction($default) || !isObject($default)) {
-      options.default = $default;
-    }
-  }
-}
-
-function initLifecycle(userOptions, options) {
-  [
-  /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
-  'beforeCreate',
-  /** 在实例创建完成后被立即调用, 但是挂载阶段还没开始 */
-  'created',
-  /** 在自定义元素挂载开始之前被调用 */
-  'beforeMount',
-  /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
-  'mounted',
-  /** 数据更新时调用, 还未更新组件 DOM */
-  'beforeUpdate',
-  /** 数据更新时调用, 已更新组件 DOM */
-  'updated',
-  /** 实例销毁之前调用。在这一步，实例仍然完全可用 */
-  'beforeDestroy',
-  /** 实例销毁后调用 */
-  'destroyed'].forEach(name => {
-    const lifecycle = userOptions[name];
-    options[name] = isFunction(lifecycle) ? lifecycle : noop;
-  });
-}
-
-function initState(isCustomElement, userOptions, options) {
-  const {
-    methods,
-    data,
-    computed,
-    watch
-  } = userOptions;
-
-  if (methods) {
-    initMethods(methods, options);
-  }
-
-  if (data) {
-    initData(isCustomElement, data, options);
-  }
-
-  if (computed) {
-    initComputed(computed, options);
-  }
-
-  if (watch) {
-    initWatch(watch, options);
-  }
-}
-
-function initMethods(userMethods, options) {
-  const methods = options.methods = {};
-  each(userMethods, (key, method) => {
-    isFunction(method) && (methods[key] = method);
-  });
-}
-
-function initData(isCustomElement, userData, options) {
-  if (isFunction(userData) || !isCustomElement && isPlainObject(userData)) {
-    options.data = userData;
-  }
-}
-
-function initComputed(userComputed, options) {
-  const computed = options.computed = {};
-  each(userComputed, (key, userComputed) => {
-    if (userComputed) {
-      const isFn = isFunction(userComputed);
-      const get = isFn ? userComputed : userComputed.get || noop;
-      const set = isFn ? noop : userComputed.set || noop;
-      computed[key] = {
-        get,
-        set
-      };
-    }
-  });
-}
-
-function initWatch(userWatch, options) {
-  const watch = options.watch = {};
-  each(userWatch, (key, handler) => {
-    if (isArray(handler)) {
-      for (const handler of handler) {
-        createWatcher(key, handler, watch);
-      }
-    } else {
-      createWatcher(key, handler, watch);
-    }
-  });
-}
-
-function createWatcher(key, handler, watch) {
-  watch[key] = isPlainObject(handler) ? handler : {
-    handler
-  };
-}
-
-function initOther(isCustomElement, userOptions, options) {
-  const {
-    render
-  } = userOptions; // 渲染方法
-
-  options.render = isFunction(render) ? render : null;
-
-  if (inBrowser && !isCustomElement) {
-    // 挂载目标
-    options.el = userOptions.el || undefined;
-  }
-}
-
-const {
-  assign
-} = Object;
-
-const optionsMap = {};
-/**
- * 初始化组件配置
- * @param {boolean} isCustomElement 是否是初始化自定义元素
- * @param {string} name 自定义元素标签名
- * @param {{}} _userOptions 用户传入的组件配置
- */
-
-function initOptions(isCustomElement, name, _userOptions) {
-  /** 克隆一份用户配置 */
-  const userOptions = assign({}, _userOptions);
-  /** 格式化后的组件配置 */
-
-  const options = optionsMap[name] = {};
-  initProps(userOptions, options);
-  initState(isCustomElement, userOptions, options);
-  initLifecycle(userOptions, options);
-  initOther(isCustomElement, userOptions, options);
-  return [userOptions, options];
 }
 
 /**
@@ -7694,13 +7737,6 @@ const unsafeHTML = directive(value => part => {
   });
 });
 
-var isString = (
-/**
- * 判断传入对象是否是 String 类型
- * @param {any} value 需要判断的对象
- */
-value => typeof value === 'string');
-
 var rWhitespace = /\s+/;
 
 /**
@@ -7918,23 +7954,39 @@ html$1.repeat = (items, userKey, template) => {
 
 html$1.unsafeHTML = html$1.unsafe = unsafeHTML;
 
-var isReserved = /**
- * 判断字符串首字母是否为 $
- * @param {String} value
- */
-cached(value => {
-  const charCode = (value + '').charCodeAt(0);
-  return charCode === 0x24;
+/** 迫使 Hu 实例重新渲染 */
+
+var initForceUpdate = ((name, target, targetProxy) => {
+  /** 当前实例的实例配置 */
+  const userRender = optionsMap[name].render;
+
+  if (userRender) {
+    target.$forceUpdate = createCollectingDependents(() => {
+      const $el = target.$el;
+
+      if ($el) {
+        render(userRender.call(targetProxy, html$1), $el);
+        target.$refs = getRefs($el);
+      }
+    });
+  } else {
+    target.$forceUpdate = noop;
+  }
 });
 
-var isSymbolOrNotReserved = (
-/**
- * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
- * @param { string | symbol } name 需要判断的名称
- */
-name => {
-  return isSymbol(name) || !isReserved(name);
-});
+function getRefs(root) {
+  const refs = {};
+  const elems = root.querySelectorAll('[ref]');
+
+  if (elems.length) {
+    Array.from(elems).forEach(elem => {
+      const name = elem.getAttribute('ref');
+      refs[name] = refs[name] ? [].concat(refs[name], elem) : elem;
+    });
+  }
+
+  return Object.freeze(refs);
+}
 
 /**
  * unicode letters used for parsing html tags, component names and property paths.
@@ -8088,182 +8140,143 @@ const computedTargetProxyInterceptorSet = computedOptionsMap => (target, name, v
   return false;
 };
 
-/** 迫使 Hu 实例重新渲染 */
-
-var initForceUpdate = ((name, target, targetProxy) => {
-  /** 当前实例的实例配置 */
-  const userRender = optionsMap[name].render;
-
-  if (userRender) {
-    target.$forceUpdate = createCollectingDependents(() => {
-      const $el = target.$el;
-
-      if ($el) {
-        render(userRender.call(targetProxy, html$1), $el);
-        target.$refs = getRefs($el);
-      }
-    });
-  } else {
-    target.$forceUpdate = noop;
-  }
-});
-
-function getRefs(root) {
-  const refs = {};
-  const elems = root.querySelectorAll('[ref]');
-
-  if (elems.length) {
-    Array.from(elems).forEach(elem => {
-      const name = elem.getAttribute('ref');
-      refs[name] = refs[name] ? [].concat(refs[name], elem) : elem;
-    });
-  }
-
-  return Object.freeze(refs);
-}
-
 /**
  * 存放每个实例的 watch 数据
  */
 
 const watcherMap = new WeakMap();
+/**
+ * 监听 Hu 实例对象
+ */
+
+function $watch(expOrFn, callback, options) {
+  let watchFn; // 另一种写法
+
+  if (isPlainObject(callback)) {
+    return this.$watch(expOrFn, callback.handler, callback);
+  } // 使用键路径表达式
+
+
+  if (isString(expOrFn)) {
+    watchFn = parsePath(expOrFn).bind(this);
+  } // 使用计算属性函数
+  else if (isFunction(expOrFn)) {
+      watchFn = expOrFn.bind(this);
+    } // 不支持其他写法
+    else return;
+
+  let watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed;
+
+  if (watcherMap.has(this)) {
+    [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = watcherMap.get(this);
+  } else {
+    watcherMap.set(this, [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, null, true));
+  } // 初始化选项参数
+
+
+  options = options || {};
+  /** 当前 watch 的存储名称 */
+
+  const name = uid$1();
+  /** 当前 watch 的回调函数 */
+
+  const watchCallback = callback.bind(this);
+  /** 监听对象内部值的变化 */
+
+  const isWatchDeep = !!options.deep;
+  /** 值改变是否运行回调 */
+
+  let immediate,
+      runCallback = immediate = !!options.immediate; // 添加监听
+
+  appendComputed(name, {
+    get: () => {
+      const oldValue = watchTarget[name];
+      const value = watchFn();
+
+      if (runCallback) {
+        //   首次运行             值不一样        值一样的话, 判断是否是深度监听
+        if (immediate || !isEqual(value, oldValue) || isWatchDeep) {
+          watchCallback(value, oldValue);
+        }
+      }
+
+      return value;
+    }
+  }, isWatchDeep); // 首次运行, 以收集依赖
+
+  watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
+
+  runCallback = true;
+  immediate = false; // 返回取消监听的方法
+
+  return () => {
+    removeComputed(name);
+  };
+}
+
+/**
+ * 在下次 DOM 更新循环结束之后执行回调
+ */
+
+function $nextTick (callback) {
+  return nextTick(callback, this);
+}
+
+/**
+ * 挂载实例
+ */
+
+function $mount (selectors) {
+  const {
+    $info
+  } = this; // 首次挂载
+
+  if (!$info.isMounted) {
+    // 使用 new 创建的实例
+    if (!$info.isCustomElement) {
+      const el = selectors && (isString(selectors) ? document.querySelector(selectors) : selectors);
+
+      if (!el || el === document.body || el === document.documentElement) {
+        return this;
+      }
+
+      observeProxyMap.get(this).target.$el = el;
+    }
+    /** 当前实例的实例配置 */
+
+
+    const options = optionsMap[$info.name];
+    /** 当前实例 $info 原始对象 */
+
+    const infoTarget = observeProxyMap.get($info).target; // 运行 beforeMount 生命周期方法
+
+    options.beforeMount.call(this); // 执行 render 方法, 进行渲染
+
+    this.$forceUpdate(); // 标记首次实例挂载已完成
+
+    infoTarget.isMounted = true; // 运行 mounted 生命周期方法
+
+    options.mounted.call(this);
+  }
+
+  return this;
+}
+
 class HuConstructor {
   constructor(name) {
     /** 当前实例观察者对象 */
-    const targetProxy = observe(this, proxyOptions);
+    const targetProxy = observe(this, observeHu); // 初始化 $forceUpdate 方法
+
     initForceUpdate(name, this, targetProxy);
-  }
-  /** 监听 Hu 实例对象 */
-
-
-  $watch(expOrFn, callback, options) {
-    let watchFn; // 另一种写法
-
-    if (isPlainObject(callback)) {
-      return this.$watch(expOrFn, callback.handler, callback);
-    } // 使用键路径表达式
-
-
-    if (isString(expOrFn)) {
-      watchFn = parsePath(expOrFn).bind(this);
-    } // 使用计算属性函数
-    else if (isFunction(expOrFn)) {
-        watchFn = expOrFn.bind(this);
-      } // 不支持其他写法
-      else return;
-
-    let watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed;
-
-    if (watcherMap.has(this)) {
-      [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = watcherMap.get(this);
-    } else {
-      watcherMap.set(this, [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, null, true));
-    } // 初始化选项参数
-
-
-    options = options || {};
-    /** 当前 watch 的存储名称 */
-
-    const name = uid$1();
-    /** 当前 watch 的回调函数 */
-
-    const watchCallback = callback.bind(this);
-    /** 监听对象内部值的变化 */
-
-    const isWatchDeep = !!options.deep;
-    /** 值改变是否运行回调 */
-
-    let immediate,
-        runCallback = immediate = !!options.immediate; // 添加监听
-
-    appendComputed(name, {
-      get: () => {
-        const oldValue = watchTarget[name];
-        const value = watchFn();
-
-        if (runCallback) {
-          //   首次运行             值不一样        值一样的话, 判断是否是深度监听
-          if (immediate || !isEqual(value, oldValue) || isWatchDeep) {
-            watchCallback(value, oldValue);
-          }
-        }
-
-        return value;
-      }
-    }, isWatchDeep); // 首次运行, 以收集依赖
-
-    watchTargetProxyInterceptor[name]; // 下次值改变时运行回调
-
-    runCallback = true;
-    immediate = false; // 返回取消监听的方法
-
-    return () => {
-      removeComputed(name);
-    };
-  }
-  /** 挂载实例 */
-
-
-  $mount(selectors) {
-    const {
-      $info
-    } = this; // 首次挂载
-
-    if (!$info.isMounted) {
-      // 使用 new 创建的实例
-      if (!$info.isCustomElement) {
-        const el = selectors && (isString(selectors) ? document.querySelector(selectors) : selectors);
-
-        if (!el || el === document.body || el === document.documentElement) {
-          return this;
-        }
-
-        observeProxyMap.get(this).target.$el = el;
-      }
-      /** 当前实例的实例配置 */
-
-
-      const options = optionsMap[$info.name];
-      /** 当前实例 $info 原始对象 */
-
-      const infoTarget = observeProxyMap.get($info).target; // 运行 beforeMount 生命周期方法
-
-      options.beforeMount.call(this); // 执行 render 方法, 进行渲染
-
-      this.$forceUpdate(); // 标记首次实例挂载已完成
-
-      infoTarget.isMounted = true; // 运行 mounted 生命周期方法
-
-      options.mounted.call(this);
-    }
-
-    return this;
-  }
-  /** 在下次 DOM 更新循环结束之后执行回调 */
-
-
-  $nextTick(callback) {
-    return nextTick(callback, this);
   }
 
 }
-const proxyOptions = {
-  set: {
-    before: (target, name) => {
-      return isSymbolOrNotReserved(name) ? null : 0;
-    }
-  },
-  get: {
-    before: (target, name) => {
-      return isString(name) && isReserved(name) ? 0 : null;
-    }
-  },
-  deleteProperty: {
-    before: (target, name) => {
-      return isString(name) && isReserved(name) ? 0 : null;
-    }
-  }
-};
+assign(HuConstructor.prototype, {
+  $watch,
+  $mount,
+  $nextTick
+});
 
 /**
  * 初始化当前组件 props 属性
