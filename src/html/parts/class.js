@@ -1,5 +1,5 @@
 import rWhitespace from "../../shared/const/rWhitespace";
-import isArray from "../../shared/global/Array/isArray";
+import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
 
 

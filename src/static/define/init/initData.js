@@ -1,4 +1,4 @@
-import create from "../../../shared/global/Object/create";
+import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
 import injectionToLit from "../util/injectionToLit";
 import { observe } from "../../observable/util/observe";

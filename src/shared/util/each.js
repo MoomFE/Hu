@@ -1,4 +1,4 @@
-import ownKeys from "../global/Reflect/ownKeys";
+import { ownKeys } from "../global/Reflect/index";
 
 
 export default

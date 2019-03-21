@@ -1,4 +1,4 @@
-import create from "../global/Object/create";
+import { create } from "../global/Object/index";
 
 
 export default

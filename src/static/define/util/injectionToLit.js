@@ -1,5 +1,5 @@
 import isSymbolOrNotReserved from "../../../shared/util/isSymbolOrNotReserved";
-import has from "../../../shared/global/Reflect/has";
+import { has } from "../../../shared/global/Reflect/index";
 import define from "../../../shared/util/define";
 
 

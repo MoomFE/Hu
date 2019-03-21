@@ -1,4 +1,4 @@
-import defineProperty from "../global/Object/defineProperty";
+import { defineProperty } from "../global/Reflect/index";
 
 
 export default

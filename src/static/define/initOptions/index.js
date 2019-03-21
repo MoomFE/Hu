@@ -2,7 +2,7 @@ import initProps from "./initProps";
 import initLifecycle from "./initLifecycle";
 import initState from "./initState";
 import initOther from "./initOther";
-import assign from "../../../shared/global/Object/assign";
+import { assign } from "../../../shared/global/Object/index";
 
 
 export const optionsMap = {};

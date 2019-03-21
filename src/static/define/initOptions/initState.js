@@ -1,7 +1,7 @@
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import noop from "../../../shared/util/noop";
-import isArray from "../../../shared/global/Array/isArray";
+import { isArray } from "../../../shared/global/Array/index";
 import isPlainObject from "../../../shared/util/isPlainObject";
 
 

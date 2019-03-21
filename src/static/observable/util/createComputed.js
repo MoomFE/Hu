@@ -1,4 +1,4 @@
-import create from "../../../shared/global/Object/create";
+import { create } from "../../../shared/global/Object/index";
 import { observe, observeMap } from "./observe";
 import { dependentsMap, createCollectingDependents } from "./collectingDependents";
 import each from "../../../shared/util/each";

@@ -1,4 +1,4 @@
-import isArray from "../../../shared/global/Array/isArray";
+import { isArray } from "../../../shared/global/Array/index";
 import isPlainObject from "../../../shared/util/isPlainObject";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";

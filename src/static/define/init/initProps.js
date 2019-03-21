@@ -1,4 +1,4 @@
-import create from "../../../shared/global/Object/create";
+import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";

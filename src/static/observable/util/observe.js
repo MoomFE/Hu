@@ -1,10 +1,8 @@
 import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
-import getOwnPropertyDescriptor from "../../../shared/global/Object/getOwnPropertyDescriptor";
-import ownKeys from "../../../shared/global/Reflect/ownKeys";
-import create from "../../../shared/global/Object/create";
-import deleteProperty from "../../../shared/global/Reflect/deleteProperty";
+import { create } from "../../../shared/global/Object/index";
+import { getOwnPropertyDescriptor, deleteProperty, ownKeys } from "../../../shared/global/Reflect/index";
 
 
 /**

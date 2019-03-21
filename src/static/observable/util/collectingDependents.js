@@ -3,7 +3,7 @@ import isObject from "../../../shared/util/isObject";
 import { targetStack } from "./index";
 import { observeProxyMap } from "./observe";
 import define from "../../../shared/util/define";
-import create from "../../../shared/global/Object/create";
+import { create } from "../../../shared/global/Object/index";
 import { queueUpdate } from "./scheduler";
 
 

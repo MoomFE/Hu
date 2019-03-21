@@ -1,4 +1,4 @@
-import isArray from "../../shared/global/Array/isArray";
+import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
 import parseStyleText from "../../shared/util/parseStyleText";
 import hyphenate from "../../shared/util/hyphenate";

@@ -1,10 +1,10 @@
 import initOptions from "./initOptions/index";
 import init from "./init/index";
-import keys from "../../shared/global/Object/keys";
+import { keys } from "../../shared/global/Object/index";
 import initAttributeChangedCallback from "./init/initAttributeChangedCallback";
 import initDisconnectedCallback from "./init/initDisconnectedCallback";
 import initAdoptedCallback from "./init/initAdoptedCallback";
-import assign from "../../shared/global/Object/assign";
+import { assign } from "../../shared/global/Object/index";
 
 
 /**

@@ -33,19 +33,26 @@ var isEqual = (
 });
 
 const {
-  getOwnPropertyDescriptor
+  assign,
+  create,
+  keys
 } = Object;
 
 const {
-  ownKeys
-} = Reflect;
+  // apply,
+  // construct,
+  defineProperty,
+  deleteProperty,
+  // enumerate,
+  // get,
+  getOwnPropertyDescriptor,
+  // getPrototypeOf,
+  has,
+  // isExtensible,
+  ownKeys // preventExtensions,
+  // set,
+  // setPrototypeOf
 
-const {
-  create
-} = Object;
-
-const {
-  deleteProperty
 } = Reflect;
 
 /**
@@ -631,10 +638,6 @@ function initOther(isCustomElement, userOptions, options) {
   }
 }
 
-const {
-  assign
-} = Object;
-
 const optionsMap = {};
 /**
  * 初始化组件配置
@@ -662,10 +665,6 @@ var uid$1 = (
  * 返回一个字符串 UID
  */
 () => '' + uid++);
-
-const {
-  defineProperty
-} = Object;
 
 var define = (
 /**
@@ -3113,10 +3112,6 @@ function initProps$1(isCustomElement, root, options, target, targetProxy) {
   });
 }
 
-const {
-  has
-} = Reflect;
-
 var injectionToLit = (
 /**
  * 在 $hu 上建立对象的映射
@@ -3287,10 +3282,6 @@ const Hu = new Proxy(HuConstructor, {
 
 });
 Hu.version = '1.0.0-bata.0';
-
-const {
-  keys
-} = Object;
 
 var initAttributeChangedCallback = (propsMap => function (name, oldValue, value) {
   if (value === oldValue) return;
