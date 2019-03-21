@@ -1,5 +1,6 @@
 export const {
   assign,
   create,
-  keys
+  keys,
+  freeze
 } = Object;
