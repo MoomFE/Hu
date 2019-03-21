@@ -367,6 +367,80 @@ describe( 'Hu.instance', () => {
     expect( hu.$forceUpdate.toString() ).is.not.equals( hu2.$forceUpdate.toString() );
   });
 
+  it( '实例上的 $data 属性会存放所有定义了的属性', () => {
+    const $$a = Symbol('$$a');
+    const hu = new Hu({
+      data: {
+        a: 123,
+        $a: 456,
+        [ $$a ]: 789
+      }
+    });
+
+    expect( hu.$data ).is.deep.equals({
+      a: 123,
+      $a: 456,
+      [ $$a ]: 789
+    });
+  });
+
+  it( '实例上的 $data 属性会存放所有定义了的属性 ( 二 )', () => {
+    const $$a = Symbol('$$a');
+    const hu = new Hu({
+      data: () => ({
+        a: 123,
+        $a: 456,
+        [ $$a ]: 789
+      })
+    });
+
+    expect( hu.$data ).is.deep.equals({
+      a: 123,
+      $a: 456,
+      [ $$a ]: 789
+    });
+  });
+
+  it( '实例上的 $data 属性会存放所有定义了的属性 ( 三 )', () => {
+    const customName = window.customName;
+    const $$a = Symbol('$$a');
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 123,
+        $a: 456,
+        [ $$a ]: 789
+      })
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.$data ).is.deep.equals({
+      a: 123,
+      $a: 456,
+      [ $$a ]: 789
+    });
+  });
+
+  it( '实例上的 $data 属性下首字母不为 $ 的计算属性会在实例上添加映射', ()=> {
+    const $$a = Symbol('$$a');
+    const hu = new Hu({
+      data: {
+        a: 123,
+        $a: 456,
+        [ $$a ]: 789
+      }
+    });
+
+    expect( hu ).not.has.property('$a');
+    expect( hu ).is.deep.include({
+      a: 123,
+      [ $$a ]: 789
+    });
+  });
+
   it( '实例上的 $computed 属性会存放所有定义了的计算属性', () => {
     const $$a = Symbol('$$a');
     const hu = new Hu({
@@ -394,6 +468,7 @@ describe( 'Hu.instance', () => {
       }
     });
 
+    expect( hu ).is.not.has.property('$a');
     expect( hu ).is.deep.include({
       a: 123,
       [ $$a ]: 789
