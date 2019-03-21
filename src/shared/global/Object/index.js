@@ -1,4 +1,6 @@
 export const {
+  prototype,
+
   assign,
   create,
   keys,
