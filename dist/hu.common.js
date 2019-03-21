@@ -35,7 +35,8 @@ var isEqual = (
 const {
   assign,
   create,
-  keys
+  keys,
+  freeze
 } = Object;
 
 const {
@@ -54,6 +55,8 @@ const {
   // setPrototypeOf
 
 } = Reflect;
+
+var emptyObject = freeze({});
 
 /**
  * 存放原始对象和观察者对象及其选项参数的映射
@@ -114,7 +117,7 @@ function createObserver(target, options = {}) {
 
 const createObserverProxyGetter = ({
   before
-} = {}) => (target, name, targetProxy) => {
+} = emptyObject) => (target, name, targetProxy) => {
   // @return 0: 从原始对象放行
   if (before) {
     const beforeResult = before(target, name, targetProxy);
@@ -125,7 +128,7 @@ const createObserverProxyGetter = ({
   } // 需要获取的值是使用 Object.defineProperty 定义的属性
 
 
-  if ((getOwnPropertyDescriptor(target, name) || {}).get) {
+  if ((getOwnPropertyDescriptor(target, name) || emptyObject).get) {
     return target[name];
   } // 获取当前在收集依赖的那个方法的参数
 
@@ -166,7 +169,7 @@ const createObserverProxyGetter = ({
 
 const createObserverProxySetter = ({
   before
-} = {}) => (target, name, value, targetProxy) => {
+} = emptyObject) => (target, name, value, targetProxy) => {
   // @return 0: 阻止设置值
   if (before) {
     const beforeResult = before(target, name, value, targetProxy);
@@ -177,7 +180,7 @@ const createObserverProxySetter = ({
   } // 需要修改的值是使用 Object.defineProperty 定义的属性
 
 
-  if ((getOwnPropertyDescriptor(target, name) || {}).set) {
+  if ((getOwnPropertyDescriptor(target, name) || emptyObject).set) {
     target[name] = value;
     return true;
   } // 观察者选项参数
@@ -258,7 +261,7 @@ const observerProxyOwnKeys = target => {
 
 const createObserverProxyDeleteProperty = ({
   before
-} = {}) => (target, name) => {
+} = emptyObject) => (target, name) => {
   // @return 0: 禁止删除
   if (before) {
     const beforeResult = before(target, name);

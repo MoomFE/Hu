@@ -3,6 +3,7 @@ import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
 import { create } from "../../../shared/global/Object/index";
 import { getOwnPropertyDescriptor, deleteProperty, ownKeys } from "../../../shared/global/Reflect/index";
+import emptyObject from "../../../shared/const/emptyObject";
 
 
 /**
@@ -65,7 +66,7 @@ function createObserver(
 /**
  * 创建依赖收集的响应方法
  */
-const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetProxy ) => {
+const createObserverProxyGetter = ({ before } = emptyObject) => ( target, name, targetProxy ) => {
 
   // @return 0: 从原始对象放行
   if( before ){
@@ -77,7 +78,7 @@ const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetPro
   }
 
   // 需要获取的值是使用 Object.defineProperty 定义的属性
-  if( ( getOwnPropertyDescriptor( target, name ) || {} ).get ){
+  if( ( getOwnPropertyDescriptor( target, name ) || emptyObject ).get ){
     return target[ name ];
   }
 
@@ -118,7 +119,7 @@ const createObserverProxyGetter = ({ before } = {}) => ( target, name, targetPro
 /**
  * 创建响应更新方法
  */
-const createObserverProxySetter = ({ before } = {}) => ( target, name, value, targetProxy ) => {
+const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, value, targetProxy ) => {
 
   // @return 0: 阻止设置值
   if( before ){
@@ -130,7 +131,7 @@ const createObserverProxySetter = ({ before } = {}) => ( target, name, value, ta
   }
 
   // 需要修改的值是使用 Object.defineProperty 定义的属性
-  if( ( getOwnPropertyDescriptor( target, name ) || {} ).set ){
+  if( ( getOwnPropertyDescriptor( target, name ) || emptyObject ).set ){
     target[ name ] = value;
     return true;
   }
@@ -214,7 +215,7 @@ const observerProxyOwnKeys = ( target ) => {
   return ownKeys( target );
 }
 
-const createObserverProxyDeleteProperty = ({ before } = {}) => ( target, name ) =>{
+const createObserverProxyDeleteProperty = ({ before } = emptyObject) => ( target, name ) =>{
 
   // @return 0: 禁止删除
   if( before ){
