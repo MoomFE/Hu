@@ -1,5 +1,5 @@
 import isString from "../../../util/isString";
-import { observeProxyMap } from "../../../../static/observable/util/observe";
+import { observeProxyMap } from "../../../../static/observable/index";
 import { optionsMap } from "../../../../static/define/initOptions/index";
 
 

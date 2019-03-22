@@ -1,5 +1,5 @@
 import { optionsMap } from "../../../../static/define/initOptions/index";
-import { createCollectingDependents } from "../../../../static/observable/util/collectingDependents";
+import { createCollectingDependents } from "../../../../static/observable/collectingDependents";
 import html, { render } from "../../../../html/index";
 import noop from "../../../util/noop";
 

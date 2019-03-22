@@ -1,4 +1,4 @@
-import nextTick from "../../nextTick/index";
+import nextTick from "../nextTick/index";
 
 
 /** 异步更新队列 */

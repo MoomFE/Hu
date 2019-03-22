@@ -27,13 +27,6 @@
    */
   const targetStack = [];
 
-  var isObject = (
-  /**
-   * 判断传入对象是否是 Object 类型且不为 null
-   * @param {any} value 需要判断的对象
-   */
-  value => value !== null && typeof value === 'object');
-
   var isEqual = (
   /**
    * 判断传入的两个值是否相等
@@ -52,7 +45,7 @@
     // enumerate,
     // get,
     getOwnPropertyDescriptor,
-    getPrototypeOf,
+    // getPrototypeOf,
     has,
     // isExtensible,
     ownKeys // preventExtensions,
@@ -74,17 +67,16 @@
     hasOwnProperty
   } = prototype;
 
-  const observeProtoHooks = new Map();
+  var isPlainObject = (
+  /**
+   * 判断传入对象是否是纯粹的对象
+   * @param {any} value 需要判断的对象
+   */
+  value => Object.prototype.toString.call(value) === '[object Object]');
 
-  var runObserveProtoHooks = ((constructor, target, targetProxy, name, value) => {
-    const {
-      internalSlots
-    } = observeProtoHooks.get(constructor);
-
-    if (internalSlots) {
-      return value.bind(target);
-    }
-  });
+  const {
+    isArray
+  } = Array;
 
   /**
    * 存放原始对象和观察者对象及其选项参数的映射
@@ -96,6 +88,13 @@
    */
 
   const observeProxyMap = new WeakMap();
+  /**
+   * 创建无参数观察对象
+   */
+
+  function observable(obj) {
+    return isPlainObject(obj) || isArray(obj) ? observe(obj) : obj;
+  }
   /**
    * 为传入对象创建观察者
    */
@@ -164,12 +163,6 @@
     const value = target[name]; // 如果获取的是原型上的方法
 
     if (isFunction(value) && !hasOwnProperty.call(target, name) && has(target, name)) {
-      const constructor = getPrototypeOf(target).constructor;
-
-      if (observeProtoHooks.has(constructor)) {
-        return runObserveProtoHooks(constructor, target, targetProxy, name, value);
-      }
-
       return value;
     } // 获取当前在收集依赖的那个方法的参数
 
@@ -201,7 +194,7 @@
     observeOptions.lastValue[name] = value; // 如果获取的值是对象类型
     // 则返回它的观察者对象
 
-    return isObject(value) ? observe(value) : value;
+    return observable(value);
   };
   /**
    * 创建响应更新方法
@@ -381,17 +374,6 @@
     }
   };
 
-  const {
-    isArray
-  } = Array;
-
-  var isPlainObject = (
-  /**
-   * 判断传入对象是否是纯粹的对象
-   * @param {any} value 需要判断的对象
-   */
-  value => Object.prototype.toString.call(value) === '[object Object]');
-
   var each = (
   /**
    * 对象遍历方法
@@ -413,6 +395,13 @@
    * 序列化为 Boolean 属性
    */
   value => value !== null);
+
+  var isObject = (
+  /**
+   * 判断传入对象是否是 Object 类型且不为 null
+   * @param {any} value 需要判断的对象
+   */
+  value => value !== null && typeof value === 'object');
 
   var returnArg = (
   /**
@@ -3396,34 +3385,6 @@
     };
   }
 
-  /**
-   * 修复某些内置对象使用了内部插槽而引起的问题
-   */
-
-  function observeProto(constructor, options) {
-    observeProtoHooks.set(constructor, options);
-  }
-  observeProto.hooks = observeProtoHooks;
-  observeProto(Map, {
-    internalSlots: true
-  });
-  observeProto(Set, {
-    internalSlots: true
-  });
-  observeProto(WeakMap, {
-    internalSlots: true
-  });
-  observeProto(WeakSet, {
-    internalSlots: true
-  });
-  observeProto(Date, {
-    internalSlots: true
-  });
-
-  Hu.observable = obj => {
-    return isObject(obj) ? observe(obj) : obj;
-  };
-
   const otherHu = window.Hu;
 
   Hu.noConflict = () => {
@@ -3440,7 +3401,7 @@
     render: render$1,
     html: html$1,
     nextTick,
-    observeProto
+    observable
   });
 
   return Hu;

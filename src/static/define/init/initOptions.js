@@ -1,4 +1,4 @@
-import { observe } from "../../observable/util/observe";
+import { observe } from "../../observable/index";
 import observeReadonly from "../../../shared/const/observeReadonly";
 
 

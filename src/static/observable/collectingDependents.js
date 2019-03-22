@@ -1,9 +1,9 @@
-import uid from "../../../shared/util/uid";
-import isObject from "../../../shared/util/isObject";
-import { targetStack } from "./index";
-import { observeProxyMap } from "./observe";
-import define from "../../../shared/util/define";
-import { create } from "../../../shared/global/Object/index";
+import uid from "../../shared/util/uid";
+import isObject from "../../shared/util/isObject";
+import { targetStack } from "./const";
+import { observeProxyMap } from "./index";
+import define from "../../shared/util/define";
+import { create } from "../../shared/global/Object/index";
 import { queueUpdate } from "./scheduler";
 
 

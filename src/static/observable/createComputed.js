@@ -1,9 +1,9 @@
-import { create } from "../../../shared/global/Object/index";
-import { observe, observeMap } from "./observe";
+import { create } from "../../shared/global/Object/index";
+import { observe, observeMap } from "./index";
 import { dependentsMap, createCollectingDependents } from "./collectingDependents";
-import each from "../../../shared/util/each";
-import noop from "../../../shared/util/noop";
-import returnFalse from "../../../shared/util/returnFalse";
+import each from "../../shared/util/each";
+import noop from "../../shared/util/noop";
+import returnFalse from "../../shared/util/returnFalse";
 
 
 export default

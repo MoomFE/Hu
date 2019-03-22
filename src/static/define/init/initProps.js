@@ -3,7 +3,7 @@ import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
 import define from "../../../shared/util/define";
-import { observe } from "../../observable/util/observe";
+import { observe } from "../../observable/index";
 import isReserved from "../../../shared/util/isReserved";
 
 

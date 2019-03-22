@@ -2,7 +2,7 @@ import isPlainObject from "../../../util/isPlainObject";
 import isString from "../../../util/isString";
 import parsePath from "../../../../static/define/util/parsePath";
 import isFunction from "../../../util/isFunction";
-import createComputed from "../../../../static/observable/util/createComputed";
+import createComputed from "../../../../static/observable/createComputed";
 import uid from "../../../util/uid";
 import isEqual from "../../../util/isEqual";
 
