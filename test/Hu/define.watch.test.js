@@ -734,4 +734,58 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 时, 在回调方法内修改监听的值会立即再收到一次回调', ( done ) => {
+    const steps = [];
+    const hu = new Hu({
+      data: {
+        a: 1
+      }
+    });
+
+    hu.$watch( 'a', ( value ) => {
+      steps.push( 1 );
+      hu.a = 3;
+    });
+    hu.$watch( 'a', ( value ) => {
+      steps.push( 2 );
+    });
+    hu.$watch( 'a', ( value ) => {
+      steps.push( 3 );
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( steps ).is.deep.equals([ 1, 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '使用 $watch 时, 在回调方法内修改监听的值会立即再收到一次回调 ( Vue )', ( done ) => {
+    const steps = [];
+    const vm = new Vue({
+      data: {
+        a: 1
+      }
+    });
+
+    vm.$watch( 'a', ( value ) => {
+      steps.push( 1 );
+      vm.a = 3;
+    });
+    vm.$watch( 'a', ( value ) => {
+      steps.push( 2 );
+    });
+    vm.$watch( 'a', ( value ) => {
+      steps.push( 3 );
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( steps ).is.deep.equals([ 1, 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
 });
