@@ -1,10 +1,20 @@
+import { assign } from '../shared/global/Object/index';
+
+
 import Hu from '../shared/global/Hu/index';
-import '../static/define/index';
-import '../static/noConflict/index';
-import '../static/html/index';
+import define from '../static/define/index';
+import html, { render } from '../static/html/index';
+import nextTick from '../static/nextTick/index';
 import '../static/observable/index';
-import '../static/nextTick/index';
-import '../static/observePrototype/index';
+import '../static/noConflict/index';
+
+
+assign( Hu, {
+  define,
+  render,
+  html,
+  nextTick
+});
 
 
 export default Hu;

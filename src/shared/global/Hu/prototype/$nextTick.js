@@ -1,4 +1,4 @@
-import nextTick from "../../../../static/nextTick/nextTick";
+import nextTick from "../../../../static/nextTick/index";
 
 
 /**

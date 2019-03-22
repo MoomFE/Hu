@@ -5212,6 +5212,14 @@ typeof window !== "undefined" && function () {
   }).call(window);
 }();
 
+const {
+  prototype,
+  assign,
+  create,
+  keys,
+  freeze
+} = Object;
+
 /**
  * 调用堆栈
  * - 存放当前正在计算依赖的方法的 dependentsOptions 依赖集合数组
@@ -5235,14 +5243,6 @@ var isEqual = (
 (value, value2) => {
   return !(value2 !== value && (value2 === value2 || value === value));
 });
-
-const {
-  prototype,
-  assign,
-  create,
-  keys,
-  freeze
-} = Object;
 
 const {
   // apply,
@@ -8566,19 +8566,6 @@ function connectedCallback() {
   this.$hu.$mount();
 }
 
-Hu.define = define$1;
-
-const otherHu = window.Hu;
-
-Hu.noConflict = () => {
-  if (window.Hu === Hu) window.Hu = otherHu;
-  return Hu;
-};
-
-if (typeof window !== 'undefined') {
-  window.Hu = Hu;
-}
-
 function render$1(result, container) {
   if (arguments.length > 1) {
     return render(result, container);
@@ -8591,13 +8578,26 @@ function render$1(result, container) {
   };
 }
 
-Hu.html = html$1;
-Hu.render = render$1;
-
 Hu.observable = obj => {
   return isObject(obj) ? observe(obj) : obj;
 };
 
-Hu.nextTick = nextTick;
+const otherHu = window.Hu;
+
+Hu.noConflict = () => {
+  if (window.Hu === Hu) window.Hu = otherHu;
+  return Hu;
+};
+
+if (typeof window !== 'undefined') {
+  window.Hu = Hu;
+}
+
+assign(Hu, {
+  define: define$1,
+  render: render$1,
+  html: html$1,
+  nextTick
+});
 
 module.exports = Hu;

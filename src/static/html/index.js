@@ -1,7 +1,17 @@
-import Hu from "../../shared/global/Hu/index";
-import html from "../../html/index";
-import render from "./render";
+import html, { render as litRender } from "../../html/index";
 
 
-Hu.html = html;
-Hu.render = render;
+export default html;
+
+export function render( result, container ){
+  if( arguments.length > 1 ){
+    return litRender( result, container );
+  }
+
+  container = result;
+
+  return function(){
+    const result = html.apply( null, arguments );
+    return litRender( result, container );
+  }
+}
