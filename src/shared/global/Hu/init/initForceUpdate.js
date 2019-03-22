@@ -1,5 +1,5 @@
 import { optionsMap } from "../../../../static/define/initOptions/index";
-import { createWatcher } from "../../../../static/observable/collectingDependents";
+import { Watcher } from "../../../../static/observable/collectingDependents";
 import html, { render } from "../../../../html/index";
 import noop from "../../../util/noop";
 
@@ -10,7 +10,7 @@ export default ( name, target, targetProxy ) => {
   const userRender = optionsMap[ name ].render;
 
   if( userRender ){
-    target.$forceUpdate = createWatcher(() => {
+    const { get } = new Watcher(() => {
       const $el = target.$el;
 
       if( $el ){
@@ -18,6 +18,8 @@ export default ( name, target, targetProxy ) => {
         target.$refs = getRefs( $el );
       }
     });
+
+    target.$forceUpdate = get;
   }else{
     target.$forceUpdate = noop;
   }

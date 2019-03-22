@@ -838,32 +838,6 @@
     queueMap.clear();
   }
 
-  /**
-   * 依赖集合
-   * - 存放所有已收集到的依赖
-   * - { id: watcher, ... }
-   */
-
-  const watchersMap = create(null);
-  /**
-   * 返回一个方法为传入方法收集依赖
-   */
-
-  function createWatcher$1() {
-    const cd = new Watcher(...arguments);
-    const {
-      get,
-      id
-    } = cd; // 存储当前方法的依赖
-    // 可以在下次收集依赖的时候对这次收集的依赖进行清空
-
-    watchersMap[id] = cd; // 存储当前收集依赖的 ID 到方法
-    // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
-
-    get.id = id;
-    return get;
-  }
-
   class Watcher {
     /**
      * @param {function} fn 需要收集依赖的方法
@@ -2825,7 +2799,9 @@
     const userRender = optionsMap[name].render;
 
     if (userRender) {
-      target.$forceUpdate = createWatcher$1(() => {
+      const {
+        get
+      } = new Watcher(() => {
         const $el = target.$el;
 
         if ($el) {
@@ -2833,6 +2809,7 @@
           target.$refs = getRefs($el);
         }
       });
+      target.$forceUpdate = get;
     } else {
       target.$forceUpdate = noop;
     }
@@ -2938,15 +2915,15 @@
       /** 计算属性的 getter */
 
       const get = computed.get.bind(this);
-      /** 计算属性的 getter 依赖收集包装 */
+      /** 计算属性的 watcher */
 
-      const collectingDependentsGet = createWatcher$1(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
+      const watcher = new Watcher(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
 
       computedTarget[name] = void 0; // 存储计算属性参数
 
       computedOptionsMap.set(name, {
-        id: collectingDependentsGet.id,
-        get: collectingDependentsGet,
+        watcher,
+        get: watcher.get,
         set
       });
     };
@@ -2966,7 +2943,7 @@
 
       if (computedOptions) {
         // 清空依赖
-        watchersMap[computedOptions.id].cleanDeps();
+        computedOptions.watcher.cleanDeps();
       }
     };
   }
@@ -2980,7 +2957,7 @@
     const computedOptions = computedOptionsMap.get(name); // 防止用户通过 $computed 获取不存在的计算属性
 
     if (computedOptions) {
-      const watcher = watchersMap[computedOptions.id]; // 计算属性未初始化或需要更新
+      const watcher = computedOptions.watcher; // 计算属性未初始化或需要更新
 
       if (!watcher.isInit || watcher.shouldUpdate) {
         computedOptions.get();

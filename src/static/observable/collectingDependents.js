@@ -3,37 +3,10 @@ import isObject from "../../shared/util/isObject";
 import { targetStack } from "./const";
 import { observeProxyMap } from "./index";
 import define from "../../shared/util/define";
-import { create } from "../../shared/global/Object/index";
 import { queueUpdate } from "./scheduler";
 
 
-/**
- * 依赖集合
- * - 存放所有已收集到的依赖
- * - { id: watcher, ... }
- */
-export const watchersMap = create( null );
-
-
-/**
- * 返回一个方法为传入方法收集依赖
- */
-export function createWatcher(){
-  const cd = new Watcher( ...arguments );
-  const { get, id } = cd;
-
-  // 存储当前方法的依赖
-  // 可以在下次收集依赖的时候对这次收集的依赖进行清空
-  watchersMap[ id ] = cd;
-
-  // 存储当前收集依赖的 ID 到方法
-  // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
-  get.id = id;
-
-  return get;
-}
-
-class Watcher{
+export class Watcher{
   /**
    * @param {function} fn 需要收集依赖的方法
    * @param {boolean} isComputed 是否是计算属性
