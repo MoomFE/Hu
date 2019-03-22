@@ -1,6 +1,6 @@
 import { create } from "../../shared/global/Object/index";
 import { observe, observeMap } from "./index";
-import { dependentsMap, createCollectingDependents } from "./collectingDependents";
+import { watchersMap, createWatcher } from "./collectingDependents";
 import each from "../../shared/util/each";
 import noop from "../../shared/util/noop";
 import returnFalse from "../../shared/util/returnFalse";
@@ -64,7 +64,7 @@ function createAppendComputed( computedTarget, computedTargetProxy, computedOpti
     /** 计算属性的 getter */
     const get = computed.get.bind( this );
     /** 计算属性的 getter 依赖收集包装 */
-    const collectingDependentsGet = createCollectingDependents(
+    const collectingDependentsGet = createWatcher(
       () => computedTargetProxy[ name ] = get(),
       isComputed,
       isWatch, isWatchDeep,
@@ -96,7 +96,7 @@ function createRemoveComputed( computedOptionsMap ){
     // 有这个计算属性
     if( computedOptions ){
       // 清空依赖
-      dependentsMap[ computedOptions.id ].cleanDeps();
+      watchersMap[ computedOptions.id ].cleanDeps();
     }
   };
 }
@@ -110,10 +110,10 @@ const computedTargetProxyInterceptorGet = computedOptionsMap => ( target, name )
 
   // 防止用户通过 $computed 获取不存在的计算属性
   if( computedOptions ){
-    const dependentsOptions = dependentsMap[ computedOptions.id ];
+    const watcher = watchersMap[ computedOptions.id ];
 
     // 计算属性未初始化或需要更新
-    if( !dependentsOptions.isInit || dependentsOptions.shouldUpdate ){
+    if( !watcher.isInit || watcher.shouldUpdate ){
       computedOptions.get();
     }
   }

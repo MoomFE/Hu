@@ -10,21 +10,21 @@ import { queueUpdate } from "./scheduler";
 /**
  * 依赖集合
  * - 存放所有已收集到的依赖
- * - { id: dependentsOptions, ... }
+ * - { id: watcher, ... }
  */
-export const dependentsMap = create( null );
+export const watchersMap = create( null );
 
 
 /**
  * 返回一个方法为传入方法收集依赖
  */
-export function createCollectingDependents(){
-  const cd = new CollectingDependents( ...arguments );
+export function createWatcher(){
+  const cd = new Watcher( ...arguments );
   const { get, id } = cd;
 
   // 存储当前方法的依赖
   // 可以在下次收集依赖的时候对这次收集的依赖进行清空
-  dependentsMap[ id ] = cd;
+  watchersMap[ id ] = cd;
 
   // 存储当前收集依赖的 ID 到方法
   // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
@@ -33,7 +33,7 @@ export function createCollectingDependents(){
   return get;
 }
 
-class CollectingDependents{
+class Watcher{
   /**
    * @param {function} fn 需要收集依赖的方法
    * @param {boolean} isComputed 是否是计算属性
@@ -53,7 +53,7 @@ class CollectingDependents{
     // 需要收集依赖的方法
     this.fn = fn;
     // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
-    this.get = CollectingDependents.get.bind( this );
+    this.get = Watcher.get.bind( this );
     // 存储其他参数
     if( isComputed ){
       let shouldUpdate;
@@ -108,14 +108,14 @@ class CollectingDependents{
   }
   /** 仅为监听方法时使用 -> 对依赖的最终返回值进行深度监听 ( watch deep ) */
   wd( result ){
-    isObject( result ) && observeProxyMap.get( result ).deepWatches.add( this );
+    isObject( result ) && observeProxyMap.get( result ).deepWatchers.add( this );
   }
   /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
   ec( callback ){
-    let { watches } = this.observeOptions;
+    let { watchers } = this.observeOptions;
     let watch;
 
-    if( watches && ( watch = watches[ this.name ] ) && watch.size ){
+    if( watchers && ( watch = watchers[ this.name ] ) && watch.size ){
       for( let cd of watch )
         if( callback( cd ) === false ) break;
     }

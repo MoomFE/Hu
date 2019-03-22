@@ -1,5 +1,5 @@
 import { optionsMap } from "../../../../static/define/initOptions/index";
-import { createCollectingDependents } from "../../../../static/observable/collectingDependents";
+import { createWatcher } from "../../../../static/observable/collectingDependents";
 import html, { render } from "../../../../html/index";
 import noop from "../../../util/noop";
 
@@ -10,7 +10,7 @@ export default ( name, target, targetProxy ) => {
   const userRender = optionsMap[ name ].render;
 
   if( userRender ){
-    target.$forceUpdate = createCollectingDependents(() => {
+    target.$forceUpdate = createWatcher(() => {
       const $el = target.$el;
 
       if( $el ){

@@ -10,11 +10,11 @@ let waiting = false;
 /**
  * 将一个更新请求放入队列中
  */
-export function queueUpdate( dependentsOptions ){
-  if( queue.has( dependentsOptions ) ){
+export function queueUpdate( watcher ){
+  if( queue.has( watcher ) ){
     return;
   }else{
-    queue.add( dependentsOptions );
+    queue.add( watcher );
   }
 
   // 如果当前没有异步更新队列在执行
@@ -31,12 +31,12 @@ export function queueUpdate( dependentsOptions ){
  * 执行异步更新队列
  */
 function flushSchedulerQueue(){
-  for( let dependentsOptions of queue ){
+  for( let watcher of queue ){
     // 略过在等待队列执行的过程中就已经被更新了的计算属性
-    if( dependentsOptions.isComputed && !dependentsOptions.shouldUpdate ){
+    if( watcher.isComputed && !watcher.shouldUpdate ){
       continue;
     }
-    dependentsOptions.get();
+    watcher.get();
   }
 
   queue.clear();

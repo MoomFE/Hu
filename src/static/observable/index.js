@@ -60,9 +60,9 @@ function createObserver(
     // 可以使用原始对象来获取观察者对象
     proxy,
     // 当前对象的子级的被监听数据
-    watches: create( null ),
+    watchers: create( null ),
     // 当前对象的被深度监听数据
-    deepWatches: new Set(),
+    deepWatchers: new Set(),
     // 上次的值
     lastValue: create( null )
   };
@@ -102,28 +102,28 @@ const createObserverProxyGetter = ({ before } = emptyObject) => ( target, name, 
   }
 
   // 获取当前在收集依赖的那个方法的参数
-  const dependentsOptions = targetStack[ targetStack.length - 1 ];
+  const watcher = targetStack[ targetStack.length - 1 ];
 
   // 观察者选项参数
   const observeOptions = observeMap.get( target );
 
   // 当前有正在收集依赖的方法
-  if( dependentsOptions ){
-    const { watches } = observeOptions;
-    let watch = watches[ name ];
+  if( watcher ){
+    const { watchers } = observeOptions;
+    let watch = watchers[ name ];
 
     // 当前参数没有被监听过, 初始化监听数组
     if( !watch ){
       watch = new Set();
-      watches[ name ] = watch;
+      watchers[ name ] = watch;
     }
 
     // 添加依赖方法信息到 watch
     // 当前值被改变时, 会调用依赖方法
-    watch.add( dependentsOptions );
+    watch.add( watcher );
     // 添加 watch 的信息到依赖收集去
     // 当依赖方法被重新调用, 会移除依赖
-    dependentsOptions.deps.add( watch );
+    watcher.deps.add( watch );
   }
 
   // 存储本次值
@@ -169,37 +169,37 @@ const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, 
   target[ name ] = value;
 
   // 获取子级监听数据
-  const { watches, deepWatches } = observeOptions;
+  const { watchers, deepWatchers } = observeOptions;
   // 获取当前参数的被监听数据和父级对象深度监听数据的集合
-  let watch = [
-    ...( watches[ name ] || [] ),
-    ...deepWatches
+  let allWatchers = [
+    ...( watchers[ name ] || [] ),
+    ...deepWatchers
   ];
 
   // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
-  if( watch.length ){
+  if( allWatchers.length ){
     let executes = [];
 
-    for( let dependentsOptions of watch ){
+    for( let watcher of allWatchers ){
       // 通知所有依赖于此值的计算属性, 下次被访问时要更新值
-      if( dependentsOptions.isComputed ){
-        dependentsOptions.shouldUpdate = true;
+      if( watcher.isComputed ){
+        watcher.shouldUpdate = true;
 
         // 需要更新有依赖的计算属性
-        if( !dependentsOptions.lazy ){
-          executes.push( dependentsOptions );
+        if( !watcher.lazy ){
+          executes.push( watcher );
         }
       }
       // 其它需要更新的依赖
       else{
-        executes.push( dependentsOptions );
+        executes.push( watcher );
       }
     }
 
-    for( let dependentsOptions of executes ){
+    for( let watcher of executes ){
       //           不是计算属性                      需要更新的计算属性
-      if( !dependentsOptions.isComputed || dependentsOptions.shouldUpdate ){
-        dependentsOptions.update();
+      if( !watcher.isComputed || watcher.shouldUpdate ){
+        watcher.update();
       }
     }
   }
@@ -220,14 +220,14 @@ const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, 
 const observerProxyOwnKeys = ( target ) => {
 
   // 获取当前在收集依赖的那个方法的参数
-  const dependentsOptions = targetStack[ targetStack.length - 1 ];
+  const watcher = targetStack[ targetStack.length - 1 ];
 
   // 当前有正在收集依赖的方法
-  if( dependentsOptions ){
+  if( watcher ){
     // 深度监听数据
-    const { deepWatches } = observeMap.get( target );
+    const { deepWatchers } = observeMap.get( target );
     // 标识深度监听
-    deepWatches.add( dependentsOptions );
+    deepWatchers.add( watcher );
   }
 
   return ownKeys( target );

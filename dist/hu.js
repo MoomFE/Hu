@@ -22,8 +22,8 @@
 
   /**
    * 调用堆栈
-   * - 存放当前正在计算依赖的方法的 dependentsOptions 依赖集合数组
-   * - [ dependentsOptions, dependentsOptions, ... ]
+   * - 存放当前正在计算依赖的方法的 watcher 依赖集合数组
+   * - [ watcher, watcher, ... ]
    */
   const targetStack = [];
 
@@ -126,9 +126,9 @@
       // 可以使用原始对象来获取观察者对象
       proxy,
       // 当前对象的子级的被监听数据
-      watches: create(null),
+      watchers: create(null),
       // 当前对象的被深度监听数据
-      deepWatches: new Set(),
+      deepWatchers: new Set(),
       // 上次的值
       lastValue: create(null)
     }; // 存储观察者选项参数
@@ -167,27 +167,27 @@
     } // 获取当前在收集依赖的那个方法的参数
 
 
-    const dependentsOptions = targetStack[targetStack.length - 1]; // 观察者选项参数
+    const watcher = targetStack[targetStack.length - 1]; // 观察者选项参数
 
     const observeOptions = observeMap.get(target); // 当前有正在收集依赖的方法
 
-    if (dependentsOptions) {
+    if (watcher) {
       const {
-        watches
+        watchers
       } = observeOptions;
-      let watch = watches[name]; // 当前参数没有被监听过, 初始化监听数组
+      let watch = watchers[name]; // 当前参数没有被监听过, 初始化监听数组
 
       if (!watch) {
         watch = new Set();
-        watches[name] = watch;
+        watchers[name] = watch;
       } // 添加依赖方法信息到 watch
       // 当前值被改变时, 会调用依赖方法
 
 
-      watch.add(dependentsOptions); // 添加 watch 的信息到依赖收集去
+      watch.add(watcher); // 添加 watch 的信息到依赖收集去
       // 当依赖方法被重新调用, 会移除依赖
 
-      dependentsOptions.deps.add(watch);
+      watcher.deps.add(watch);
     } // 存储本次值
 
 
@@ -232,33 +232,33 @@
     target[name] = value; // 获取子级监听数据
 
     const {
-      watches,
-      deepWatches
+      watchers,
+      deepWatchers
     } = observeOptions; // 获取当前参数的被监听数据和父级对象深度监听数据的集合
 
-    let watch = [...(watches[name] || []), ...deepWatches]; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
+    let allWatchers = [...(watchers[name] || []), ...deepWatchers]; // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
 
-    if (watch.length) {
+    if (allWatchers.length) {
       let executes = [];
 
-      for (let dependentsOptions of watch) {
+      for (let watcher of allWatchers) {
         // 通知所有依赖于此值的计算属性, 下次被访问时要更新值
-        if (dependentsOptions.isComputed) {
-          dependentsOptions.shouldUpdate = true; // 需要更新有依赖的计算属性
+        if (watcher.isComputed) {
+          watcher.shouldUpdate = true; // 需要更新有依赖的计算属性
 
-          if (!dependentsOptions.lazy) {
-            executes.push(dependentsOptions);
+          if (!watcher.lazy) {
+            executes.push(watcher);
           }
         } // 其它需要更新的依赖
         else {
-            executes.push(dependentsOptions);
+            executes.push(watcher);
           }
       }
 
-      for (let dependentsOptions of executes) {
+      for (let watcher of executes) {
         //           不是计算属性                      需要更新的计算属性
-        if (!dependentsOptions.isComputed || dependentsOptions.shouldUpdate) {
-          dependentsOptions.update();
+        if (!watcher.isComputed || watcher.shouldUpdate) {
+          watcher.update();
         }
       }
     }
@@ -279,15 +279,15 @@
 
   const observerProxyOwnKeys = target => {
     // 获取当前在收集依赖的那个方法的参数
-    const dependentsOptions = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
+    const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
-    if (dependentsOptions) {
+    if (watcher) {
       // 深度监听数据
       const {
-        deepWatches
+        deepWatchers
       } = observeMap.get(target); // 标识深度监听
 
-      deepWatches.add(dependentsOptions);
+      deepWatchers.add(watcher);
     }
 
     return ownKeys(target);
@@ -767,11 +767,11 @@
    * 将一个更新请求放入队列中
    */
 
-  function queueUpdate(dependentsOptions) {
-    if (queue.has(dependentsOptions)) {
+  function queueUpdate(watcher) {
+    if (queue.has(watcher)) {
       return;
     } else {
-      queue.add(dependentsOptions);
+      queue.add(watcher);
     } // 如果当前没有异步更新队列在执行
     // 那么就执行当前的异步更新队列
     // 如果有的话
@@ -788,13 +788,13 @@
    */
 
   function flushSchedulerQueue() {
-    for (let dependentsOptions of queue) {
+    for (let watcher of queue) {
       // 略过在等待队列执行的过程中就已经被更新了的计算属性
-      if (dependentsOptions.isComputed && !dependentsOptions.shouldUpdate) {
+      if (watcher.isComputed && !watcher.shouldUpdate) {
         continue;
       }
 
-      dependentsOptions.get();
+      watcher.get();
     }
 
     queue.clear();
@@ -804,30 +804,30 @@
   /**
    * 依赖集合
    * - 存放所有已收集到的依赖
-   * - { id: dependentsOptions, ... }
+   * - { id: watcher, ... }
    */
 
-  const dependentsMap = create(null);
+  const watchersMap = create(null);
   /**
    * 返回一个方法为传入方法收集依赖
    */
 
-  function createCollectingDependents() {
-    const cd = new CollectingDependents(...arguments);
+  function createWatcher$1() {
+    const cd = new Watcher(...arguments);
     const {
       get,
       id
     } = cd; // 存储当前方法的依赖
     // 可以在下次收集依赖的时候对这次收集的依赖进行清空
 
-    dependentsMap[id] = cd; // 存储当前收集依赖的 ID 到方法
+    watchersMap[id] = cd; // 存储当前收集依赖的 ID 到方法
     // - 未被其它方法依赖的计算属性可以用它来获取依赖参数判断是否被更新
 
     get.id = id;
     return get;
   }
 
-  class CollectingDependents {
+  class Watcher {
     /**
      * @param {function} fn 需要收集依赖的方法
      * @param {boolean} isComputed 是否是计算属性
@@ -842,7 +842,7 @@
 
       this.fn = fn; // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
 
-      this.get = CollectingDependents.get.bind(this); // 存储其他参数
+      this.get = Watcher.get.bind(this); // 存储其他参数
 
       if (isComputed) {
         let shouldUpdate;
@@ -901,18 +901,18 @@
 
 
     wd(result) {
-      isObject(result) && observeProxyMap.get(result).deepWatches.add(this);
+      isObject(result) && observeProxyMap.get(result).deepWatchers.add(this);
     }
     /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
 
 
     ec(callback) {
       let {
-        watches
+        watchers
       } = this.observeOptions;
       let watch;
 
-      if (watches && (watch = watches[this.name]) && watch.size) {
+      if (watchers && (watch = watchers[this.name]) && watch.size) {
         for (let cd of watch) if (callback(cd) === false) break;
       }
     }
@@ -2788,7 +2788,7 @@
     const userRender = optionsMap[name].render;
 
     if (userRender) {
-      target.$forceUpdate = createCollectingDependents(() => {
+      target.$forceUpdate = createWatcher$1(() => {
         const $el = target.$el;
 
         if ($el) {
@@ -2903,7 +2903,7 @@
       const get = computed.get.bind(this);
       /** 计算属性的 getter 依赖收集包装 */
 
-      const collectingDependentsGet = createCollectingDependents(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
+      const collectingDependentsGet = createWatcher$1(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
 
       computedTarget[name] = void 0; // 存储计算属性参数
 
@@ -2929,7 +2929,7 @@
 
       if (computedOptions) {
         // 清空依赖
-        dependentsMap[computedOptions.id].cleanDeps();
+        watchersMap[computedOptions.id].cleanDeps();
       }
     };
   }
@@ -2943,9 +2943,9 @@
     const computedOptions = computedOptionsMap.get(name); // 防止用户通过 $computed 获取不存在的计算属性
 
     if (computedOptions) {
-      const dependentsOptions = dependentsMap[computedOptions.id]; // 计算属性未初始化或需要更新
+      const watcher = watchersMap[computedOptions.id]; // 计算属性未初始化或需要更新
 
-      if (!dependentsOptions.isInit || dependentsOptions.shouldUpdate) {
+      if (!watcher.isInit || watcher.shouldUpdate) {
         computedOptions.get();
       }
     }
