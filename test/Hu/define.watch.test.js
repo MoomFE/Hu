@@ -788,4 +788,76 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 对 Boolean 值类型进行监听', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: {
+        a: false
+      },
+      watch: {
+        a: ( value ) => result = value
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = true;
+    hu.$nextTick(() => {
+      expect( result ).is.true;
+
+      hu.a = false;
+      hu.$nextTick(() => {
+        expect( result ).is.false;
+
+        hu.a = true;
+        hu.$nextTick(() => {
+          expect( result ).is.true;
+
+          hu.a = false;
+          hu.$nextTick(() => {
+            expect( result ).is.false;
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 $watch 对 Boolean 值类型进行监听 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: {
+        a: false
+      },
+      watch: {
+        a: ( value ) => result = value
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = true;
+    vm.$nextTick(() => {
+      expect( result ).is.true;
+
+      vm.a = false;
+      vm.$nextTick(() => {
+        expect( result ).is.false;
+
+        vm.a = true;
+        vm.$nextTick(() => {
+          expect( result ).is.true;
+
+          vm.a = false;
+          vm.$nextTick(() => {
+            expect( result ).is.false;
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
 });
