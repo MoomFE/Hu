@@ -1,9 +1,2 @@
-import observeProto from './observeProto';
+export const observeProtoHooks = new Map();
 
-
-Hu.observeProto = observeProto;
-
-
-observeProto( Map, {
-  internalSlots: true
-});

@@ -46,7 +46,7 @@ const {
   // enumerate,
   // get,
   getOwnPropertyDescriptor,
-  // getPrototypeOf,
+  getPrototypeOf,
   has,
   // isExtensible,
   ownKeys // preventExtensions,
@@ -67,6 +67,18 @@ value => typeof value === 'function');
 const {
   hasOwnProperty
 } = prototype;
+
+const observeProtoHooks = new Map();
+
+var runObserveProtoHooks = ((constructor, target, targetProxy, name, value) => {
+  const {
+    internalSlots
+  } = observeProtoHooks.get(constructor);
+
+  if (internalSlots) {
+    return value.bind(target);
+  }
+});
 
 /**
  * 存放原始对象和观察者对象及其选项参数的映射
@@ -146,6 +158,12 @@ const createObserverProxyGetter = ({
   const value = target[name]; // 如果获取的是原型上的方法
 
   if (isFunction(value) && !hasOwnProperty.call(target, name) && has(target, name)) {
+    const constructor = getPrototypeOf(target).constructor;
+
+    if (observeProtoHooks.has(constructor)) {
+      return runObserveProtoHooks(constructor, target, targetProxy, name, value);
+    }
+
     return value;
   } // 获取当前在收集依赖的那个方法的参数
 
@@ -3372,6 +3390,30 @@ function render$1(result, container) {
   };
 }
 
+/**
+ * 修复某些内置对象使用了内部插槽而引起的问题
+ */
+
+function observeProto(constructor, options) {
+  observeProtoHooks.set(constructor, options);
+}
+observeProto.hooks = observeProtoHooks;
+observeProto(Map, {
+  internalSlots: true
+});
+observeProto(Set, {
+  internalSlots: true
+});
+observeProto(WeakMap, {
+  internalSlots: true
+});
+observeProto(WeakSet, {
+  internalSlots: true
+});
+observeProto(Date, {
+  internalSlots: true
+});
+
 Hu.observable = obj => {
   return isObject(obj) ? observe(obj) : obj;
 };
@@ -3391,7 +3433,8 @@ assign(Hu, {
   define: define$1,
   render: render$1,
   html: html$1,
-  nextTick
+  nextTick,
+  observeProto
 });
 
 export default Hu;

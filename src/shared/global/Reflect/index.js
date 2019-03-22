@@ -6,7 +6,7 @@ export const {
   // enumerate,
   // get,
   getOwnPropertyDescriptor,
-  // getPrototypeOf,
+  getPrototypeOf,
   has,
   // isExtensible,
   ownKeys,

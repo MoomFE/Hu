@@ -2,10 +2,12 @@ import { targetStack } from "./index";
 import isObject from "../../../shared/util/isObject";
 import isEqual from "../../../shared/util/isEqual";
 import { create } from "../../../shared/global/Object/index";
-import { getOwnPropertyDescriptor, deleteProperty, ownKeys, has } from "../../../shared/global/Reflect/index";
+import { getOwnPropertyDescriptor, deleteProperty, ownKeys, has, getPrototypeOf } from "../../../shared/global/Reflect/index";
 import emptyObject from "../../../shared/const/emptyObject";
 import isFunction from "../../../shared/util/isFunction";
 import { hasOwnProperty } from "../../../shared/global/Object/prototype";
+import { observeProtoHooks } from "../../observeProto/index";
+import runObserveProtoHooks from "../../observeProto/runObserveProtoHooks";
 
 
 /**
@@ -89,6 +91,12 @@ const createObserverProxyGetter = ({ before } = emptyObject) => ( target, name, 
 
   // 如果获取的是原型上的方法
   if( isFunction( value ) && !hasOwnProperty.call( target, name ) && has( target, name ) ){
+    const constructor = getPrototypeOf( target ).constructor;
+
+    if( observeProtoHooks.has( constructor ) ){
+      return runObserveProtoHooks( constructor, target, targetProxy, name, value );
+    }
+
     return value;
   }
 
