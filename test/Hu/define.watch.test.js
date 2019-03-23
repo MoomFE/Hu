@@ -860,4 +860,84 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 监听值后, 值被删除时也会受到回调', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: {
+        data: {
+          a: 1
+        }
+      },
+      watch: {
+        'data.a': {
+          immediate: true,
+          handler( value, oldValue ){
+            result = [ value, oldValue ];
+          }
+        }
+      }
+    });
+
+    expect( hu.data.a ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, undefined ]);
+
+    hu.data.a = 2;
+    expect( hu.data.a ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, undefined ]);
+    hu.$nextTick(() => {
+      expect( hu.data.a ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      delete hu.data.a;
+      expect( hu.data.a ).is.undefined;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      hu.$nextTick(() => {
+        expect( hu.data.a ).is.undefined;
+        expect( result ).is.deep.equals([ undefined, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 监听值后, 值被删除时也会受到回调 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: {
+        data: {
+          a: 1
+        }
+      },
+      watch: {
+        'data.a': {
+          immediate: true,
+          handler( value, oldValue ){
+            result = [ value, oldValue ];
+          }
+        }
+      }
+    });
+
+    expect( vm.data.a ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, undefined ]);
+
+    vm.data.a = 2;
+    expect( vm.data.a ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, undefined ]);
+    vm.$nextTick(() => {
+      expect( vm.data.a ).is.equals( 2 );
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      Vue.delete( vm.data, 'a' );
+      expect( vm.data.a ).is.undefined;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      vm.$nextTick(() => {
+        expect( vm.data.a ).is.undefined;
+        expect( result ).is.deep.equals([ undefined, 2 ]);
+
+        done();
+      });
+    });
+  });
+
 });
