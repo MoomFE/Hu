@@ -70,6 +70,14 @@ export class Watcher{
   }
   /** 依赖的重新收集 */
   update(){
+    if( this.isComputed ){
+      // 下次被访问时就要立即更新哟
+      this.shouldUpdate = true;
+      // 没有依赖
+      // 无需加入更新队列
+      if( this.lazy ) return;
+    }
+
     queueUpdate( this );
   }
   /** 清空之前收集的依赖 */

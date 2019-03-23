@@ -172,38 +172,10 @@ const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, 
 
   // 获取子级监听数据
   const { watchers, deepWatchers } = observeOptions;
-  // 获取当前参数的被监听数据和父级对象深度监听数据的集合
-  let allWatchers = [
-    ...( watchers[ name ] || [] ),
-    ...deepWatchers
-  ];
 
-  // 如果有方法依赖于当前值, 则运行那个方法以达到更新的目的
-  if( allWatchers.length ){
-    let executes = [];
-
-    for( let watcher of allWatchers ){
-      // 通知所有依赖于此值的计算属性, 下次被访问时要更新值
-      if( watcher.isComputed ){
-        watcher.shouldUpdate = true;
-
-        // 需要更新有依赖的计算属性
-        if( !watcher.lazy ){
-          executes.push( watcher );
-        }
-      }
-      // 其它需要更新的依赖
-      else{
-        executes.push( watcher );
-      }
-    }
-
-    for( let watcher of executes ){
-      //           不是计算属性                      需要更新的计算属性
-      if( !watcher.isComputed || watcher.shouldUpdate ){
-        watcher.update();
-      }
-    }
+  // 遍历当前参数的被监听数据和父级对象深度监听数据
+  for( let watcher of [ ...watchers[ name ] || [], ...deepWatchers ] ){
+    watcher.update();
   }
 
   return true;
