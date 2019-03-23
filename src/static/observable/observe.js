@@ -195,7 +195,7 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers,
   const isDelete = deleteProperty( target, name );
 
   if( isDelete ){
-    triggerUpdate( watchers, deepWatchers, deleteProperty, set, name );
+    triggerUpdate( watchers, deepWatchers, lastValue, deleteProperty, name );
   }
 
   return isDelete;
