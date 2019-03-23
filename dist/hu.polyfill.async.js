@@ -1115,7 +1115,11 @@
 
 
     wd(result) {
-      isObject(result) && observeProxyMap.get(result).deepWatchers.add(this);
+      const observeOptions = observeProxyMap.get(result);
+
+      if (observeOptions) {
+        observeOptions.deepWatchers.add(this);
+      }
     }
     /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
 

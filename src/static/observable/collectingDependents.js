@@ -102,7 +102,11 @@ export class Watcher{
   }
   /** 仅为监听方法时使用 -> 对依赖的最终返回值进行深度监听 ( watch deep ) */
   wd( result ){
-    isObject( result ) && observeProxyMap.get( result ).deepWatchers.add( this );
+    const observeOptions = observeProxyMap.get( result );
+
+    if( observeOptions ){
+      observeOptions.deepWatchers.add( this );
+    }
   }
   /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
   ec( callback ){
