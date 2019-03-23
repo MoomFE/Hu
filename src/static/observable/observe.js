@@ -145,11 +145,11 @@ const createObserverProxySetter = ({ before } = emptyObject, { watchers, deepWat
     return true;
   }
 
-  // 当前参数的被监听数据
-  const watch = watchers[ name ];
-
   // 改变值
   target[ name ] = value;
+
+  // 当前参数的被监听数据
+  const watch = watchers[ name ];
 
   // 存储本次值改变
   if( watch && watch.size ){
@@ -191,7 +191,7 @@ const createObserverProxyOwnKeys = ({ deepWatchers }) => ( target ) => {
 /**
  * 创建响应从观察者对象删除值的方法
  */
-const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers, lastValue }) => ( target, name ) => {
+const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers, deepWatchers, lastValue }) => ( target, name ) => {
 
   // @return 0: 禁止删除
   if( before ){
@@ -211,6 +211,11 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers,
     // 存储本次值改变
     if( watch && watch.size ){
       delete lastValue[ name ];
+    }
+
+    // 遍历当前参数的被监听数据和父级对象深度监听数据
+    for( let watcher of [ ...watch || [], ...deepWatchers ] ){
+      watcher.update();
     }
   }
 

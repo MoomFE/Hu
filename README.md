@@ -29,12 +29,12 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 ## 大小 - 版本详解
 | Description | UMD | CommonJS | ES Module |
 | :- | :- | :- | :- |
-| 正常版 | **hu.js**<br>*96.97KB / 26.39KB* | **hu.common.js**<br>*91.20KB / 25.99KB* | **hu.esm.js**<br>*91.18KB / 25.97KB* |
-| 正常版 ( 生产环境 ) | **hu.min.js**<br>*20.65KB / 7.89KB* | **hu.common.min.js**<br>*25.62KB / 8.66KB* | **hu.esm.min.js**<br>*20.48KB / 7.82KB* |
-| 正常版 + Polyfill | **hu.polyfill.js**<br>*244.04KB / 59.40KB* | **hu.polyfill.common.js**<br>*236.74KB / 58.95KB* | **hu.polyfill.esm.js**<br>*236.72KB / 58.93KB* |
-| 正常版 + Polyfill ( 生产环境 ) | **hu.polyfill.min.js**<br>*109.34KB / 34.98KB* | **hu.polyfill.common.min.js**<br>*114.31KB / 35.75KB* | **hu.polyfill.esm.min.js**<br>*109.18KB / 34.91KB* |
-| 正常版 + Polyfill ( 按需加载 ) | **hu.polyfill.async.js**<br>*103.57KB / 28.11KB* | **hu.polyfill.async.common.js**<br>*97.47KB / 27.68KB* | **hu.polyfill.async.esm.js**<br>*97.45KB / 27.67KB* |
-| 正常版 + Polyfill ( 按需加载 ) ( 生产环境 ) | **hu.polyfill.async.min.js**<br>*23.00KB / 8.63KB* | **hu.polyfill.async.common.min.js**<br>*27.97KB / 9.40KB* | **hu.polyfill.async.esm.min.js**<br>*22.83KB / 8.56KB* |
+| 正常版 | **hu.js**<br>*97.08KB / 26.40KB* | **hu.common.js**<br>*91.30KB / 25.99KB* | **hu.esm.js**<br>*91.28KB / 25.97KB* |
+| 正常版 ( 生产环境 ) | **hu.min.js**<br>*20.70KB / 7.89KB* | **hu.common.min.js**<br>*25.66KB / 8.66KB* | **hu.esm.min.js**<br>*20.53KB / 7.82KB* |
+| 正常版 + Polyfill | **hu.polyfill.js**<br>*244.15KB / 59.41KB* | **hu.polyfill.common.js**<br>*236.84KB / 58.94KB* | **hu.polyfill.esm.js**<br>*236.83KB / 58.93KB* |
+| 正常版 + Polyfill ( 生产环境 ) | **hu.polyfill.min.js**<br>*109.39KB / 34.98KB* | **hu.polyfill.common.min.js**<br>*114.35KB / 35.76KB* | **hu.polyfill.esm.min.js**<br>*109.22KB / 34.92KB* |
+| 正常版 + Polyfill ( 按需加载 ) | **hu.polyfill.async.js**<br>*103.68KB / 28.12KB* | **hu.polyfill.async.common.js**<br>*97.57KB / 27.68KB* | **hu.polyfill.async.esm.js**<br>*97.55KB / 27.67KB* |
+| 正常版 + Polyfill ( 按需加载 ) ( 生产环境 ) | **hu.polyfill.async.min.js**<br>*23.05KB / 8.63KB* | **hu.polyfill.async.common.min.js**<br>*28.01KB / 9.40KB* | **hu.polyfill.async.esm.min.js**<br>*22.88KB / 8.56KB* |
 
 <br>
 

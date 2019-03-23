@@ -407,12 +407,12 @@ const createObserverProxySetter = ({
 
   if (isEqual(oldValue, value)) {
     return true;
-  } // 当前参数的被监听数据
+  } // 改变值
 
 
-  const watch = watchers[name]; // 改变值
+  target[name] = value; // 当前参数的被监听数据
 
-  target[name] = value; // 存储本次值改变
+  const watch = watchers[name]; // 存储本次值改变
 
   if (watch && watch.size) {
     lastValue[name] = value;
@@ -459,6 +459,7 @@ const createObserverProxyDeleteProperty = ({
   before
 } = emptyObject, {
   watchers,
+  deepWatchers,
   lastValue
 }) => (target, name) => {
   // @return 0: 禁止删除
@@ -478,6 +479,11 @@ const createObserverProxyDeleteProperty = ({
 
     if (watch && watch.size) {
       delete lastValue[name];
+    } // 遍历当前参数的被监听数据和父级对象深度监听数据
+
+
+    for (let watcher of [...(watch || []), ...deepWatchers]) {
+      watcher.update();
     }
   }
 
@@ -3117,7 +3123,6 @@ function createAppendComputed(computedTarget, computedTargetProxy, computedOptio
 
     computedOptionsMap.set(name, {
       watcher,
-      get: watcher.get,
       set
     });
   };
@@ -3154,7 +3159,7 @@ const computedTargetProxyInterceptorGet = computedOptionsMap => (target, name) =
     const watcher = computedOptions.watcher; // 计算属性未初始化或需要更新
 
     if (!watcher.isInit || watcher.shouldUpdate) {
-      computedOptions.get();
+      watcher.get();
     }
   }
 
