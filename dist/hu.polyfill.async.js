@@ -418,16 +418,18 @@
     } // 观察者选项参数
 
 
-    const observeOptions = observeMap.get(target); // 旧值
+    const observeOptions = observeMap.get(target); // 旧值集合
 
-    const oldValue = name in observeOptions.lastValue ? observeOptions.lastValue[name] : target[name]; // 值完全相等, 不进行修改
+    const lastValue = observeOptions.lastValue; // 旧值
+
+    const oldValue = name in lastValue ? lastValue[name] : target[name]; // 值完全相等, 不进行修改
 
     if (isEqual(oldValue, value)) {
       return true;
     } // 改变值
 
 
-    target[name] = value; // 获取子级监听数据
+    target[name] = lastValue[name] = value; // 获取子级监听数据
 
     const {
       watchers,

@@ -156,9 +156,11 @@ const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, 
 
   // 观察者选项参数
   const observeOptions = observeMap.get( target );
+  // 旧值集合
+  const lastValue = observeOptions.lastValue;
   // 旧值
-  const oldValue = name in observeOptions.lastValue ? observeOptions.lastValue[ name ]
-                                                    : target[ name ];
+  const oldValue = name in lastValue ? lastValue[ name ]
+                                     : target[ name ];
 
   // 值完全相等, 不进行修改
   if( isEqual( oldValue, value ) ){
@@ -166,7 +168,7 @@ const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, 
   }
 
   // 改变值
-  target[ name ] = value;
+  target[ name ] = lastValue[ name ] = value;
 
   // 获取子级监听数据
   const { watchers, deepWatchers } = observeOptions;
