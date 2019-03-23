@@ -5,7 +5,7 @@ import Hu from '../shared/global/Hu/index';
 import define from '../static/define/index';
 import html, { render } from '../static/html/index';
 import nextTick from '../static/nextTick/index';
-import { observable } from '../static/observable/index';
+import { observable } from '../static/observable/observe';
 import '../static/noConflict/index';
 
 

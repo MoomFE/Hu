@@ -1,7 +1,7 @@
 import uid from "../../shared/util/uid";
 import isObject from "../../shared/util/isObject";
 import { targetStack } from "./const";
-import { observeProxyMap } from "./index";
+import { observeProxyMap } from "./observe";
 import define from "../../shared/util/define";
 import { queueUpdate } from "./scheduler";
 

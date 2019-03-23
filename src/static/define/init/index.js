@@ -5,7 +5,7 @@ import initData from "./initData";
 import initComputed from "./initComputed";
 import initWatch from "./initWatch";
 import initOptions from "./initOptions";
-import { observeMap } from "../../observable/index";
+import { observeMap } from "../../observable/observe";
 
 
 /**

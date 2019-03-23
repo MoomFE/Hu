@@ -1,5 +1,5 @@
 import isEqual from "../../../shared/util/isEqual";
-import { observeProxyMap } from "../../observable/index";
+import { observeProxyMap } from "../../observable/observe";
 
 
 export default propsMap => function( name, oldValue, value ){

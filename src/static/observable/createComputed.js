@@ -1,5 +1,5 @@
 import { create } from "../../shared/global/Object/index";
-import { observe, observeMap } from "./index";
+import { observe, observeMap } from "./observe";
 import { Watcher } from "./collectingDependents";
 import each from "../../shared/util/each";
 import noop from "../../shared/util/noop";

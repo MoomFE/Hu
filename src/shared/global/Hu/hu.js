@@ -1,4 +1,4 @@
-import { observe } from "../../../static/observable/index";
+import { observe } from "../../../static/observable/observe";
 import observeHu from "../../const/observeHu";
 import initForceUpdate from "./init/initForceUpdate";
 import { assign } from "../Object/index";

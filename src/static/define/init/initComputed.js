@@ -1,7 +1,7 @@
 import each from "../../../shared/util/each";
 import injectionToLit from "../util/injectionToLit";
 import createComputed from "../../observable/createComputed";
-import { observeProxyMap, observe } from "../../observable/index";
+import { observeProxyMap, observe } from "../../observable/observe";
 import isEmptyObject from "../../../shared/util/isEmptyObject";
 import observeReadonly from "../../../shared/const/observeReadonly";
 
