@@ -6,14 +6,6 @@
  * Released under the MIT License.
  */
 
-/*!
- * Hu.js v1.0.0-bata.0
- * https://github.com/MoomFE/Hu
- * 
- * (c) 2018-present Wei Zhang
- * Released under the MIT License.
- */
-
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -420,17 +412,24 @@
 
     if (isEqual(oldValue, value)) {
       return true;
-    } // 改变值
+    } // 获取子级监听数据
 
-
-    target[name] = lastValue[name] = value; // 获取子级监听数据
 
     const {
       watchers,
       deepWatchers
-    } = observeOptions; // 遍历当前参数的被监听数据和父级对象深度监听数据
+    } = observeOptions; // 当前参数的被监听数据
 
-    for (let watcher of [...(watchers[name] || []), ...deepWatchers]) {
+    const watch = watchers[name]; // 改变值
+
+    target[name] = value; // 存储本次值改变
+
+    if (watch && watch.size) {
+      lastValue[name] = value;
+    } // 遍历当前参数的被监听数据和父级对象深度监听数据
+
+
+    for (let watcher of [...(watch || []), ...deepWatchers]) {
       watcher.update();
     }
 
@@ -480,7 +479,23 @@
       }
     }
 
-    return deleteProperty(target, name);
+    const isDelete = deleteProperty(target, name);
+
+    if (isDelete) {
+      // 观察者选项参数
+      const {
+        watchers,
+        lastValue
+      } = observeMap.get(target); // 当前参数的被监听数据
+
+      const watch = watchers[name]; // 存储本次值改变
+
+      if (watch && watch.size) {
+        delete lastValue[name];
+      }
+    }
+
+    return isDelete;
   };
 
   var isSymbol = (

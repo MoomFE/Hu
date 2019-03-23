@@ -153,14 +153,21 @@ const createObserverProxySetter = ({ before } = emptyObject) => ( target, name, 
     return true;
   }
 
-  // 改变值
-  target[ name ] = lastValue[ name ] = value;
-
   // 获取子级监听数据
   const { watchers, deepWatchers } = observeOptions;
+  // 当前参数的被监听数据
+  const watch = watchers[ name ];
+
+  // 改变值
+  target[ name ] = value;
+
+  // 存储本次值改变
+  if( watch && watch.size ){
+    lastValue[ name ] = value;
+  }
 
   // 遍历当前参数的被监听数据和父级对象深度监听数据
-  for( let watcher of [ ...watchers[ name ] || [], ...deepWatchers ] ){
+  for( let watcher of [ ...watch || [], ...deepWatchers ] ){
     watcher.update();
   }
 
@@ -207,5 +214,19 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject) => ( target
     }
   }
 
-  return deleteProperty( target, name );
+  const isDelete = deleteProperty( target, name );
+
+  if( isDelete ){
+    // 观察者选项参数
+    const { watchers, lastValue } = observeMap.get( target );
+    // 当前参数的被监听数据
+    const watch = watchers[ name ];
+
+    // 存储本次值改变
+    if( watch && watch.size ){
+      delete lastValue[ name ];
+    }
+  }
+
+  return isDelete;
 }
