@@ -246,9 +246,9 @@
     // getPrototypeOf,
     has,
     // isExtensible,
-    ownKeys // preventExtensions,
-    // set,
-    // setPrototypeOf
+    ownKeys,
+    // preventExtensions,
+    set // setPrototypeOf
 
   } = Reflect;
 
@@ -416,19 +416,9 @@
     } // 改变值
 
 
-    target[name] = value; // 当前参数的被监听数据
+    target[name] = value; // 触发更新
 
-    const watch = watchers[name]; // 存储本次值改变
-
-    if (watch && watch.size) {
-      lastValue[name] = value;
-    } // 遍历当前参数的被监听数据和父级对象深度监听数据
-
-
-    for (let watcher of [...(watch || []), ...deepWatchers]) {
-      watcher.update();
-    }
-
+    triggerUpdate(watchers, deepWatchers, lastValue, set, name, value);
     return true;
   };
   /**
@@ -480,21 +470,30 @@
     const isDelete = deleteProperty(target, name);
 
     if (isDelete) {
-      // 当前参数的被监听数据
-      const watch = watchers[name]; // 存储本次值改变
-
-      if (watch && watch.size) {
-        delete lastValue[name];
-      } // 遍历当前参数的被监听数据和父级对象深度监听数据
-
-
-      for (let watcher of [...(watch || []), ...deepWatchers]) {
-        watcher.update();
-      }
+      triggerUpdate(watchers, deepWatchers, deleteProperty, set, name);
     }
 
     return isDelete;
   };
+  /**
+   * 存储值的改变
+   * 触发值的更新操作
+   */
+
+
+  function triggerUpdate(watchers, deepWatchers, lastValue, handler, name, value) {
+    // 当前参数的被监听数据
+    const watch = watchers[name]; // 存储本次值改变
+
+    if (watch && watch.size) {
+      handler(lastValue, name, value);
+    } // 遍历当前参数的被监听数据和父级对象深度监听数据
+
+
+    for (let watcher of [...(watch || []), ...deepWatchers]) {
+      watcher.update();
+    }
+  }
 
   var isSymbol = (
   /**
@@ -889,12 +888,12 @@
    * @param {function} get 属性的 getter 方法
    * @param {function} set 属性的 setter 方法
    */
-  (obj, attribute, get, set) => {
+  (obj, attribute, get, set$$1) => {
     defineProperty(obj, attribute, {
       enumerable: true,
       configurable: true,
       get,
-      set
+      set: set$$1
     });
   });
 
@@ -3371,14 +3370,14 @@
    * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
    * @param {function} get 属性的 setter 方法
    */
-  (litTarget, key, value, set, get) => {
+  (litTarget, key, value, set$$1, get) => {
     // 首字母为 $ 则不允许映射到 $hu 实例中去
     if (!isSymbolOrNotReserved(key)) return; // 若在 $hu 下有同名变量, 则删除
 
     has(litTarget, key) && delete litTarget[key]; // 使用 Object.defineProperty 对值进行定义
 
-    if (set) {
-      define(litTarget, key, set, get);
+    if (set$$1) {
+      define(litTarget, key, set$$1, get);
     } // 直接写入到 $hu 上
     else {
         litTarget[key] = value;

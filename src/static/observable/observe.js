@@ -1,7 +1,7 @@
 import { targetStack } from "./const";
 import isEqual from "../../shared/util/isEqual";
 import { create } from "../../shared/global/Object/index";
-import { getOwnPropertyDescriptor, deleteProperty, ownKeys, has } from "../../shared/global/Reflect/index";
+import { getOwnPropertyDescriptor, deleteProperty, ownKeys, has, set } from "../../shared/global/Reflect/index";
 import emptyObject from "../../shared/const/emptyObject";
 import isFunction from "../../shared/util/isFunction";
 import { hasOwnProperty } from "../../shared/global/Object/prototype";
@@ -148,18 +148,8 @@ const createObserverProxySetter = ({ before } = emptyObject, { watchers, deepWat
   // 改变值
   target[ name ] = value;
 
-  // 当前参数的被监听数据
-  const watch = watchers[ name ];
-
-  // 存储本次值改变
-  if( watch && watch.size ){
-    lastValue[ name ] = value;
-  }
-
-  // 遍历当前参数的被监听数据和父级对象深度监听数据
-  for( let watcher of [ ...watch || [], ...deepWatchers ] ){
-    watcher.update();
-  }
+  // 触发更新
+  triggerUpdate( watchers, deepWatchers, lastValue, set, name, value );
 
   return true;
 };
@@ -205,19 +195,27 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers,
   const isDelete = deleteProperty( target, name );
 
   if( isDelete ){
-    // 当前参数的被监听数据
-    const watch = watchers[ name ];
-
-    // 存储本次值改变
-    if( watch && watch.size ){
-      delete lastValue[ name ];
-    }
-
-    // 遍历当前参数的被监听数据和父级对象深度监听数据
-    for( let watcher of [ ...watch || [], ...deepWatchers ] ){
-      watcher.update();
-    }
+    triggerUpdate( watchers, deepWatchers, deleteProperty, set, name );
   }
 
   return isDelete;
+}
+
+/**
+ * 存储值的改变
+ * 触发值的更新操作
+ */
+function triggerUpdate( watchers, deepWatchers, lastValue, handler, name, value ){
+  // 当前参数的被监听数据
+  const watch = watchers[ name ];
+
+  // 存储本次值改变
+  if( watch && watch.size ){
+    handler( lastValue, name, value );
+  }
+
+  // 遍历当前参数的被监听数据和父级对象深度监听数据
+  for( let watcher of [ ...watch || [], ...deepWatchers ] ){
+    watcher.update();
+  }
 }
