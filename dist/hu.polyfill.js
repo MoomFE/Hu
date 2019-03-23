@@ -6029,11 +6029,11 @@
 	class Watcher {
 	  /**
 	   * @param {function} fn 需要收集依赖的方法
-	   * @param {boolean} isComputed 是否是计算属性
-	   * @param {boolean} isWatch 是否是用于创建监听方法
+	   * @param {boolean} isComputed true:  计算属性
+	   *                             false: 监听方法
 	   * @param {boolean} isWatchDeep 是否是用于创建深度监听
 	   */
-	  constructor(fn, isComputed, isWatch, isWatchDeep, observeOptions, name) {
+	  constructor(fn, isComputed, isWatchDeep, observeOptions, name) {
 	    // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
 	    this.id = uid$1(); // 当前方法的依赖存储数组
 
@@ -6052,10 +6052,8 @@
 	      define(this, 'shouldUpdate', () => shouldUpdate, value => {
 	        if (shouldUpdate = value) this.ssu();
 	      });
-	    }
-
-	    if (isWatch) {
-	      this.isWatch = isWatch;
+	    } else if (isComputed === false) {
+	      this.isWatch = true;
 	      this.isWatchDeep = isWatchDeep;
 	    }
 	  }
@@ -8131,7 +8129,7 @@
 
 	    const watcher = new Watcher(() => {
 	      return (isWatch ? computedTarget : computedTargetProxy)[name] = get();
-	    }, isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
+	    }, isComputed, isWatchDeep, observeOptions, name); // 添加占位符
 
 	    computedTarget[name] = void 0; // 存储计算属性参数
 

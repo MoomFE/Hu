@@ -1,5 +1,4 @@
 import uid from "../../shared/util/uid";
-import isObject from "../../shared/util/isObject";
 import { targetStack } from "./const";
 import { observeProxyMap } from "./observe";
 import define from "../../shared/util/define";
@@ -9,14 +8,13 @@ import { queueUpdate } from "./scheduler";
 export class Watcher{
   /**
    * @param {function} fn 需要收集依赖的方法
-   * @param {boolean} isComputed 是否是计算属性
-   * @param {boolean} isWatch 是否是用于创建监听方法
+   * @param {boolean} isComputed true:  计算属性
+   *                             false: 监听方法
    * @param {boolean} isWatchDeep 是否是用于创建深度监听
    */
   constructor(
     fn,
-    isComputed,
-    isWatch, isWatchDeep,
+    isComputed, isWatchDeep,
     observeOptions, name
   ){
     // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
@@ -38,9 +36,8 @@ export class Watcher{
       define( this, 'shouldUpdate', () => shouldUpdate, value => {
         if( shouldUpdate = value ) this.ssu();
       });
-    }
-    if( isWatch ){
-      this.isWatch = isWatch;
+    }else if( isComputed === false ){
+      this.isWatch = true;
       this.isWatchDeep = isWatchDeep;
     }
   }

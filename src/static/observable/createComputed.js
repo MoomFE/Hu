@@ -68,8 +68,7 @@ function createAppendComputed( computedTarget, computedTargetProxy, computedOpti
       () => {
         return ( isWatch ? computedTarget : computedTargetProxy )[ name ] = get()
       },
-      isComputed,
-      isWatch, isWatchDeep,
+      isComputed, isWatchDeep,
       observeOptions, name
     );
 
