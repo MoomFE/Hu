@@ -5365,32 +5365,18 @@ const createObserverProxyGetter = ({
   } // 获取当前在收集依赖的那个方法的参数
 
 
-  const watcher = targetStack[targetStack.length - 1]; // 观察者选项参数
-
-  const observeOptions = observeMap.get(target); // 当前有正在收集依赖的方法
+  const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
   if (watcher) {
-    const {
-      watchers
-    } = observeOptions;
-    let watch = watchers[name]; // 当前参数没有被监听过, 初始化监听数组
+    // 观察者选项参数
+    const observeOptions = observeMap.get(target); // 标记依赖
 
-    if (!watch) {
-      watch = new Set();
-      watchers[name] = watch;
-    } // 添加依赖方法信息到 watch
-    // 当前值被改变时, 会调用依赖方法
+    watcher.add(observeOptions.watchers, name); // 存储本次值
 
-
-    watch.add(watcher); // 添加 watch 的信息到依赖收集去
-    // 当依赖方法被重新调用, 会移除依赖
-
-    watcher.deps.add(watch);
-  } // 存储本次值
-
-
-  observeOptions.lastValue[name] = value; // 如果获取的值是对象类型
+    observeOptions.lastValue[name] = value;
+  } // 如果获取的值是对象类型
   // 则返回它的观察者对象
+
 
   return observable(value);
 };
@@ -6053,7 +6039,7 @@ class Watcher {
 
   static get(result) {
     // 清空依赖
-    this.cleanDeps(); // 标记已初始化
+    this.clean(); // 标记已初始化
 
     this.isInit = true; // 标记计算属性已无需更新
 
@@ -6068,6 +6054,18 @@ class Watcher {
 
     targetStack.pop(this);
     return result;
+  }
+  /** 添加依赖 */
+
+
+  add(watchers, name) {
+    let watch = watchers[name] || (watchers[name] = new Set()); // 添加依赖方法信息到 watch
+    // 当前值被改变时, 会调用依赖方法
+
+    watch.add(this); // 添加 watch 的信息到当前 watcher 去
+    // 当依赖方法被重新调用, 会移除依赖
+
+    this.deps.add(watch);
   }
   /** 依赖的重新收集 */
 
@@ -6086,7 +6084,7 @@ class Watcher {
   /** 清空之前收集的依赖 */
 
 
-  cleanDeps() {
+  clean() {
     // 对之前收集的依赖进行清空
     for (let watch of this.deps) watch.delete(this); // 清空依赖
 
@@ -8128,7 +8126,7 @@ function createRemoveComputed(computedOptionsMap) {
 
     if (computedOptions) {
       // 清空依赖
-      computedOptions.watcher.cleanDeps();
+      computedOptions.watcher.clean();
     }
   };
 }

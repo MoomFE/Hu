@@ -47,7 +47,7 @@ export class Watcher{
   /** 传入方法的依赖收集包装 */
   static get( result ){
     // 清空依赖
-    this.cleanDeps();
+    this.clean();
     // 标记已初始化
     this.isInit = true;
     // 标记计算属性已无需更新
@@ -68,6 +68,19 @@ export class Watcher{
 
     return result;
   }
+  /** 添加依赖 */
+  add( watchers, name ){
+    let watch = watchers[ name ] || (
+      watchers[ name ] = new Set
+    );
+
+    // 添加依赖方法信息到 watch
+    // 当前值被改变时, 会调用依赖方法
+    watch.add( this );
+    // 添加 watch 的信息到当前 watcher 去
+    // 当依赖方法被重新调用, 会移除依赖
+    this.deps.add( watch );
+  }
   /** 依赖的重新收集 */
   update(){
     if( this.isComputed ){
@@ -81,7 +94,7 @@ export class Watcher{
     queueUpdate( this );
   }
   /** 清空之前收集的依赖 */
-  cleanDeps(){
+  clean(){
     // 对之前收集的依赖进行清空
     for( let watch of this.deps ) watch.delete( this );
     // 清空依赖

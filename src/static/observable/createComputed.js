@@ -96,7 +96,7 @@ function createRemoveComputed( computedOptionsMap ){
     // 有这个计算属性
     if( computedOptions ){
       // 清空依赖
-      computedOptions.watcher.cleanDeps();
+      computedOptions.watcher.clean();
     }
   };
 }

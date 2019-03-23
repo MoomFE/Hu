@@ -104,30 +104,16 @@ const createObserverProxyGetter = ({ before } = emptyObject) => ( target, name, 
   // 获取当前在收集依赖的那个方法的参数
   const watcher = targetStack[ targetStack.length - 1 ];
 
-  // 观察者选项参数
-  const observeOptions = observeMap.get( target );
-
   // 当前有正在收集依赖的方法
   if( watcher ){
-    const { watchers } = observeOptions;
-    let watch = watchers[ name ];
+    // 观察者选项参数
+    const observeOptions = observeMap.get( target );
 
-    // 当前参数没有被监听过, 初始化监听数组
-    if( !watch ){
-      watch = new Set();
-      watchers[ name ] = watch;
-    }
-
-    // 添加依赖方法信息到 watch
-    // 当前值被改变时, 会调用依赖方法
-    watch.add( watcher );
-    // 添加 watch 的信息到依赖收集去
-    // 当依赖方法被重新调用, 会移除依赖
-    watcher.deps.add( watch );
+    // 标记依赖
+    watcher.add( observeOptions.watchers, name );
+    // 存储本次值
+    observeOptions.lastValue[ name ] = value;
   }
-
-  // 存储本次值
-  observeOptions.lastValue[ name ] = value;
 
   // 如果获取的值是对象类型
   // 则返回它的观察者对象
