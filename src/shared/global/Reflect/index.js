@@ -11,6 +11,6 @@ export const {
   // isExtensible,
   ownKeys,
   // preventExtensions,
-  // set,
+  set,
   // setPrototypeOf
 } = Reflect;
