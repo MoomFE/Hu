@@ -116,11 +116,10 @@
       // 可以使用观察者对象来获取原始对象
       target,
       // 可以使用原始对象来获取观察者对象
-      // proxy,
       // 当前对象的子级的被监听数据
-      watchers: create(null),
+      subs: create(null),
       // 当前对象的被深度监听数据
-      deepWatchers: new Set(),
+      deepSubs: new Set(),
       // 上次的值
       lastValue: create(null)
     };
@@ -145,7 +144,7 @@
   const createObserverProxyGetter = ({
     before
   } = emptyObject, {
-    watchers,
+    subs,
     lastValue
   }) => (target, name, targetProxy) => {
     // @return 0: 从原始对象放行
@@ -174,7 +173,7 @@
 
     if (watcher) {
       // 标记依赖
-      watcher.add(watchers, name); // 存储本次值
+      watcher.add(subs, name); // 存储本次值
 
       lastValue[name] = value;
     } // 如果获取的值是对象类型
@@ -191,8 +190,8 @@
   const createObserverProxySetter = ({
     before
   } = emptyObject, {
-    watchers,
-    deepWatchers,
+    subs,
+    deepSubs,
     lastValue
   }) => (target, name, value, targetProxy) => {
     // @return 0: 阻止设置值
@@ -220,7 +219,7 @@
 
     target[name] = value; // 触发更新
 
-    triggerUpdate(watchers, deepWatchers, lastValue, set, name, value);
+    triggerUpdate(subs, deepSubs, lastValue, set, name, value);
     return true;
   };
   /**
@@ -236,14 +235,14 @@
 
 
   const createObserverProxyOwnKeys = ({
-    deepWatchers
+    deepSubs
   }) => target => {
     // 获取当前在收集依赖的那个方法的参数
     const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
     if (watcher) {
       // 标识深度监听
-      deepWatchers.add(watcher);
+      deepSubs.add(watcher);
     }
 
     return ownKeys(target);
@@ -256,8 +255,8 @@
   const createObserverProxyDeleteProperty = ({
     before
   } = emptyObject, {
-    watchers,
-    deepWatchers,
+    subs,
+    deepSubs,
     lastValue
   }) => (target, name) => {
     // @return 0: 禁止删除
@@ -272,7 +271,7 @@
     const isDelete = deleteProperty(target, name);
 
     if (isDelete) {
-      triggerUpdate(watchers, deepWatchers, lastValue, deleteProperty, name);
+      triggerUpdate(subs, deepSubs, lastValue, deleteProperty, name);
     }
 
     return isDelete;
@@ -283,16 +282,16 @@
    */
 
 
-  function triggerUpdate(watchers, deepWatchers, lastValue, handler, name, value) {
+  function triggerUpdate(subs, deepSubs, lastValue, handler, name, value) {
     // 当前参数的被监听数据
-    const watch = watchers[name]; // 存储本次值改变
+    const sub = subs[name]; // 存储本次值改变
 
-    if (watch && watch.size) {
+    if (sub && sub.size) {
       handler(lastValue, name, value);
     } // 遍历当前参数的被监听数据和父级对象深度监听数据
 
 
-    for (let watcher of [...(watch || []), ...deepWatchers]) {
+    for (let watcher of [...(sub || []), ...deepSubs]) {
       watcher.update();
     }
   }
@@ -880,14 +879,14 @@
     /** 添加依赖 */
 
 
-    add(watchers, name) {
-      let watch = watchers[name] || (watchers[name] = new Set()); // 添加依赖方法信息到 watch
+    add(subs, name) {
+      let sub = subs[name] || (subs[name] = new Set()); // 添加依赖方法信息到 watch
       // 当前值被改变时, 会调用依赖方法
 
-      watch.add(this); // 添加 watch 的信息到当前 watcher 去
+      sub.add(this); // 添加 watch 的信息到当前 watcher 去
       // 当依赖方法被重新调用, 会移除依赖
 
-      this.deps.add(watch);
+      this.deps.add(sub);
     }
     /** 依赖的重新收集 */
 
@@ -920,7 +919,7 @@
       const observeOptions = observeProxyMap.get(result);
 
       if (observeOptions) {
-        observeOptions.deepWatchers.add(this);
+        observeOptions.deepSubs.add(this);
       }
     }
     /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
@@ -928,12 +927,12 @@
 
     ec(callback) {
       let {
-        watchers
+        subs
       } = this.observeOptions;
-      let watch;
+      let sub;
 
-      if (watchers && (watch = watchers[this.name]) && watch.size) {
-        for (let cd of watch) if (callback(cd) === false) break;
+      if (subs && (sub = subs[this.name]) && sub.size) {
+        for (let cd of sub) if (callback(cd) === false) break;
       }
     }
     /** 仅为计算属性时使用 -> 递归设置当前计算属性的依赖计算属性需要更新 ( set should update ) */

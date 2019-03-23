@@ -69,17 +69,17 @@ export class Watcher{
     return result;
   }
   /** 添加依赖 */
-  add( watchers, name ){
-    let watch = watchers[ name ] || (
-      watchers[ name ] = new Set
+  add( subs, name ){
+    let sub = subs[ name ] || (
+      subs[ name ] = new Set
     );
 
     // 添加依赖方法信息到 watch
     // 当前值被改变时, 会调用依赖方法
-    watch.add( this );
+    sub.add( this );
     // 添加 watch 的信息到当前 watcher 去
     // 当依赖方法被重新调用, 会移除依赖
-    this.deps.add( watch );
+    this.deps.add( sub );
   }
   /** 依赖的重新收集 */
   update(){
@@ -105,16 +105,16 @@ export class Watcher{
     const observeOptions = observeProxyMap.get( result );
 
     if( observeOptions ){
-      observeOptions.deepWatchers.add( this );
+      observeOptions.deepSubs.add( this );
     }
   }
   /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
   ec( callback ){
-    let { watchers } = this.observeOptions;
-    let watch;
+    let { subs } = this.observeOptions;
+    let sub;
 
-    if( watchers && ( watch = watchers[ this.name ] ) && watch.size ){
-      for( let cd of watch )
+    if( subs && ( sub = subs[ this.name ] ) && sub.size ){
+      for( let cd of sub )
         if( callback( cd ) === false ) break;
     }
   }

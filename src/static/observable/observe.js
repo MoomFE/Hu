@@ -50,11 +50,10 @@ function createObserver(
     // 可以使用观察者对象来获取原始对象
     target,
     // 可以使用原始对象来获取观察者对象
-    // proxy,
     // 当前对象的子级的被监听数据
-    watchers: create( null ),
+    subs: create( null ),
     // 当前对象的被深度监听数据
-    deepWatchers: new Set(),
+    deepSubs: new Set(),
     // 上次的值
     lastValue: create( null )
   };
@@ -77,7 +76,7 @@ function createObserver(
 /**
  * 创建依赖收集的响应方法
  */
-const createObserverProxyGetter = ({ before } = emptyObject, { watchers, lastValue }) => ( target, name, targetProxy ) => {
+const createObserverProxyGetter = ({ before } = emptyObject, { subs, lastValue }) => ( target, name, targetProxy ) => {
 
   // @return 0: 从原始对象放行
   if( before ){
@@ -107,7 +106,7 @@ const createObserverProxyGetter = ({ before } = emptyObject, { watchers, lastVal
   // 当前有正在收集依赖的方法
   if( watcher ){
     // 标记依赖
-    watcher.add( watchers, name );
+    watcher.add( subs, name );
     // 存储本次值
     lastValue[ name ] = value;
   }
@@ -120,7 +119,7 @@ const createObserverProxyGetter = ({ before } = emptyObject, { watchers, lastVal
 /**
  * 创建响应更新方法
  */
-const createObserverProxySetter = ({ before } = emptyObject, { watchers, deepWatchers, lastValue }) => ( target, name, value, targetProxy ) => {
+const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, lastValue }) => ( target, name, value, targetProxy ) => {
 
   // @return 0: 阻止设置值
   if( before ){
@@ -149,7 +148,7 @@ const createObserverProxySetter = ({ before } = emptyObject, { watchers, deepWat
   target[ name ] = value;
 
   // 触发更新
-  triggerUpdate( watchers, deepWatchers, lastValue, set, name, value );
+  triggerUpdate( subs, deepSubs, lastValue, set, name, value );
 
   return true;
 };
@@ -164,7 +163,7 @@ const createObserverProxySetter = ({ before } = emptyObject, { watchers, deepWat
  *   - Object.getOwnPropertySymbols
  *   - Reflect.ownKeys
  */
-const createObserverProxyOwnKeys = ({ deepWatchers }) => ( target ) => {
+const createObserverProxyOwnKeys = ({ deepSubs }) => ( target ) => {
 
   // 获取当前在收集依赖的那个方法的参数
   const watcher = targetStack[ targetStack.length - 1 ];
@@ -172,7 +171,7 @@ const createObserverProxyOwnKeys = ({ deepWatchers }) => ( target ) => {
   // 当前有正在收集依赖的方法
   if( watcher ){
     // 标识深度监听
-    deepWatchers.add( watcher );
+    deepSubs.add( watcher );
   }
 
   return ownKeys( target );
@@ -181,7 +180,7 @@ const createObserverProxyOwnKeys = ({ deepWatchers }) => ( target ) => {
 /**
  * 创建响应从观察者对象删除值的方法
  */
-const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers, deepWatchers, lastValue }) => ( target, name ) => {
+const createObserverProxyDeleteProperty = ({ before } = emptyObject, { subs, deepSubs, lastValue }) => ( target, name ) => {
 
   // @return 0: 禁止删除
   if( before ){
@@ -195,7 +194,7 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers,
   const isDelete = deleteProperty( target, name );
 
   if( isDelete ){
-    triggerUpdate( watchers, deepWatchers, lastValue, deleteProperty, name );
+    triggerUpdate( subs, deepSubs, lastValue, deleteProperty, name );
   }
 
   return isDelete;
@@ -205,17 +204,17 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { watchers,
  * 存储值的改变
  * 触发值的更新操作
  */
-function triggerUpdate( watchers, deepWatchers, lastValue, handler, name, value ){
+function triggerUpdate( subs, deepSubs, lastValue, handler, name, value ){
   // 当前参数的被监听数据
-  const watch = watchers[ name ];
+  const sub = subs[ name ];
 
   // 存储本次值改变
-  if( watch && watch.size ){
+  if( sub && sub.size ){
     handler( lastValue, name, value );
   }
 
   // 遍历当前参数的被监听数据和父级对象深度监听数据
-  for( let watcher of [ ...watch || [], ...deepWatchers ] ){
+  for( let watcher of [ ...sub || [], ...deepSubs ] ){
     watcher.update();
   }
 }
