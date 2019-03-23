@@ -65,7 +65,9 @@ function createAppendComputed( computedTarget, computedTargetProxy, computedOpti
     const get = computed.get.bind( this );
     /** 计算属性的 watcher */
     const watcher = new Watcher(
-      () => computedTargetProxy[ name ] = get(),
+      () => {
+        return ( isWatch ? computedTarget : computedTargetProxy )[ name ] = get()
+      },
       isComputed,
       isWatch, isWatchDeep,
       observeOptions, name

@@ -2917,7 +2917,9 @@
       const get = computed.get.bind(this);
       /** 计算属性的 watcher */
 
-      const watcher = new Watcher(() => computedTargetProxy[name] = get(), isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
+      const watcher = new Watcher(() => {
+        return (isWatch ? computedTarget : computedTargetProxy)[name] = get();
+      }, isComputed, isWatch, isWatchDeep, observeOptions, name); // 添加占位符
 
       computedTarget[name] = void 0; // 存储计算属性参数
 
