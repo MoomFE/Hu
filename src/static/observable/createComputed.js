@@ -78,7 +78,6 @@ function createAppendComputed( computedTarget, computedTargetProxy, computedOpti
     // 存储计算属性参数
     computedOptionsMap.set( name, {
       watcher,
-      get: watcher.get,
       set
     });
   };
@@ -116,7 +115,7 @@ const computedTargetProxyInterceptorGet = computedOptionsMap => ( target, name )
 
     // 计算属性未初始化或需要更新
     if( !watcher.isInit || watcher.shouldUpdate ){
-      computedOptions.get();
+      watcher.get();
     }
   }
 
