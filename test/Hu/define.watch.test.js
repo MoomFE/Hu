@@ -664,6 +664,128 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 时, 使用 deep 选项如果返回值不是观察者对象则无效', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: { a: 1 }
+    });
+
+    hu.$watch(
+      function(){
+        this.a;
+        return sessionStorage;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ sessionStorage, undefined ]);
+
+    sessionStorage.setItem('a',1);
+    expect( result ).is.deep.equals([ sessionStorage, undefined ]);
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ sessionStorage, undefined ]);
+
+      done();
+    });
+  });
+
+  it( '使用 $watch 时, 使用 deep 选项如果返回值不是观察者对象则无效 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: { a: 1 }
+    });
+
+    vm.$watch(
+      function(){
+        this.a;
+        return sessionStorage;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ sessionStorage, undefined ]);
+
+    sessionStorage.setItem('a',1);
+    expect( result ).is.deep.equals([ sessionStorage, undefined ]);
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ sessionStorage, undefined ]);
+
+      done();
+    });
+  });
+
+  it( '使用 $watch 时, 使用 deep 选项如果返回值不是观察者对象则可以生效', ( done ) => {
+    let result;
+    const data = Hu.observable({
+      aaa: 1
+    });
+    const hu = new Hu({
+      data: { a: 1 }
+    });
+
+    hu.$watch(
+      function(){
+        this.a;
+        return data;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ data, undefined ]);
+
+    data.aaa = 2;
+    expect( result ).is.deep.equals([ data, undefined ]);
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ data, data ]);
+
+      done();
+    });
+  });
+
+  it( '使用 $watch 时, 使用 deep 选项如果返回值不是观察者对象则可以生效 ( Vue )', ( done ) => {
+    let result;
+    const data = Vue.observable({
+      aaa: 1
+    });
+    const vm = new Vue({
+      data: { a: 1 }
+    });
+
+    vm.$watch(
+      function(){
+        this.a;
+        return data;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ data, undefined ]);
+
+    data.aaa = 2;
+    expect( result ).is.deep.equals([ data, undefined ]);
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ data, data ]);
+
+      done();
+    });
+  });
+
   it( '使用 $watch 时, 使用 deep 选项监听对象只监听最后一级', ( done ) => {
     let index = 0;
     const hu = new Hu({
