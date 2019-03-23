@@ -105,27 +105,27 @@ function observe(target, options) {
 }
 
 function createObserver(target, options = {}) {
-  /** 当前对象的观察者对象 */
-  const proxy = new Proxy(target, {
-    get: createObserverProxyGetter(options.get),
-    set: createObserverProxySetter(options.set),
-    ownKeys: observerProxyOwnKeys,
-    deleteProperty: createObserverProxyDeleteProperty(options.deleteProperty)
-  });
   /** 观察者对象选项参数 */
-
   const observeOptions = {
     // 可以使用观察者对象来获取原始对象
     target,
     // 可以使用原始对象来获取观察者对象
-    proxy,
+    // proxy,
     // 当前对象的子级的被监听数据
     watchers: create(null),
     // 当前对象的被深度监听数据
     deepWatchers: new Set(),
     // 上次的值
     lastValue: create(null)
-  }; // 存储观察者选项参数
+  };
+  /** 当前对象的观察者对象 */
+
+  const proxy = observeOptions.proxy = new Proxy(target, {
+    get: createObserverProxyGetter(options.get, observeOptions),
+    set: createObserverProxySetter(options.set, observeOptions),
+    ownKeys: createObserverProxyOwnKeys(observeOptions),
+    deleteProperty: createObserverProxyDeleteProperty(options.deleteProperty, observeOptions)
+  }); // 存储观察者选项参数
 
   observeMap.set(target, observeOptions);
   observeProxyMap.set(proxy, observeOptions);
@@ -138,7 +138,10 @@ function createObserver(target, options = {}) {
 
 const createObserverProxyGetter = ({
   before
-} = emptyObject) => (target, name, targetProxy) => {
+} = emptyObject, {
+  watchers,
+  lastValue
+}) => (target, name, targetProxy) => {
   // @return 0: 从原始对象放行
   if (before) {
     const beforeResult = before(target, name, targetProxy);
@@ -164,12 +167,10 @@ const createObserverProxyGetter = ({
   const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
   if (watcher) {
-    // 观察者选项参数
-    const observeOptions = observeMap.get(target); // 标记依赖
+    // 标记依赖
+    watcher.add(watchers, name); // 存储本次值
 
-    watcher.add(observeOptions.watchers, name); // 存储本次值
-
-    observeOptions.lastValue[name] = value;
+    lastValue[name] = value;
   } // 如果获取的值是对象类型
   // 则返回它的观察者对象
 
@@ -183,7 +184,11 @@ const createObserverProxyGetter = ({
 
 const createObserverProxySetter = ({
   before
-} = emptyObject) => (target, name, value, targetProxy) => {
+} = emptyObject, {
+  watchers,
+  deepWatchers,
+  lastValue
+}) => (target, name, value, targetProxy) => {
   // @return 0: 阻止设置值
   if (before) {
     const beforeResult = before(target, name, value, targetProxy);
@@ -197,24 +202,15 @@ const createObserverProxySetter = ({
   if ((getOwnPropertyDescriptor(target, name) || emptyObject).set) {
     target[name] = value;
     return true;
-  } // 观察者选项参数
+  } // 旧值
 
-
-  const observeOptions = observeMap.get(target); // 旧值集合
-
-  const lastValue = observeOptions.lastValue; // 旧值
 
   const oldValue = name in lastValue ? lastValue[name] : target[name]; // 值完全相等, 不进行修改
 
   if (isEqual(oldValue, value)) {
     return true;
-  } // 获取子级监听数据
+  } // 当前参数的被监听数据
 
-
-  const {
-    watchers,
-    deepWatchers
-  } = observeOptions; // 当前参数的被监听数据
 
   const watch = watchers[name]; // 改变值
 
@@ -243,16 +239,14 @@ const createObserverProxySetter = ({
  */
 
 
-const observerProxyOwnKeys = target => {
+const createObserverProxyOwnKeys = ({
+  deepWatchers
+}) => target => {
   // 获取当前在收集依赖的那个方法的参数
   const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
 
   if (watcher) {
-    // 深度监听数据
-    const {
-      deepWatchers
-    } = observeMap.get(target); // 标识深度监听
-
+    // 标识深度监听
     deepWatchers.add(watcher);
   }
 
@@ -265,7 +259,10 @@ const observerProxyOwnKeys = target => {
 
 const createObserverProxyDeleteProperty = ({
   before
-} = emptyObject) => (target, name) => {
+} = emptyObject, {
+  watchers,
+  lastValue
+}) => (target, name) => {
   // @return 0: 禁止删除
   if (before) {
     const beforeResult = before(target, name);
@@ -278,12 +275,7 @@ const createObserverProxyDeleteProperty = ({
   const isDelete = deleteProperty(target, name);
 
   if (isDelete) {
-    // 观察者选项参数
-    const {
-      watchers,
-      lastValue
-    } = observeMap.get(target); // 当前参数的被监听数据
-
+    // 当前参数的被监听数据
     const watch = watchers[name]; // 存储本次值改变
 
     if (watch && watch.size) {
