@@ -1107,4 +1107,104 @@ describe( 'Hu.define - computed', () => {
     expect( hu.a ).is.deep.equals([ 2, 3 ]);
   });
 
+  it( '计算属性的返回值如果是支持的可转为观察者对象的格式类型, 那么会被转为观察者对象', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      computed: {
+        a: () => ({ aaa: 1 })
+      },
+      watch: {
+        a: {
+          deep: true,
+          handler(){ index++ }
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.aaa = 2;
+    expect( index ).is.equals( 0 );
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      done();
+    });
+  });
+
+  it( '计算属性的返回值如果是支持的可转为观察者对象的格式类型, 那么会被转为观察者对象 ( Vue ) ( 不一致 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      computed: {
+        a: () => ({ aaa: 1 })
+      },
+      watch: {
+        a: {
+          deep: true,
+          handler(){ index++ }
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    vm.a.aaa = 2;
+    expect( index ).is.equals( 0 );
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 0 );
+
+      done();
+    });
+  });
+
+  it( '计算属性的返回值如果是支持的可转为观察者对象的格式类型, 那么会被转为观察者对象 ( 二 )', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      computed: {
+        a: () => [ 1 ]
+      },
+      watch: {
+        a: {
+          deep: true,
+          handler(){ index++ }
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a[ 0 ] = 2;
+    expect( index ).is.equals( 0 );
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      done();
+    });
+  });
+
+  it( '计算属性的返回值如果是支持的可转为观察者对象的格式类型, 那么会被转为观察者对象 ( 二 ) ( Vue ) ( 不一致 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      computed: {
+        a: () => [ 1 ]
+      },
+      watch: {
+        a: {
+          deep: true,
+          handler(){ index++ }
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    Vue.set( vm.a, 0, 2 );
+    expect( index ).is.equals( 0 );
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 0 );
+
+      done();
+    });
+  });
+
 });
