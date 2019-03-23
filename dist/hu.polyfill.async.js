@@ -409,7 +409,7 @@
     } // 旧值
 
 
-    const oldValue = name in lastValue ? lastValue[name] : target[name]; // 值完全相等, 不进行修改
+    const oldValue = has(lastValue, name) ? lastValue[name] : target[name]; // 值完全相等, 不进行修改
 
     if (isEqual(oldValue, value)) {
       return true;
@@ -504,7 +504,7 @@
   fn => {
     const cache = create(null);
     return str => {
-      if (str in cache) return cache[str];
+      if (has(cache, str)) return cache[str];
       return cache[str] = fn(str);
     };
   });
@@ -719,7 +719,7 @@
 
 
   function initPropDefault(prop, options) {
-    if ('default' in prop) {
+    if (has(prop, 'default')) {
       const $default = prop.default;
 
       if (isFunction($default) || !isObject($default)) {
@@ -2831,11 +2831,11 @@
         const oldClasses = classesMap.get(this); // 移除旧 class
 
         each(oldClasses, name => {
-          name in classes || classList.remove(name);
+          has(classes, name) || classList.remove(name);
         }); // 添加新 class
 
         each(classes, name => {
-          name in oldClasses || classList.add(name);
+          has(oldClasses, name) || classList.add(name);
         });
       } // 首次运行
       else {
@@ -2923,7 +2923,7 @@
       const oldStyles = styleMap.get(this); // 移除旧 style
 
       each(oldStyles, (name, value) => {
-        name in styles || style.removeProperty(name);
+        has(styles, name) || style.removeProperty(name);
       }); // 添加 style
 
       each(styles, (name, value) => {
@@ -2953,7 +2953,7 @@
           else if (prefix === ':') {
               const [currentName, ...options] = name.slice(1).split('.');
 
-              if (currentName in attrHandler) {
+              if (has(attrHandler, currentName)) {
                 return [new attrHandler[currentName](element, currentName, strings, options)];
               }
             } // 正常属性

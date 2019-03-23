@@ -7,6 +7,7 @@ import isObject from "../../../shared/util/isObject";
 import isSymbol from "../../../shared/util/isSymbol";
 import returnArg from "../../../shared/util/returnArg";
 import hyphenate from "../../../shared/util/hyphenate";
+import { has } from "../../../shared/global/Reflect/index";
 
 
 /**
@@ -135,7 +136,7 @@ function initPropType( prop, options ){
  * 初始化 options.default 默认值
  */
 function initPropDefault( prop, options ){
-  if( 'default' in prop ){
+  if( has( prop, 'default' ) ){
     const $default = prop.default;
 
     if( isFunction( $default ) || !isObject( $default ) ){

@@ -2,6 +2,7 @@ import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
 import parseStyleText from "../../shared/util/parseStyleText";
 import hyphenate from "../../shared/util/hyphenate";
+import { has } from "../../shared/global/Reflect/index";
 
 
 /**
@@ -51,7 +52,7 @@ export default class stylePart{
 
     // 移除旧 style
     each( oldStyles, ( name, value ) => {
-      name in styles || style.removeProperty( name );
+      has( styles, name ) || style.removeProperty( name );
     });
 
     // 添加 style

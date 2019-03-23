@@ -7,6 +7,7 @@ import {
   PropertyCommitter
 } from 'lit-html/lib/parts';
 import stylePart from './parts/style';
+import { has } from '../shared/global/Reflect/index';
 
 
 class TemplateProcessor{
@@ -35,7 +36,7 @@ class TemplateProcessor{
     else if( prefix === ':' ){
       const [ currentName, ...options ] = name.slice(1).split('.');
 
-      if( currentName in attrHandler ){
+      if( has( attrHandler, currentName ) ){
         return [
           new attrHandler[ currentName ]( element, currentName, strings, options )
         ];

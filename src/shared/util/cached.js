@@ -1,4 +1,5 @@
 import { create } from "../global/Object/index";
+import { has } from "../global/Reflect/index";
 
 
 export default
@@ -9,7 +10,7 @@ export default
   const cache = create( null );
 
   return str => {
-    if( str in cache ) return cache[ str ];
+    if( has( cache, str ) ) return cache[ str ];
     return cache[ str ] = fn( str );
   }
 }

@@ -1,6 +1,7 @@
 import rWhitespace from "../../shared/const/rWhitespace";
 import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
+import { has } from "../../shared/global/Reflect/index";
 
 
 /**
@@ -54,11 +55,11 @@ export default class ClassPart{
 
       // 移除旧 class
       each( oldClasses, name => {
-        name in classes || classList.remove( name );
+        has( classes, name ) || classList.remove( name );
       });
       // 添加新 class
       each( classes, name => {
-        name in oldClasses || classList.add( name );
+        has( oldClasses, name ) || classList.add( name );
       });
     }
     // 首次运行

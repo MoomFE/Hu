@@ -138,8 +138,7 @@ const createObserverProxySetter = ({ before } = emptyObject, { watchers, deepWat
   }
 
   // 旧值
-  const oldValue = name in lastValue ? lastValue[ name ]
-                                     : target[ name ];
+  const oldValue = has( lastValue, name ) ? lastValue[ name ] : target[ name ];
 
   // 值完全相等, 不进行修改
   if( isEqual( oldValue, value ) ){
