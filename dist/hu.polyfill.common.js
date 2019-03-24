@@ -5315,15 +5315,17 @@ function createObserver(target, options = {}) {
   const observeOptions = {
     // 可以使用观察者对象来获取原始对象
     target,
-    // 可以使用原始对象来获取观察者对象
-    // 当前对象的子级的被监听数据
+    // 订阅了当前观察者子集对象更新的 watcher 集合
     subs: create(null),
-    // 当前对象的被深度监听数据
+    // 订阅了当前观察者对象深度监听的 watcher 集合
     deepSubs: new Set(),
-    // 上次的值
+    // 上次访问及设置的值缓存
     lastValue: create(null)
   };
-  /** 当前对象的观察者对象 */
+  /**
+   * 当前对象的观察者对象
+   * - 存储进观察者对象选项内, 可以使用原始对象来获取观察者对象
+   */
 
   const proxy = observeOptions.proxy = new Proxy(target, {
     get: createObserverProxyGetter(options.get, observeOptions),
@@ -5366,13 +5368,13 @@ const createObserverProxyGetter = ({
 
   if (isFunction(value) && !hasOwnProperty.call(target, name) && has(target, name)) {
     return value;
-  } // 获取当前在收集依赖的那个方法的参数
+  } // 获取当前正在收集依赖的 watcher
 
 
-  const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
+  const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的 watcher
 
   if (watcher) {
-    // 标记依赖
+    // 标记订阅信息
     watcher.add(subs, name); // 存储本次值
 
     lastValue[name] = value;
@@ -5437,11 +5439,11 @@ const createObserverProxySetter = ({
 const createObserverProxyOwnKeys = ({
   deepSubs
 }) => target => {
-  // 获取当前在收集依赖的那个方法的参数
-  const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的方法
+  // 获取当前正在收集依赖的 watcher
+  const watcher = targetStack[targetStack.length - 1]; // 当前有正在收集依赖的 watcher
 
   if (watcher) {
-    // 标识深度监听
+    // 标记深度监听订阅信息
     deepSubs.add(watcher);
   }
 
@@ -5468,7 +5470,7 @@ const createObserverProxyDeleteProperty = ({
     }
   }
 
-  const isDelete = deleteProperty(target, name);
+  const isDelete = deleteProperty(target, name); // 删除成功触发更新
 
   if (isDelete) {
     triggerUpdate(subs, deepSubs, lastValue, deleteProperty, name);
@@ -5483,12 +5485,12 @@ const createObserverProxyDeleteProperty = ({
 
 
 function triggerUpdate(subs, deepSubs, lastValue, handler, name, value) {
-  // 当前参数的被监听数据
+  // 订阅了当前参数更新的 watcher 集合
   const sub = subs[name]; // 存储本次值改变
 
   if (sub && sub.size) {
     handler(lastValue, name, value);
-  } // 遍历当前参数的被监听数据和父级对象深度监听数据
+  } // 遍历当前参数的订阅及父级对象的深度监听数据
 
 
   for (let watcher of [...(sub || []), ...deepSubs]) {
@@ -6024,18 +6026,21 @@ function flushSchedulerQueue() {
 
 class Watcher {
   /**
+   * 
    * @param {function} fn 需要收集依赖的方法
    * @param {boolean} isComputed true:  计算属性
    *                             false: 监听方法
    * @param {boolean} isWatchDeep 是否是用于创建深度监听
+   * @param {*} observeOptions 计算属性的观察者对象选项参数
+   * @param {*} name 计算属性的名称
    */
   constructor(fn, isComputed, isWatchDeep, observeOptions, name) {
     // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
-    this.id = uid$1(); // 当前方法的依赖存储数组
+    this.id = uid$1(); // 当前 watcher 在运行时收集的依赖集合
 
     this.deps = new Set(); // 需要收集依赖的方法
 
-    this.fn = fn; // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
+    this.fn = fn; // 当订阅的依赖更新后, 会调用当前方法重新计算依赖
 
     this.get = Watcher.get.bind(this); // 存储其他参数
 
@@ -6074,15 +6079,15 @@ class Watcher {
     targetStack.pop(this);
     return result;
   }
-  /** 添加依赖 */
+  /** 标记订阅信息 */
 
 
   add(subs, name) {
-    let sub = subs[name] || (subs[name] = new Set()); // 添加依赖方法信息到 watch
-    // 当前值被改变时, 会调用依赖方法
+    let sub = subs[name] || (subs[name] = new Set()); // 添加当前 watcher 信息到 sub
+    // 当前值被改变时, 会调用 update 方法进入更新队列
 
-    sub.add(this); // 添加 watch 的信息到当前 watcher 去
-    // 当依赖方法被重新调用, 会移除依赖
+    sub.add(this); // 添加 sub 的信息到当前 watcher 去
+    // 当依赖方法被重新调用, 会移除订阅的依赖
 
     this.deps.add(sub);
   }
@@ -8070,13 +8075,12 @@ var returnFalse = (
  */
 () => false);
 
-var createComputed = (
 /**
- * @param {{}} computed
  * @param {any} self 计算属性的 this 指向
  * @param {boolean} isWatch 当前是否用于创建监听
  */
-(computed, self, isWatch) => {
+
+var createComputed = ((self, isWatch) => {
   /** 当前计算属性容器的子级的一些参数 */
   const computedOptionsMap = new Map();
   /** 当前计算属性容器对象 */
@@ -8097,9 +8101,7 @@ var createComputed = (
   const appendComputed = createAppendComputed.call(self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch);
   /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
 
-  let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0; // 添加计算属性
-
-  each(computed, appendComputed);
+  let removeComputed = isWatch ? createRemoveComputed.call(self, computedOptionsMap) : void 0;
   return [computedTarget, computedTargetProxyInterceptor, appendComputed, removeComputed];
 });
 /**
@@ -8218,7 +8220,7 @@ function $watch(expOrFn, callback, options) {
   if (watcherMap.has(this)) {
     [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = watcherMap.get(this);
   } else {
-    watcherMap.set(this, [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, null, true));
+    watcherMap.set(this, [watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed] = createComputed(null, true));
   } // 初始化选项参数
 
 
@@ -8457,11 +8459,12 @@ function initComputed$1(options, target, targetProxy) {
     return target.$computed = emptyComputed || (emptyComputed = observe({}, observeReadonly));
   }
 
-  const [computedTarget, computedTargetProxyInterceptor] = createComputed(options.computed, targetProxy);
+  const [computedTarget, computedTargetProxyInterceptor, appendComputed] = createComputed(targetProxy);
   target.$computed = computedTargetProxyInterceptor; // 将拦截器伪造成观察者对象
 
   observeProxyMap.set(computedTargetProxyInterceptor, {});
   each(computed, (name, computed) => {
+    appendComputed(name, computed);
     injectionToLit(target, name, 0, () => computedTargetProxyInterceptor[name], value => computedTargetProxyInterceptor[name] = value);
   });
 }

@@ -49,16 +49,18 @@ function createObserver(
   const observeOptions = {
     // 可以使用观察者对象来获取原始对象
     target,
-    // 可以使用原始对象来获取观察者对象
-    // 当前对象的子级的被监听数据
+    // 订阅了当前观察者子集对象更新的 watcher 集合
     subs: create( null ),
-    // 当前对象的被深度监听数据
+    // 订阅了当前观察者对象深度监听的 watcher 集合
     deepSubs: new Set(),
-    // 上次的值
+    // 上次访问及设置的值缓存
     lastValue: create( null )
   };
 
-  /** 当前对象的观察者对象 */
+  /**
+   * 当前对象的观察者对象
+   * - 存储进观察者对象选项内, 可以使用原始对象来获取观察者对象
+   */
   const proxy = observeOptions.proxy = new Proxy( target, {
     get: createObserverProxyGetter( options.get, observeOptions ),
     set: createObserverProxySetter( options.set, observeOptions ),
@@ -100,12 +102,12 @@ const createObserverProxyGetter = ({ before } = emptyObject, { subs, lastValue }
     return value;
   }
 
-  // 获取当前在收集依赖的那个方法的参数
+  // 获取当前正在收集依赖的 watcher
   const watcher = targetStack[ targetStack.length - 1 ];
 
-  // 当前有正在收集依赖的方法
+  // 当前有正在收集依赖的 watcher
   if( watcher ){
-    // 标记依赖
+    // 标记订阅信息
     watcher.add( subs, name );
     // 存储本次值
     lastValue[ name ] = value;
@@ -165,12 +167,12 @@ const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, l
  */
 const createObserverProxyOwnKeys = ({ deepSubs }) => ( target ) => {
 
-  // 获取当前在收集依赖的那个方法的参数
+  // 获取当前正在收集依赖的 watcher
   const watcher = targetStack[ targetStack.length - 1 ];
 
-  // 当前有正在收集依赖的方法
+  // 当前有正在收集依赖的 watcher
   if( watcher ){
-    // 标识深度监听
+    // 标记深度监听订阅信息
     deepSubs.add( watcher );
   }
 
@@ -193,6 +195,7 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { subs, dee
 
   const isDelete = deleteProperty( target, name );
 
+  // 删除成功触发更新
   if( isDelete ){
     triggerUpdate( subs, deepSubs, lastValue, deleteProperty, name );
   }
@@ -205,7 +208,7 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { subs, dee
  * 触发值的更新操作
  */
 function triggerUpdate( subs, deepSubs, lastValue, handler, name, value ){
-  // 当前参数的被监听数据
+  // 订阅了当前参数更新的 watcher 集合
   const sub = subs[ name ];
 
   // 存储本次值改变
@@ -213,7 +216,7 @@ function triggerUpdate( subs, deepSubs, lastValue, handler, name, value ){
     handler( lastValue, name, value );
   }
 
-  // 遍历当前参数的被监听数据和父级对象深度监听数据
+  // 遍历当前参数的订阅及父级对象的深度监听数据
   for( let watcher of [ ...sub || [], ...deepSubs ] ){
     watcher.update();
   }

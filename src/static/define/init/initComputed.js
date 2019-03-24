@@ -23,10 +23,9 @@ export default function initComputed( options, target, targetProxy ){
 
   const [
     computedTarget,
-    computedTargetProxyInterceptor
-  ] = createComputed(
-    options.computed, targetProxy
-  );
+    computedTargetProxyInterceptor,
+    appendComputed
+  ] = createComputed( targetProxy );
 
   target.$computed = computedTargetProxyInterceptor;
 
@@ -34,6 +33,7 @@ export default function initComputed( options, target, targetProxy ){
   observeProxyMap.set( computedTargetProxyInterceptor, {} );
 
   each( computed, ( name, computed ) => {
+    appendComputed( name, computed );
     injectionToLit(
       target, name, 0,
       () => computedTargetProxyInterceptor[ name ],

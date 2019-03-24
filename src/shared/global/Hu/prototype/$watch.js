@@ -41,7 +41,7 @@ export default function $watch( expOrFn, callback, options ){
   }else{
     watcherMap.set(
       this,
-      [ watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed ] = createComputed( null, null, true )
+      [ watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed ] = createComputed( null, true )
     );
   }
 

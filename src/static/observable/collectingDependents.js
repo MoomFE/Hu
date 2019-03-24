@@ -7,23 +7,22 @@ import { queueUpdate } from "./scheduler";
 
 export class Watcher{
   /**
+   * 
    * @param {function} fn 需要收集依赖的方法
    * @param {boolean} isComputed true:  计算属性
    *                             false: 监听方法
    * @param {boolean} isWatchDeep 是否是用于创建深度监听
+   * @param {*} observeOptions 计算属性的观察者对象选项参数
+   * @param {*} name 计算属性的名称
    */
-  constructor(
-    fn,
-    isComputed, isWatchDeep,
-    observeOptions, name
-  ){
+  constructor( fn, isComputed, isWatchDeep, observeOptions, name ){
     // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
     this.id = uid();
-    // 当前方法的依赖存储数组
+    // 当前 watcher 在运行时收集的依赖集合
     this.deps = new Set();
     // 需要收集依赖的方法
     this.fn = fn;
-    // 当其中一个依赖更新后, 会调用当前方法重新计算依赖
+    // 当订阅的依赖更新后, 会调用当前方法重新计算依赖
     this.get = Watcher.get.bind( this );
     // 存储其他参数
     if( isComputed ){
@@ -65,17 +64,17 @@ export class Watcher{
 
     return result;
   }
-  /** 添加依赖 */
+  /** 标记订阅信息 */
   add( subs, name ){
     let sub = subs[ name ] || (
       subs[ name ] = new Set
     );
 
-    // 添加依赖方法信息到 watch
-    // 当前值被改变时, 会调用依赖方法
+    // 添加当前 watcher 信息到 sub
+    // 当前值被改变时, 会调用 update 方法进入更新队列
     sub.add( this );
-    // 添加 watch 的信息到当前 watcher 去
-    // 当依赖方法被重新调用, 会移除依赖
+    // 添加 sub 的信息到当前 watcher 去
+    // 当依赖方法被重新调用, 会移除订阅的依赖
     this.deps.add( sub );
   }
   /** 依赖的重新收集 */

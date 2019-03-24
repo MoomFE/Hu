@@ -1,18 +1,15 @@
 import { create } from "../../shared/global/Object/index";
 import { observe, observeMap } from "./observe";
 import { Watcher } from "./collectingDependents";
-import each from "../../shared/util/each";
 import noop from "../../shared/util/noop";
 import returnFalse from "../../shared/util/returnFalse";
 
 
-export default
 /**
- * @param {{}} computed
  * @param {any} self 计算属性的 this 指向
  * @param {boolean} isWatch 当前是否用于创建监听
  */
-( computed, self, isWatch ) => {
+export default ( self, isWatch ) => {
 
   /** 当前计算属性容器的子级的一些参数 */
   const computedOptionsMap = new Map();
@@ -32,9 +29,6 @@ export default
   /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
   let removeComputed = isWatch ? createRemoveComputed.call( self, computedOptionsMap )
                                : void 0;
-
-  // 添加计算属性
-  each( computed, appendComputed );
 
   return [
     computedTarget,
