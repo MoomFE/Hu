@@ -459,4 +459,32 @@ describe( 'Hu.html', () => {
     expect( result ).is.deep.equals([ 1, 0, 1, 0, 1, 0 ]);
   });
 
+  it( '使用 @event 绑定事件, 使用 .prevent 修饰符可以阻止浏览器默认事件', () => {
+    var div = document.createElement('div');
+
+    Hu.render( div )`
+      <input type="checkbox" @click.prevent=${() => {}}>
+    `;
+
+    expect( div.firstElementChild.checked ).is.equals( false );
+
+    div.firstElementChild.click();
+
+    expect( div.firstElementChild.checked ).is.equals( false );
+  });
+
+  it( '使用 @event 绑定事件, 不使用 .prevent 修饰符将会正常触发浏览器默认事件', () => {
+    var div = document.createElement('div');
+
+    Hu.render( div )`
+      <input type="checkbox" @click=${() => {}}>
+    `;
+
+    expect( div.firstElementChild.checked ).is.equals( false );
+
+    div.firstElementChild.click();
+
+    expect( div.firstElementChild.checked ).is.equals( true );
+  });
+
 });
