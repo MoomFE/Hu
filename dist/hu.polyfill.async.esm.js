@@ -2962,6 +2962,13 @@ const dispatchedModifiers = assign(create(null), {
    */
   stop(elem, event) {
     event.stopPropagation();
+  },
+
+  /**
+   * 阻止浏览器默认事件
+   */
+  prevent(elem, event) {
+    event.preventDefault();
   }
 
 });

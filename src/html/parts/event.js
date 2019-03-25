@@ -91,7 +91,14 @@ const dispatchedModifiers = assign(
      * 阻止事件冒泡
      */
     stop( elem, event ){
-      event.stopPropagation()
+      event.stopPropagation();
+    },
+
+    /**
+     * 阻止浏览器默认事件
+     */
+    prevent( elem, event ){
+      event.preventDefault();
     }
 
   }
