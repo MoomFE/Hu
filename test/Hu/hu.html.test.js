@@ -325,13 +325,138 @@ describe( 'Hu.html', () => {
     expect( index ).is.equals( 0 );
 
     div.firstElementChild.click();
-
     expect( index ).is.equals( 1 );
 
     div.firstElementChild.click();
     div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 @event 绑定事件, 重复渲染时不会绑定多余的事件', () => {
+    const div = document.createElement('div');
+    let index = 0;
+
+    Hu.render( div )`
+      <div @click=${() => index++}></div>
+    `;
+    Hu.render( div )`
+      <div @click=${() => index++}></div>
+    `;
+    Hu.render( div )`
+      <div @click=${() => index++}></div>
+    `;
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 @event 绑定事件, 重复渲染时不会绑定多余的事件 ( 二 )', () => {
+    const div = document.createElement('div');
+    let index = 0;
+
+    function listener(){
+      index++
+    }
+
+    Hu.render( div )`
+      <div @click=${ listener }></div>
+    `;
+    Hu.render( div )`
+      <div @click=${ listener }></div>
+    `;
+    Hu.render( div )`
+      <div @click=${ listener }></div>
+    `;
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 @event 绑定事件, 重复渲染时移除事件后将不会再触发', () => {
+    const div = document.createElement('div');
+    let index = 0;
+
+    Hu.render( div )`
+      <div @click=${() => index++}></div>
+    `;
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+
+    Hu.render( div )`
+      <div></div>
+    `;
 
     expect( index ).is.equals( 3 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .stop 修饰符可以停止冒泡', () => {
+    const div = document.createElement('div');
+    let result = [];
+
+    div.addEventListener( 'click', () => {
+      result.push( 0 );
+    });
+
+    Hu.render( div )`
+      <div @click.stop=${() => result.push( 1 )}></div>
+    `;
+
+    expect( result ).is.deep.equals([]);
+
+    div.firstElementChild.click();
+    expect( result ).is.deep.equals([ 1 ]);
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( result ).is.deep.equals([ 1, 1, 1 ]);
+  });
+
+  it( '使用 @event 绑定事件, 不使用 .stop 修饰符将会正常冒泡', () => {
+    const div = document.createElement('div');
+    let result = [];
+
+    div.addEventListener( 'click', () => {
+      result.push( 0 );
+    });
+
+    Hu.render( div )`
+      <div @click=${() => result.push( 1 )}></div>
+    `;
+
+    expect( result ).is.deep.equals([]);
+
+    div.firstElementChild.click();
+    expect( result ).is.deep.equals([ 1, 0 ]);
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( result ).is.deep.equals([ 1, 0, 1, 0, 1, 0 ]);
   });
 
 });
