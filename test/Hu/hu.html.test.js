@@ -3,7 +3,7 @@ describe( 'Hu.html', () => {
   it( '使用 Hu.render 的正常方式', () => {
     const div = document.createElement('div');
 
-    
+
     Hu.render(
       Hu.html`<span>123</span>`,
       div
@@ -312,6 +312,26 @@ describe( 'Hu.html', () => {
       width: '100px',
       height: '120px'
     });
+  });
+
+  it( '使用 @event 可以给元素绑定事件', () => {
+    const div = document.createElement('div');
+    let index = 0;
+
+    Hu.render( div )`
+      <div @click=${() => index++}></div>
+    `;
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+
+    expect( index ).is.equals( 3 );
   });
 
 });
