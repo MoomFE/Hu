@@ -36,10 +36,10 @@ function parseStyle( styles, value ){
   }
 }
 
-export default class stylePart{
+export default class StylePart{
 
   constructor( element ){
-    this.element = element;
+    this.elem = element;
   }
 
   setValue( value ){
@@ -47,7 +47,7 @@ export default class stylePart{
   }
 
   commit(){
-    const { value: styles, element: { style } } = this;
+    const { value: styles, elem: { style } } = this;
     const oldStyles = styleMap.get( this );
 
     // 移除旧 style

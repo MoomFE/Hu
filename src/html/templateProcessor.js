@@ -2,16 +2,17 @@ import ClassPart from './parts/class';
 import {
   AttributeCommitter,
   BooleanAttributePart,
-  EventPart,
   NodePart,
   PropertyCommitter
 } from 'lit-html/lib/parts';
-import stylePart from './parts/style';
+import StylePart from './parts/style';
 import { has } from '../shared/global/Reflect/index';
+import EventPart from './parts/event';
 
 
 class TemplateProcessor{
   handleAttributeExpressions( element, name, strings, options ){
+
     const prefix = name[0];
 
     // 用于绑定 DOM 属性 ( property )
@@ -21,8 +22,10 @@ class TemplateProcessor{
     }
     // 事件绑定
     else if( prefix === '@' ){
+      const [ currentName, ...options ] = name.slice(1).split('.');
+
       return [
-        new EventPart( element, name.slice(1), options.eventContext )
+        new EventPart( element, currentName, strings, options )
       ];
     }
     // 若属性的值为真则保留 DOM 属性
@@ -61,5 +64,5 @@ export default new TemplateProcessor();
  */
 const attrHandler = {
   class: ClassPart,
-  style: stylePart
+  style: StylePart
 };

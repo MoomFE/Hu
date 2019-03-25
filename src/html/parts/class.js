@@ -39,7 +39,7 @@ function parseClass( classes, value ){
 export default class ClassPart{
 
   constructor( element ){
-    this.element = element;
+    this.elem = element;
   }
 
   setValue( value ){
@@ -47,7 +47,7 @@ export default class ClassPart{
   }
 
   commit(){
-    const { value: classes, element: { classList } } = this;
+    const { value: classes, elem: { classList } } = this;
 
     // 非首次运行
     if( classesMap.has( this ) ){

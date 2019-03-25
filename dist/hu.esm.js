@@ -1883,16 +1883,10 @@ class PropertyCommitter extends AttributeCommitter {
 
 }
 class PropertyPart extends AttributePart {} // Detect event listener options support. If the `capture` property is read
-// from the options object, then options are supported. If not, then the thrid
-// argument to add/removeEventListener is interpreted as the boolean capture
-// value so we should only pass the `capture` property.
-
-let eventOptionsSupported = false;
 
 try {
   const options = {
     get capture() {
-      eventOptionsSupported = true;
       return false;
     }
 
@@ -1902,68 +1896,6 @@ try {
 
   window.removeEventListener('test', options, options);
 } catch (_e) {}
-
-class EventPart {
-  constructor(element, eventName, eventContext) {
-    this.value = undefined;
-    this._pendingValue = undefined;
-    this.element = element;
-    this.eventName = eventName;
-    this.eventContext = eventContext;
-
-    this._boundHandleEvent = e => this.handleEvent(e);
-  }
-
-  setValue(value) {
-    this._pendingValue = value;
-  }
-
-  commit() {
-    while (isDirective(this._pendingValue)) {
-      const directive$$1 = this._pendingValue;
-      this._pendingValue = noChange;
-      directive$$1(this);
-    }
-
-    if (this._pendingValue === noChange) {
-      return;
-    }
-
-    const newListener = this._pendingValue;
-    const oldListener = this.value;
-    const shouldRemoveListener = newListener == null || oldListener != null && (newListener.capture !== oldListener.capture || newListener.once !== oldListener.once || newListener.passive !== oldListener.passive);
-    const shouldAddListener = newListener != null && (oldListener == null || shouldRemoveListener);
-
-    if (shouldRemoveListener) {
-      this.element.removeEventListener(this.eventName, this._boundHandleEvent, this._options);
-    }
-
-    if (shouldAddListener) {
-      this._options = getOptions(newListener);
-      this.element.addEventListener(this.eventName, this._boundHandleEvent, this._options);
-    }
-
-    this.value = newListener;
-    this._pendingValue = noChange;
-  }
-
-  handleEvent(event) {
-    if (typeof this.value === 'function') {
-      this.value.call(this.eventContext || this.element, event);
-    } else {
-      this.value.handleEvent(event);
-    }
-  }
-
-} // We copy options because of the inconsistent behavior of browsers when reading
-// the third argument of add/removeEventListener. IE11 doesn't support options
-// at all. Chrome 41 only reads `capture` if the argument is an object.
-
-const getOptions = o => o && (eventOptionsSupported ? {
-  capture: o.capture,
-  passive: o.passive,
-  once: o.once
-} : o.capture);
 
 /**
  * @license
@@ -2619,7 +2551,7 @@ function parseClass(classes, value) {
 
 class ClassPart {
   constructor(element) {
-    this.element = element;
+    this.elem = element;
   }
 
   setValue(value) {
@@ -2629,7 +2561,7 @@ class ClassPart {
   commit() {
     const {
       value: classes,
-      element: {
+      elem: {
         classList
       }
     } = this; // 非首次运行
@@ -2711,9 +2643,9 @@ function parseStyle(styles, value) {
   }
 }
 
-class stylePart {
+class StylePart {
   constructor(element) {
-    this.element = element;
+    this.elem = element;
   }
 
   setValue(value) {
@@ -2723,7 +2655,7 @@ class stylePart {
   commit() {
     const {
       value: styles,
-      element: {
+      elem: {
         style
       }
     } = this;
@@ -2742,6 +2674,38 @@ class stylePart {
 
 }
 
+class EventPart$1 {
+  constructor(element, type, eventContext, options) {
+    this.elem = element;
+    this.type = type;
+  }
+
+  setValue(listener) {
+    this.oldListener = this.listener;
+    this.listener = isFunction(listener) ? listener : null;
+  }
+
+  commit() {
+    const {
+      listener,
+      oldListener
+    } = this; // 新的事件绑定与旧的事件绑定不一致
+
+    if (listener !== oldListener) {
+      // 移除旧的事件绑定
+      if (oldListener != null) {
+        this.elem.removeEventListener(this.type, oldListener);
+      } // 添加新的事件绑定
+
+
+      if (listener) {
+        this.elem.addEventListener(this.type, listener);
+      }
+    }
+  }
+
+}
+
 class TemplateProcessor {
   handleAttributeExpressions(element, name, strings, options) {
     const prefix = name[0]; // 用于绑定 DOM 属性 ( property )
@@ -2751,7 +2715,8 @@ class TemplateProcessor {
       return comitter.parts;
     } // 事件绑定
     else if (prefix === '@') {
-        return [new EventPart(element, name.slice(1), options.eventContext)];
+        const [currentName, ...options] = name.slice(1).split('.');
+        return [new EventPart$1(element, currentName, strings, options)];
       } // 若属性的值为真则保留 DOM 属性
       // 否则移除 DOM 属性
       else if (prefix === '?') {
@@ -2783,7 +2748,7 @@ var templateProcessor = new TemplateProcessor();
 
 const attrHandler = {
   class: ClassPart,
-  style: stylePart
+  style: StylePart
 };
 
 function html$1(strings, ...values) {
