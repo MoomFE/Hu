@@ -20,10 +20,7 @@ export default class EventPart{
     const {
       listener, oldListener,
       options: {
-        options,
-        modifiers: {
-          dispatch, dispatched
-        }
+        options, modifiers
       }
     } = this;
 
@@ -39,8 +36,8 @@ export default class EventPart{
       if( listener ){
         elem.addEventListener( this.type, this.value = function( event ){
 
-          // 触发事件后修饰符检查
-          for( let modifier of dispatched ){
+          // 修饰符检测
+          for( let modifier of modifiers ){
             if( modifier( elem, event ) === false ) return;
           }
 
@@ -52,20 +49,18 @@ export default class EventPart{
 
 }
 
-function initEventOptions( modifiers ){
+function initEventOptions( _modifiers ){
   const options = {};
-  const dispatch = [];
-  const dispatched = [];
+  const modifiers = [];
 
-  for( let name of modifiers ){
+  for( let name of _modifiers ){
     if( eventOptions[ name ] ) options[ name ] = true;
-    else if( name in dispatchModifiers ) dispatch.push( dispatchModifiers[ name ] );
-    else if( name in dispatchedModifiers ) dispatched.push( dispatchedModifiers[ name ] );
+    else if( eventModifiers[ name ] ) modifiers.push( eventModifiers[ name ] );
   }
 
   return {
     options,
-    modifiers: { dispatch, dispatched }
+    modifiers
   };
 }
 
@@ -78,28 +73,22 @@ const eventOptions = {
   passive: true
 };
 /**
- * 功能性事件修饰符 - 触发事件时
+ * 功能性事件修饰符
  */
-const dispatchModifiers = create( null );
-/**
- * 功能性事件修饰符 - 触发事件后
- */
-const dispatchedModifiers = assign(
-  create( null ), {
+const eventModifiers = {
 
-    /**
-     * 阻止事件冒泡
-     */
-    stop( elem, event ){
-      event.stopPropagation();
-    },
+  /**
+   * 阻止事件冒泡
+   */
+  stop( elem, event ){
+    event.stopPropagation();
+  },
 
-    /**
-     * 阻止浏览器默认事件
-     */
-    prevent( elem, event ){
-      event.preventDefault();
-    }
-
+  /**
+   * 阻止浏览器默认事件
+   */
+  prevent( elem, event ){
+    event.preventDefault();
   }
-);
+
+};

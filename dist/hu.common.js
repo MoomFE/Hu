@@ -2694,10 +2694,7 @@ class EventPart$1 {
       oldListener,
       options: {
         options,
-        modifiers: {
-          dispatch,
-          dispatched
-        }
+        modifiers
       }
     } = this; // 新的事件绑定与旧的事件绑定不一致
 
@@ -2711,8 +2708,8 @@ class EventPart$1 {
 
       if (listener) {
         elem.addEventListener(this.type, this.value = function (event) {
-          // 触发事件后修饰符检查
-          for (let modifier of dispatched) {
+          // 修饰符检测
+          for (let modifier of modifiers) {
             if (modifier(elem, event) === false) return;
           }
 
@@ -2724,21 +2721,17 @@ class EventPart$1 {
 
 }
 
-function initEventOptions(modifiers) {
+function initEventOptions(_modifiers) {
   const options = {};
-  const dispatch = [];
-  const dispatched = [];
+  const modifiers = [];
 
-  for (let name of modifiers) {
-    if (eventOptions[name]) options[name] = true;else if (name in dispatchModifiers) dispatch.push(dispatchModifiers[name]);else if (name in dispatchedModifiers) dispatched.push(dispatchedModifiers[name]);
+  for (let name of _modifiers) {
+    if (eventOptions[name]) options[name] = true;else if (eventModifiers[name]) modifiers.push(eventModifiers[name]);
   }
 
   return {
     options,
-    modifiers: {
-      dispatch,
-      dispatched
-    }
+    modifiers
   };
 }
 /**
@@ -2752,15 +2745,10 @@ const eventOptions = {
   passive: true
 };
 /**
- * 功能性事件修饰符 - 触发事件时
+ * 功能性事件修饰符
  */
 
-const dispatchModifiers = create(null);
-/**
- * 功能性事件修饰符 - 触发事件后
- */
-
-const dispatchedModifiers = assign(create(null), {
+const eventModifiers = {
   /**
    * 阻止事件冒泡
    */
@@ -2775,7 +2763,7 @@ const dispatchedModifiers = assign(create(null), {
     event.preventDefault();
   }
 
-});
+};
 
 class TemplateProcessor {
   handleAttributeExpressions(element, name, strings, options) {
