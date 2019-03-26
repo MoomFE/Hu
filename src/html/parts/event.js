@@ -1,6 +1,4 @@
 import isFunction from "../../shared/util/isFunction";
-import { create, assign } from "../../shared/global/Object/index";
-
 
 
 export default class EventPart{
@@ -89,6 +87,13 @@ const eventModifiers = {
    */
   prevent( elem, event ){
     event.preventDefault();
+  },
+
+  /**
+   * 只在当前元素自身时触发事件时
+   */
+  self( elem, event ){
+    return event.target === elem;
   }
 
 };
