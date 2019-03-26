@@ -540,5 +540,48 @@ describe( 'Hu.html', () => {
     div.firstElementChild.firstElementChild.click();
     expect( index ).is.equals( 6 );
   });
+
+  it( '使用 @event 绑定事件, 使用 .left / .middle / .right 修饰符限定鼠标按键', () => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        left: 0,
+        middle: 0,
+        right: 0
+      },
+      render( html ){
+        return html`
+          <div ref="left" @mousedown.left=${() => this.left++}>left</div>
+          <div ref="middle" @mousedown.middle=${() => this.middle++}>middle</div>
+          <div ref="right" @mousedown.right=${() => this.right++}>right</div>
+        `;
+      }
+    });
+
+    expect( hu.left ).is.equals( 0 );
+    triggerEvent( hu.$refs.left, 'mousedown', event => event.button = 0 );
+    expect( hu.left ).is.equals( 1 );
+    triggerEvent( hu.$refs.left, 'mousedown', event => event.button = 1 );
+    expect( hu.left ).is.equals( 1 );
+    triggerEvent( hu.$refs.left, 'mousedown', event => event.button = 2 );
+    expect( hu.left ).is.equals( 1 );
+
+    expect( hu.middle ).is.equals( 0 );
+    triggerEvent( hu.$refs.middle, 'mousedown', event => event.button = 0 );
+    expect( hu.middle ).is.equals( 0 );
+    triggerEvent( hu.$refs.middle, 'mousedown', event => event.button = 1 );
+    expect( hu.middle ).is.equals( 1 );
+    triggerEvent( hu.$refs.middle, 'mousedown', event => event.button = 2 );
+    expect( hu.middle ).is.equals( 1 );
+
+    expect( hu.right ).is.equals( 0 );
+    triggerEvent( hu.$refs.right, 'mousedown', event => event.button = 0 );
+    expect( hu.right ).is.equals( 0 );
+    triggerEvent( hu.$refs.right, 'mousedown', event => event.button = 1 );
+    expect( hu.right ).is.equals( 0 );
+    triggerEvent( hu.$refs.right, 'mousedown', event => event.button = 2 );
+    expect( hu.right ).is.equals( 1 );
+  });
   
 });
