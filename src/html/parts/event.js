@@ -1,4 +1,5 @@
 import isFunction from "../../shared/util/isFunction";
+import { has } from "../../shared/global/Reflect/index";
 
 
 export default class EventPart{
@@ -70,6 +71,7 @@ const eventOptions = {
   capture: true,
   passive: true
 };
+
 /**
  * 功能性事件修饰符
  */
@@ -97,3 +99,12 @@ const eventModifiers = {
   }
 
 };
+
+/**
+ * 鼠标按键功能性修饰符
+ */
+[ 'left', 'middle', 'right' ].forEach(( button, index ) => {
+  eventModifiers[ button ] = ( elem, event ) => {
+    return has( event, 'button' ) && event.button === index;
+  }
+});
