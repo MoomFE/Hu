@@ -4,10 +4,10 @@ import { has } from "../../shared/global/Reflect/index";
 
 export default class EventPart{
 
-  constructor( element, type, eventContext, modifiers ){
+  constructor( element, type, eventContext, modifierKeys ){
     this.elem = element;
     this.type = type;
-    this.options = initEventOptions( modifiers );
+    this.options = initEventOptions( modifierKeys );
   }
 
   setValue( listener ){
@@ -37,7 +37,7 @@ export default class EventPart{
 
           // 修饰符检测
           for( let modifier of modifiers ){
-            if( modifier( elem, event ) === false ) return;
+            if( modifier( elem, event, modifiers ) === false ) return;
           }
 
           listener.apply( this, arguments );
@@ -48,14 +48,16 @@ export default class EventPart{
 
 }
 
-function initEventOptions( _modifiers ){
+function initEventOptions( modifierKeys ){
   const options = {};
   const modifiers = [];
 
-  for( let name of _modifiers ){
+  for( let name of modifierKeys ){
     if( eventOptions[ name ] ) options[ name ] = true;
     else if( eventModifiers[ name ] ) modifiers.push( eventModifiers[ name ] );
   }
+
+  modifiers.keys = modifierKeys;
 
   return {
     options,
@@ -96,6 +98,20 @@ const eventModifiers = {
    */
   self( elem, event ){
     return event.target === elem;
+  },
+
+  /**
+   * 系统修饰键限定符
+   */
+  exact( elem, event, { keys } ){
+    const modifierKey = [ 'ctrl', 'alt', 'shift', 'meta' ].filter( key => {
+      return keys.indexOf( key ) < 0;
+    });
+
+    for( const key of modifierKey ){
+      if( event[ key + 'Key' ] ) return false;
+    }
+    return true;
   }
 
 };
