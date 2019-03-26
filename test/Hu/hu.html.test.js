@@ -584,4 +584,65 @@ describe( 'Hu.html', () => {
     expect( hu.right ).is.equals( 1 );
   });
   
+  it( '使用 @event 绑定事件, 使用 .ctrl / .alt / .shift / .meta 修饰符限定键盘按键', () => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        ctrl: 0,
+        alt: 0,
+        shift: 0,
+        meta: 0
+      },
+      render( html ){
+        return html`
+          <div ref="ctrl" @mousedown.ctrl=${() => this.ctrl++}>ctrl</div>
+          <div ref="alt" @mousedown.alt=${() => this.alt++}>alt</div>
+          <div ref="shift" @mousedown.shift=${() => this.shift++}>shift</div>
+          <div ref="meta" @mousedown.meta=${() => this.meta++}>meta</div>
+        `;
+      }
+    });
+
+    expect( hu.ctrl ).is.equals( 0 );
+    triggerEvent( hu.$refs.ctrl, 'mousedown', event => event.ctrlKey = true );
+    expect( hu.ctrl ).is.equals( 1 );
+    triggerEvent( hu.$refs.ctrl, 'mousedown', event => event.altKey = true );
+    expect( hu.ctrl ).is.equals( 1 );
+    triggerEvent( hu.$refs.ctrl, 'mousedown', event => event.shiftKey = true );
+    expect( hu.ctrl ).is.equals( 1 );
+    triggerEvent( hu.$refs.ctrl, 'mousedown', event => event.metaKey = true );
+    expect( hu.ctrl ).is.equals( 1 );
+
+    expect( hu.alt ).is.equals( 0 );
+    triggerEvent( hu.$refs.alt, 'mousedown', event => event.ctrlKey = true );
+    expect( hu.alt ).is.equals( 0 );
+    triggerEvent( hu.$refs.alt, 'mousedown', event => event.altKey = true );
+    expect( hu.alt ).is.equals( 1 );
+    triggerEvent( hu.$refs.alt, 'mousedown', event => event.shiftKey = true );
+    expect( hu.alt ).is.equals( 1 );
+    triggerEvent( hu.$refs.alt, 'mousedown', event => event.metaKey = true );
+    expect( hu.alt ).is.equals( 1 );
+
+    expect( hu.shift ).is.equals( 0 );
+    triggerEvent( hu.$refs.shift, 'mousedown', event => event.ctrlKey = true );
+    expect( hu.shift ).is.equals( 0 );
+    triggerEvent( hu.$refs.shift, 'mousedown', event => event.altKey = true );
+    expect( hu.shift ).is.equals( 0 );
+    triggerEvent( hu.$refs.shift, 'mousedown', event => event.shiftKey = true );
+    expect( hu.shift ).is.equals( 1 );
+    triggerEvent( hu.$refs.shift, 'mousedown', event => event.metaKey = true );
+    expect( hu.shift ).is.equals( 1 );
+
+    expect( hu.meta ).is.equals( 0 );
+    triggerEvent( hu.$refs.meta, 'mousedown', event => event.ctrlKey = true );
+    expect( hu.meta ).is.equals( 0 );
+    triggerEvent( hu.$refs.meta, 'mousedown', event => event.altKey = true );
+    expect( hu.meta ).is.equals( 0 );
+    triggerEvent( hu.$refs.meta, 'mousedown', event => event.shiftKey = true );
+    expect( hu.meta ).is.equals( 0 );
+    triggerEvent( hu.$refs.meta, 'mousedown', event => event.metaKey = true );
+    expect( hu.meta ).is.equals( 1 );
+  });
+
 });
