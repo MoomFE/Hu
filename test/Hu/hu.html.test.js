@@ -487,4 +487,58 @@ describe( 'Hu.html', () => {
     expect( div.firstElementChild.checked ).is.equals( true );
   });
 
+  it( '使用 @event 绑定事件, 使用 .self 修饰符可以只在当前元素自身时触发事件时触发回调', () => {
+    const div = document.createElement('div');
+    let index = 0;
+
+    Hu.render( div )`
+      <div @click.self=${() => index++}>
+        <span></span>
+      </div>
+    `;
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+
+    div.firstElementChild.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+
+    div.firstElementChild.firstElementChild.click();
+    div.firstElementChild.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 @event 绑定事件, 不使用 .self 修饰符会按照正常冒泡触发回调', () => {
+    const div = document.createElement('div');
+    let index = 0;
+
+    Hu.render( div )`
+      <div @click=${() => index++}>
+        <span></span>
+      </div>
+    `;
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+
+    div.firstElementChild.firstElementChild.click();
+    expect( index ).is.equals( 4 );
+
+    div.firstElementChild.firstElementChild.click();
+    div.firstElementChild.firstElementChild.click();
+    expect( index ).is.equals( 6 );
+  });
+  
 });
