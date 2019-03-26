@@ -101,10 +101,19 @@ const eventModifiers = {
 };
 
 /**
- * 鼠标按键功能性修饰符
+ * 鼠标按钮
  */
 [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
   eventModifiers[ button ] = ( elem, event ) => {
     return has( event, 'button' ) && event.button === index;
+  }
+});
+
+/**
+ * 系统修饰键
+ */
+[ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
+  eventModifiers[ key ] = ( elem, event ) => {
+    return !!event[ key + 'Key' ];
   }
 });
