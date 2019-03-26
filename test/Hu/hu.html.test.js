@@ -417,128 +417,89 @@ describe( 'Hu.html', () => {
 
   it( '使用 @event 绑定事件, 使用 .stop 修饰符可以停止冒泡', () => {
     const div = document.createElement('div');
-    let result = [];
-
-    div.addEventListener( 'click', () => {
-      result.push( 0 );
+    const result = [];
+    const hu = new Hu({
+      el: div,
+      render( html ){
+        return html`
+          <div ref="none" @click=${() => result.push( 1 )}></div>
+          <div ref="stop" @click.stop=${() => result.push( 2 )}></div>
+        `;
+      },
+      mounted(){
+        this.$el.addEventListener( 'click', () => {
+          result.push( 0 );
+        });
+      }
     });
 
-    Hu.render( div )`
-      <div @click.stop=${() => result.push( 1 )}></div>
-    `;
+    expect( result ).is.deep.equals([ ]);
 
-    expect( result ).is.deep.equals([]);
+    div.click();
+    div.click();
+    expect( result ).is.deep.equals([ 0, 0 ]);
 
-    div.firstElementChild.click();
-    expect( result ).is.deep.equals([ 1 ]);
+    hu.$refs.none.click();
+    hu.$refs.none.click();
+    expect( result ).is.deep.equals([ 0, 0, 1, 0, 1, 0 ]);
 
-    div.firstElementChild.click();
-    div.firstElementChild.click();
-    expect( result ).is.deep.equals([ 1, 1, 1 ]);
-  });
-
-  it( '使用 @event 绑定事件, 不使用 .stop 修饰符将会正常冒泡', () => {
-    const div = document.createElement('div');
-    let result = [];
-
-    div.addEventListener( 'click', () => {
-      result.push( 0 );
-    });
-
-    Hu.render( div )`
-      <div @click=${() => result.push( 1 )}></div>
-    `;
-
-    expect( result ).is.deep.equals([]);
-
-    div.firstElementChild.click();
-    expect( result ).is.deep.equals([ 1, 0 ]);
-
-    div.firstElementChild.click();
-    div.firstElementChild.click();
-    expect( result ).is.deep.equals([ 1, 0, 1, 0, 1, 0 ]);
+    hu.$refs.stop.click();
+    hu.$refs.stop.click();
+    expect( result ).is.deep.equals([ 0, 0, 1, 0, 1, 0, 2, 2 ]);
   });
 
   it( '使用 @event 绑定事件, 使用 .prevent 修饰符可以阻止浏览器默认事件', () => {
-    var div = document.createElement('div');
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      render( html ){
+        return html`
+          <input ref="none" type="checkbox" @click=${() => {}}>
+          <input ref="prevent" type="checkbox" @click.prevent=${() => {}}>
+        `;
+      }
+    });
 
-    Hu.render( div )`
-      <input type="checkbox" @click.prevent=${() => {}}>
-    `;
+    expect( hu.$refs.none.checked ).is.false;
+    expect( hu.$refs.prevent.checked ).is.false;
 
-    expect( div.firstElementChild.checked ).is.equals( false );
+    hu.$refs.none.click();
+    hu.$refs.prevent.click();
 
-    div.firstElementChild.click();
-
-    expect( div.firstElementChild.checked ).is.equals( false );
-  });
-
-  it( '使用 @event 绑定事件, 不使用 .prevent 修饰符将会正常触发浏览器默认事件', () => {
-    var div = document.createElement('div');
-
-    Hu.render( div )`
-      <input type="checkbox" @click=${() => {}}>
-    `;
-
-    expect( div.firstElementChild.checked ).is.equals( false );
-
-    div.firstElementChild.click();
-
-    expect( div.firstElementChild.checked ).is.equals( true );
+    expect( hu.$refs.none.checked ).is.true;
+    expect( hu.$refs.prevent.checked ).is.false;
   });
 
   it( '使用 @event 绑定事件, 使用 .self 修饰符可以只在当前元素自身时触发事件时触发回调', () => {
     const div = document.createElement('div');
-    let index = 0;
+    const result = [];
+    const hu = new Hu({
+      el: div,
+      render( html ){
+        return html`
+          <div ref="none" @click=${() => result.push(0)}>
+            <span></span>
+          </div>
+          <div ref="self" @click.self=${() => result.push(1)}>
+            <span></span>
+          </div>
+        `;
+      }
+    });
 
-    Hu.render( div )`
-      <div @click.self=${() => index++}>
-        <span></span>
-      </div>
-    `;
+    expect( result ).is.deep.equals([ ]);
 
-    expect( index ).is.equals( 0 );
+    hu.$refs.none.click();
+    hu.$refs.self.click();
+    hu.$refs.none.click();
+    hu.$refs.self.click();
+    expect( result ).is.deep.equals([ 0, 1, 0, 1 ]);
 
-    div.firstElementChild.click();
-    expect( index ).is.equals( 1 );
-
-    div.firstElementChild.click();
-    div.firstElementChild.click();
-    expect( index ).is.equals( 3 );
-
-    div.firstElementChild.firstElementChild.click();
-    expect( index ).is.equals( 3 );
-
-    div.firstElementChild.firstElementChild.click();
-    div.firstElementChild.firstElementChild.click();
-    expect( index ).is.equals( 3 );
-  });
-
-  it( '使用 @event 绑定事件, 不使用 .self 修饰符会按照正常冒泡触发回调', () => {
-    const div = document.createElement('div');
-    let index = 0;
-
-    Hu.render( div )`
-      <div @click=${() => index++}>
-        <span></span>
-      </div>
-    `;
-
-    expect( index ).is.equals( 0 );
-
-    div.firstElementChild.click();
-    expect( index ).is.equals( 1 );
-
-    div.firstElementChild.click();
-    div.firstElementChild.click();
-    expect( index ).is.equals( 3 );
-
-    div.firstElementChild.firstElementChild.click();
-    expect( index ).is.equals( 4 );
-
-    div.firstElementChild.firstElementChild.click();
-    div.firstElementChild.firstElementChild.click();
-    expect( index ).is.equals( 6 );
+    hu.$refs.none.firstElementChild.click();
+    hu.$refs.self.firstElementChild.click();
+    hu.$refs.none.firstElementChild.click();
+    hu.$refs.self.firstElementChild.click();
+    expect( result ).is.deep.equals([ 0, 1, 0, 1, 0, 0 ]);
   });
 
   it( '使用 @event 绑定事件, 使用 .left / .middle / .right 修饰符限定鼠标按键', () => {
@@ -583,7 +544,7 @@ describe( 'Hu.html', () => {
     triggerEvent( hu.$refs.right, 'mousedown', event => event.button = 2 );
     expect( hu.right ).is.equals( 1 );
   });
-  
+
   it( '使用 @event 绑定事件, 使用 .ctrl / .alt / .shift / .meta 修饰符限定键盘按键', () => {
     const div = document.createElement('div');
     const hu = new Hu({
