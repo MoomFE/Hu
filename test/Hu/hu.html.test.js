@@ -645,4 +645,326 @@ describe( 'Hu.html', () => {
     expect( hu.meta ).is.equals( 1 );
   });
 
+  it( '使用 @event 绑定事件, 使用 .exact 修饰符', () => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        "none": 0,
+        "exact": 0,
+        "ctrl.exact": 0,
+        "alt.exact": 0,
+        "shift.exact": 0,
+        "meta.exact": 0,
+        "ctrl.alt.exact": 0,
+        "ctrl.alt.shift.exact": 0,
+        "ctrl.alt.shift.meta.exact": 0,
+      },
+      render( html ){
+        return html`
+          <!-- 不使用 -->
+          <div ref="none" @mousedown=${() => this['none']++}>exact</div>
+          <!-- 单独使用 -->
+          <div ref="exact" @mousedown.exact=${() => this['exact']++}>exact</div>
+          <!-- 单个使用 -->
+          <div ref="ctrl.exact" @mousedown.ctrl.exact=${() => this['ctrl.exact']++}>ctrl.exact</div>
+          <div ref="alt.exact" @mousedown.alt.exact=${() => this['alt.exact']++}>alt.exact</div>
+          <div ref="shift.exact" @mousedown.shift.exact=${() => this['shift.exact']++}>shift.exact</div>
+          <div ref="meta.exact" @mousedown.meta.exact=${() => this['meta.exact']++}>meta.exact</div>
+          <!-- 多个使用 -->
+          <div ref="ctrl.alt.exact" @mousedown.ctrl.alt.exact=${() => this['ctrl.alt.exact']++}>ctrl.alt.exact</div>
+          <div ref="ctrl.alt.shift.exact" @mousedown.ctrl.alt.shift.exact=${() => this['ctrl.alt.shift.exact']++}>ctrl.alt.shift.exact</div>
+          <div ref="ctrl.alt.shift.meta.exact" @mousedown.ctrl.alt.shift.meta.exact=${() => this['ctrl.alt.shift.meta.exact']++}>ctrl.alt.shift.meta.exact</div>
+        `;
+      }
+    });
+
+    // 未使用 - 始终触发
+    expect( hu['none'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['none'], 'mousedown' );
+    expect( hu['none'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['none'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['none'] ).is.equals( 2 );
+    triggerEvent( hu.$refs['none'], 'mousedown', event => event.altKey = true );
+    expect( hu['none'] ).is.equals( 3 );
+    triggerEvent( hu.$refs['none'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['none'] ).is.equals( 4 );
+    triggerEvent( hu.$refs['none'], 'mousedown', event => event.metaKey = true );
+    expect( hu['none'] ).is.equals( 5 );
+
+    // 单独使用
+    expect( hu['exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['exact'], 'mousedown' );
+    expect( hu['exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['exact'] ).is.equals( 1 );
+
+    // 单个使用 - ctrl
+    expect( hu['ctrl.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.exact'], 'mousedown' );
+    expect( hu['ctrl.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['ctrl.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['ctrl.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['ctrl.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['ctrl.exact'] ).is.equals( 1 );
+    // 单个使用 - alt
+    expect( hu['alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['alt.exact'], 'mousedown' );
+    expect( hu['alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['alt.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['alt.exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['alt.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['alt.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['alt.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['alt.exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['alt.exact'] ).is.equals( 1 );
+    // 单个使用 - shift
+    expect( hu['shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['shift.exact'], 'mousedown' );
+    expect( hu['shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['shift.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['shift.exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['shift.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['shift.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['shift.exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['shift.exact'] ).is.equals( 1 );
+    // 单个使用 - meta
+    expect( hu['meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['meta.exact'], 'mousedown' );
+    expect( hu['meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['meta.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['meta.exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['meta.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['meta.exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['meta.exact'] ).is.equals( 1 );
+
+    // 多个使用 - ctrl.alt.exact
+    expect( hu['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown' );
+    expect( hu['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.exact'] ).is.equals( 1 );
+    // 多个使用 - ctrl.alt.shift.exact
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown' );
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 1 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.exact'] ).is.equals( 1 );
+    // 多个使用 - ctrl.alt.shift.meta.exact
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown' );
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.altKey = true );
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.metaKey = true );
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( hu.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 1 );
+  });
+
 });
