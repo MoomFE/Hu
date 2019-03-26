@@ -98,6 +98,115 @@ describe( 'Hu.html', () => {
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
   });
 
+  it( '使用 Hu.html 对元素进行渲染, 相同的内容不会对元素重新渲染', () => {
+    const div = document.createElement('div');
+    let child;
+    let newChild;
+
+    Hu.render( div )`
+      <div a="1" b="2">12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2">12</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.equals( newChild );
+
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }}>12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }}>12</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.equals( newChild );
+
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.equals( newChild );
+
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.equals( newChild );
+
+    // reverse
+    Hu.render( div )`
+      <div a="1" b="2">12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2">123</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.not.equals( newChild );
+
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }}>12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }}>123</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.not.equals( newChild );
+
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>123</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.not.equals( newChild );
+
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>123</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.not.equals( newChild );
+  });
+
   it( '使用 Hu.html.unsafe / Hu.html.unsafeHTML 忽略对 HTML 进行转义', () => {
     const div = document.createElement('div');
     const span = '<span>123</span>';
