@@ -448,6 +448,45 @@ describe( 'Hu.html', () => {
     expect( result ).is.deep.equals([ 0, 0, 1, 0, 1, 0, 2, 2 ]);
   });
 
+  it( '使用 @event 绑定事件, 使用 .stop 修饰符可以停止冒泡 ( Vue )', () => {
+    const div = document.createElement('div');
+    const result = [];
+    const vm = new Vue({
+      el: div,
+      template: `
+        <div @click="method0">
+          <div ref="none" @click="method1"></div>
+          <div ref="stop" @click.stop="method2"></div>
+        </div>
+      `,
+      methods: {
+        method0(){
+          result.push( 0 );
+        },
+        method1(){
+          result.push( 1 );
+        },
+        method2(){
+          result.push( 2 );
+        }
+      }
+    });
+
+    expect( result ).is.deep.equals([ ]);
+
+    vm.$el.click();
+    vm.$el.click();
+    expect( result ).is.deep.equals([ 0, 0 ]);
+
+    vm.$refs.none.click();
+    vm.$refs.none.click();
+    expect( result ).is.deep.equals([ 0, 0, 1, 0, 1, 0 ]);
+
+    vm.$refs.stop.click();
+    vm.$refs.stop.click();
+    expect( result ).is.deep.equals([ 0, 0, 1, 0, 1, 0, 2, 2 ]);
+  });
+
   it( '使用 @event 绑定事件, 使用 .prevent 修饰符可以阻止浏览器默认事件', () => {
     const div = document.createElement('div');
     const hu = new Hu({
@@ -470,6 +509,28 @@ describe( 'Hu.html', () => {
     expect( hu.$refs.prevent.checked ).is.false;
   });
 
+  it( '使用 @event 绑定事件, 使用 .prevent 修饰符可以阻止浏览器默认事件 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      template: `
+        <div>
+          <input ref="none" type="checkbox" @click>
+          <input ref="prevent" type="checkbox" @click.prevent>
+        </div>
+      `
+    });
+
+    expect( vm.$refs.none.checked ).is.false;
+    expect( vm.$refs.prevent.checked ).is.false;
+
+    vm.$refs.none.click();
+    vm.$refs.prevent.click();
+
+    expect( vm.$refs.none.checked ).is.true;
+    expect( vm.$refs.prevent.checked ).is.false;
+  });
+
   it( '使用 @event 绑定事件, 使用 .self 修饰符可以只在当前元素自身时触发事件时触发回调', () => {
     const div = document.createElement('div');
     const result = [];
@@ -477,10 +538,10 @@ describe( 'Hu.html', () => {
       el: div,
       render( html ){
         return html`
-          <div ref="none" @click=${() => result.push(0)}>
+          <div ref="none" @click=${() => result.push( 0 )}>
             <span></span>
           </div>
-          <div ref="self" @click.self=${() => result.push(1)}>
+          <div ref="self" @click.self=${() => result.push( 1 )}>
             <span></span>
           </div>
         `;
@@ -499,6 +560,46 @@ describe( 'Hu.html', () => {
     hu.$refs.self.firstElementChild.click();
     hu.$refs.none.firstElementChild.click();
     hu.$refs.self.firstElementChild.click();
+    expect( result ).is.deep.equals([ 0, 1, 0, 1, 0, 0 ]);
+  });
+
+  it( '使用 @event 绑定事件, 使用 .self 修饰符可以只在当前元素自身时触发事件时触发回调 ( Vue )', () => {
+    const div = document.createElement('div');
+    const result = [];
+    const vm = new Vue({
+      el: div,
+      template: `
+        <div>
+          <div ref="none" @click="method0">
+            <span></span>
+          </div>
+          <div ref="self" @click.self="method1">
+            <span></span>
+          </div>
+        </div>
+      `,
+      methods: {
+        method0(){
+          result.push( 0 );
+        },
+        method1(){
+          result.push( 1 );
+        }
+      }
+    });
+
+    expect( result ).is.deep.equals([ ]);
+
+    vm.$refs.none.click();
+    vm.$refs.self.click();
+    vm.$refs.none.click();
+    vm.$refs.self.click();
+    expect( result ).is.deep.equals([ 0, 1, 0, 1 ]);
+
+    vm.$refs.none.firstElementChild.click();
+    vm.$refs.self.firstElementChild.click();
+    vm.$refs.none.firstElementChild.click();
+    vm.$refs.self.firstElementChild.click();
     expect( result ).is.deep.equals([ 0, 1, 0, 1, 0, 0 ]);
   });
 
@@ -543,6 +644,49 @@ describe( 'Hu.html', () => {
     expect( hu.right ).is.equals( 0 );
     triggerEvent( hu.$refs.right, 'mousedown', event => event.button = 2 );
     expect( hu.right ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .left / .middle / .right 修饰符限定鼠标按键 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        left: 0,
+        middle: 0,
+        right: 0
+      },
+      template: `
+        <div>
+          <div ref="left" @mousedown.left="left++">left</div>
+          <div ref="middle" @mousedown.middle="middle++">middle</div>
+          <div ref="right" @mousedown.right="right++">right</div>
+        </div>
+      `
+    });
+
+    expect( vm.left ).is.equals( 0 );
+    triggerEvent( vm.$refs.left, 'mousedown', event => event.button = 0 );
+    expect( vm.left ).is.equals( 1 );
+    triggerEvent( vm.$refs.left, 'mousedown', event => event.button = 1 );
+    expect( vm.left ).is.equals( 1 );
+    triggerEvent( vm.$refs.left, 'mousedown', event => event.button = 2 );
+    expect( vm.left ).is.equals( 1 );
+
+    expect( vm.middle ).is.equals( 0 );
+    triggerEvent( vm.$refs.middle, 'mousedown', event => event.button = 0 );
+    expect( vm.middle ).is.equals( 0 );
+    triggerEvent( vm.$refs.middle, 'mousedown', event => event.button = 1 );
+    expect( vm.middle ).is.equals( 1 );
+    triggerEvent( vm.$refs.middle, 'mousedown', event => event.button = 2 );
+    expect( vm.middle ).is.equals( 1 );
+
+    expect( vm.right ).is.equals( 0 );
+    triggerEvent( vm.$refs.right, 'mousedown', event => event.button = 0 );
+    expect( vm.right ).is.equals( 0 );
+    triggerEvent( vm.$refs.right, 'mousedown', event => event.button = 1 );
+    expect( vm.right ).is.equals( 0 );
+    triggerEvent( vm.$refs.right, 'mousedown', event => event.button = 2 );
+    expect( vm.right ).is.equals( 1 );
   });
 
   it( '使用 @event 绑定事件, 使用 .ctrl / .alt / .shift / .meta 修饰符限定键盘按键', () => {
@@ -604,6 +748,67 @@ describe( 'Hu.html', () => {
     expect( hu.meta ).is.equals( 0 );
     triggerEvent( hu.$refs.meta, 'mousedown', event => event.metaKey = true );
     expect( hu.meta ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .ctrl / .alt / .shift / .meta 修饰符限定键盘按键 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        ctrl: 0,
+        alt: 0,
+        shift: 0,
+        meta: 0
+      },
+      template: `
+        <div>
+          <div ref="ctrl" @mousedown.ctrl="ctrl++">ctrl</div>
+          <div ref="alt" @mousedown.alt="alt++">alt</div>
+          <div ref="shift" @mousedown.shift="shift++">shift</div>
+          <div ref="meta" @mousedown.meta="meta++">meta</div>
+        </div>
+      `
+    });
+
+    expect( vm.ctrl ).is.equals( 0 );
+    triggerEvent( vm.$refs.ctrl, 'mousedown', event => event.ctrlKey = true );
+    expect( vm.ctrl ).is.equals( 1 );
+    triggerEvent( vm.$refs.ctrl, 'mousedown', event => event.altKey = true );
+    expect( vm.ctrl ).is.equals( 1 );
+    triggerEvent( vm.$refs.ctrl, 'mousedown', event => event.shiftKey = true );
+    expect( vm.ctrl ).is.equals( 1 );
+    triggerEvent( vm.$refs.ctrl, 'mousedown', event => event.metaKey = true );
+    expect( vm.ctrl ).is.equals( 1 );
+
+    expect( vm.alt ).is.equals( 0 );
+    triggerEvent( vm.$refs.alt, 'mousedown', event => event.ctrlKey = true );
+    expect( vm.alt ).is.equals( 0 );
+    triggerEvent( vm.$refs.alt, 'mousedown', event => event.altKey = true );
+    expect( vm.alt ).is.equals( 1 );
+    triggerEvent( vm.$refs.alt, 'mousedown', event => event.shiftKey = true );
+    expect( vm.alt ).is.equals( 1 );
+    triggerEvent( vm.$refs.alt, 'mousedown', event => event.metaKey = true );
+    expect( vm.alt ).is.equals( 1 );
+
+    expect( vm.shift ).is.equals( 0 );
+    triggerEvent( vm.$refs.shift, 'mousedown', event => event.ctrlKey = true );
+    expect( vm.shift ).is.equals( 0 );
+    triggerEvent( vm.$refs.shift, 'mousedown', event => event.altKey = true );
+    expect( vm.shift ).is.equals( 0 );
+    triggerEvent( vm.$refs.shift, 'mousedown', event => event.shiftKey = true );
+    expect( vm.shift ).is.equals( 1 );
+    triggerEvent( vm.$refs.shift, 'mousedown', event => event.metaKey = true );
+    expect( vm.shift ).is.equals( 1 );
+
+    expect( vm.meta ).is.equals( 0 );
+    triggerEvent( vm.$refs.meta, 'mousedown', event => event.ctrlKey = true );
+    expect( vm.meta ).is.equals( 0 );
+    triggerEvent( vm.$refs.meta, 'mousedown', event => event.altKey = true );
+    expect( vm.meta ).is.equals( 0 );
+    triggerEvent( vm.$refs.meta, 'mousedown', event => event.shiftKey = true );
+    expect( vm.meta ).is.equals( 0 );
+    triggerEvent( vm.$refs.meta, 'mousedown', event => event.metaKey = true );
+    expect( vm.meta ).is.equals( 1 );
   });
 
   it( '使用 @event 绑定事件, 使用 .exact 修饰符', () => {
@@ -926,6 +1131,328 @@ describe( 'Hu.html', () => {
       event.metaKey = true;
     });
     expect( hu['ctrl.alt.shift.meta.exact'] ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .exact 修饰符 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        "none": 0,
+        "exact": 0,
+        "ctrl.exact": 0,
+        "alt.exact": 0,
+        "shift.exact": 0,
+        "meta.exact": 0,
+        "ctrl.alt.exact": 0,
+        "ctrl.alt.shift.exact": 0,
+        "ctrl.alt.shift.meta.exact": 0,
+      },
+      template: `
+        <div>
+          <!-- 不使用 -->
+          <div ref="none" @mousedown="$data['none']++">exact</div>
+          <!-- 单独使用 -->
+          <div ref="exact" @mousedown.exact="$data['exact']++">exact</div>
+          <!-- 单个使用 -->
+          <div ref="ctrl.exact" @mousedown.ctrl.exact="$data['ctrl.exact']++">ctrl.exact</div>
+          <div ref="alt.exact" @mousedown.alt.exact="$data['alt.exact']++">alt.exact</div>
+          <div ref="shift.exact" @mousedown.shift.exact="$data['shift.exact']++">shift.exact</div>
+          <div ref="meta.exact" @mousedown.meta.exact="$data['meta.exact']++">meta.exact</div>
+          <!-- 多个使用 -->
+          <div ref="ctrl.alt.exact" @mousedown.ctrl.alt.exact="$data['ctrl.alt.exact']++">ctrl.alt.exact</div>
+          <div ref="ctrl.alt.shift.exact" @mousedown.ctrl.alt.shift.exact="$data['ctrl.alt.shift.exact']++">ctrl.alt.shift.exact</div>
+          <div ref="ctrl.alt.shift.meta.exact" @mousedown.ctrl.alt.shift.meta="$data['ctrl.alt.shift.meta.exact']++">ctrl.alt.shift.meta.exact</div>
+        </div>
+      `
+    });
+
+    // 未使用 - 始终触发
+    expect( vm['none'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['none'], 'mousedown' );
+    expect( vm['none'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['none'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['none'] ).is.equals( 2 );
+    triggerEvent( vm.$refs['none'], 'mousedown', event => event.altKey = true );
+    expect( vm['none'] ).is.equals( 3 );
+    triggerEvent( vm.$refs['none'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['none'] ).is.equals( 4 );
+    triggerEvent( vm.$refs['none'], 'mousedown', event => event.metaKey = true );
+    expect( vm['none'] ).is.equals( 5 );
+
+    // 单独使用
+    expect( vm['exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['exact'], 'mousedown' );
+    expect( vm['exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['exact'] ).is.equals( 1 );
+
+    // 单个使用 - ctrl
+    expect( vm['ctrl.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.exact'], 'mousedown' );
+    expect( vm['ctrl.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['ctrl.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['ctrl.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['ctrl.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['ctrl.exact'] ).is.equals( 1 );
+    // 单个使用 - alt
+    expect( vm['alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['alt.exact'], 'mousedown' );
+    expect( vm['alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['alt.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['alt.exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['alt.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['alt.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['alt.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['alt.exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['alt.exact'] ).is.equals( 1 );
+    // 单个使用 - shift
+    expect( vm['shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['shift.exact'], 'mousedown' );
+    expect( vm['shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['shift.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['shift.exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['shift.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['shift.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['shift.exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['shift.exact'] ).is.equals( 1 );
+    // 单个使用 - meta
+    expect( vm['meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['meta.exact'], 'mousedown' );
+    expect( vm['meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['meta.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['meta.exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['meta.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['meta.exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['meta.exact'] ).is.equals( 1 );
+
+    // 多个使用 - ctrl.alt.exact
+    expect( vm['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown' );
+    expect( vm['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['ctrl.alt.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.alt.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.exact'] ).is.equals( 1 );
+    // 多个使用 - ctrl.alt.shift.exact
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown' );
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 1 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.exact'] ).is.equals( 1 );
+    // 多个使用 - ctrl.alt.shift.meta.exact
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown' );
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.ctrlKey = true );
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.altKey = true );
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.shiftKey = true );
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => event.metaKey = true );
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = false;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = false;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = false;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = false;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 0 );
+    triggerEvent( vm.$refs['ctrl.alt.shift.meta.exact'], 'mousedown', event => {
+      event.ctrlKey = true;
+      event.altKey = true;
+      event.shiftKey = true;
+      event.metaKey = true;
+    });
+    expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 1 );
   });
 
 });
