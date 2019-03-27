@@ -1,5 +1,6 @@
 import isFunction from "../../shared/util/isFunction";
 import { has } from "../../shared/global/Reflect/index";
+import { supportsPassive } from "../../shared/const/env";
 
 
 export default class EventPart{
@@ -60,7 +61,7 @@ function initEventOptions( modifierKeys ){
   modifiers.keys = modifierKeys;
 
   return {
-    options,
+    options: options.passive ? options : options.capture,
     modifiers
   };
 }
@@ -71,7 +72,7 @@ function initEventOptions( modifierKeys ){
 const eventOptions = {
   // once: true,
   capture: true,
-  // passive: true
+  passive: supportsPassive
 };
 
 /**
