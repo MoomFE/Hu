@@ -17,11 +17,13 @@ const REPLACE_PRODUCTION = {
 };
 
 
+const watch = {
+  from: 'src/build/index.js',
+  to: 'dist/hu.js'
+};
+
 const watchGroup = [
-  {
-    from: 'src/build/index.js',
-    to: 'dist/hu.js'
-  },
+  watch,
   {
     from: 'src/build/polyfill.js',
     to: 'dist/hu.polyfill.js'
@@ -70,7 +72,7 @@ module.exports = {
   group: {
 
     // UMD
-    watch: watchGroup,
+    watch: [ watch ],
 
     // UMD / CommonJS / ES Module
     build: buildGroup,
