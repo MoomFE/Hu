@@ -98,7 +98,7 @@ describe( 'Hu.html', () => {
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
   });
 
-  it( '使用 Hu.html 对元素进行渲染, 相同的内容不会对元素重新渲染', () => {
+  it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 / 属性 / 内容 ) 不会被重新渲染', () => {
     const div = document.createElement('div');
     let child;
     let newChild;
@@ -114,47 +114,31 @@ describe( 'Hu.html', () => {
     newChild = div.firstElementChild;
 
     expect( child ).is.equals( newChild );
+  });
 
+  it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 / 内容 ) 但 ( 属性 ) 不同会被重新渲染', () => {
+    const div = document.createElement('div');
+    let child;
+    let newChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }}>12</div>
+      <div a="1" b="2">12</div>
     `;
     child = div.firstElementChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }}>12</div>
+      <div a="3" b="4">12</div>
     `;
     newChild = div.firstElementChild;
 
-    expect( child ).is.equals( newChild );
+    expect( child ).is.not.equals( newChild );
+  });
 
+  it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 / 属性 ) 但 ( 内容 ) 不同会被重新渲染', () => {
+    const div = document.createElement('div');
+    let child;
+    let newChild;
 
-    Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
-    `;
-    child = div.firstElementChild;
-
-    Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
-    `;
-    newChild = div.firstElementChild;
-
-    expect( child ).is.equals( newChild );
-
-
-    Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
-    `;
-    child = div.firstElementChild;
-
-    Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
-    `;
-    newChild = div.firstElementChild;
-
-    expect( child ).is.equals( newChild );
-
-    // reverse
     Hu.render( div )`
       <div a="1" b="2">12</div>
     `;
@@ -166,45 +150,199 @@ describe( 'Hu.html', () => {
     newChild = div.firstElementChild;
 
     expect( child ).is.not.equals( newChild );
+  });
 
+  it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 ) 但 ( 属性 / 内容 ) 不同会被重新渲染', () => {
+    const div = document.createElement('div');
+    let child;
+    let newChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }}>12</div>
+      <div a="1" b="2">12</div>
     `;
     child = div.firstElementChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }}>123</div>
+      <div a="3" b="4">123</div>
     `;
     newChild = div.firstElementChild;
 
     expect( child ).is.not.equals( newChild );
+  });
 
+  it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 / 内容 ) 但 ( 属性 - 插值 ) 不同不会被重新渲染', () => {
+    const div = document.createElement('div');
+    let child;
+    let newChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
+      <div a="${ 1 }" b="${ 2 }">12</div>
     `;
     child = div.firstElementChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>123</div>
+      <div a="${ 3 }" b="${ 4 }">12</div>
     `;
     newChild = div.firstElementChild;
 
-    expect( child ).is.not.equals( newChild );
+    expect( child ).is.equals( newChild );
+  });
 
+  it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 / 属性 ) 但 ( 内容 - 插值 ) 不同不会被重新渲染', () => {
+    const div = document.createElement('div');
+    let child;
+    let newChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
+      <div a="1" b="2">${ '12' }</div>
     `;
     child = div.firstElementChild;
 
     Hu.render( div )`
-      <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>123</div>
+      <div a="1" b="2">${ '123' }</div>
     `;
     newChild = div.firstElementChild;
 
-    expect( child ).is.not.equals( newChild );
+    expect( child ).is.equals( newChild );
+  });
+
+  it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 ) 但 ( 属性 - 插值 / 内容 - 插值 ) 不同不会被重新渲染', () => {
+    const div = document.createElement('div');
+    let child;
+    let newChild;
+
+    Hu.render( div )`
+      <div a="${ 1 }" b="${ 2 }">${ 12 }</div>
+    `;
+    child = div.firstElementChild;
+
+    Hu.render( div )`
+      <div a="${ 3 }" b="${ 4 }">${ 123 }</div>
+    `;
+    newChild = div.firstElementChild;
+
+    expect( child ).is.equals( newChild );
+  });
+
+  it( '使用 Hu.html 对元素进行渲染, 相同的内容不会对元素重新渲染', () => {
+
+    // const div = document.createElement('div');
+    
+
+    // Hu.render( div )`
+    //   <div a="1" b="2">12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2">12</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.equals( newChild );
+
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }}>12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }}>12</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.equals( newChild );
+
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.equals( newChild );
+
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.equals( newChild );
+
+    // // reverse
+    // Hu.render( div )`
+    //   <div a="1" b="2">12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2">123</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.not.equals( newChild );
+
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }}>12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }}>123</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.not.equals( newChild );
+
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>123</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.not.equals( newChild );
+
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>123</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.not.equals( newChild );
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>${ '12' }</div>
+    // `;
+    // child = div.firstElementChild;
+
+    // Hu.render( div )`
+    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>${ '123' }</div>
+    // `;
+    // newChild = div.firstElementChild;
+
+    // expect( child ).is.equals( newChild );
   });
 
   it( '使用 Hu.html.unsafe / Hu.html.unsafeHTML 忽略对 HTML 进行转义', () => {
@@ -1562,6 +1700,194 @@ describe( 'Hu.html', () => {
       event.metaKey = true;
     });
     expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .once 修饰符', () => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        none: 0,
+        once: 0
+      },
+      render( html ){
+        return html`
+          <div ref="none" @click=${() => this.none++}></div>
+          <div ref="once" @click.once=${() => this.once++}></div>
+        `;
+      }
+    });
+
+    expect( hu.none ).is.equals( 0 );
+    expect( hu.once ).is.equals( 0 );
+
+    hu.$refs.none.click();
+    expect( hu.none ).is.equals( 1 );
+
+    hu.$refs.none.click();
+    hu.$refs.none.click();
+    expect( hu.none ).is.equals( 3 );
+
+    hu.$refs.once.click();
+    expect( hu.once ).is.equals( 1 );
+
+    hu.$refs.once.click();
+    hu.$refs.once.click();
+    expect( hu.once ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .once 修饰符 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        none: 0,
+        once: 0
+      },
+      template: `
+        <div>
+          <div ref="none" @click="none++"></div>
+          <div ref="once" @click.once="once++"></div>
+        </div>
+      `
+    });
+
+    expect( vm.none ).is.equals( 0 );
+    expect( vm.once ).is.equals( 0 );
+
+    vm.$refs.none.click();
+    expect( vm.none ).is.equals( 1 );
+
+    vm.$refs.none.click();
+    vm.$refs.none.click();
+    expect( vm.none ).is.equals( 3 );
+
+    vm.$refs.once.click();
+    expect( vm.once ).is.equals( 1 );
+
+    vm.$refs.once.click();
+    vm.$refs.once.click();
+    expect( vm.once ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发前重新渲染不会影响事件绑定', () => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        once: 0
+      },
+      render( html ){
+        return html`
+          <div ref="once" @click.once=${() => this.once++}></div>
+        `;
+      }
+    });
+
+    expect( hu.once ).is.equals( 0 );
+
+    hu.$forceUpdate();
+    hu.$forceUpdate();
+
+    expect( hu.once ).is.equals( 0 );
+
+    hu.$refs.once.click();
+    expect( hu.once ).is.equals( 1 );
+
+    hu.$refs.once.click();
+    hu.$refs.once.click();
+    expect( hu.once ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发前重新渲染不会影响事件绑定 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        once: 0
+      },
+      template: `
+        <div ref="once" @click.once="once++"></div>
+      `
+    });
+
+    expect( vm.once ).is.equals( 0 );
+
+    vm.$forceUpdate();
+    vm.$forceUpdate();
+
+    expect( vm.once ).is.equals( 0 );
+
+    vm.$refs.once.click();
+    expect( vm.once ).is.equals( 1 );
+
+    vm.$refs.once.click();
+    vm.$refs.once.click();
+    expect( vm.once ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发后重新渲染不会影响事件绑定', () => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        once: 0
+      },
+      render( html ){
+        return html`
+          <div ref="once" @click.once=${() => this.once++}></div>
+        `;
+      }
+    });
+
+    expect( hu.once ).is.equals( 0 );
+
+    hu.$refs.once.click();
+    expect( hu.once ).is.equals( 1 );
+
+    hu.$refs.once.click();
+    hu.$refs.once.click();
+    expect( hu.once ).is.equals( 1 );
+
+    hu.$forceUpdate();
+    hu.$forceUpdate();
+
+    expect( hu.once ).is.equals( 1 );
+
+    hu.$refs.once.click();
+    hu.$refs.once.click();
+    expect( hu.once ).is.equals( 1 );
+  });
+
+  it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发后重新渲染不会影响事件绑定 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        once: 0
+      },
+      template: `
+        <div ref="once" @click.once="once++"></div>
+      `
+    });
+
+    expect( vm.once ).is.equals( 0 );
+
+    vm.$refs.once.click();
+    expect( vm.once ).is.equals( 1 );
+
+    vm.$refs.once.click();
+    vm.$refs.once.click();
+    expect( vm.once ).is.equals( 1 );
+
+    vm.$forceUpdate();
+    vm.$forceUpdate();
+
+    expect( vm.once ).is.equals( 1 );
+
+    vm.$refs.once.click();
+    vm.$refs.once.click();
+    expect( vm.once ).is.equals( 1 );
   });
 
 });
