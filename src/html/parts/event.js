@@ -8,7 +8,7 @@ export default class EventPart{
   constructor( element, type, eventContext, modifierKeys ){
     this.elem = element;
     this.type = type;
-    this.options = initEventOptions( modifierKeys );
+    this.opts = initEventOptions( modifierKeys );
   }
 
   setValue( listener ){
@@ -21,22 +21,27 @@ export default class EventPart{
 
     // 新的事件绑定与旧的事件绑定不一致
     if( listener !== oldListener ){
-      const {
-        elem, type,
-        options: { options, modifiers }
-      } = this;
+      const { elem, type, opts } = this;
+      const { options, modifiers, once, add = true } = opts;
 
       // 移除旧的事件绑定
-      if( oldListener ){
+      // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
+      if( oldListener && !once ){
         elem.removeEventListener( type, this.value, options );
       }
       // 添加新的事件绑定
-      if( listener ){
+      if( listener && add ){
+        // once 修饰符绑定的事件不允许修改
+        if( once ) opts.add = false;
         // 生成绑定的方法
-        const value = this.value = function( event ){
+        const value = this.value = function callback( event ){
           // 修饰符检测
           for( let modifier of modifiers ){
             if( modifier( elem, event, modifiers ) === false ) return;
+          }
+          // 只执行一次
+          if( once ){
+            elem.removeEventListener( type, callback, options );
           }
           // 修饰符全部检测通过, 执行用户传入方法
           listener.apply( this, arguments );
@@ -60,8 +65,11 @@ function initEventOptions( modifierKeys ){
 
   modifiers.keys = modifierKeys;
 
+  const { once, passive, capture } = options;
+
   return {
-    options: options.passive ? options : options.capture,
+    once,
+    options: passive ? { passive, capture } : capture,
     modifiers
   };
 }
@@ -70,7 +78,7 @@ function initEventOptions( modifierKeys ){
  * 事件可选参数
  */
 const eventOptions = {
-  // once: true,
+  once: true,
   capture: true,
   passive: supportsPassive
 };

@@ -640,6 +640,17 @@
   const inBrowser = typeof window !== 'undefined';
   const UA = inBrowser && window.navigator.userAgent.toLowerCase();
   const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
+  let supportsPassive = false;
+
+  try {
+    const options = {};
+    defineProperty(options, 'passive', {
+      get: () => {
+        return supportsPassive = true;
+      }
+    });
+    window.addEventListener('test-passive', null, options);
+  } catch (e) {}
 
   function initOther(isCustomElement, userOptions, options) {
     const {
@@ -2681,10 +2692,10 @@
   }
 
   class EventPart$1 {
-    constructor(element, type, eventContext, modifiers) {
+    constructor(element, type, eventContext, modifierKeys) {
       this.elem = element;
       this.type = type;
-      this.options = initEventOptions(modifiers);
+      this.opts = initEventOptions(modifierKeys);
     }
 
     setValue(listener) {
@@ -2695,46 +2706,75 @@
     commit() {
       const {
         listener,
-        oldListener,
-        options: {
-          options,
-          modifiers
-        }
+        oldListener
       } = this; // 新的事件绑定与旧的事件绑定不一致
 
       if (listener !== oldListener) {
-        const elem = this.elem; // 移除旧的事件绑定
+        const {
+          elem,
+          type,
+          opts
+        } = this;
+        const {
+          options,
+          modifiers,
+          once,
+          add = true
+        } = opts; // 移除旧的事件绑定
+        // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
 
-        if (oldListener) {
-          elem.removeEventListener(this.type, this.value);
+        if (oldListener && !once) {
+          elem.removeEventListener(type, this.value, options);
         } // 添加新的事件绑定
 
 
-        if (listener) {
-          elem.addEventListener(this.type, this.value = function (event) {
+        if (listener && add) {
+          // once 修饰符绑定的事件不允许修改
+          if (once) opts.add = false; // 生成绑定的方法
+
+          const value = this.value = function callback(event) {
             // 修饰符检测
             for (let modifier of modifiers) {
-              if (modifier(elem, event) === false) return;
-            }
+              if (modifier(elem, event, modifiers) === false) return;
+            } // 只执行一次
+
+
+            if (once) {
+              elem.removeEventListener(type, callback, options);
+            } // 修饰符全部检测通过, 执行用户传入方法
+
 
             listener.apply(this, arguments);
-          });
+          }; // 注册事件
+
+
+          elem.addEventListener(type, value, options);
         }
       }
     }
 
   }
 
-  function initEventOptions(_modifiers) {
+  function initEventOptions(modifierKeys) {
     const options = {};
     const modifiers = [];
 
-    for (let name of _modifiers) {
+    for (let name of modifierKeys) {
       if (eventOptions[name]) options[name] = true;else if (eventModifiers[name]) modifiers.push(eventModifiers[name]);
     }
 
+    modifiers.keys = modifierKeys;
+    const {
+      once,
+      passive,
+      capture
+    } = options;
     return {
-      options,
+      once,
+      options: passive ? {
+        passive,
+        capture
+      } : capture,
       modifiers
     };
   }
@@ -2746,7 +2786,7 @@
   const eventOptions = {
     once: true,
     capture: true,
-    passive: true
+    passive: supportsPassive
   };
   /**
    * 功能性事件修饰符
@@ -2765,9 +2805,51 @@
      */
     prevent(elem, event) {
       event.preventDefault();
+    },
+
+    /**
+     * 只在当前元素自身时触发事件时
+     */
+    self(elem, event) {
+      return event.target === elem;
+    },
+
+    /**
+     * 系统修饰键限定符
+     */
+    exact(elem, event, {
+      keys
+    }) {
+      const modifierKey = ['ctrl', 'alt', 'shift', 'meta'].filter(key => {
+        return keys.indexOf(key) < 0;
+      });
+
+      for (const key of modifierKey) {
+        if (event[key + 'Key']) return false;
+      }
+
+      return true;
     }
 
   };
+  /**
+   * 鼠标按钮
+   */
+
+  ['left', 'middle', 'right'].forEach((button, index) => {
+    eventModifiers[button] = (elem, event) => {
+      return has(event, 'button') && event.button === index;
+    };
+  });
+  /**
+   * 系统修饰键
+   */
+
+  ['ctrl', 'alt', 'shift', 'meta'].forEach(key => {
+    eventModifiers[key] = (elem, event) => {
+      return !!event[key + 'Key'];
+    };
+  });
 
   class TemplateProcessor {
     handleAttributeExpressions(element, name, strings, options) {
