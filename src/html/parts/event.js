@@ -16,32 +16,32 @@ export default class EventPart{
   }
 
   commit(){
-    const {
-      listener, oldListener,
-      options: {
-        options, modifiers
-      }
-    } = this;
+    const { listener, oldListener } = this;
 
     // 新的事件绑定与旧的事件绑定不一致
     if( listener !== oldListener ){
-      const elem = this.elem;
+      const {
+        elem, type,
+        options: { options, modifiers }
+      } = this;
 
       // 移除旧的事件绑定
       if( oldListener ){
-        elem.removeEventListener( this.type, this.value );
+        elem.removeEventListener( type, this.value, options );
       }
       // 添加新的事件绑定
       if( listener ){
-        elem.addEventListener( this.type, this.value = function( event ){
-
+        // 生成绑定的方法
+        const value = this.value = function( event ){
           // 修饰符检测
           for( let modifier of modifiers ){
             if( modifier( elem, event, modifiers ) === false ) return;
           }
-
+          // 修饰符全部检测通过, 执行用户传入方法
           listener.apply( this, arguments );
-        });
+        };
+        // 注册事件
+        elem.addEventListener( type, value, options );
       }
     }
   }
@@ -69,9 +69,9 @@ function initEventOptions( modifierKeys ){
  * 事件可选参数
  */
 const eventOptions = {
-  once: true,
+  // once: true,
   capture: true,
-  passive: true
+  // passive: true
 };
 
 /**
