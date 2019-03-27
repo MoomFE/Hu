@@ -1762,6 +1762,136 @@ describe( 'Hu.html', () => {
     expect( hu.capture ).is.deep.equals([ 0, 1 ]);
   });
 
+  it( '使用 @event 绑定事件, 使用 .capture 修饰符 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        none: [],
+        capture: []
+      },
+      template: `
+        <div>
+          <div ref="none" @click="none.push(0)">
+            <div @click="none.push(1)"></div>
+          </div>
+          <div ref="capture" @click.capture="capture.push(0)">
+            <div @click="capture.push(1)"></div>
+          </div>
+        </div>
+      `
+    });
+
+    expect( vm.none ).is.deep.equals([ ]);
+    expect( vm.capture ).is.deep.equals([ ]);
+
+    vm.$refs.none.firstElementChild.click();
+    vm.$refs.capture.firstElementChild.click();
+
+    expect( vm.none ).is.deep.equals([ 1, 0 ]);
+    expect( vm.capture ).is.deep.equals([ 0, 1 ]);
+  });
+
+  it( '使用 @event 绑定事件, 使用 .passive 修饰符', () => {
+    let supportsPassive = false;
+
+    try{
+
+      const options = {};
+
+      Reflect.defineProperty( options, 'passive', {
+        get: () => {
+          return supportsPassive = true;
+        }
+      });
+
+      window.addEventListener( 'test-passive', null, options );
+
+    }catch(e){}
+
+    if( supportsPassive ){
+      const div = document.createElement('div');
+      const hu = new Hu({
+        el: div,
+        render( html ){
+          return html`
+            <input type="checkbox" ref="none" @click=${ this.prevent }/>
+            <input type="checkbox" ref="passive" @click.passive=${ this.prevent }/>
+            <input type="checkbox" ref="exclusive" @click.prevent.passive=${ this.prevent }/>
+          `;
+        },
+        methods: {
+          prevent( event ){
+            event.preventDefault();
+          }
+        }
+      });
+
+      expect( hu.$refs.none.checked ).is.false;
+      expect( hu.$refs.passive.checked ).is.false;
+      expect( hu.$refs.exclusive.checked ).is.false;
+      hu.$refs.none.click();
+      hu.$refs.passive.click();
+      hu.$refs.exclusive.click();
+      expect( hu.$refs.none.checked ).is.false;
+      expect( hu.$refs.passive.checked ).is.true;
+      expect( hu.$refs.exclusive.checked ).is.true;
+    }
+  });
+
+  it( '使用 @event 绑定事件, 使用 .passive 修饰符 ( Vue )', () => {
+    let supportsPassive = false;
+
+    try{
+
+      const options = {};
+
+      Reflect.defineProperty( options, 'passive', {
+        get: () => {
+          return supportsPassive = true;
+        }
+      });
+
+      window.addEventListener( 'test-passive', null, options );
+
+    }catch(e){}
+
+    if( supportsPassive ){
+      const div = document.createElement('div');
+
+      errorStart();
+
+      const vm = new Vue({
+        el: div,
+        template: `
+          <div>
+            <input type="checkbox" ref="none" @click="prevent"/>
+            <input type="checkbox" ref="passive" @click.passive="prevent"/>
+            <input type="checkbox" ref="exclusive" @click.prevent.passive="prevent"/>
+          </div>
+        `,
+        methods: {
+          prevent( event ){
+            event.preventDefault();
+          }
+        }
+      });
+
+      errorEnd();
+
+      expect( vm.$refs.none.checked ).is.false;
+      expect( vm.$refs.passive.checked ).is.false;
+      expect( vm.$refs.exclusive.checked ).is.false;
+      vm.$refs.none.click();
+      vm.$refs.passive.click();
+      vm.$refs.exclusive.click();
+      expect( vm.$refs.none.checked ).is.false;
+      expect( vm.$refs.passive.checked ).is.true;
+      expect( vm.$refs.exclusive.checked ).is.true;
+      expect( errorMsg ).is.include('passive and prevent can\'t be used together. Passive handler can\'t prevent default event.');
+    }
+  });
+
   // it( '使用 @event 绑定事件, 使用 .once 修饰符', () => {
   //   const div = document.createElement('div');
   //   const hu = new Hu({
