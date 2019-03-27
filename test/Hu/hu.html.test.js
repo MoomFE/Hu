@@ -3,7 +3,6 @@ describe( 'Hu.html', () => {
   it( '使用 Hu.render 的正常方式', () => {
     const div = document.createElement('div');
 
-
     Hu.render(
       Hu.html`<span>123</span>`,
       div
@@ -96,6 +95,42 @@ describe( 'Hu.html', () => {
     expect( children ).is.deep.equals( newChildren );
     // 内容的位置跟着数组一起交换了
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
+  });
+
+  it( '使用 Hu.html.unsafe / Hu.html.unsafeHTML 忽略对 HTML 进行转义', () => {
+    const div = document.createElement('div');
+    const span = '<span>123</span>';
+
+    Hu.render( div )`${
+      Hu.html.unsafe( span )
+    }`;
+
+    expect( div.firstElementChild.nodeName ).is.equals('SPAN');
+    expect( div.firstElementChild.innerText ).is.equals('123');
+  });
+
+  it( '不使用 Hu.html.unsafe / Hu.html.unsafeHTML 将始终对 HTML 进行转义', () => {
+    const div = document.createElement('div');
+    const span = '<span>123</span>';
+
+    Hu.render( div )`${
+      span
+    }`;
+
+    expect( div.firstElementChild ).is.null;
+    expect( div.innerText ).is.equals( span );
+  });
+
+  it( '使用 Hu.html.bind 对元素属性和变量进行绑定', () => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      name: '1'
+    });
+
+    Hu.render( div )`
+      <div name=${ bind( data, 'name') }></div>
+    `;
   });
 
   it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 / 属性 / 内容 ) 不会被重新渲染', () => {
@@ -252,151 +287,6 @@ describe( 'Hu.html', () => {
     newChild = div.firstElementChild;
 
     expect( child ).is.equals( newChild );
-  });
-
-  it( '使用 Hu.html 对元素进行渲染, 相同的内容不会对元素重新渲染', () => {
-
-    // const div = document.createElement('div');
-
-
-    // Hu.render( div )`
-    //   <div a="1" b="2">12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2">12</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.equals( newChild );
-
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }}>12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }}>12</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.equals( newChild );
-
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.equals( newChild );
-
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.equals( newChild );
-
-    // // reverse
-    // Hu.render( div )`
-    //   <div a="1" b="2">12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2">123</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.not.equals( newChild );
-
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }}>12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }}>123</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.not.equals( newChild );
-
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }}>123</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.not.equals( newChild );
-
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>12</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>123</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.not.equals( newChild );
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>${ '12' }</div>
-    // `;
-    // child = div.firstElementChild;
-
-    // Hu.render( div )`
-    //   <div a="1" b="2" :class=${{ c: true }} :style=${{ color: '#FFF' }} @click=${() => {}}>${ '123' }</div>
-    // `;
-    // newChild = div.firstElementChild;
-
-    // expect( child ).is.equals( newChild );
-  });
-
-  it( '使用 Hu.html.unsafe / Hu.html.unsafeHTML 忽略对 HTML 进行转义', () => {
-    const div = document.createElement('div');
-    const span = '<span>123</span>';
-
-    Hu.render( div )`${
-      Hu.html.unsafe( span )
-    }`;
-
-    expect( div.firstElementChild.nodeName ).is.equals('SPAN');
-    expect( div.firstElementChild.innerText ).is.equals('123');
-  });
-
-  it( '不使用 Hu.html.unsafe / Hu.html.unsafeHTML 将始终对 HTML 进行转义', () => {
-    const div = document.createElement('div');
-    const span = '<span>123</span>';
-
-    Hu.render( div )`${
-      span
-    }`;
-
-    expect( div.firstElementChild ).is.null;
-    expect( div.innerText ).is.equals( span );
   });
 
   it( '使用 :class 对元素 className 进行绑定 - 字符串方式', () => {
