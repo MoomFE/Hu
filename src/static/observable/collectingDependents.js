@@ -60,7 +60,7 @@ export class Watcher{
     if( this.isWatchDeep ) this.wd( result );
 
     // 方法执行完成, 则依赖收集完成
-    targetStack.pop( this );
+    targetStack.pop();
 
     return result;
   }
