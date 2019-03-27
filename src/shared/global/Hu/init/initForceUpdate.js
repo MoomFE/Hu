@@ -1,6 +1,7 @@
 import { optionsMap } from "../../../../static/define/initOptions/index";
 import { Watcher } from "../../../../static/observable/collectingDependents";
-import html, { render } from "../../../../html/index";
+import html from "../../../../html/html";
+import render from "../../../../html/render";
 import noop from "../../../util/noop";
 
 

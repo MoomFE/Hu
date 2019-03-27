@@ -1,4 +1,5 @@
-import html, { render as litRender } from "../../html/index";
+import html from "../../html/html";
+import litRender from "../../html/render";
 
 
 export default html;

@@ -3,9 +3,8 @@ import templateProcessor from './templateProcessor';
 import { assign } from '../shared/global/Object/index';
 import repeat from './directive/repeat';
 import unsafeHTML from './directive/unsafeHTML';
+import bind from './directive/bind';
 
-
-export { TemplateResult, render } from 'lit-html';
 
 export default function html( strings, ...values ){
   return new TemplateResult( strings, values, 'html', templateProcessor );
@@ -14,5 +13,6 @@ export default function html( strings, ...values ){
 assign( html, {
   unsafe: unsafeHTML,
   unsafeHTML,
-  repeat
+  repeat,
+  bind
 });
