@@ -1732,4 +1732,222 @@ describe( 'Hu.html', () => {
     expect( vm['ctrl.alt.shift.meta.exact'] ).is.equals( 1 );
   });
 
+  it( '使用 @event 绑定事件, 使用 .capture 修饰符', () => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        none: [],
+        capture: []
+      },
+      render( html ){
+        return html`
+          <div ref="none" @click=${() => this.none.push(0)}>
+            <div @click=${() => this.none.push(1)}></div>
+          </div>
+          <div ref="capture" @click.capture=${() => this.capture.push(0)}>
+            <div @click=${() => this.capture.push(1)}></div>
+          </div>
+        `;
+      }
+    });
+
+    expect( hu.none ).is.deep.equals([ ]);
+    expect( hu.capture ).is.deep.equals([ ]);
+
+    hu.$refs.none.firstElementChild.click();
+    hu.$refs.capture.firstElementChild.click();
+
+    expect( hu.none ).is.deep.equals([ 1, 0 ]);
+    expect( hu.capture ).is.deep.equals([ 0, 1 ]);
+  });
+
+  // it( '使用 @event 绑定事件, 使用 .once 修饰符', () => {
+  //   const div = document.createElement('div');
+  //   const hu = new Hu({
+  //     el: div,
+  //     data: {
+  //       none: 0,
+  //       once: 0
+  //     },
+  //     render( html ){
+  //       return html`
+  //         <div ref="none" @click=${() => this.none++}></div>
+  //         <div ref="once" @click.once=${() => this.once++}></div>
+  //       `;
+  //     }
+  //   });
+
+  //   expect( hu.none ).is.equals( 0 );
+  //   expect( hu.once ).is.equals( 0 );
+
+  //   hu.$refs.none.click();
+  //   expect( hu.none ).is.equals( 1 );
+
+  //   hu.$refs.none.click();
+  //   hu.$refs.none.click();
+  //   expect( hu.none ).is.equals( 3 );
+
+  //   hu.$refs.once.click();
+  //   expect( hu.once ).is.equals( 1 );
+
+  //   hu.$refs.once.click();
+  //   hu.$refs.once.click();
+  //   expect( hu.once ).is.equals( 1 );
+  // });
+
+  // it( '使用 @event 绑定事件, 使用 .once 修饰符 ( Vue )', () => {
+  //   const div = document.createElement('div');
+  //   const vm = new Vue({
+  //     el: div,
+  //     data: {
+  //       none: 0,
+  //       once: 0
+  //     },
+  //     template: `
+  //       <div>
+  //         <div ref="none" @click="none++"></div>
+  //         <div ref="once" @click.once="once++"></div>
+  //       </div>
+  //     `
+  //   });
+
+  //   expect( vm.none ).is.equals( 0 );
+  //   expect( vm.once ).is.equals( 0 );
+
+  //   vm.$refs.none.click();
+  //   expect( vm.none ).is.equals( 1 );
+
+  //   vm.$refs.none.click();
+  //   vm.$refs.none.click();
+  //   expect( vm.none ).is.equals( 3 );
+
+  //   vm.$refs.once.click();
+  //   expect( vm.once ).is.equals( 1 );
+
+  //   vm.$refs.once.click();
+  //   vm.$refs.once.click();
+  //   expect( vm.once ).is.equals( 1 );
+  // });
+
+  // it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发前重新渲染不会影响事件绑定', () => {
+  //   const div = document.createElement('div');
+  //   const hu = new Hu({
+  //     el: div,
+  //     data: {
+  //       once: 0
+  //     },
+  //     render( html ){
+  //       return html`
+  //         <div ref="once" @click.once=${() => this.once++}></div>
+  //       `;
+  //     }
+  //   });
+
+  //   expect( hu.once ).is.equals( 0 );
+
+  //   hu.$forceUpdate();
+  //   hu.$forceUpdate();
+
+  //   expect( hu.once ).is.equals( 0 );
+
+  //   hu.$refs.once.click();
+  //   expect( hu.once ).is.equals( 1 );
+
+  //   hu.$refs.once.click();
+  //   hu.$refs.once.click();
+  //   expect( hu.once ).is.equals( 1 );
+  // });
+
+  // it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发前重新渲染不会影响事件绑定 ( Vue )', () => {
+  //   const div = document.createElement('div');
+  //   const vm = new Vue({
+  //     el: div,
+  //     data: {
+  //       once: 0
+  //     },
+  //     template: `
+  //       <div ref="once" @click.once="once++"></div>
+  //     `
+  //   });
+
+  //   expect( vm.once ).is.equals( 0 );
+
+  //   vm.$forceUpdate();
+  //   vm.$forceUpdate();
+
+  //   expect( vm.once ).is.equals( 0 );
+
+  //   vm.$refs.once.click();
+  //   expect( vm.once ).is.equals( 1 );
+
+  //   vm.$refs.once.click();
+  //   vm.$refs.once.click();
+  //   expect( vm.once ).is.equals( 1 );
+  // });
+
+  // it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发后重新渲染不会影响事件绑定', () => {
+  //   const div = document.createElement('div');
+  //   const hu = new Hu({
+  //     el: div,
+  //     data: {
+  //       once: 0
+  //     },
+  //     render( html ){
+  //       return html`
+  //         <div ref="once" @click.once=${() => this.once++}></div>
+  //       `;
+  //     }
+  //   });
+
+  //   expect( hu.once ).is.equals( 0 );
+
+  //   hu.$refs.once.click();
+  //   expect( hu.once ).is.equals( 1 );
+
+  //   hu.$refs.once.click();
+  //   hu.$refs.once.click();
+  //   expect( hu.once ).is.equals( 1 );
+
+  //   hu.$forceUpdate();
+  //   hu.$forceUpdate();
+
+  //   expect( hu.once ).is.equals( 1 );
+
+  //   hu.$refs.once.click();
+  //   hu.$refs.once.click();
+  //   expect( hu.once ).is.equals( 1 );
+  // });
+
+  // it( '使用 @event 绑定事件, 使用 .once 修饰符绑定时, 触发后重新渲染不会影响事件绑定 ( Vue )', () => {
+  //   const div = document.createElement('div');
+  //   const vm = new Vue({
+  //     el: div,
+  //     data: {
+  //       once: 0
+  //     },
+  //     template: `
+  //       <div ref="once" @click.once="once++"></div>
+  //     `
+  //   });
+
+  //   expect( vm.once ).is.equals( 0 );
+
+  //   vm.$refs.once.click();
+  //   expect( vm.once ).is.equals( 1 );
+
+  //   vm.$refs.once.click();
+  //   vm.$refs.once.click();
+  //   expect( vm.once ).is.equals( 1 );
+
+  //   vm.$forceUpdate();
+  //   vm.$forceUpdate();
+
+  //   expect( vm.once ).is.equals( 1 );
+
+  //   vm.$refs.once.click();
+  //   vm.$refs.once.click();
+  //   expect( vm.once ).is.equals( 1 );
+  // });
+
 });
