@@ -121,7 +121,7 @@ describe( 'Hu.html', () => {
     expect( div.innerText ).is.equals( span );
   });
 
-  it( '使用 Hu.html.bind 对元素属性和变量进行绑定', () => {
+  it( '使用 Hu.html.bind 对元素属性和变量进行绑定', ( done ) => {
     const bind = Hu.html.bind;
     const div = document.createElement('div');
     const data = Hu.observable({
@@ -129,8 +129,20 @@ describe( 'Hu.html', () => {
     });
 
     Hu.render( div )`
-      <div name=${ bind( data, 'name') }></div>
+      <div name=${ bind( data, 'name' ) }></div>
     `;
+
+    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+
+    data.name = '2';
+
+    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+
+    Hu.nextTick(() => {
+      expect( div.firstElementChild.getAttribute('name') ).is.equals('2');
+
+      done();
+    });
   });
 
   it( '使用 Hu.html 对元素进行重复渲染, 相同的 ( 元素 / 属性 / 内容 ) 不会被重新渲染', () => {
