@@ -122,6 +122,30 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
+  it( '使用 Hu.html.bind 对元素属性和变量进行绑定, 只对观察者对象有效', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = {
+      name: '1'
+    };
+
+    Hu.render( div )`
+      <div name=${ bind( data, 'name' ) }></div>
+    `;
+
+    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+
+    data.name = '2';
+
+    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+
+    Hu.nextTick(() => {
+      expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+
+      done();
+    });
+  });
+
   it( '使用 Hu.html.repeat 方法只能在文本区域中使用', () => {
     const repeat = Hu.html.repeat;
     const div = document.createElement('div');
@@ -171,6 +195,36 @@ describe( 'Hu.html.directive', () => {
         }></div>
       `;
     }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
+  });
+
+  it( '使用 Hu.html.bind 方法只能在元素属性绑定中使用', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      name: '1'
+    });
+
+    Hu.render( div )`
+      <div name=${ bind( data, 'name' ) }></div>
+    `;
+
+    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+
+    data.name = '2';
+
+    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+
+    Hu.nextTick(() => {
+      expect( div.firstElementChild.getAttribute('name') ).is.equals('2');
+
+      should.throw(() => {
+        Hu.render( div )`
+          <div>${ bind( data, 'name' ) }</div>
+        `;
+      }, 'Hu.html.bind 指令方法只能在元素属性绑定中使用 !');
+
+      done();
+    });
   });
 
 });
