@@ -5,6 +5,7 @@ import isFunction from "../../../util/isFunction";
 import createComputed from "../../../../static/observable/createComputed";
 import uid from "../../../util/uid";
 import isEqual from "../../../util/isEqual";
+import emptyObject from "../../../const/emptyObject";
 
 
 /**
@@ -16,31 +17,32 @@ const watcherMap = new WeakMap();
  * 监听 Hu 实例对象
  */
 export default function $watch( expOrFn, callback, options ){
-  let watchFn;
-
   // 另一种写法
   if( isPlainObject( callback ) ){
     return this.$watch( expOrFn, callback.handler, callback );
   }
 
+  const self = this || emptyObject;
+  let watchFn;
+
   // 使用键路径表达式
   if( isString( expOrFn ) ){
-    watchFn = parsePath( expOrFn ).bind( this );
+    watchFn = parsePath( expOrFn ).bind( self );
   }
   // 使用计算属性函数
   else if( isFunction( expOrFn ) ){
-    watchFn = expOrFn.bind( this );
+    watchFn = expOrFn.bind( self );
   }
   // 不支持其他写法
   else return;
 
   let watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed;
 
-  if( watcherMap.has( this ) ){
-    [ watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed ] = watcherMap.get( this );
+  if( watcherMap.has( self ) ){
+    [ watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed ] = watcherMap.get( self );
   }else{
     watcherMap.set(
-      this,
+      self,
       [ watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed ] = createComputed( null, true )
     );
   }
@@ -51,7 +53,7 @@ export default function $watch( expOrFn, callback, options ){
   /** 当前 watch 的存储名称 */
   const name = uid();
   /** 当前 watch 的回调函数 */
-  const watchCallback = callback.bind( this );
+  const watchCallback = callback.bind( self );
   /** 监听对象内部值的变化 */
   const isWatchDeep = !!options.deep;
   /** 值改变是否运行回调 */
