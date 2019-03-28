@@ -97,7 +97,7 @@ describe( 'Hu.html', () => {
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
   });
 
-  it( '使用 Hu.html.unsafe / Hu.html.unsafeHTML 忽略对 HTML 进行转义', () => {
+  it( '使用 Hu.html.unsafe 忽略对 HTML 进行转义', () => {
     const div = document.createElement('div');
     const span = '<span>123</span>';
 
@@ -109,7 +109,7 @@ describe( 'Hu.html', () => {
     expect( div.firstElementChild.innerText ).is.equals('123');
   });
 
-  it( '不使用 Hu.html.unsafe / Hu.html.unsafeHTML 将始终对 HTML 进行转义', () => {
+  it( '不使用 Hu.html.unsafe 将始终对 HTML 进行转义', () => {
     const div = document.createElement('div');
     const span = '<span>123</span>';
 

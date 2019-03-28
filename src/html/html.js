@@ -12,7 +12,6 @@ export default function html( strings, ...values ){
 
 assign( html, {
   unsafe: unsafeHTML,
-  unsafeHTML,
   repeat,
   bind
 });
