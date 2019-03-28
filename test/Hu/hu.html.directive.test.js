@@ -148,7 +148,7 @@ describe( 'Hu.html.directive', () => {
           })
         }></div>
       `
-    },'Hu.html.repeat 方法只能在文本区域中使用 !');
+    },'Hu.html.repeat 指令方法只能在文本区域中使用 !');
   });
 
   it( '使用 Hu.html.unsafe 方法只能在文本区域中使用', () => {
@@ -170,7 +170,7 @@ describe( 'Hu.html.directive', () => {
           Hu.html.unsafe( span )
         }></div>
       `;
-    }, 'Hu.html.unsafe 方法只能在文本区域中使用 !');
+    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
   });
 
 });

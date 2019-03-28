@@ -15,7 +15,7 @@ const oldValueMap = new WeakMap();
 
 export default directive( value => part => {
   if( !( part instanceof NodePart ) ){
-    throw new Error('Hu.html.unsafe 方法只能在文本区域中使用 !');
+    throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
   }
 
   const oldValue = oldValueMap.get( part );
