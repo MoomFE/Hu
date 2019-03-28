@@ -97,6 +97,35 @@ describe( 'Hu.html', () => {
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
   });
 
+  it( '使用 Hu.html.repeat 方法只能在文本区域中使用', () => {
+    const repeat = Hu.html.repeat;
+    const div = document.createElement('div');
+    const arr = [ '1', '2', '3' ];
+
+    Hu.render( div )`
+      <div>${
+        repeat( arr, item => item, item => {
+          return Hu.html`<span>${ item }</span>`;
+        })
+      }</div>
+    `;
+
+    expect( div.firstElementChild.nodeName ).is.equals('DIV');
+    expect( div.firstElementChild.children.length ).is.equals( 3 );
+    expect( Array.from( div.firstElementChild.children ).map( elem => elem.nodeName ) ).is.deep.equals([ 'SPAN', 'SPAN', 'SPAN' ]);
+    expect( Array.from( div.firstElementChild.children ).map( elem => elem.innerText ) ).is.deep.equals([ '1', '2', '3' ]);
+
+    should.Throw(() => {
+      Hu.render( div )`
+        <div name=${
+          repeat( arr, item => item, item => {
+            return Hu.html`<span>${ item }</span>`;
+          })
+        }></div>
+      `
+    },'Hu.html.repeat 方法只能在文本区域中使用 !');
+  });
+
   it( '使用 Hu.html.unsafe 忽略对 HTML 进行转义', () => {
     const div = document.createElement('div');
     const span = '<span>123</span>';
@@ -119,6 +148,28 @@ describe( 'Hu.html', () => {
 
     expect( div.firstElementChild ).is.null;
     expect( div.innerText ).is.equals( span );
+  });
+
+  it( '使用 Hu.html.unsafe 方法只能在文本区域中使用', () => {
+    const div = document.createElement('div');
+    const span = '<span>123</span>';
+
+    Hu.render( div )`
+      <div>${
+        Hu.html.unsafe( span )
+      }</div>
+    `;
+
+    expect( div.firstElementChild.firstElementChild.nodeName ).is.equals('SPAN');
+    expect( div.firstElementChild.firstElementChild.innerText ).is.equals('123');
+
+    should.throw(() => {
+      Hu.render( div )`
+        <div name=${
+          Hu.html.unsafe( span )
+        }></div>
+      `;
+    }, 'Hu.html.unsafe 方法只能在文本区域中使用 !');
   });
 
   it( '使用 Hu.html.bind 对元素属性和变量进行绑定', ( done ) => {
