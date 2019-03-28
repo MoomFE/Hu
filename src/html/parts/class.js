@@ -1,3 +1,4 @@
+import { isDirective } from 'lit-html'
 import rWhitespace from "../../shared/const/rWhitespace";
 import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
@@ -43,6 +44,10 @@ export default class ClassPart{
   }
 
   setValue( value ){
+    if( isDirective( value ) ){
+      throw new Error(':class 指令不支持传入指令方法进行使用 !');
+    }
+
     parseClass( this.value = {}, value );
   }
 

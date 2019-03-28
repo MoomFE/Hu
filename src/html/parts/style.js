@@ -1,3 +1,4 @@
+import { isDirective } from 'lit-html'
 import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
 import parseStyleText from "../../shared/util/parseStyleText";
@@ -43,6 +44,10 @@ export default class StylePart{
   }
 
   setValue( value ){
+    if( isDirective( value ) ){
+      throw new Error(':style 指令不支持传入指令方法进行使用 !');
+    }
+
     parseStyle( this.value = {}, value );
   }
 

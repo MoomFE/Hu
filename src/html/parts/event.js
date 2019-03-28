@@ -1,3 +1,4 @@
+import { isDirective } from 'lit-html'
 import isFunction from "../../shared/util/isFunction";
 import { has } from "../../shared/global/Reflect/index";
 import { supportsPassive } from "../../shared/const/env";
@@ -12,6 +13,10 @@ export default class EventPart{
   }
 
   setValue( listener ){
+    if( isDirective( listener ) ){
+      throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
+    }
+
     this.oldListener = this.listener;
     this.listener = isFunction( listener ) ? listener : null;
   }
