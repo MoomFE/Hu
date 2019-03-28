@@ -19,7 +19,7 @@ export default directive(( items, key, template ) => {
 
   return containerPart => {
     if( !( containerPart instanceof NodePart ) ){
-      throw new Error('repeat 方法只能在文本区域绑定中使用 !');
+      throw new Error('Hu.html.repeat 方法只能在文本区域中使用 !');
     }
 
     const oldParts = partListCache.get( containerPart ) || [];
