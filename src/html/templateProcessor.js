@@ -1,13 +1,13 @@
 import ClassPart from './parts/class';
 import {
   AttributeCommitter,
-  NodePart,
-  PropertyCommitter
+  NodePart
 } from 'lit-html/lib/parts';
 import StylePart from './parts/style';
 import { has } from '../shared/global/Reflect/index';
 import EventPart from './parts/event';
 import BooleanPart from './parts/boolean';
+import PropertyPart from './parts/property';
 
 
 class TemplateProcessor{
@@ -17,8 +17,9 @@ class TemplateProcessor{
 
     // 用于绑定 DOM 属性 ( property )
     if( prefix === '.' ){
-      const comitter = new PropertyCommitter( element, name.slice(1), strings );
-      return comitter.parts;
+      const [ attr ] = name.slice(1).split('.');
+
+      return PropertyPart( element, attr );
     }
     // 事件绑定
     else if( prefix === '@' ){
