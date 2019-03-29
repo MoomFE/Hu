@@ -1,13 +1,13 @@
 import ClassPart from './parts/class';
 import {
   AttributeCommitter,
-  BooleanAttributePart,
   NodePart,
   PropertyCommitter
 } from 'lit-html/lib/parts';
 import StylePart from './parts/style';
 import { has } from '../shared/global/Reflect/index';
 import EventPart from './parts/event';
+import BooleanPart from './parts/boolean';
 
 
 class TemplateProcessor{
@@ -28,20 +28,23 @@ class TemplateProcessor{
         new EventPart( element, type, modifierKeys )
       ];
     }
-    // 若属性的值为真则保留 DOM 属性
+    // 若属性值为 Truthy 则保留 DOM 属性
     // 否则移除 DOM 属性
+    // - Truthy: https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy
     else if( prefix === '?' ){
+      const [ attr ] = name.slice(1).split('.');
+
       return [
-        new BooleanAttributePart( element, name.slice(1), strings )
+        new BooleanPart( element, attr )
       ];
     }
     // 扩展属性支持
     else if( prefix === ':' ){
-      const [ currentName, ...options ] = name.slice(1).split('.');
+      const [ attr ] = name.slice(1).split('.');
 
-      if( has( attrHandler, currentName ) ){
+      if( has( attrHandler, attr ) ){
         return [
-          new attrHandler[ currentName ]( element, currentName )
+          new attrHandler[ attr ]( element, attr )
         ];
       }
     }
