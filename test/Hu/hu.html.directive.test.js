@@ -1,6 +1,7 @@
 describe( 'Hu.html.directive', () => {
 
-  it( '使用 Hu.html.repeat 方法渲染数组内容, 在数组变化时基于 key 的变化重新排列元素', () => {
+
+  it( 'html.repeat: 使用该指令方法渲染数组内容, 在数组变化时基于 key 的变化重新排列元素', () => {
     const div = document.createElement('div');
     const arr = [
       { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
@@ -37,7 +38,7 @@ describe( 'Hu.html.directive', () => {
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
   });
 
-  it( '不使用 Hu.html.repeat 的方法渲染数组内容, 在数组变化时尽可能的重用之前的元素进行渲染', () => {
+  it( 'html.repeat: 使用其他方式渲染数组内容, 在数组变化时尽可能的重用之前的元素进行渲染', () => {
     const div = document.createElement('div');
     const arr = [
       { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
@@ -74,7 +75,49 @@ describe( 'Hu.html.directive', () => {
     expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
   });
 
-  it( '使用 Hu.html.unsafe 忽略对 HTML 进行转义', () => {
+  it( 'html.repeat: 该指令方法只能在文本区域中使用', () => {
+    const div = document.createElement('div');
+
+    const arr = [
+      { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
+      { text: '4', key: 4 }, { text: '5', key: 5 }, { text: '6', key: 6 }
+    ];
+
+    Hu.render( div )`${
+      Hu.html.repeat( arr, 'key', data => {
+        return Hu.html`<span>${ data.text }</span>`
+      })
+    }`;
+
+    Hu.render( div )`
+      <div>${
+        Hu.html.repeat( arr, 'key', data => {
+          return Hu.html`<span>${ data.text }</span>`
+        })
+      }</div>
+    `;
+
+    should.throw(() => {
+      Hu.render( div )`
+        <div text=${ Hu.html.repeat( arr, 'key', data => data.text ) }></div>
+      `;
+    }, 'Hu.html.repeat 指令方法只能在文本区域中使用 !');
+
+    should.throw(() => {
+      Hu.render( div )`
+        <div .text=${ Hu.html.repeat( arr, 'key', data => data.text ) }></div>
+      `;
+    }, 'Hu.html.repeat 指令方法只能在文本区域中使用 !');
+
+    should.throw(() => {
+      Hu.render( div )`
+        <div ?text=${ Hu.html.repeat( arr, 'key', data => data.text ) }></div>
+      `;
+    }, 'Hu.html.repeat 指令方法只能在文本区域中使用 !');
+  });
+
+
+  it( 'html.unsafe: 使用该指令方法包装的 HTML 片段不会被转义', () => {
     const div = document.createElement('div');
     const span = '<span>123</span>';
 
@@ -86,7 +129,7 @@ describe( 'Hu.html.directive', () => {
     expect( div.firstElementChild.innerText ).is.equals('123');
   });
 
-  it( '不使用 Hu.html.unsafe 将始终对 HTML 进行转义', () => {
+  it( 'html.unsafe: 使用其他方式插入的 HTML 片段会被转义', () => {
     const div = document.createElement('div');
     const span = '<span>123</span>';
 
@@ -98,7 +141,41 @@ describe( 'Hu.html.directive', () => {
     expect( div.innerText ).is.equals( span );
   });
 
-  it( '使用 Hu.html.bind 对元素属性和变量进行绑定', ( done ) => {
+  it( 'html.unsafe: 该指令方法只能在文本区域中使用', () => {
+    const div = document.createElement('div');
+    const span = '<span>123</span>';
+
+    Hu.render( div )`${
+      Hu.html.unsafe( span )
+    }`;
+
+    Hu.render( div )`
+      <div>${
+        Hu.html.unsafe( span )
+      }</div>
+    `;
+
+    should.throw(() => {
+      Hu.render( div )`
+        <div unsafe=${ Hu.html.unsafe( span ) }></div>
+      `;
+    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
+
+    should.throw(() => {
+      Hu.render( div )`
+        <div .unsafe=${ Hu.html.unsafe( span ) }></div>
+      `;
+    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
+
+    should.throw(() => {
+      Hu.render( div )`
+        <div ?unsafe=${ Hu.html.unsafe( span ) }></div>
+      `;
+    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
+  });
+
+
+  it( 'html.bind: 使用该指令方法可以将观察者对象的值与元素的属性进行绑定', ( done ) => {
     const bind = Hu.html.bind;
     const div = document.createElement('div');
     const data = Hu.observable({
@@ -109,20 +186,19 @@ describe( 'Hu.html.directive', () => {
       <div name=${ bind( data, 'name' ) }></div>
     `;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
 
-    data.name = '2';
+    data.name = 2;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
-
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
     Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals('2');
+      expect( div.firstElementChild.getAttribute('name') ).is.equals( '2' );
 
       done();
     });
   });
 
-  it( '使用 Hu.html.bind 对元素属性和变量进行绑定, 只对观察者对象有效', ( done ) => {
+  it( 'html.bind: 该指令方法传入的参数若不是观察者对象则不会响应值的变化', ( done ) => {
     const bind = Hu.html.bind;
     const div = document.createElement('div');
     const data = {
@@ -133,71 +209,19 @@ describe( 'Hu.html.directive', () => {
       <div name=${ bind( data, 'name' ) }></div>
     `;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
 
-    data.name = '2';
+    data.name = 2;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
-
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
     Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+      expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
 
       done();
     });
   });
 
-  it( '使用 Hu.html.repeat 方法只能在文本区域中使用', () => {
-    const repeat = Hu.html.repeat;
-    const div = document.createElement('div');
-    const arr = [ '1', '2', '3' ];
-
-    Hu.render( div )`
-      <div>${
-        repeat( arr, item => item, item => {
-          return Hu.html`<span>${ item }</span>`;
-        })
-      }</div>
-    `;
-
-    expect( div.firstElementChild.nodeName ).is.equals('DIV');
-    expect( div.firstElementChild.children.length ).is.equals( 3 );
-    expect( Array.from( div.firstElementChild.children ).map( elem => elem.nodeName ) ).is.deep.equals([ 'SPAN', 'SPAN', 'SPAN' ]);
-    expect( Array.from( div.firstElementChild.children ).map( elem => elem.innerText ) ).is.deep.equals([ '1', '2', '3' ]);
-
-    should.Throw(() => {
-      Hu.render( div )`
-        <div name=${
-          repeat( arr, item => item, item => {
-            return Hu.html`<span>${ item }</span>`;
-          })
-        }></div>
-      `
-    },'Hu.html.repeat 指令方法只能在文本区域中使用 !');
-  });
-
-  it( '使用 Hu.html.unsafe 方法只能在文本区域中使用', () => {
-    const div = document.createElement('div');
-    const span = '<span>123</span>';
-
-    Hu.render( div )`
-      <div>${
-        Hu.html.unsafe( span )
-      }</div>
-    `;
-
-    expect( div.firstElementChild.firstElementChild.nodeName ).is.equals('SPAN');
-    expect( div.firstElementChild.firstElementChild.innerText ).is.equals('123');
-
-    should.throw(() => {
-      Hu.render( div )`
-        <div name=${
-          Hu.html.unsafe( span )
-        }></div>
-      `;
-    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
-  });
-
-  it( '使用 Hu.html.bind 方法只能在元素属性绑定中使用', ( done ) => {
+  it( 'html.bind: 该指令方法可使用普通方式对元素属性 ( Attribute ) 进行绑定', ( done ) => {
     const bind = Hu.html.bind;
     const div = document.createElement('div');
     const data = Hu.observable({
@@ -208,20 +232,59 @@ describe( 'Hu.html.directive', () => {
       <div name=${ bind( data, 'name' ) }></div>
     `;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
 
-    data.name = '2';
+    data.name = 2;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals('1');
-
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
     Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals('2');
+      expect( div.firstElementChild.getAttribute('name') ).is.equals( '2' );
 
-      should.throw(() => {
-        Hu.render( div )`
-          <div>${ bind( data, 'name' ) }</div>
-        `;
-      }, 'Hu.html.bind 指令方法只能在元素属性绑定中使用 !');
+      done();
+    });
+  });
+
+  it( 'html.bind: 该指令方法可使用 .attr 指令对元素属性 ( Property ) 进行绑定', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      name: 1
+    });
+
+    Hu.render( div )`
+      <div .name=${ bind( data, 'name' ) }></div>
+    `;
+
+    expect( div.firstElementChild.name ).is.equals( 1 );
+
+    data.name = 2;
+
+    expect( div.firstElementChild.name ).is.equals( 1 );
+    Hu.nextTick(() => {
+      expect( div.firstElementChild.name ).is.equals( 2 );
+
+      done();
+    });
+  });
+
+  it( 'html.bind: 该指令方法可使用 ?attr 指令对元素属性 ( Attribute ) 进行绑定', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      name: true
+    });
+
+    Hu.render( div )`
+      <div ?name=${ bind( data, 'name' ) }></div>
+    `;
+
+    expect( div.firstElementChild.hasAttribute('name') ).is.true;
+
+    data.name = false;
+
+    expect( div.firstElementChild.hasAttribute('name') ).is.true;
+    Hu.nextTick(() => {
+      expect( div.firstElementChild.hasAttribute('name') ).is.false;
 
       done();
     });
