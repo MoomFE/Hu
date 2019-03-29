@@ -1,22 +1,8 @@
-import { isDirective } from "lit-html";
 import isEqual from "../../shared/util/isEqual";
+import AttributePart from "./attribute";
 
 
-export default class PropertyPart{
-
-  constructor( element, attr ){
-    this.elem = element;
-    this.attr = attr;
-  }
-
-  setValue( value ){
-    if( isDirective( value ) ){
-      return value( this );
-    }
-
-    this.oldValue = this.value;
-    this.value = value;
-  }
+export default class PropertyPart extends AttributePart{
 
   commit(){
     const { value, oldValue } = this;
@@ -25,4 +11,5 @@ export default class PropertyPart{
       this.elem[ this.attr ] = value
     );
   }
+
 }

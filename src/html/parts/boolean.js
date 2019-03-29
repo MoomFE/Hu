@@ -1,24 +1,11 @@
-import { isDirective } from "lit-html";
+import AttributePart from "./attribute";
 
 
-export default class BooleanPart{
-
-  constructor( element, attr ){
-    this.elem = element;
-    this.attr = attr;
-  }
-
-  setValue( value ){
-    if( isDirective( value ) ){
-      return value( this );
-    }
-
-    this.oldValue = this.value;
-    this.value = !!value;
-  }
+export default class BooleanPart extends AttributePart{
 
   commit(){
-    const { value, oldValue } = this;
+    const value = this.value = !!this.value;
+    const oldValue = this.oldValue;
 
     if( value !== oldValue ){
       if( value ){
