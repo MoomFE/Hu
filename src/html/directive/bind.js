@@ -1,8 +1,7 @@
-import { directive } from 'lit-html';
+import { directive, NodePart } from 'lit-html';
 import { observeProxyMap } from '../../static/observable/observe';
 import { bindWatchesMap, renderStack } from '../const';
 import $watch from '../../shared/global/Hu/prototype/$watch';
-import AttributePart from '../parts/attribute';
 
 
 export default directive(( proxy, name ) => {
@@ -12,7 +11,7 @@ export default directive(( proxy, name ) => {
   const isObserve = observeProxyMap.has( proxy );
 
   return part => {
-    if( !( part instanceof AttributePart ) ){
+    if( part instanceof NodePart ){
       throw new Error('Hu.html.bind 指令方法只能在元素属性绑定中使用 !');
     }
 
