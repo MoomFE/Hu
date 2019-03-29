@@ -2,6 +2,7 @@ import { NodePart } from 'lit-html/lib/parts';
 import { has } from '../shared/global/Reflect/index';
 import ClassPart from './parts/class';
 import StylePart from './parts/style';
+import ModelPart from './parts/model';
 import EventPart from './parts/event';
 import BooleanPart from './parts/boolean';
 import PropertyPart from './parts/property';
@@ -69,5 +70,6 @@ export default new TemplateProcessor();
  */
 const attrHandler = {
   class: ClassPart,
-  style: StylePart
+  style: StylePart,
+  model: ModelPart
 };

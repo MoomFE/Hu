@@ -252,6 +252,17 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用 :model 的方式对表单控件创建双向绑定', () => {
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      value: '123'
+    });
+
+    Hu.render( div )`
+      <input type="text" :model=${[ data, 'value' ]} />
+    `;
+  });
+
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
     let index = 0;
