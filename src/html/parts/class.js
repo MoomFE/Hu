@@ -10,32 +10,6 @@ import { has } from "../../shared/global/Reflect/index";
  */
 const classesMap = new WeakMap();
 
-/**
- * 格式化用户传入的 class 内容
- */
-function parseClass( classes, value ){
-  switch( typeof value ){
-    case 'string': {
-      value.split( rWhitespace ).forEach( name => {
-        return classes[ name ] = true;
-      });
-      break;
-    };
-    case 'object': {
-      if( isArray( value ) ){
-        value.forEach( name => {
-          return parseClass( classes, name );
-        });
-      }else{
-        each( value, ( name, truthy ) => {
-          return truthy ? parseClass( classes, name )
-                        : delete classes[ name ];
-        });
-      }
-    }
-  }
-}
-
 
 export default class ClassPart{
 
@@ -78,4 +52,31 @@ export default class ClassPart{
     classesMap.set( this, classes );
   }
 
+}
+
+
+/**
+ * 格式化用户传入的 class 内容
+ */
+function parseClass( classes, value ){
+  switch( typeof value ){
+    case 'string': {
+      value.split( rWhitespace ).forEach( name => {
+        return classes[ name ] = true;
+      });
+      break;
+    };
+    case 'object': {
+      if( isArray( value ) ){
+        value.forEach( name => {
+          return parseClass( classes, name );
+        });
+      }else{
+        each( value, ( name, truthy ) => {
+          return truthy ? parseClass( classes, name )
+                        : delete classes[ name ];
+        });
+      }
+    }
+  }
 }

@@ -6,7 +6,7 @@ import { supportsPassive } from "../../shared/const/env";
 
 export default class EventPart{
 
-  constructor( element, type, eventContext, modifierKeys ){
+  constructor( element, type, modifierKeys ){
     this.elem = element;
     this.type = type;
     this.opts = initEventOptions( modifierKeys );

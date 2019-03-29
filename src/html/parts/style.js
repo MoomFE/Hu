@@ -12,31 +12,6 @@ import { has } from "../../shared/global/Reflect/index";
 const styleMap = new WeakMap();
 
 
-/**
- * 格式化用户传入的 style 内容
- */
-function parseStyle( styles, value ){
-  switch( typeof value ){
-    case 'string': {
-      return parseStyle(
-        styles,
-        parseStyleText( value )
-      );
-    };
-    case 'object': {
-      if( isArray( value ) ){
-        value.forEach( value => {
-          return parseStyle( styles, value );
-        });
-      }else{
-        each( value, ( name, value ) => {
-          return styles[ hyphenate( name ) ] = value;
-        });
-      }
-    }
-  }
-}
-
 export default class StylePart{
 
   constructor( element ){
@@ -69,4 +44,30 @@ export default class StylePart{
     styleMap.set( this, styles );
   }
 
+}
+
+
+/**
+ * 格式化用户传入的 style 内容
+ */
+function parseStyle( styles, value ){
+  switch( typeof value ){
+    case 'string': {
+      return parseStyle(
+        styles,
+        parseStyleText( value )
+      );
+    };
+    case 'object': {
+      if( isArray( value ) ){
+        value.forEach( value => {
+          return parseStyle( styles, value );
+        });
+      }else{
+        each( value, ( name, value ) => {
+          return styles[ hyphenate( name ) ] = value;
+        });
+      }
+    }
+  }
 }

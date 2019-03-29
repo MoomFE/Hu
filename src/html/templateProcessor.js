@@ -22,10 +22,10 @@ class TemplateProcessor{
     }
     // 事件绑定
     else if( prefix === '@' ){
-      const [ currentName, ...options ] = name.slice(1).split('.');
+      const [ type, ...modifierKeys ] = name.slice(1).split('.');
 
       return [
-        new EventPart( element, currentName, strings, options )
+        new EventPart( element, type, modifierKeys )
       ];
     }
     // 若属性的值为真则保留 DOM 属性
@@ -41,7 +41,7 @@ class TemplateProcessor{
 
       if( has( attrHandler, currentName ) ){
         return [
-          new attrHandler[ currentName ]( element, currentName, strings, options )
+          new attrHandler[ currentName ]( element, currentName )
         ];
       }
     }
