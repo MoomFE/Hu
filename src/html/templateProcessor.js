@@ -50,12 +50,11 @@ class TemplateProcessor{
         ];
       }
     }
+
     // 正常属性
-    else{
-      return [
-        new AttributePart( element, name )
-      ];
-    }
+    return [
+      new AttributePart( element, name )
+    ];
   }
   handleTextExpression( options ){
     return new NodePart( options );

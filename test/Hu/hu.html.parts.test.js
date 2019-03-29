@@ -1916,4 +1916,14 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用不存在的指令, 将会被当做普通属性处理', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div :zhang-wei=${ 666 }></div>
+    `;
+
+    expect( div.firstElementChild.getAttribute(':zhang-wei') ).equals('666');
+  });
+
 });
