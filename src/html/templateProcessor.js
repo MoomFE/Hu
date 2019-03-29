@@ -17,7 +17,9 @@ class TemplateProcessor{
     if( prefix === '.' ){
       const [ attr ] = name.slice(1).split('.');
 
-      return PropertyPart( element, attr );
+      return [
+        new PropertyPart( element, attr )
+      ];
     }
     // 事件绑定
     else if( prefix === '@' ){

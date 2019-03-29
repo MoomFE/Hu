@@ -1,5 +1,34 @@
 describe( 'Hu.html.parts', () => {
 
+  it( '使用 .attr 对元素属性 ( Property ) 进行绑定', () => {
+    const div = document.createElement('div');
+    const props = {
+      a: 1,
+      b: 2
+    };
+
+    Hu.render( div )`
+      <div .props=${ props }></div>
+    `;
+
+    expect( div.firstElementChild.props ).is.equals( props );
+    expect( div.firstElementChild.hasAttribute('props') ).is.false;
+
+    Hu.render( div )`
+      <div .props=${ div }></div>
+    `;
+
+    expect( div.firstElementChild.props ).is.equals( div );
+    expect( div.firstElementChild.hasAttribute('props') ).is.false;
+
+    Hu.render( div )`
+      <div .props=${ 123 }></div>
+    `;
+
+    expect( div.firstElementChild.props ).is.equals( 123 );
+    expect( div.firstElementChild.hasAttribute('props') ).is.false;
+  });
+
   it( '使用 :class 对元素 className 进行绑定 - 字符串方式', () => {
     const div = document.createElement('div');
 

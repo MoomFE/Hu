@@ -1,3 +1,4 @@
+import { isDirective } from "lit-html";
 import isEqual from "../../shared/util/isEqual";
 
 
