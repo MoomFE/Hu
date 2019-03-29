@@ -19,7 +19,7 @@ export default class ClassPart{
 
   setValue( value ){
     if( isDirective( value ) ){
-      throw new Error(':class 指令不支持传入指令方法进行使用 !');
+      return value( this );
     }
 
     parseClass( this.value = {}, value );

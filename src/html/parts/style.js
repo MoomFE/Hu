@@ -20,7 +20,7 @@ export default class StylePart{
 
   setValue( value ){
     if( isDirective( value ) ){
-      throw new Error(':style 指令不支持传入指令方法进行使用 !');
+      return value( this );
     }
 
     parseStyle( this.value = {}, value );
