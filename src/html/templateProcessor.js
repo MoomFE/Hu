@@ -1,13 +1,11 @@
-import ClassPart from './parts/class';
-import {
-  AttributeCommitter,
-  NodePart
-} from 'lit-html/lib/parts';
-import StylePart from './parts/style';
+import { NodePart } from 'lit-html/lib/parts';
 import { has } from '../shared/global/Reflect/index';
+import ClassPart from './parts/class';
+import StylePart from './parts/style';
 import EventPart from './parts/event';
 import BooleanPart from './parts/boolean';
 import PropertyPart from './parts/property';
+import AttributePart from './parts/attribute';
 
 
 class TemplateProcessor{
@@ -51,8 +49,9 @@ class TemplateProcessor{
     }
     // 正常属性
     else{
-      const comitter = new AttributeCommitter( element, name, strings );
-      return comitter.parts;
+      return [
+        new AttributePart( element, name )
+      ];
     }
   }
   handleTextExpression( options ){

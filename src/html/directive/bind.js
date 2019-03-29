@@ -1,7 +1,8 @@
-import { directive, AttributePart } from 'lit-html';
+import { directive } from 'lit-html';
 import { observeProxyMap } from '../../static/observable/observe';
 import { bindWatchesMap, renderStack } from '../const';
 import $watch from '../../shared/global/Hu/prototype/$watch';
+import AttributePart from '../parts/attribute';
 
 
 export default directive(( proxy, name ) => {
@@ -15,21 +16,19 @@ export default directive(( proxy, name ) => {
       throw new Error('Hu.html.bind 指令方法只能在元素属性绑定中使用 !');
     }
 
-    const {
-      name: attr,
-      element
-    } = part.committer;
+    const setValue = ( value ) => {
+      part.setValue( value );
+      part.commit();
+    }
 
     if( !isObserve ){
-      element.setAttribute( attr, proxy[ name ] );
-      return;
+      const value = proxy[ name ];
+      return setValue( value );
     }
 
     const unWatch = $watch(
       () => proxy[ name ],
-      ( value ) => {
-        return element.setAttribute( attr, value );
-      },
+      setValue,
       {
         immediate: true
       }
