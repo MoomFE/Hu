@@ -326,7 +326,7 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
-  it( 'html.bind: 该指令方法可使用 :style 指令对元素 className 进行绑定', ( done ) => {
+  it( 'html.bind: 该指令方法可使用 :style 指令对元素 style 进行绑定', ( done ) => {
     const bind = Hu.html.bind;
     const div = document.createElement('div');
     const data = Hu.observable({
