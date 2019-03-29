@@ -295,8 +295,8 @@ describe( 'Hu.html.directive', () => {
     const div = document.createElement('div');
     const data = Hu.observable({
       class: {
-        a: true,
-        b: false
+        a: false,
+        b: true
       }
     });
 
@@ -304,18 +304,25 @@ describe( 'Hu.html.directive', () => {
       <div :class=${ bind( data, 'class' ) }></div>
     `;
 
-    expect( div.firstElementChild.className ).is.equals( 'a' );
+    expect( div.firstElementChild.className ).is.equals( 'b' );
 
     data.class = {
-      a: false,
-      b: true
+      a: true,
+      b: false
     };
 
-    expect( div.firstElementChild.className ).is.equals( 'a' );
+    expect( div.firstElementChild.className ).is.equals( 'b' );
     Hu.nextTick(() => {
-      expect( div.firstElementChild.className ).is.equals( 'b' );
+      expect( div.firstElementChild.className ).is.equals( 'a' );
 
-      done();
+      data.class.b = true;
+
+      expect( div.firstElementChild.className ).is.equals( 'a' );
+      Hu.nextTick(() => {
+        expect( div.firstElementChild.className ).is.equals( 'a b' );
+
+        done();
+      });
     });
   });
 
@@ -353,7 +360,20 @@ describe( 'Hu.html.directive', () => {
         width: '120px'
       });
 
-      done();
+      data.style.width = '160px';
+
+      expect( div.firstElementChild.style ).is.deep.include({
+        fontSize: '16px',
+        width: '120px'
+      });
+      Hu.nextTick(() => {
+        expect( div.firstElementChild.style ).is.deep.include({
+          fontSize: '16px',
+          width: '160px'
+        });
+
+        done();
+      });
     });
   });
 
