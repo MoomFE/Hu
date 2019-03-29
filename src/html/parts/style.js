@@ -20,7 +20,7 @@ export default class StylePart{
 
   setValue( value ){
     if( isDirective( value ) ){
-      return value( this );
+      return value( this, true );
     }
 
     parseStyle( this.value = {}, value );

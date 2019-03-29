@@ -10,7 +10,7 @@ export default directive(( proxy, name ) => {
   // 绑定的必须是观察者对象
   const isObserve = observeProxyMap.has( proxy );
 
-  return part => {
+  return ( part, deep = false ) => {
     if( part instanceof NodePart ){
       throw new Error('Hu.html.bind 指令方法只能在元素属性绑定中使用 !');
     }
@@ -29,7 +29,8 @@ export default directive(( proxy, name ) => {
       () => proxy[ name ],
       setValue,
       {
-        immediate: true
+        immediate: true,
+        deep
       }
     );
   

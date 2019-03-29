@@ -19,7 +19,7 @@ export default class ClassPart{
 
   setValue( value ){
     if( isDirective( value ) ){
-      return value( this );
+      return value( this, true );
     }
 
     parseClass( this.value = {}, value );
