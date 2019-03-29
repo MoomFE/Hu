@@ -1,6 +1,17 @@
 describe( 'Hu.html.parts', () => {
 
-  it( '使用 .attr 对元素属性 ( Property ) 进行绑定', () => {
+  it( '正常对元素属性 ( Attribute ) 进行绑定', () => {
+    const div = document.createElement('div');
+    let attr = '123';
+    
+    Hu.render( div )`
+      <div name=${ attr }></div>
+    `;
+
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( attr );
+  });
+
+  it( '使用 .attr 的方式对元素属性 ( Property ) 进行绑定', () => {
     const div = document.createElement('div');
     const props = {
       a: 1,
@@ -29,7 +40,27 @@ describe( 'Hu.html.parts', () => {
     expect( div.firstElementChild.hasAttribute('props') ).is.false;
   });
 
-  it( '使用 :class 对元素 className 进行绑定 - 字符串方式', () => {
+  it( '使用 ?attr 的方式对元素属性 ( Attribute ) 进行绑定', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <input ?disabled=${ true } />
+    `;
+
+    expect( div.firstElementChild.hasAttribute('disabled') ).is.true;
+    expect( div.firstElementChild.getAttribute('disabled') ).is.equals('');
+    expect( div.firstElementChild.disabled ).is.true;
+
+    Hu.render( div )`
+      <input ?disabled=${ false } />
+    `;
+
+    expect( div.firstElementChild.hasAttribute('disabled') ).is.false;
+    expect( div.firstElementChild.getAttribute('disabled') ).is.null;
+    expect( div.firstElementChild.disabled ).is.false;
+  });
+
+  it( '使用 :class 的方式对元素 className 进行绑定 - 字符串方式', () => {
     const div = document.createElement('div');
 
     // 1
@@ -51,7 +82,7 @@ describe( 'Hu.html.parts', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
   });
 
-  it( '使用 :class 对元素 className 进行绑定 - JSON 方式', () => {
+  it( '使用 :class 的方式对元素 className 进行绑定 - JSON 方式', () => {
     const div = document.createElement('div');
 
     // 1
@@ -91,7 +122,7 @@ describe( 'Hu.html.parts', () => {
     ).is.deep.equals([ 'a', 'c' ]);
   });
 
-  it( '使用 :class 对元素 className 进行绑定 - 数组方式', () => {
+  it( '使用 :class 的方式对元素 className 进行绑定 - 数组方式', () => {
     const div = document.createElement('div');
 
     // 1
@@ -149,7 +180,7 @@ describe( 'Hu.html.parts', () => {
     ).is.deep.equals([ 'a', 'b' ]);
   });
 
-  it( '使用 :style 对元素 style 进行绑定 - 字符串方式', () => {
+  it( '使用 :style 的方式对元素 style 进行绑定 - 字符串方式', () => {
     const div = document.createElement('div');
 
     // 1
@@ -173,7 +204,7 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
-  it( '使用 :style 对元素 style 进行绑定 - JSON 方式', () => {
+  it( '使用 :style 的方式对元素 style 进行绑定 - JSON 方式', () => {
     var div = document.createElement('div');
 
     // 1
@@ -197,7 +228,7 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
-  it( '使用 :style 对元素 style 进行绑定 - 数组方式', () => {
+  it( '使用 :style 的方式对元素 style 进行绑定 - 数组方式', () => {
     var div = document.createElement('div');
 
     // 1
@@ -221,7 +252,7 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
-  it( '使用 @event 可以给元素绑定事件', () => {
+  it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
     let index = 0;
 
