@@ -252,12 +252,12 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
-  it( '使用 :model 指令对 select 表单控件进行双向绑定, 控件值更改后会更改绑定的值', () => {
+  it( '使用 :model 指令对 select 表单控件进行双向绑定', ( done ) => {
     const div = document.createElement('div');
     const hu = new Hu({
       el: div,
       data: {
-        value: ''
+        value: '12'
       },
       render( html ){
         return html`
@@ -270,27 +270,61 @@ describe( 'Hu.html.parts', () => {
       }
     });
 
-    expect( hu.value ).is.equals( '' );
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.select.value ).is.equals( '12' );
+    expect( hu.$refs.select.options[1].selected ).is.true;
 
+    // 控件值发生改变, 绑定值也会发生更改
     hu.$refs.select.options[ 0 ].selected = true;
     triggerEvent( hu.$refs.select, 'change' );
     expect( hu.value ).is.equals( '1' );
+    expect( hu.$refs.select.value ).is.equals( '1' );
+    expect( hu.$refs.select.options[0].selected ).is.true;
 
     hu.$refs.select.options[ 1 ].selected = true;
     triggerEvent( hu.$refs.select, 'change' );
     expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.select.value ).is.equals( '12' );
+    expect( hu.$refs.select.options[1].selected ).is.true;
 
     hu.$refs.select.options[ 2 ].selected = true;
     triggerEvent( hu.$refs.select, 'change' );
     expect( hu.value ).is.equals( '123' );
+    expect( hu.$refs.select.value ).is.equals( '123' );
+    expect( hu.$refs.select.options[2].selected ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = '1';
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '1' );
+      expect( hu.$refs.select.value ).is.equals( '1' );
+      expect( hu.$refs.select.options[0].selected ).is.true;
+
+      hu.value = '12';
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '12' );
+        expect( hu.$refs.select.value ).is.equals( '12' );
+        expect( hu.$refs.select.options[1].selected ).is.true;
+
+        hu.value = '123';
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '123' );
+          expect( hu.$refs.select.value ).is.equals( '123' );
+          expect( hu.$refs.select.options[2].selected ).is.true;
+
+          done();
+        });
+      });
+    });
   });
 
-  it( '使用 v-model 指令对 select 表单控件进行双向绑定, 控件值更改后会更改绑定的值 ( Vue )', () => {
+  it( '使用 v-model 指令对 select 表单控件进行双向绑定 ( Vue )', ( done ) => {
     const div = document.createElement('div');
     const vm = new Vue({
       el: div,
       data: {
-        value: ''
+        value: '12'
       },
       template: `
         <select ref="select" v-model="value">
@@ -301,31 +335,54 @@ describe( 'Hu.html.parts', () => {
       `
     });
 
-    expect( vm.value ).is.equals( '' );
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.select.value ).is.equals( '12' );
+    expect( vm.$refs.select.options[1].selected ).is.true;
 
+    // 控件值发生改变, 绑定值也会发生更改
     vm.$refs.select.options[ 0 ].selected = true;
     triggerEvent( vm.$refs.select, 'change' );
     expect( vm.value ).is.equals( '1' );
+    expect( vm.$refs.select.value ).is.equals( '1' );
+    expect( vm.$refs.select.options[0].selected ).is.true;
 
     vm.$refs.select.options[ 1 ].selected = true;
     triggerEvent( vm.$refs.select, 'change' );
     expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.select.value ).is.equals( '12' );
+    expect( vm.$refs.select.options[1].selected ).is.true;
 
     vm.$refs.select.options[ 2 ].selected = true;
     triggerEvent( vm.$refs.select, 'change' );
     expect( vm.value ).is.equals( '123' );
+    expect( vm.$refs.select.value ).is.equals( '123' );
+    expect( vm.$refs.select.options[2].selected ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = '1';
+    vm.$nextTick(() => {
+      expect( vm.value ).is.equals( '1' );
+      expect( vm.$refs.select.value ).is.equals( '1' );
+      expect( vm.$refs.select.options[0].selected ).is.true;
+
+      vm.value = '12';
+      vm.$nextTick(() => {
+        expect( vm.value ).is.equals( '12' );
+        expect( vm.$refs.select.value ).is.equals( '12' );
+        expect( vm.$refs.select.options[1].selected ).is.true;
+
+        vm.value = '123';
+        vm.$nextTick(() => {
+          expect( vm.value ).is.equals( '123' );
+          expect( vm.$refs.select.value ).is.equals( '123' );
+          expect( vm.$refs.select.options[2].selected ).is.true;
+
+          done();
+        });
+      });
+    });
   });
-
-  // it( '使用 :model 的方式对表单控件创建双向绑定', () => {
-  //   const div = document.createElement('div');
-  //   const data = Hu.observable({
-  //     value: '123'
-  //   });
-
-  //   Hu.render( div )`
-  //     <input :model=${[ data, 'value' ]} type="password" />
-  //   `;
-  // });
 
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
