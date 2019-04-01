@@ -384,6 +384,90 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用 :model 指令对 input[type=checkbox] 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: true
+      },
+      render( html ){
+        return html`
+          <input ref="checkbox" type="checkbox" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( true );
+    expect( hu.$refs.checkbox.checked ).is.true;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$refs.checkbox.checked = false;
+    triggerEvent( hu.$refs.checkbox, 'change' );
+    expect( hu.value ).is.equals( false );
+    expect( hu.$refs.checkbox.checked ).is.false;
+
+    hu.$refs.checkbox.checked = true;
+    triggerEvent( hu.$refs.checkbox, 'change' );
+    expect( hu.value ).is.equals( true );
+    expect( hu.$refs.checkbox.checked ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = false;
+    hu.$nextTick(() => {
+      expect( hu.$refs.checkbox.checked ).is.false;
+
+      hu.value = true;
+      hu.$nextTick(() => {
+        expect( hu.$refs.checkbox.checked ).is.true;
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 v-model 指令对 input[type=checkbox] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: true
+      },
+      template: `
+        <input ref="checkbox" type="checkbox" v-model="value">
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( true );
+    expect( vm.$refs.checkbox.checked ).is.true;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$refs.checkbox.checked = false;
+    triggerEvent( vm.$refs.checkbox, 'change' );
+    expect( vm.value ).is.equals( false );
+    expect( vm.$refs.checkbox.checked ).is.false;
+
+    vm.$refs.checkbox.checked = true;
+    triggerEvent( vm.$refs.checkbox, 'change' );
+    expect( vm.value ).is.equals( true );
+    expect( vm.$refs.checkbox.checked ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = false;
+    vm.$nextTick(() => {
+      expect( vm.$refs.checkbox.checked ).is.false;
+
+      vm.value = true;
+      vm.$nextTick(() => {
+        expect( vm.$refs.checkbox.checked ).is.true;
+
+        done();
+      });
+    });
+  });
+
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
     let index = 0;
