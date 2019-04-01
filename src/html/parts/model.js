@@ -6,6 +6,7 @@ import { observe } from "../../static/observable/observe";
 import { assign } from "../../shared/global/Object/index";
 import getAttribute from "../../shared/util/getAttribute";
 import isFunction from "../../shared/util/isFunction";
+import triggerEvent from "../../shared/util/triggerEvent";
 
 
 export default class ModelPart{
@@ -21,6 +22,8 @@ export default class ModelPart{
       handler = handlerCheckbox;
     }else if( tag === 'input' && type === 'radio' ){
       handler = handlerRadio;
+    }else if( tag === 'input' || tag === 'textarea' ){
+      handler = handlerDefault;
     }
 
     this.elem = element;
@@ -93,5 +96,26 @@ function handlerRadio( elem, options ){
   addEventListener( elem, 'change', event => {
     const [ proxy, name ] = this.options;
     proxy[ name ] = getAttribute( elem, 'value' ) || null;
+  });
+}
+
+function handlerDefault( elem, options ){
+  // 监听绑定值改变
+  watch( options, elem, 'value' );
+  // 监听控件值改变
+  addEventListener( 'compositionstart', event => {
+    elem.composing = true;
+  });
+  addEventListener( 'compositionend', event => {
+    if( !elem.composing ) return;
+
+    elem.composing = false;
+    triggerEvent( elem, 'input' );
+  });
+  addEventListener( elem, 'input', event => {
+    if( elem.composing ) return;
+
+    const [ proxy, name ] = this.options;
+    proxy[ name ] = elem.value;
   });
 }
