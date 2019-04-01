@@ -642,6 +642,146 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用 :model 指令对 input 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <input ref="text" type="text" :model=${[ this, 'value' ]} />
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.text.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$refs.text.value = '123';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '123' );
+
+    hu.$refs.text.value = '1234';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = '12345';
+    hu.$nextTick(() => {
+      expect( hu.$refs.text.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
+  it( '使用 v-model 指令对 input 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <input ref="text" type="text" v-model="value" />
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.text.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$refs.text.value = '123';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '123' );
+
+    vm.$refs.text.value = '1234';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = '12345';
+    vm.$nextTick(() => {
+      expect( vm.$refs.text.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
+  it( '使用 :model 指令对 textarea 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <textarea ref="textarea" :model=${[ this, 'value' ]}></textarea>
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.textarea.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$refs.textarea.value = '123';
+    triggerEvent( hu.$refs.textarea, 'input' );
+    expect( hu.value ).is.equals( '123' );
+
+    hu.$refs.textarea.value = '1234';
+    triggerEvent( hu.$refs.textarea, 'input' );
+    expect( hu.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = '12345';
+    hu.$nextTick(() => {
+      expect( hu.$refs.textarea.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
+  it( '使用 v-model 指令对 textarea 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <textarea ref="textarea" v-model="value"></textarea>
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.textarea.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$refs.textarea.value = '123';
+    triggerEvent( vm.$refs.textarea, 'input' );
+    expect( vm.value ).is.equals( '123' );
+
+    vm.$refs.textarea.value = '1234';
+    triggerEvent( vm.$refs.textarea, 'input' );
+    expect( vm.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = '12345';
+    vm.$nextTick(() => {
+      expect( vm.$refs.textarea.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
     let index = 0;
