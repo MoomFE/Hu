@@ -782,6 +782,86 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用 :model 指令对 input / textarea 表单控件进行双向绑定时, 不会收到输入法的影响', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <input ref="text" type="text" :model=${[ this, 'value' ]} />
+        `;
+      }
+    });
+
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.text.value ).is.equals( '12' );
+
+    hu.$refs.text.value = '1';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '1' );
+
+    hu.$refs.text.value = '2';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '2' );
+
+    triggerEvent( hu.$refs.text, 'compositionstart' );
+
+    hu.$refs.text.value = '3';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '2' );
+
+    hu.$refs.text.value = '4';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '2' );
+
+    triggerEvent( hu.$refs.text, 'compositionend' );
+    expect( hu.value ).is.equals( '4' );
+
+    done();
+  });
+
+  it( '使用 v-model 指令对 input / textarea 表单控件进行双向绑定时, 不会收到输入法的影响 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <input ref="text" type="text" v-model="value" />
+      `
+    });
+
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.text.value ).is.equals( '12' );
+
+    vm.$refs.text.value = '1';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '1' );
+
+    vm.$refs.text.value = '2';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '2' );
+
+    triggerEvent( vm.$refs.text, 'compositionstart' );
+
+    vm.$refs.text.value = '3';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '2' );
+
+    vm.$refs.text.value = '4';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '2' );
+
+    triggerEvent( vm.$refs.text, 'compositionend' );
+    expect( vm.value ).is.equals( '4' );
+
+    done();
+  });
+
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
     let index = 0;
