@@ -15,6 +15,9 @@ export default class ModelPart{
 
     if( tag === 'select' ){
       handler = handlerSelect;
+    }else if( tag === 'input' && type === 'checkbox' ){
+      key = 'checked';
+      handler = handlerCheckbox;
     }
 
     this.elem = element;
@@ -66,5 +69,12 @@ function handlerSelect( elem ){
                         .map( option => option.value );
 
     proxy[ name ] = elem.multiple ? value : value[0];
+  });
+}
+
+function handlerCheckbox( elem ){
+  addEventListener( elem, 'change', event => {
+    const [ proxy, name ] = this.options;
+    proxy[ name ] = elem.checked;
   });
 }
