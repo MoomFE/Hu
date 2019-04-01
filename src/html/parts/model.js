@@ -2,6 +2,7 @@ import { isArray } from "../../shared/global/Array/index";
 import { filter } from "../../shared/global/Array/prototype";
 import addEventListener from "../../shared/util/addEventListener";
 import emptyObject from "../../shared/const/emptyObject";
+import $watch from "../../shared/global/Hu/prototype/$watch";
 
 
 export default class ModelPart{
@@ -10,12 +11,14 @@ export default class ModelPart{
     const tag = element.nodeName.toLowerCase();
     const type = element.type;
     let handler;
+    let key = 'value';
 
     if( tag === 'select' ){
       handler = handlerSelect;
     }
 
     this.elem = element;
+    this.key = key;
     this.handler = handler;
   }
 
@@ -29,19 +32,36 @@ export default class ModelPart{
   }
 
   commit(){
-    if( this.init || this.oldOptions[0] === this.options[0] && this.oldOptions[1] === this.options[1] ){
+    const { options, oldOptions } = this;
+
+    if( !this.handler || oldOptions[0] === options[0] && oldOptions[1] === options[1] ){
       return;
     }
 
-    this.init = true;
-    this.handler && this.handler( this, this.elem );
+    const { elem, key } = this;
+
+    if( this.unWatch ){
+      this.unWatch();
+      this.watch( elem, key, options );
+    }else{
+      this.handler( elem );
+      this.watch( elem, key, options );
+    }
+  }
+
+  watch( elem, key, options ){
+    this.unWatch = $watch(
+      () => options[0][ options[1] ],
+      ( value ) => elem[ key ] = value,
+      { immediate: true }
+    );
   }
 
 }
 
-function handlerSelect( part, elem ){
+function handlerSelect( elem ){
   addEventListener( elem, 'change', event => {
-    const [ proxy, name ] = part.options;
+    const [ proxy, name ] = this.options;
     const value = filter.call( elem.options, option => option.selected )
                         .map( option => option.value );
 
