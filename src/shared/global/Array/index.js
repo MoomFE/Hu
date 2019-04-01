@@ -1,3 +1,4 @@
 export const {
-  isArray
+  isArray,
+  prototype
 } = Array;
