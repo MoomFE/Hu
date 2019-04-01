@@ -5,6 +5,7 @@ import { assign } from "../Object/index";
 import $watch from "./prototype/$watch";
 import $nextTick from "./prototype/$nextTick";
 import $mount from "./prototype/$mount";
+import $on, { initEvents } from "./prototype/$on";
 
 
 export default class HuConstructor{
@@ -14,11 +15,14 @@ export default class HuConstructor{
 
     // 初始化 $forceUpdate 方法
     initForceUpdate( name, this, targetProxy );
+    // 初始化事件相关
+    initEvents( targetProxy );
   }
 }
 
 assign( HuConstructor.prototype, {
   $watch,
   $mount,
-  $nextTick
+  $nextTick,
+  $on
 });
