@@ -103,10 +103,10 @@ function handlerDefault( elem, options ){
   // 监听绑定值改变
   watch( options, elem, 'value' );
   // 监听控件值改变
-  addEventListener( 'compositionstart', event => {
+  addEventListener( elem, 'compositionstart', event => {
     elem.composing = true;
   });
-  addEventListener( 'compositionend', event => {
+  addEventListener( elem, 'compositionend', event => {
     if( !elem.composing ) return;
 
     elem.composing = false;
