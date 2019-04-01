@@ -3,7 +3,7 @@ describe( 'Hu.html.parts', () => {
   it( '正常对元素属性 ( Attribute ) 进行绑定', () => {
     const div = document.createElement('div');
     let attr = '123';
-    
+
     Hu.render( div )`
       <div name=${ attr }></div>
     `;
@@ -464,6 +464,180 @@ describe( 'Hu.html.parts', () => {
         expect( vm.$refs.checkbox.checked ).is.true;
 
         done();
+      });
+    });
+  });
+
+  it( '使用 :model 指令对 input[type=radio] 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <input type="radio" value="1" :model=${[ this, 'value' ]}>
+          <input type="radio" value="12" :model=${[ this, 'value' ]}>
+          <input type="radio" value="123" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+    expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$el.querySelector(':nth-child(1)').checked = true;
+    triggerEvent( hu.$el.querySelector(':nth-child(1)'), 'change' );
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+    expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '1' );
+      expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+      expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+      hu.$el.querySelector(':nth-child(2)').checked = true;
+      triggerEvent( hu.$el.querySelector(':nth-child(2)'), 'change' );
+      expect( hu.value ).is.equals( '12' );
+      expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+      expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '12' );
+        expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+        hu.$el.querySelector(':nth-child(3)').checked = true;
+        triggerEvent( hu.$el.querySelector(':nth-child(3)'), 'change' );
+        expect( hu.value ).is.equals( '123' );
+        expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( hu.$el.querySelector(':nth-child(3)').checked ).is.true;
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '123' );
+          expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+          expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+          expect( hu.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+          // 绑定值发生改变, 控件值也会发生更改
+          hu.value = '1';
+          hu.$nextTick(() => {
+            expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+            expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+            expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+            hu.value = '12';
+            hu.$nextTick(() => {
+              expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+              expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+              expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+              hu.value = '123';
+              hu.$nextTick(() => {
+                expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+                expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+                expect( hu.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 v-model 指令对 input[type=radio] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <div>
+          <input type="radio" value="1" v-model="value">
+          <input type="radio" value="12" v-model="value">
+          <input type="radio" value="123" v-model="value">
+        </div>
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+    expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$el.querySelector(':nth-child(1)').checked = true;
+    triggerEvent( vm.$el.querySelector(':nth-child(1)'), 'change' );
+    expect( vm.value ).is.equals( '1' );
+    expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+    expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+    vm.$nextTick(() => {
+      expect( vm.value ).is.equals( '1' );
+      expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+      expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+      vm.$el.querySelector(':nth-child(2)').checked = true;
+      triggerEvent( vm.$el.querySelector(':nth-child(2)'), 'change' );
+      expect( vm.value ).is.equals( '12' );
+      expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+      expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+      vm.$nextTick(() => {
+        expect( vm.value ).is.equals( '12' );
+        expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+        vm.$el.querySelector(':nth-child(3)').checked = true;
+        triggerEvent( vm.$el.querySelector(':nth-child(3)'), 'change' );
+        expect( vm.value ).is.equals( '123' );
+        expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+        vm.$nextTick(() => {
+          expect( vm.value ).is.equals( '123' );
+          expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+          expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+          expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+          // 绑定值发生改变, 控件值也会发生更改
+          vm.value = '1';
+          vm.$nextTick(() => {
+            expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+            expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+            expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+            vm.value = '12';
+            vm.$nextTick(() => {
+              expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+              expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+              expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+              vm.value = '123';
+              vm.$nextTick(() => {
+                expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+                expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+                expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+                done();
+              });
+            });
+          });
+        });
       });
     });
   });
