@@ -2,6 +2,8 @@ import { isDirective } from 'lit-html'
 import isFunction from "../../shared/util/isFunction";
 import { has } from "../../shared/global/Reflect/index";
 import { supportsPassive } from "../../shared/const/env";
+import removeEventListener from '../../shared/util/removeEventListener';
+import addEventListener from '../../shared/util/addEventListener';
 
 
 export default class EventPart{
@@ -32,7 +34,7 @@ export default class EventPart{
       // 移除旧的事件绑定
       // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
       if( oldListener && !once ){
-        elem.removeEventListener( type, this.value, options );
+        removeEventListener( elem, type, this.value, options );
       }
       // 添加新的事件绑定
       if( listener && add ){
@@ -46,13 +48,13 @@ export default class EventPart{
           }
           // 只执行一次
           if( once ){
-            elem.removeEventListener( type, callback, options );
+            removeEventListener( elem, type, callback, options );
           }
           // 修饰符全部检测通过, 执行用户传入方法
           listener.apply( this, arguments );
         };
         // 注册事件
-        elem.addEventListener( type, value, options );
+        addEventListener( elem, type, value, options );
       }
     }
   }
