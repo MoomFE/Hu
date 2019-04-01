@@ -252,16 +252,80 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
-  it( '使用 :model 的方式对表单控件创建双向绑定', () => {
+  it( '使用 :model 指令对 select 表单控件进行双向绑定, 控件值更改后会更改绑定的值', () => {
     const div = document.createElement('div');
-    const data = Hu.observable({
-      value: '123'
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: ''
+      },
+      render( html ){
+        return html`
+          <select ref="select" :model=${[ this, 'value' ]}>
+            <option value="1">11</option>
+            <option value="12">1212</option>
+            <option value="123">123123</option>
+          </select>
+        `;
+      }
     });
 
-    Hu.render( div )`
-      <input type="text" :model=${[ data, 'value' ]} />
-    `;
+    expect( hu.value ).is.equals( '' );
+
+    hu.$refs.select.options[ 0 ].selected = true;
+    triggerEvent( hu.$refs.select, 'change' );
+    expect( hu.value ).is.equals( '1' );
+
+    hu.$refs.select.options[ 1 ].selected = true;
+    triggerEvent( hu.$refs.select, 'change' );
+    expect( hu.value ).is.equals( '12' );
+
+    hu.$refs.select.options[ 2 ].selected = true;
+    triggerEvent( hu.$refs.select, 'change' );
+    expect( hu.value ).is.equals( '123' );
   });
+
+  it( '使用 v-model 指令对 select 表单控件进行双向绑定, 控件值更改后会更改绑定的值 ( Vue )', () => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: ''
+      },
+      template: `
+        <select ref="select" v-model="value">
+          <option value="1">11</option>
+          <option value="12">1212</option>
+          <option value="123">123123</option>
+        </select>
+      `
+    });
+
+    expect( vm.value ).is.equals( '' );
+
+    vm.$refs.select.options[ 0 ].selected = true;
+    triggerEvent( vm.$refs.select, 'change' );
+    expect( vm.value ).is.equals( '1' );
+
+    vm.$refs.select.options[ 1 ].selected = true;
+    triggerEvent( vm.$refs.select, 'change' );
+    expect( vm.value ).is.equals( '12' );
+
+    vm.$refs.select.options[ 2 ].selected = true;
+    triggerEvent( vm.$refs.select, 'change' );
+    expect( vm.value ).is.equals( '123' );
+  });
+
+  // it( '使用 :model 的方式对表单控件创建双向绑定', () => {
+  //   const div = document.createElement('div');
+  //   const data = Hu.observable({
+  //     value: '123'
+  //   });
+
+  //   Hu.render( div )`
+  //     <input :model=${[ data, 'value' ]} type="password" />
+  //   `;
+  // });
 
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
