@@ -1,5 +1,5 @@
 export const {
-  // apply,
+  apply,
   // construct,
   defineProperty,
   deleteProperty,
