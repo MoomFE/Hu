@@ -1,7 +1,6 @@
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import noop from "../../../shared/util/noop";
-import { isArray } from "../../../shared/global/Array/index";
 import isPlainObject from "../../../shared/util/isPlainObject";
 
 
@@ -24,7 +23,7 @@ export default function initState( isCustomElement, userOptions, options ){
     initComputed( computed, options );
   }
   if( watch ){
-    initWatch( watch, options );
+    options.watch = watch;
   }
 }
 
@@ -60,25 +59,4 @@ function initComputed( userComputed, options ){
       };
     }
   });
-}
-
-function initWatch( userWatch, options ){
-  const watch = options.watch = {};
-
-  each( userWatch, ( key, handler ) => {
-
-    if( isArray( handler ) ){
-      for( const handler of handler ){
-        createWatcher( key, handler, watch );
-      }
-    }else{
-      createWatcher( key, handler, watch );
-    }
-  });
-}
-
-function createWatcher( key, handler, watch ){
-  watch[ key ] = isPlainObject( handler ) ? handler : {
-    handler
-  };
 }
