@@ -7,30 +7,29 @@ import isFunction from "../../../shared/util/isFunction";
 
 /**
  * 初始化当前组件 data 属性
- * @param {{}} options 
- * @param {{}} target 
- * @param {{}} targetProxy 
+ * @param {{}} options
+ * @param {{}} target
+ * @param {{}} targetProxy
  */
 export default function initData( options, target, targetProxy ){
 
-  const dataTarget = create( null );
+  const data = options.data;
+  let dataTarget;
+
+  if( data ){
+    dataTarget = isFunction( data ) ? data.call( targetProxy ) : data;
+  }else{
+    dataTarget = create( null );
+  }
 
   const dataTargetProxy = target.$data = observe( dataTarget );
 
-  const { data } = options;
+  data && each( dataTarget, ( name, value ) => {
+    injectionToLit(
+      target, name, 0,
+      () => dataTargetProxy[ name ],
+      value => dataTargetProxy[ name ] = value
+    );
+  });
 
-  if( data ){
-    const dataObj = isFunction( data ) ? data.call( targetProxy ) : data;
-
-    each( dataObj, ( name, value ) => {
-      dataTarget[ name ] = value;
-
-      injectionToLit(
-        target, name, 0,
-        () => dataTargetProxy[ name ],
-        value => dataTargetProxy[ name ] = value
-      );
-    });
-  }
-  
 }
