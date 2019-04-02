@@ -1207,4 +1207,35 @@ describe( 'Hu.define - computed', () => {
     });
   });
 
+  it( '计算属性的首个参数会是当前实例对象', () => {
+    let index = 0;
+    const hu = new Hu({
+      computed: {
+        a( hu ){
+          index++;
+          expect( hu ).is.equals( this );
+        }
+      }
+    });
+
+    hu.a;
+    expect( index ).is.equals( 1 );
+  });
+
+  it( '计算属性的首个参数会是当前实例对象 ( Vue )', () => {
+    let index = 0;
+    const vm = new Vue({
+      computed: {
+        a( hu ){
+          index++;
+          expect( hu ).is.equals( this );
+        }
+      }
+    });
+
+    vm.a;
+    expect( index ).is.equals( 1 );
+  });
+
+
 });
