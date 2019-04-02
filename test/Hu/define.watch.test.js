@@ -1062,4 +1062,146 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '创建实例时 watch 选项可以为一个函数', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      done();
+    });
+  });
+
+  it( '创建实例时 watch 选项可以为一个函数 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      done();
+    });
+  });
+
+  it( '创建实例时 watch 选项可以为一个字符串的方法名称', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
+      methods: {
+        watchA: ( value, oldValue ) => result = [ value, oldValue ]
+      },
+      watch: {
+        a: 'watchA'
+      }
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      done();
+    });
+  });
+
+  it( '创建实例时 watch 选项可以为一个字符串的方法名称 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      methods: {
+        watchA: ( value, oldValue ) => result = [ value, oldValue ]
+      },
+      watch: {
+        a: 'watchA'
+      }
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      done();
+    });
+  });
+
+  it( '创建实例时 watch 选项可以为一个数组', ( done ) => {
+    let result, result2, result3;
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
+      methods: {
+        watchA: ( value, oldValue ) => result = [ value, oldValue ]
+      },
+      watch: {
+        a: [
+          'watchA',
+          ( value, oldValue ) => result2 = [ value, oldValue ],
+          {
+            handler: ( value, oldValue ) => result3 = [ value, oldValue ]
+          }
+        ]
+      }
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      expect( result2 ).is.deep.equals([ 2, 1 ]);
+      expect( result3 ).is.deep.equals([ 2, 1 ]);
+
+      done();
+    })
+  });
+
+  it( '创建实例时 watch 选项可以为一个数组 ( Vue )', ( done ) => {
+    let result, result2, result3;
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      methods: {
+        watchA: ( value, oldValue ) => result = [ value, oldValue ]
+      },
+      watch: {
+        a: [
+          'watchA',
+          ( value, oldValue ) => result2 = [ value, oldValue ],
+          {
+            handler: ( value, oldValue ) => result3 = [ value, oldValue ]
+          }
+        ]
+      }
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      expect( result2 ).is.deep.equals([ 2, 1 ]);
+      expect( result3 ).is.deep.equals([ 2, 1 ]);
+
+      done();
+    });
+  });
+
 });
