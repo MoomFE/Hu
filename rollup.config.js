@@ -1,3 +1,4 @@
+import 'colors';
 import '@moomfe/zenjs';
 import fs from 'fs';
 import path from 'path';
@@ -9,23 +10,45 @@ import { terser } from 'rollup-plugin-terser';
 
 const packages = require('./package.json');
 const READMEPATH = path.resolve( __dirname, 'README.md' );
-const banner =
-`/*!
- * ${ packages.title } v${ packages.version }
- * ${ packages.homepage }
- * 
- * (c) 2018-present ${ packages.author }
- * Released under the MIT License.
- */\n`;
+
+function getSize( size ){
+  if( size < 1024 ) return size + 'B';
+  else return ( size / 1024 ).toFixed( 2 ) + 'KB';
+}
+
 const basic = {
   input: 'src/build/index.js',
   output: {
     file: 'dist/hu.js',
     format: 'umd',
     name: 'Hu',
-    banner
+    banner: `/*!\n * ${ packages.title } v${ packages.version }\n * ${ packages.homepage }\n * \n * (c) 2018-present ${ packages.author }\n * Released under the MIT License.\n */\n`
   },
   plugins: [
+    {
+      name: 'console',
+      buildStart( inputOptions ){
+        const input = path.resolve( __dirname, inputOptions.input );
+
+        this.time = Date.$valueOf();
+
+        console.log(`------------------------------------`);
+        console.log(`- Input   : ${ input.green }`);
+      },
+      generateBundle( outputOptions, bundle ){
+        const date = ( new Date ).$format('YYYY-MM-DD HH:mm:ss Z');
+        const time = Date.$valueOf() - this.time + 'ms';
+        const [ name, options ] = Object.entries( bundle )[0];
+        const output = path.resolve( __dirname, `dist/${ name }` );
+        const size = getSize( options.code.length );
+        const gzipSize = getSize( zlib.gzipSync( options.code ).length );
+
+        console.log(`- Output  : ${ output.green } - ( ${ size.green } / ${ gzipSize.green } )`);
+        console.log(`- Built at: ${ date.green }`);
+        console.log(`- Time    : ${ time.green }`);
+        console.log(`------------------------------------\n`);
+      }
+    },
     resolve(),
     {
       name: 'update-readme',

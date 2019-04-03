@@ -20,14 +20,15 @@
   },
   "homepage": "https://github.com/MoomFE/Hu",
   "scripts": {
-    "build": "node_modules\\.bin\\rollup --config --environment build:true",
-    "watch": "node_modules\\.bin\\rollup --config --watch --environment watch:true",
-    "watch:polyfill": "node_modules\\.bin\\rollup --config --watch"
+    "build": "node_modules\\.bin\\rollup --silent --config --environment build:true",
+    "watch": "node_modules\\.bin\\rollup --silent --config --watch --environment watch:true",
+    "watch:polyfill": "node_modules\\.bin\\rollup --silent --config --watch"
   },
   "devDependencies": {
     "@moomfe/zenjs": "^5.0.0-beta.5",
     "@webcomponents/webcomponentsjs": "^2.2.7",
     "chai": "^4.2.0",
+    "colors": "^1.3.3",
     "fs-extra": "^7.0.1",
     "lit-html": "^1.0.0",
     "mocha": "^5.2.0",
