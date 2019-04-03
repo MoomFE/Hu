@@ -1,5 +1,6 @@
 import html from "../../html/html";
 import litRender from "../../html/render";
+import { apply } from "../../shared/global/Reflect/index";
 
 
 export default html;
@@ -12,7 +13,7 @@ export function render( result, container ){
   container = result;
 
   return function(){
-    const result = html.apply( null, arguments );
+    const result = apply( html, null, arguments );
     return litRender( result, container );
   }
 }

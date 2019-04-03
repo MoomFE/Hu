@@ -1,6 +1,6 @@
 import { isDirective } from 'lit-html'
 import isFunction from "../../shared/util/isFunction";
-import { has } from "../../shared/global/Reflect/index";
+import { has, apply } from "../../shared/global/Reflect/index";
 import { supportsPassive } from "../../shared/const/env";
 import removeEventListener from '../../shared/util/removeEventListener';
 import addEventListener from '../../shared/util/addEventListener';
@@ -51,7 +51,7 @@ export default class EventPart{
             removeEventListener( elem, type, callback, options );
           }
           // 修饰符全部检测通过, 执行用户传入方法
-          listener.apply( this, arguments );
+          apply( listener, this, arguments );
         };
         // 注册事件
         addEventListener( elem, type, value, options );
