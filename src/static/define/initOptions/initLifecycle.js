@@ -1,4 +1,5 @@
 import isFunction from "../../../shared/util/isFunction";
+import { slice } from "../../../shared/global/Array/prototype";
 
 
 export default function initLifecycle( isMixin, userOptions, options ){
@@ -22,12 +23,26 @@ export default function initLifecycle( isMixin, userOptions, options ){
   ].forEach( name => {
     const lifecycle = userOptions[ name ];
 
-    isFunction( lifecycle ) && (
-      ( options[ name ] || ( options[ name ] = [] ) ).push( lifecycle )
-    );
+    if( isFunction( lifecycle ) ){
+      const lifecycles = options[ name ] || (
+        options[ name ] = []
+      );
+
+      if( isMixin ){
+        lifecycles.splice( 0, 0, lifecycle );
+      }else{
+        lifecycles.push( lifecycle );
+      }
+    }
   });
 
   if( !isMixin ){
+    let mixins = userOptions.mixins;
 
+    if( mixins && mixins.length ){
+      mixins = slice.call( mixins ).reverse();
+      for( const mixin of mixins ) initLifecycle( true, mixin, options );
+    }
   }
+
 }
