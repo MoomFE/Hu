@@ -19,10 +19,10 @@ export default function initOptions( isCustomElement, name, _userOptions ){
   /** 格式化后的组件配置 */
   const options = optionsMap[ name ] = {};
 
-  initProps( userOptions, options );
-  initState( isCustomElement, userOptions, options );
-  initLifecycle( userOptions, options );
-  initOther( isCustomElement, userOptions, options );
+  initProps( false, userOptions, options );
+  initState( false, isCustomElement, userOptions, options );
+  initLifecycle( false, userOptions, options );
+  initOther( false, isCustomElement, userOptions, options );
 
   return [
     userOptions,

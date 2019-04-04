@@ -2,7 +2,7 @@ import isFunction from "../../../shared/util/isFunction";
 import { inBrowser } from "../../../shared/const/env";
 
 
-export default function initOther( isCustomElement, userOptions, options ){
+export default function initOther( isMixin, isCustomElement, userOptions, options ){
 
   const { render } = userOptions;
 

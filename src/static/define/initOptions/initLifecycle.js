@@ -1,7 +1,7 @@
 import isFunction from "../../../shared/util/isFunction";
 
 
-export default function initLifecycle( userOptions, options ){
+export default function initLifecycle( isMixin, userOptions, options ){
 
   [
     /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
@@ -12,7 +12,7 @@ export default function initLifecycle( userOptions, options ){
     'beforeMount',
     /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
     'mounted',
-    /** 实例销毁之前调用。在这一步，实例仍然完全可用 */
+    /** 实例销毁之前调用, 在这一步, 实例仍然完全可用 */
     'beforeDestroy',
     /** 实例销毁后调用 */
     'destroyed',

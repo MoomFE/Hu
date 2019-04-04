@@ -8,43 +8,50 @@ import isSymbol from "../../../shared/util/isSymbol";
 import returnArg from "../../../shared/util/returnArg";
 import hyphenate from "../../../shared/util/hyphenate";
 import { has } from "../../../shared/global/Reflect/index";
+import { slice } from "../../../shared/global/Array/prototype";
 
 
 /**
  * 初始化组件 props 配置
+ * @param {boolean} isMixin 是否是混入对象
  * @param {{}} userOptions 用户传入的组件配置
  * @param {{}} options 格式化后的组件配置
  */
-export default function initProps( userOptions, options ){
+export default function initProps( isMixin, userOptions, options ){
 
   /** 格式化后的 props 配置 */
-  const props = options.props = {};
-  /** 最终的 prop 与取值 attribute 的映射 */
-  const propsMap = options.propsMap = {};
+  const props = isMixin ? options.props : options.props = {};
   /** 用户传入的 props 配置 */
   const userProps = userOptions.props;
-  /** 用户传入的 props 配置是否是数组 */
-  let propsIsArray = false;
-
-  // 去除不合法参数
-  if( userProps == null || !( ( propsIsArray = isArray( userProps ) ) || isPlainObject( userProps ) ) ){
-    return;
-  }
 
   // 格式化数组参数
-  if( propsIsArray ){
+  if( isArray( userProps ) ){
     if( !userProps.length ) return;
 
     for( let name of userProps ){
-      props[ name ] = initProp( name, null );
+      props[ name ] = props[ name ] || initProp( name, null );
     }
   }
   // 格式化 JSON 参数
-  else{
+  else if( isPlainObject( userProps ) ){
     each( userProps, ( name, prop ) => {
-      props[ name ] = initProp( name, prop );
+      props[ name ] = props[ name ] || initProp( name, prop );
     });
   }
+
+  if( !isMixin ){
+    let mixins = userOptions.mixins;
+
+    if( mixins && mixins.length ){
+      mixins = slice.call( mixins ).reverse();
+      for( const mixin of mixins ) initProps( true, mixin, options );
+    }
+  }else{
+    return;
+  }
+
+  /** 最终的 prop 与取值 attribute 的映射 */
+  const propsMap = options.propsMap = {};
 
   // 生成 propsMap
   each( props, ( name, prop ) => {

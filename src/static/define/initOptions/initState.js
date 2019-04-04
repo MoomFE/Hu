@@ -4,7 +4,7 @@ import noop from "../../../shared/util/noop";
 import isPlainObject from "../../../shared/util/isPlainObject";
 
 
-export default function initState( isCustomElement, userOptions, options ){
+export default function initState( isMixin, isCustomElement, userOptions, options ){
 
   const {
     methods,
