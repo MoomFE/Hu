@@ -112,6 +112,39 @@ interface $hu {
    * 迫使 Hu 实例重新渲染
    */
   readonly $forceUpdate(): void;
+
+  /**
+   * 监听当前实例上的自定义事件
+   * - 事件可以由 hu.$emit 触发
+   * - 回调函数会接收所有传入事件触发函数的额外参数
+   * @param type 事件名称
+   * @param fn 事件触发时调用的监听器
+   */
+  readonly $on( type: string | string[], fn: () => void ): this;
+
+  /**
+   * 监听当前实例上的自定义事件, 但是只触发一次, 在第一次触发之后移除监听器
+   * @param type 事件名称
+   * @param fn 事件触发时调用的监听器
+   */
+  readonly $once( type: string, fn: () => void ): this;
+
+  /**
+   * 移除当前实例上的自定义事件监听器
+   * - 如果没有提供参数, 则移除所有的事件监听器
+   * - 如果只提供了事件, 则移除该事件所有的监听器
+   * - 如果同时提供了事件与回调, 则只移除这个回调的监听器
+   * @param type 事件名称
+   * @param fn 需要移除的事件监听器
+   */
+  readonly $off( type: string | string[], fn: () => void ): this;
+
+  /**
+   * 触发当前实例上的事件, 附加参数都会传给监听器回调
+   * @param type 事件名称
+   * @param args 需要传递给事件监听器的参数
+   */
+  readonly $emit( type: string, ...args: any[] ): this;
 }
 
 interface Element {
