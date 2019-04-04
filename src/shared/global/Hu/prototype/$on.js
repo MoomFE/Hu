@@ -27,10 +27,10 @@ export default function $on( type, fn ){
 }
 
 export function $once( type, fn ){
-  const once = () => {
+  function once(){
     this.$off( type, once );
     apply( fn, this, arguments );
-  };
+  }
   onceMap.set( once, fn );
   this.$on( type, once );
   return this;
@@ -66,7 +66,7 @@ export function $off( type, fn ){
     let cb = fns[ index ];
 
     if( cb === fn || onceMap.get( cb ) === fn ){
-      cbs.splice( index, 1 );
+      fns.splice( index, 1 );
       break;
     }
   }
