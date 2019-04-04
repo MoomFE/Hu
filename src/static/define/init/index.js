@@ -6,6 +6,7 @@ import initComputed from "./initComputed";
 import initWatch from "./initWatch";
 import initOptions from "./initOptions";
 import { observeMap } from "../../observable/observe";
+import callLifecycle from "../util/callLifecycle";
 
 
 /**
@@ -33,12 +34,12 @@ export default function init( isCustomElement, root, name, options, userOptions 
   initMethods( options, target, targetProxy );
   initData( options, target, targetProxy );
 
-  options.beforeCreate.call( targetProxy );
+  callLifecycle( targetProxy, 'beforeCreate' );
 
   initComputed( options, target, targetProxy );
   initWatch( options, target, targetProxy );
 
-  options.created.call( targetProxy );
+  callLifecycle( targetProxy, 'created' );
 
   if( !isCustomElement && options.el ){
     targetProxy.$mount( options.el );

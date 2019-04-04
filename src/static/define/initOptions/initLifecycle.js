@@ -1,5 +1,4 @@
 import isFunction from "../../../shared/util/isFunction";
-import noop from "../../../shared/util/noop";
 
 
 export default function initLifecycle( userOptions, options ){
@@ -13,10 +12,6 @@ export default function initLifecycle( userOptions, options ){
     'beforeMount',
     /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
     'mounted',
-    /** 数据更新时调用, 还未更新组件 DOM */
-    'beforeUpdate',
-    /** 数据更新时调用, 已更新组件 DOM */
-    'updated',
     /** 实例销毁之前调用。在这一步，实例仍然完全可用 */
     'beforeDestroy',
     /** 实例销毁后调用 */
@@ -26,8 +21,9 @@ export default function initLifecycle( userOptions, options ){
   ].forEach( name => {
     const lifecycle = userOptions[ name ];
 
-    options[ name ] = isFunction( lifecycle ) ? lifecycle
-                                              : noop;
+    if( isFunction( lifecycle ) ){
+      options[ name ] = lifecycle;
+    }
   });
 
 }
