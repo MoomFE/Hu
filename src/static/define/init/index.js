@@ -34,12 +34,12 @@ export default function init( isCustomElement, root, name, options, userOptions 
   initMethods( options, target, targetProxy );
   initData( options, target, targetProxy );
 
-  callLifecycle( targetProxy, 'beforeCreate' );
+  callLifecycle( targetProxy, 'beforeCreate', options );
 
   initComputed( options, target, targetProxy );
   initWatch( options, target, targetProxy );
 
-  callLifecycle( targetProxy, 'created' );
+  callLifecycle( targetProxy, 'created', options );
 
   if( !isCustomElement && options.el ){
     targetProxy.$mount( options.el );

@@ -22,9 +22,12 @@ export default function initLifecycle( isMixin, userOptions, options ){
   ].forEach( name => {
     const lifecycle = userOptions[ name ];
 
-    if( isFunction( lifecycle ) ){
-      options[ name ] = lifecycle;
-    }
+    isFunction( lifecycle ) && (
+      ( options[ name ] || ( options[ name ] = [] ) ).push( lifecycle )
+    );
   });
 
+  if( !isMixin ){
+
+  }
 }

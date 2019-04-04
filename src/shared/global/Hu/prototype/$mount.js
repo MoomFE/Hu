@@ -33,7 +33,7 @@ export default function( selectors ){
     const infoTarget = observeProxyMap.get( $info ).target;
 
     // 运行 beforeMount 生命周期方法
-    callLifecycle( this, 'beforeMount' );
+    callLifecycle( this, 'beforeMount', options );
 
     // 执行 render 方法, 进行渲染
     this.$forceUpdate();
@@ -42,7 +42,7 @@ export default function( selectors ){
     infoTarget.isMounted = true;
 
     // 运行 mounted 生命周期方法
-    callLifecycle( this, 'mounted' );
+    callLifecycle( this, 'mounted', options );
   }
 
   return this;
