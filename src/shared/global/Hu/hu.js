@@ -6,6 +6,7 @@ import $watch from "./prototype/$watch";
 import $nextTick from "./prototype/$nextTick";
 import $mount from "./prototype/$mount";
 import $on, { initEvents, $once, $off, $emit } from "./prototype/$on";
+import $destroy from "./prototype/$destroy";
 
 
 export default class HuConstructor{
@@ -27,5 +28,6 @@ assign( HuConstructor.prototype, {
   $on,
   $once,
   $off,
-  $emit
+  $emit,
+  $destroy
 });

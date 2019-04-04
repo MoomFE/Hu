@@ -16,6 +16,7 @@ export default function initLifecycle( userOptions, options ){
     'beforeDestroy',
     /** 实例销毁后调用 */
     'destroyed',
+    // 'beforeUpdate', 'updated',
     // 'activated', 'deactivated',
     // 'errorCaptured'
   ].forEach( name => {
