@@ -145,6 +145,13 @@ interface $hu {
    * @param args 需要传递给事件监听器的参数
    */
   readonly $emit( type: string, ...args: any[] ): this;
+
+  /**
+   * 完全销毁一个实例
+   * - 解绑它的全部指令及事件监听器
+   * - 将触发 beforeDestroy 和 destroyed 生命周期方法
+   */
+  readonly $destroy();
 }
 
 interface Element {
@@ -315,6 +322,23 @@ interface ComponentOptions{
    * 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载
    */
   mounted?( this: $hu );
+
+  /**
+   * 实例销毁之前调用, 在这一步, 实例仍然完全可用
+   */
+  beforeDestroy?( this: $hu );
+
+  /**
+   * 实例销毁后调用
+   */
+  destroyed?( this: $hu );
+
+  /**
+   * 选项接受一个混入对象的数组, 这些混入实例对象可以像正常的实例对象一样包含选项
+   * - 举例: 如果你的混入包含一个生命周期方法而创建组件本身也有一个, 两个函数将被调用
+   * - Mixin 生命周期方法按照传入顺序依次调用, 并在调用组件自身的生命周期方法之前被调用
+   */
+  mixins: ComponentOptions[];
 
 }
 
