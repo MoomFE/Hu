@@ -1,8 +1,7 @@
 import isFunction from "../../../shared/util/isFunction";
-import { slice } from "../../../shared/global/Array/prototype";
 
 
-export default function initLifecycle( isMixin, userOptions, options ){
+export default function initLifecycle( userOptions, options, mixins, isMixin ){
 
   [
     /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
@@ -36,12 +35,9 @@ export default function initLifecycle( isMixin, userOptions, options ){
     }
   });
 
-  if( !isMixin ){
-    let mixins = userOptions.mixins;
-
-    if( mixins && mixins.length ){
-      mixins = slice.call( mixins ).reverse();
-      for( const mixin of mixins ) initLifecycle( true, mixin, options );
+  if( !isMixin && mixins ){
+    for( const mixin of mixins ){
+      initLifecycle( mixin, options, null, true );
     }
   }
 

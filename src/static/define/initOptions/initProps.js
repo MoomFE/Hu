@@ -8,16 +8,16 @@ import isSymbol from "../../../shared/util/isSymbol";
 import returnArg from "../../../shared/util/returnArg";
 import hyphenate from "../../../shared/util/hyphenate";
 import { has } from "../../../shared/global/Reflect/index";
-import { slice } from "../../../shared/global/Array/prototype";
 
 
 /**
  * 初始化组件 props 配置
- * @param {boolean} isMixin 是否是混入对象
  * @param {{}} userOptions 用户传入的组件配置
  * @param {{}} options 格式化后的组件配置
+ * @param {any[]} mixins 混入对象
+ * @param {boolean} isMixin 是否是处理混入对象
  */
-export default function initProps( isMixin, userOptions, options ){
+export default function initProps( userOptions, options, mixins, isMixin ){
 
   /** 格式化后的 props 配置 */
   const props = isMixin ? options.props : options.props = {};
@@ -40,11 +40,10 @@ export default function initProps( isMixin, userOptions, options ){
   }
 
   if( !isMixin ){
-    let mixins = userOptions.mixins;
-
-    if( mixins && mixins.length ){
-      mixins = slice.call( mixins ).reverse();
-      for( const mixin of mixins ) initProps( true, mixin, options );
+    if( mixins ){
+      for( const mixin of mixins ){
+        initProps( mixin, options, null, true );
+      }
     }
   }else{
     return;

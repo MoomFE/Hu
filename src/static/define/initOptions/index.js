@@ -18,11 +18,14 @@ export default function initOptions( isCustomElement, name, _userOptions ){
   const userOptions = assign( {}, _userOptions );
   /** 格式化后的组件配置 */
   const options = optionsMap[ name ] = {};
+  /** 混入选项 */
+  let mixins = userOptions.mixins;
+      mixins = mixins && mixins.length ? mixins.reverse() : null;
 
-  initProps( false, userOptions, options );
-  initState( false, isCustomElement, userOptions, options );
-  initLifecycle( false, userOptions, options );
-  initOther( false, isCustomElement, userOptions, options );
+  initProps( userOptions, options, mixins );
+  initState( isCustomElement, userOptions, options, mixins );
+  initLifecycle( userOptions, options, mixins );
+  initOther( isCustomElement, userOptions, options, mixins );
 
   return [
     userOptions,
