@@ -290,4 +290,110 @@ describe( 'Hu.define - mixins', () => {
     expect( vm.a() ).is.equals( 'ccc' );
   });
 
+  it( '使用 mixins 选项对当前实例 data 选项进行混入', () => {
+    const hu = new Hu({
+      mixins: [
+        { data: { a: 'a' } },
+        { data: () => ({ b: 'b' }) }
+      ],
+      data: {
+        c: 'c'
+      }
+    });
+
+    expect( hu.$data ).is.deep.equals({
+      a: 'a',
+      b: 'b',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 data 选项进行混入 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { data: { a: 'a' } },
+        { data: () => ({ b: 'b' }) }
+      ],
+      data: {
+        c: 'c'
+      }
+    });
+
+    expect( vm.$data ).is.deep.equals({
+      a: 'a',
+      b: 'b',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 data 选项进行混入, 当前实例定义的 data 优先级比较高', () => {
+    const hu = new Hu({
+      mixins: [
+        { data: { a: 'aaa' } },
+        { data: () => ({ b: 'bbb' }) }
+      ],
+      data: {
+        a: 'a',
+        c: 'c'
+      }
+    });
+
+    expect( hu.$data ).is.deep.equals({
+      a: 'a',
+      b: 'bbb',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 data 选项进行混入, 当前实例定义的 data 优先级比较高 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { data: { a: 'aaa' } },
+        { data: () => ({ b: 'bbb' }) }
+      ],
+      data: {
+        a: 'a',
+        c: 'c'
+      }
+    });
+
+    expect( vm.$data ).is.deep.equals({
+      a: 'a',
+      b: 'bbb',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 data 选项进行混入, 多个 mixin 时, 越后定义的 data 优先级越高', () => {
+    const hu = new Hu({
+      mixins: [
+        { data: { a: 'aaa', b: 'b' } },
+        { data: () => ({ b: 'bbb', c: 'ccc' }) },
+        { data: { a: 'a' } }
+      ]
+    });
+
+    expect( hu.$data ).is.deep.equals({
+      a: 'a',
+      b: 'bbb',
+      c: 'ccc'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 data 选项进行混入, 多个 mixin 时, 越后定义的 data 优先级越高 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { data: { a: 'aaa', b: 'b' } },
+        { data: () => ({ b: 'bbb', c: 'ccc' }) },
+        { data: { a: 'a' } }
+      ]
+    });
+
+    expect( vm.$data ).is.deep.equals({
+      a: 'a',
+      b: 'bbb',
+      c: 'ccc'
+    });
+  });
+
 });
