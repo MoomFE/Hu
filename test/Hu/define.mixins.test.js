@@ -396,4 +396,128 @@ describe( 'Hu.define - mixins', () => {
     });
   });
 
+  it( '使用 mixins 选项对当前实例 computed 选项进行混入', () => {
+    const hu = new Hu({
+      mixins: [
+        { computed: { a: () => 'a' } },
+        { computed: { b: { get: () => 'b' } } }
+      ],
+      computed: {
+        c: () => 'c'
+      }
+    });
+
+    expect( hu.$computed ).is.deep.equals({
+      a: 'a',
+      b: 'b',
+      c: 'c'
+    });
+
+    expect( hu ).is.deep.include({
+      a: 'a',
+      b: 'b',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 computed 选项进行混入 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { computed: { a: () => 'a' } },
+        { computed: { b: { get: () => 'b' } } }
+      ],
+      computed: {
+        c: () => 'c'
+      }
+    });
+
+    expect( vm ).is.deep.include({
+      a: 'a',
+      b: 'b',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 computed 选项进行混入, 当前实例定义的 computed 优先级比较高', () => {
+    const hu = new Hu({
+      mixins: [
+        { computed: { a: () => 'aaa' } },
+        { computed: { b: { get: () => 'bbb' } } }
+      ],
+      computed: {
+        a: () => 'a',
+        c: () => 'c'
+      }
+    });
+
+    expect( hu.$computed ).is.deep.equals({
+      a: 'a',
+      b: 'bbb',
+      c: 'c'
+    });
+
+    expect( hu ).is.deep.include({
+      a: 'a',
+      b: 'bbb',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 computed 选项进行混入, 当前实例定义的 computed 优先级比较高 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { computed: { a: () => 'aaa' } },
+        { computed: { b: { get: () => 'bbb' } } }
+      ],
+      computed: {
+        a: () => 'a',
+        c: () => 'c'
+      }
+    });
+
+    expect( vm ).is.deep.include({
+      a: 'a',
+      b: 'bbb',
+      c: 'c'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 computed 选项进行混入, 多个 mixin 时, 越后定义的 computed 优先级越高', () => {
+    const hu = new Hu({
+      mixins: [
+        { computed: { a: () => 'a', c: () => 'c' } },
+        { computed: { b: { get: () => 'bbb' }, c: () => 'ccc' } },
+        { computed: { a: () => 'aaa' } }
+      ]
+    });
+
+    expect( hu.$computed ).is.deep.equals({
+      a: 'aaa',
+      b: 'bbb',
+      c: 'ccc'
+    });
+
+    expect( hu ).is.deep.include({
+      a: 'aaa',
+      b: 'bbb',
+      c: 'ccc'
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 computed 选项进行混入, 多个 mixin 时, 越后定义的 computed 优先级越高 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { computed: { a: () => 'a', c: () => 'c' } },
+        { computed: { b: { get: () => 'bbb' }, c: () => 'ccc' } },
+        { computed: { a: () => 'aaa' } }
+      ]
+    });
+
+    expect( vm ).is.deep.include({
+      a: 'aaa',
+      b: 'bbb',
+      c: 'ccc'
+    });
+  });
+
 });
