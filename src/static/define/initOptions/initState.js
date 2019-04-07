@@ -41,11 +41,11 @@ function initMethods( userMethods, options ){
   }
 }
 
-function initData( isCustomElement, data, options ){
-  if( isFunction( data ) || !isCustomElement && isPlainObject( data ) ){
+function initData( isCustomElement, userData, options ){
+  if( isFunction( userData ) || !isCustomElement && isPlainObject( userData ) ){
     const dataList = options.dataList || ( options.dataList = [] );
 
-    dataList.splice( 0, 0, data );
+    dataList.push( userData );
   }
 }
 

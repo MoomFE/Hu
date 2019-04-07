@@ -18,8 +18,6 @@ export default function initData( options, target, targetProxy ){
   let dataTarget;
 
   if( dataList && dataList.length ){
-    dataList.reverse();
-
     for( let data of dataList ){
       if( isFunction( data ) ) data = data.call( targetProxy );
       if( !dataTarget ) dataTarget = data;
