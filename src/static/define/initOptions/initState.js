@@ -16,10 +16,7 @@ export default function initState( isCustomElement, userOptions, options, mixins
   initMethods( methods, options );
   initData( isCustomElement, data, options );
   initComputed( computed, options );
-
-  if( watch ){
-    options.watch = watch;
-  }
+  initWatch( watch, options );
 
   if( !isMixin && mixins ){
     for( const mixin of mixins ){
@@ -64,6 +61,18 @@ function initComputed( userComputed, options ){
           set
         };
       }
+    });
+  }
+}
+
+function initWatch( userWatch, options ){
+  if( userWatch ){
+    const watches = options.watch || ( options.watch = {} );
+
+    each( userWatch, ( key, value ) => {
+      const watch = watches[ key ] || ( watches[ key ] = [] );
+
+      watch.splice( 0, 0, value );
     });
   }
 }
