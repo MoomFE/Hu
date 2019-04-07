@@ -14,10 +14,8 @@ export default function initState( isCustomElement, userOptions, options, mixins
   } = userOptions;
 
   initMethods( methods, options );
+  initData( isCustomElement, data, options );
 
-  if( data ){
-    initData( isCustomElement, data, options );
-  }
   if( computed ){
     initComputed( computed, options );
   }
@@ -45,9 +43,11 @@ function initMethods( userMethods, options ){
   }
 }
 
-function initData( isCustomElement, userData, options ){
-  if( isFunction( userData ) || !isCustomElement && isPlainObject( userData ) ){
-    options.data = userData;
+function initData( isCustomElement, data, options ){
+  if( isFunction( data ) || !isCustomElement && isPlainObject( data ) ){
+    const dataList = options.dataList || ( options.dataList = [] );
+
+    dataList.splice( 0, 0, data );
   }
 }
 

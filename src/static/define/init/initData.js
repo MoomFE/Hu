@@ -3,6 +3,7 @@ import each from "../../../shared/util/each";
 import injectionToLit from "../util/injectionToLit";
 import { observe } from "../../observable/observe";
 import isFunction from "../../../shared/util/isFunction";
+import { has } from "../../../shared/global/Reflect/index";
 
 
 /**
@@ -13,18 +14,27 @@ import isFunction from "../../../shared/util/isFunction";
  */
 export default function initData( options, target, targetProxy ){
 
-  const data = options.data;
+  const dataList = options.dataList;
   let dataTarget;
 
-  if( data ){
-    dataTarget = isFunction( data ) ? data.call( targetProxy ) : data;
+  if( dataList && dataList.length ){
+    dataList.reverse();
+
+    for( let data of dataList ){
+      if( isFunction( data ) ) data = data.call( targetProxy );
+      if( !dataTarget ) dataTarget = data;
+
+      each( data, ( name, value ) => {
+        has( dataTarget, name ) || ( dataTarget[ name ] = value );
+      });
+    }
   }else{
     dataTarget = create( null );
   }
 
   const dataTargetProxy = target.$data = observe( dataTarget );
 
-  data && each( dataTarget, ( name, value ) => {
+  each( dataTarget, name => {
     injectionToLit(
       target, name, 0,
       () => dataTargetProxy[ name ],
