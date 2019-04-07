@@ -184,4 +184,110 @@ describe( 'Hu.define - mixins', () => {
     expect( result ).is.deep.equals([ 1, 2, 3 ])
   });
 
+  it( '使用 mixins 选项对当前实例 methods 选项进行混入', () => {
+    const hu = new Hu({
+      mixins: [
+        { methods: { a: () => 'a' } }
+      ],
+      methods: {
+        b: () => 'b'
+      }
+    });
+
+    expect( hu ).is.include.keys([ 'a', 'b' ]);
+    expect( hu.a() ).is.equals( 'a' );
+    expect( hu.b() ).is.equals( 'b' );
+
+    expect( hu.$methods ).have.keys([ 'a', 'b' ]);
+    expect( hu.$methods.a() ).is.equals( 'a' );
+    expect( hu.$methods.b() ).is.equals( 'b' );
+  });
+
+  it( '使用 mixins 选项对当前实例 methods 选项进行混入 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { methods: { a: () => 'a' } }
+      ],
+      methods: {
+        b: () => 'b'
+      }
+    });
+
+    expect( vm ).is.include.keys([ 'a', 'b' ]);
+    expect( vm.a() ).is.equals( 'a' );
+    expect( vm.b() ).is.equals( 'b' );
+  });
+
+  it( '使用 mixins 选项对当前实例 methods 选项进行混入, 当前实例定义的 method 优先级比较高', () => {
+    const hu = new Hu({
+      mixins: [
+        { methods: { a: () => 'aaa' } },
+        { methods: { b: () => 'bbb' } },
+        { methods: { c: () => 'ccc' } }
+      ],
+      methods: {
+        a: () => 'a',
+        b: () => 'b'
+      }
+    });
+
+    expect( hu ).is.include.keys([ 'a', 'b', 'c' ]);
+    expect( hu.a() ).is.equals( 'a' );
+    expect( hu.b() ).is.equals( 'b' );
+    expect( hu.c() ).is.equals( 'ccc' );
+
+    expect( hu.$methods ).have.keys([ 'a', 'b', 'c' ]);
+    expect( hu.$methods.a() ).is.equals( 'a' );
+    expect( hu.$methods.b() ).is.equals( 'b' );
+    expect( hu.$methods.c() ).is.equals( 'ccc' );
+  });
+
+  it( '使用 mixins 选项对当前实例 methods 选项进行混入, 当前实例定义的 method 优先级比较高 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { methods: { a: () => 'aaa' } },
+        { methods: { b: () => 'bbb' } },
+        { methods: { c: () => 'ccc' } }
+      ],
+      methods: {
+        a: () => 'a',
+        b: () => 'b'
+      }
+    });
+
+    expect( vm ).is.include.keys([ 'a', 'b', 'c' ]);
+    expect( vm.a() ).is.equals( 'a' );
+    expect( vm.b() ).is.equals( 'b' );
+    expect( vm.c() ).is.equals( 'ccc' );
+  });
+
+  it( '使用 mixins 选项对当前实例 methods 选项进行混入, 多个 mixin 时, 越后定义的 method 优先级越高', () => {
+    const hu = new Hu({
+      mixins: [
+        { methods: { a: () => 'aaa' } },
+        { methods: { a: () => 'bbb' } },
+        { methods: { a: () => 'ccc' } }
+      ]
+    });
+
+    expect( hu ).is.include.keys([ 'a' ]);
+    expect( hu.a() ).is.equals( 'ccc' );
+
+    expect( hu.$methods ).have.keys([ 'a' ]);
+    expect( hu.$methods.a() ).is.equals( 'ccc' );
+  });
+
+  it( '使用 mixins 选项对当前实例 methods 选项进行混入, 多个 mixin 时, 越后定义的 method 优先级越高 ( Vue )', () => {
+    const vm = new Vue({
+      mixins: [
+        { methods: { a: () => 'aaa' } },
+        { methods: { a: () => 'bbb' } },
+        { methods: { a: () => 'ccc' } }
+      ]
+    });
+
+    expect( vm ).is.include.keys([ 'a' ]);
+    expect( vm.a() ).is.equals( 'ccc' );
+  });
+
 });
