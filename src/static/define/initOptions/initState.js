@@ -15,10 +15,8 @@ export default function initState( isCustomElement, userOptions, options, mixins
 
   initMethods( methods, options );
   initData( isCustomElement, data, options );
+  initComputed( computed, options );
 
-  if( computed ){
-    initComputed( computed, options );
-  }
   if( watch ){
     options.watch = watch;
   }
@@ -52,18 +50,20 @@ function initData( isCustomElement, data, options ){
 }
 
 function initComputed( userComputed, options ){
-  const computed = options.computed = {};
+  if( userComputed ){
+    const computed = options.computed || ( options.computed = {} );
 
-  each( userComputed, ( key, userComputed ) => {
-    if( userComputed ){
-      const isFn = isFunction( userComputed );
-      const get = isFn ? userComputed : ( userComputed.get || noop );
-      const set = isFn ? noop : ( userComputed.set || noop );
+    each( userComputed, ( key, userComputed ) => {
+      if( !computed[ key ] && userComputed ){
+        const isFn = isFunction( userComputed );
+        const get = isFn ? userComputed : ( userComputed.get || noop );
+        const set = isFn ? noop : ( userComputed.set || noop );
 
-      computed[ key ] = {
-        get,
-        set
-      };
-    }
-  });
+        computed[ key ] = {
+          get,
+          set
+        };
+      }
+    });
+  }
 }
