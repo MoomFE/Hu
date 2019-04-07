@@ -520,4 +520,126 @@ describe( 'Hu.define - mixins', () => {
     });
   });
 
+  it( '使用 mixins 选项对当前实例 watch 选项进行混入', ( done ) => {
+    const step = [];
+    const hu = new Hu({
+      mixins: [
+        { watch: { a: () => step.push( 1 ) } },
+        { watch: { a: () => step.push( 2 ) } }
+      ],
+      data: { a: 1 },
+      watch: {
+        a: () => step.push( 3 )
+      }
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 watch 选项进行混入 ( Vue )', ( done ) => {
+    const step = [];
+    const vm = new Vue({
+      mixins: [
+        { watch: { a: () => step.push( 1 ) } },
+        { watch: { a: () => step.push( 2 ) } }
+      ],
+      data: { a: 1 },
+      watch: {
+        a: () => step.push( 3 )
+      }
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 watch 选项进行混入, 当前实例定义的 watch 最晚执行', ( done ) => {
+    const step = [];
+    const hu = new Hu({
+      mixins: [
+        { watch: { a: () => step.push( 1 ) } },
+        { watch: { a: () => step.push( 2 ) } }
+      ],
+      data: { a: 1 },
+      watch: {
+        a: () => step.push( 3 )
+      }
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 watch 选项进行混入, 当前实例定义的 watch 最晚执行 ( Vue )', ( done ) => {
+    const step = [];
+    const vm = new Vue({
+      mixins: [
+        { watch: { a: () => step.push( 1 ) } },
+        { watch: { a: () => step.push( 2 ) } }
+      ],
+      data: { a: 1 },
+      watch: {
+        a: () => step.push( 3 )
+      }
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 watch 选项进行混入, 多个 mixin 时, 越后定义的 watch 越晚执行', ( done ) => {
+    const step = [];
+    const hu = new Hu({
+      mixins: [
+        { watch: { a: () => step.push( 1 ) } },
+        { watch: { a: () => step.push( 2 ) } },
+        { watch: { a: () => step.push( 3 ) } }
+      ],
+      data: { a: 1 }
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '使用 mixins 选项对当前实例 watch 选项进行混入, 多个 mixin 时, 越后定义的 watch 越晚执行 ( Vue )', ( done ) => {
+    const step = [];
+    const vm = new Vue({
+      mixins: [
+        { watch: { a: () => step.push( 1 ) } },
+        { watch: { a: () => step.push( 2 ) } },
+        { watch: { a: () => step.push( 3 ) } }
+      ],
+      data: { a: 1 }
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
 });
