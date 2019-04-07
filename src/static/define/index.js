@@ -5,6 +5,7 @@ import initAttributeChangedCallback from "./init/initAttributeChangedCallback";
 import initDisconnectedCallback from "./init/initDisconnectedCallback";
 import initAdoptedCallback from "./init/initAdoptedCallback";
 import { assign } from "../../shared/global/Object/index";
+import initConnectedCallback from "./init/initConnectedCallback";
 
 
 /**
@@ -29,7 +30,7 @@ export default function define( name, _userOptions ){
 
   assign( HuElement.prototype, {
     // 自定义元素被添加到文档流
-    connectedCallback,
+    connectedCallback: initConnectedCallback( options ),
     // 自定义元素被从文档流移除
     disconnectedCallback: initDisconnectedCallback( options ),
     // 自定义元素位置被移动
@@ -40,8 +41,4 @@ export default function define( name, _userOptions ){
 
   // 注册组件
   customElements.define( name, HuElement );
-}
-
-function connectedCallback(){
-  this.$hu.$mount();
 }

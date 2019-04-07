@@ -16,6 +16,9 @@ export default function initLifecycle( userOptions, options, mixins, isMixin ){
     'beforeDestroy',
     /** 实例销毁后调用 */
     'destroyed',
+    'connected',
+    'adopted',
+    'disconnected'
     // 'beforeUpdate', 'updated',
     // 'activated', 'deactivated',
     // 'errorCaptured'
