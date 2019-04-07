@@ -23,15 +23,9 @@ export default function initLifecycle( userOptions, options, mixins, isMixin ){
     const lifecycle = userOptions[ name ];
 
     if( isFunction( lifecycle ) ){
-      const lifecycles = options[ name ] || (
-        options[ name ] = []
-      );
+      const lifecycles = options[ name ] || ( options[ name ] = [] );
 
-      if( isMixin ){
-        lifecycles.splice( 0, 0, lifecycle );
-      }else{
-        lifecycles.push( lifecycle );
-      }
+      lifecycles.splice( 0, 0, lifecycle );
     }
   });
 
