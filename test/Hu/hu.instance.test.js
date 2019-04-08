@@ -218,23 +218,41 @@ describe( 'Hu.instance', () => {
 
     expect( $info.name ).is.equals( customName );
     expect( $info.isMounted ).is.false;
+    expect( $info.isConnected ).is.false;
     expect( $info.isCustomElement ).is.true;
 
     div.$appendTo( document.body );
 
     expect( $info.name ).is.equals( customName );
     expect( $info.isMounted ).is.true;
+    expect( $info.isConnected ).is.true;
     expect( $info.isCustomElement ).is.true;
 
     div.$remove();
+
+    expect( $info.name ).is.equals( customName );
+    expect( $info.isMounted ).is.true;
+    expect( $info.isConnected ).is.false;
+    expect( $info.isCustomElement ).is.true;
   });
 
   it( '实例上的 $info 选项的各个属性 ( 二 )', () => {
-    const { $info: $info2 } = new Hu();
+    const hu = new Hu();
+    const $info = hu.$info;
 
-    expect( /anonymous-/.test( $info2.name ) ).is.true;
-    expect( $info2.isMounted ).is.false;
-    expect( $info2.isCustomElement ).is.false;
+    expect( /anonymous-/.test( $info.name ) ).is.true;
+    expect( $info.isMounted ).is.false;
+    expect( $info.isConnected ).is.false;
+    expect( $info.isCustomElement ).is.false;
+
+    hu.$mount(
+      document.createElement('div')
+    );
+
+    expect( /anonymous-/.test( $info.name ) ).is.true;
+    expect( $info.isMounted ).is.true;
+    expect( $info.isConnected ).is.true;
+    expect( $info.isCustomElement ).is.false;
   });
 
   it( '自定义元素实例创建后在实例上会有 $customElement 属性, 是自定义元素本身', () => {
