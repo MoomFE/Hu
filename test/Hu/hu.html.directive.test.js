@@ -415,4 +415,55 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
+  it( 'html.bind: 在自定义元素实例中, 自定义元素被从文档流移除后, 指令方法的绑定会被解绑', ( done ) => {
+    const customName = window.customName;
+    const bind = Hu.html.bind;
+    const data = Hu.observable({
+      name: 1
+    });
+
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <div name=${ bind( data, 'name' ) }></div>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false,
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( isConnected ).is.true;
+    expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('1');
+    
+    data.name = 2;
+    hu.$nextTick(() => {
+      expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
+
+      div.$remove();
+      expect( isConnected ).is.false;
+
+      data.name = 3;
+      hu.$nextTick(() => {
+        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
+
+        div.$appendTo( document.body );
+        expect( isConnected ).is.true;
+        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('3');
+
+        data.name = 4;
+        hu.$nextTick(() => {
+          expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('4');
+
+          done();
+        });
+      });
+    });
+  });
+
 });
