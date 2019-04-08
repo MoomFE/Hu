@@ -52,7 +52,7 @@ interface $hu {
    */
   readonly $info: {
     /**
-     * 当前自定义元素的名称
+     * 当前自定义元素的名称 | 当前实例的名称
      */
     name: String;
     /**
@@ -63,6 +63,11 @@ interface $hu {
      * 标识当前实例是否是自定义元素
      */
     isCustomElement: Boolean;
+    /**
+     * 标识当前自定义元素是否在文档流中
+     * - 如果是使用 new 创建的实例, 则作用和 isMounted 一致
+     */
+    isConnected: Boolean
   };
   /**
    * 一个持有注册过 ref 引用特性的所有 DOM 元素的对象
