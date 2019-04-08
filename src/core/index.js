@@ -1,7 +1,7 @@
 import HuConstructor from "./hu";
-import init from "../../../static/define/init/index";
-import uid from "../../util/uid";
-import initOptions from "../../../static/define/initOptions/index";
+import init from "../static/define/init/index";
+import uid from "../shared/util/uid";
+import initOptions from "../static/define/initOptions/index";
 
 
 const Hu = new Proxy( HuConstructor, {

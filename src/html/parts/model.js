@@ -1,7 +1,7 @@
 import { isArray } from "../../shared/global/Array/index";
 import { filter } from "../../shared/global/Array/prototype";
 import addEventListener from "../../shared/util/addEventListener";
-import $watch from "../../shared/global/Hu/prototype/$watch";
+import $watch from "../../core/prototype/$watch";
 import { observe } from "../../static/observable/observe";
 import { assign } from "../../shared/global/Object/index";
 import getAttribute from "../../shared/util/getAttribute";

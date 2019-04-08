@@ -1,4 +1,4 @@
-import HuConstructor from "../../../shared/global/Hu/hu";
+import HuConstructor from "../../../core/hu";
 import initProps from "./initProps";
 import initMethods from "./initMethods";
 import initData from "./initData";

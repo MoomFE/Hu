@@ -1,7 +1,7 @@
-import { observe } from "../../../static/observable/observe";
-import observeHu from "../../const/observeHu";
+import { observe } from "../static/observable/observe";
+import observeHu from "../shared/const/observeHu";
 import initForceUpdate from "./init/initForceUpdate";
-import { assign } from "../Object/index";
+import { assign } from "../shared/global/Object/index";
 import $watch from "./prototype/$watch";
 import $nextTick from "./prototype/$nextTick";
 import $mount from "./prototype/$mount";

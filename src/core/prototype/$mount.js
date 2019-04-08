@@ -1,7 +1,7 @@
-import isString from "../../../util/isString";
-import { observeProxyMap } from "../../../../static/observable/observe";
-import { optionsMap } from "../../../../static/define/initOptions/index";
-import callLifecycle from "../../../../static/define/util/callLifecycle";
+import isString from "../../shared/util/isString";
+import { observeProxyMap } from "../../static/observable/observe";
+import { optionsMap } from "../../static/define/initOptions/index";
+import callLifecycle from "../../static/define/util/callLifecycle";
 
 
 /**

@@ -1,8 +1,8 @@
-import { optionsMap } from "../../../../static/define/initOptions/index";
-import { Watcher } from "../../../../static/observable/collectingDependents";
-import html from "../../../../html/html";
-import render from "../../../../html/render";
-import noop from "../../../util/noop";
+import { optionsMap } from "../../static/define/initOptions/index";
+import { Watcher } from "../../static/observable/collectingDependents";
+import html from "../../html/html";
+import render from "../../html/render";
+import noop from "../../shared/util/noop";
 
 
 /** 迫使 Hu 实例重新渲染 */

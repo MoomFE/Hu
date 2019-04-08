@@ -1,4 +1,4 @@
-import Hu from "../../shared/global/Hu/index";
+import Hu from "../../core/index";
 
 
 const otherHu = window.Hu;

@@ -1,11 +1,12 @@
-import isPlainObject from "../../../util/isPlainObject";
-import isString from "../../../util/isString";
-import parsePath from "../../../../static/define/util/parsePath";
-import isFunction from "../../../util/isFunction";
-import createComputed from "../../../../static/observable/createComputed";
-import uid from "../../../util/uid";
-import isEqual from "../../../util/isEqual";
-import emptyObject from "../../../const/emptyObject";
+import isPlainObject from "../../shared/util/isPlainObject";
+import isString from "../../shared/util/isString";
+import parsePath from "../../static/define/util/parsePath";
+import isFunction from "../../shared/util/isFunction";
+import createComputed from "../../static/observable/createComputed";
+import uid from "../../shared/util/uid";
+import isEqual from "../../shared/util/isEqual";
+import emptyObject from "../../shared/const/emptyObject";
+
 
 
 /**

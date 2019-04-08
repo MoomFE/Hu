@@ -1,4 +1,4 @@
-import callLifecycle from "../../../../static/define/util/callLifecycle";
+import callLifecycle from "../../static/define/util/callLifecycle";
 
 
 export default function(){

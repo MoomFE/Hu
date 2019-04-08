@@ -1,7 +1,7 @@
-import { isArray } from "../../Array/index";
-import { create } from "../../Object/index";
-import { apply } from "../../Reflect/index";
-import { slice } from "../../Array/prototype";
+import { isArray } from "../../shared/global/Array/index";
+import { create } from "../../shared/global/Object/index";
+import { apply } from "../../shared/global/Reflect/index";
+import { slice } from "../../shared/global/Array/prototype";
 
 
 const eventMap = new WeakMap();

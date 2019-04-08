@@ -1,7 +1,7 @@
 import { directive, NodePart } from 'lit-html';
 import { observeProxyMap } from '../../static/observable/observe';
 import { bindDirectiveWatchesMap, renderStack } from '../const';
-import $watch from '../../shared/global/Hu/prototype/$watch';
+import $watch from '../../core/prototype/$watch';
 
 
 export default directive(( proxy, name ) => {
