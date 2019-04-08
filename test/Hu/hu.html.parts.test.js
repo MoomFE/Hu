@@ -939,6 +939,73 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑', ( done ) => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        value: '1'
+      }),
+      render( html ){
+        console.log(123);
+        return html`
+          <input ref="input" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$refs.input.value ).is.equals( '1' );
+
+    hu.value = '2'
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '2' );
+      expect( hu.$refs.input.value ).is.equals( '2' );
+
+      hu.$refs.input.value = '3';
+      triggerEvent( hu.$refs.input, 'input' );
+
+      expect( hu.value ).is.equals( '3' );
+      expect( hu.$refs.input.value ).is.equals( '3' );
+
+      custom.$remove();
+
+      hu.value = '4';
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '3' );
+
+        hu.$refs.input.value = '5';
+        triggerEvent( hu.$refs.input, 'input' );
+
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '5' );
+
+        custom.$appendTo( document.body );
+
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '4' );
+
+        hu.value = '6';
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '6' );
+          expect( hu.$refs.input.value ).is.equals( '6' );
+
+          hu.$refs.input.value = '7';
+          triggerEvent( hu.$refs.input, 'input' );
+
+          expect( hu.value ).is.equals( '7' );
+          expect( hu.$refs.input.value ).is.equals( '7' );
+
+          done();
+        });
+      });
+    });
+  });
+
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
     let index = 0;
