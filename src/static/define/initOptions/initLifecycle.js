@@ -2,26 +2,40 @@ import isFunction from "../../../shared/util/isFunction";
 
 
 export default function initLifecycle( userOptions, options, mixins, isMixin ){
-
   [
-    /** 在实例初始化后立即调用, 但是 computed, watch 还未初始化 */
+    /** 实例初始化后被调用, 计算属性 computed 和数据监听 watch 还未初始化 */
     'beforeCreate',
-    /** 在实例创建完成后被立即调用, 但是挂载阶段还没开始 */
+    /** 实例创建完成后被调用, 但是挂载还未开始 */
     'created',
-    /** 在自定义元素挂载开始之前被调用 */
+    /**
+     * 首次挂载开始之前被调用
+     * - 对于自定义元素, 会在首次被添加到文档流时调用
+     */
     'beforeMount',
-    /** 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载 */
+    /**
+     * 首次挂载之后被调用
+     * - 对于自定义元素, 会在首次被添加到文档流时调用
+     */
     'mounted',
-    /** 实例销毁之前调用, 在这一步, 实例仍然完全可用 */
+    /** 实例销毁之前调用. 在这一步, 实例仍然完全可用 */
     'beforeDestroy',
     /** 实例销毁后调用 */
     'destroyed',
+    /**
+     * 自定义元素被添加到文档流 ( 自定义元素独有 )
+     * - 此时实例完全可用
+     */
     'connected',
+    /**
+     * 自定义元素位置被移动 ( 自定义元素独有 )
+     * - 此时实例完全可用
+     */
     'adopted',
+    /**
+     * 自定义元素被从文档流移除 ( 自定义元素独有 )
+     * - 此时实例完全可用
+     */
     'disconnected'
-    // 'beforeUpdate', 'updated',
-    // 'activated', 'deactivated',
-    // 'errorCaptured'
   ].forEach( name => {
     const lifecycle = userOptions[ name ];
 
@@ -37,5 +51,8 @@ export default function initLifecycle( userOptions, options, mixins, isMixin ){
       initLifecycle( mixin, options, null, true );
     }
   }
-
 }
+
+// 'beforeUpdate', 'updated',
+// 'activated', 'deactivated',
+// 'errorCaptured'
