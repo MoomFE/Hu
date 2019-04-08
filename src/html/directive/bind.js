@@ -1,6 +1,6 @@
 import { directive, NodePart } from 'lit-html';
 import { observeProxyMap } from '../../static/observable/observe';
-import { bindWatchesMap, renderStack } from '../const';
+import { bindDirectiveWatchesMap, renderStack } from '../const';
 import $watch from '../../shared/global/Hu/prototype/$watch';
 
 
@@ -37,11 +37,11 @@ export default directive(( proxy, name ) => {
     // 当前渲染元素
     const rendering = renderStack[ renderStack.length - 1 ];
     // 当前渲染元素属性监听解绑方法集
-    let bindWatches = bindWatchesMap.get( rendering );
+    let bindWatches = bindDirectiveWatchesMap.get( rendering );
   
     if( !bindWatches ){
       bindWatches = [];
-      bindWatchesMap.set( rendering, bindWatches );
+      bindDirectiveWatchesMap.set( rendering, bindWatches );
     }
   
     bindWatches.push( unWatch );
