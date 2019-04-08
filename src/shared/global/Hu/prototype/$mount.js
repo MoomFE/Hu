@@ -40,7 +40,7 @@ export default function( selectors ){
     this.$forceUpdate();
 
     // 标记首次实例挂载已完成
-    infoTarget.isMounted = true;
+    infoTarget.isMounted = infoTarget.isConnected = true;
 
     // 运行 mounted 生命周期方法
     callLifecycle( this, 'mounted', options );

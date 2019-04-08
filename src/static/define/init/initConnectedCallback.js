@@ -6,6 +6,9 @@ export default options => function(){
   const $hu = this.$hu;
   const $info = $hu.$info;
   const isMounted = $info.isMounted;
+  const infoTarget = observeProxyMap.get( $info ).target;
+
+  infoTarget.isConnected = true;
 
   // 如果是首次挂载, 需要运行 beforeMount 生命周期方法
   if( !isMounted ){
@@ -17,8 +20,6 @@ export default options => function(){
 
   // 如果是首次挂载, 需要运行 mounted 生命周期方法
   if( !isMounted ){
-    const infoTarget = observeProxyMap.get( $info ).target;
-
     // 标记首次实例挂载已完成
     infoTarget.isMounted = true;
 

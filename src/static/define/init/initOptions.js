@@ -12,7 +12,8 @@ export default function initOptions( isCustomElement, name, target, userOptions 
     {
       name,
       isMounted: false,
-      isCustomElement
+      isCustomElement,
+      isConnected: false
     },
     observeReadonly
   );
