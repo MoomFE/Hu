@@ -119,36 +119,6 @@ describe( 'Hu.define - render', () => {
     expect( isRender ).is.true;
   });
 
-  it( '由自定义元素创建的实例会在自定义元素首次被添加到 DOM 节点中时才会主动触发 render 方法进行渲染', () => {
-    const customName = window.customName;
-    let index = 0;
-
-    Hu.define( customName, {
-      render: () => index++
-    });
-
-    expect( index ).is.equals( 0 );
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-
-    expect( index ).is.equals( 0 );
-
-    div.$appendTo( document.body );
-
-    expect( index ).is.equals( 1 );
-
-    div.removeChild( custom );
-
-    expect( index ).is.equals( 1 );
-
-    div.appendChild( custom );
-
-    expect( index ).is.equals( 1 );
-
-    div.$remove();
-  });
-
   it( '由 new 创建的实例将在首次绑定 el 时才会主动触发 render 方法进行渲染', () => {
     let index = 0;
 
