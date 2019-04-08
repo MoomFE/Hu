@@ -1,5 +1,5 @@
 import { render } from 'lit-html';
-import { renderStack, bindDirectiveWatchesMap } from './const';
+import { renderStack, bindDirectiveCacheMap } from './const';
 
 
 export default function( result, container, options ){
@@ -19,7 +19,7 @@ export default function( result, container, options ){
  */
 export function unWatchBindDirectiveWatches( container ){
   // 当前渲染元素属性监听解绑方法集
-  const bindWatches = bindDirectiveWatchesMap.get( container );
+  const bindWatches = bindDirectiveCacheMap.get( container );
 
   if( bindWatches ){
     // 解绑上次渲染时收集到的属性监听
