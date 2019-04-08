@@ -782,7 +782,7 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
-  it( '使用 :model 指令对 input / textarea 表单控件进行双向绑定时, 不会收到输入法的影响', ( done ) => {
+  it( '使用 :model 指令对 input / textarea 表单控件进行双向绑定时, 不会受到输入法的影响', ( done ) => {
     const div = document.createElement('div');
     const hu = new Hu({
       el: div,
@@ -823,7 +823,7 @@ describe( 'Hu.html.parts', () => {
     done();
   });
 
-  it( '使用 v-model 指令对 input / textarea 表单控件进行双向绑定时, 不会收到输入法的影响 ( Vue )', ( done ) => {
+  it( '使用 v-model 指令对 input / textarea 表单控件进行双向绑定时, 不会受到输入法的影响 ( Vue )', ( done ) => {
     const div = document.createElement('div');
     const vm = new Vue({
       el: div,
@@ -860,6 +860,83 @@ describe( 'Hu.html.parts', () => {
     expect( vm.value ).is.equals( '4' );
 
     done();
+  });
+
+  it( '使用 :model 指令时的绑定会在下次使用 render 时进行解绑', ( done ) => {
+    const div = document.createElement('div');
+    let input, textarea;
+
+    const hu = new Hu({
+      el: div,
+      data: {
+        renderInput: true,
+        value: '0'
+      },
+      render( html ){
+        if( this.renderInput ){
+          return html`<input ref="input" :model=${[ this, 'value' ]} />`;
+        }else{
+          return html`<textarea ref="textarea" :model=${[ this, 'value' ]}></textarea>`;
+        }
+      }
+    });
+
+    input = hu.$refs.input;
+    expect( hu.value ).is.equals('0');
+    expect( input.value ).is.equals('0');
+
+    hu.renderInput = false;
+    hu.$nextTick(() => {
+      textarea = hu.$refs.textarea;
+      expect( hu.value ).is.equals('0');
+      expect( textarea.value ).is.equals('0');
+
+      hu.value = '1';
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals('1');
+        expect( input.value ).is.equals('0');
+        expect( textarea.value ).is.equals('1');
+
+        done();
+      });
+    })
+  });
+
+  it( '使用 v-model 指令时的绑定会在下次使用 render 时进行解绑 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    let input, textarea;
+
+    const vm = new Vue({
+      el: div,
+      data: {
+        renderInput: true,
+        value: '0'
+      },
+      template: `
+        <input v-if="renderInput" ref="input" v-model="value" />
+        <textarea v-else ref="textarea" v-model="value"></textarea>
+      `
+    });
+
+    input = vm.$refs.input;
+    expect( vm.value ).is.equals('0');
+    expect( input.value ).is.equals('0');
+
+    vm.renderInput = false;
+    vm.$nextTick(() => {
+      textarea = vm.$refs.textarea;
+      expect( vm.value ).is.equals('0');
+      expect( textarea.value ).is.equals('0');
+
+      vm.value = '1';
+      vm.$nextTick(() => {
+        expect( vm.value ).is.equals('1');
+        expect( input.value ).is.equals('0');
+        expect( textarea.value ).is.equals('1');
+
+        done();
+      });
+    });
   });
 
   it( '使用 @event 的方式对元素事件进行绑定', () => {
