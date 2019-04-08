@@ -7,6 +7,9 @@ import { assign } from "../../shared/global/Object/index";
 import getAttribute from "../../shared/util/getAttribute";
 import isFunction from "../../shared/util/isFunction";
 import triggerEvent from "../../shared/util/triggerEvent";
+import { renderStack, modelDirectiveCacheMap } from "../const";
+import { apply } from "../../shared/global/Reflect/index";
+import emptyObject from "../../shared/const/emptyObject";
 
 
 export default class ModelPart{
@@ -39,6 +42,18 @@ export default class ModelPart{
       this.options || observe([]),
       options
     );
+
+    // 当前渲染元素
+    const rendering = renderStack[ renderStack.length - 1 ];
+    // 当前渲染元素使用的双向数据绑定信息
+    let modelParts = modelDirectiveCacheMap.get( rendering );
+
+    if( !modelParts ){
+      modelParts = [];
+      modelDirectiveCacheMap.set( rendering, modelParts );
+    }
+
+    modelParts.push( this );
   }
 
   commit(){
@@ -53,15 +68,22 @@ export default class ModelPart{
 }
 
 function watch( options, elem, callbackOrProps ){
-  $watch(
-    () => options[ 0 ][ options[ 1 ] ],
-    isFunction( callbackOrProps )
-      ? callbackOrProps
-      : ( value ) => elem[ callbackOrProps ] = value,
+  apply( $watch, this, [
+    () => {
+      return options.length ? options[0][ options[1] ]
+                            : emptyObject;
+    },
+    function( value ){
+      value !== emptyObject && apply(
+        isFunction( callbackOrProps ) ? callbackOrProps : ( value ) => elem[ callbackOrProps ] = value,
+        this,
+        arguments
+      );
+    },
     {
       immediate: true
     }
-  );
+  ]);
 }
 
 function handlerSelect( elem, options ){

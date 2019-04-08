@@ -1,5 +1,5 @@
 import callLifecycle from "../util/callLifecycle";
-import { unWatchBindDirectiveWatches } from "../../../html/render";
+import { unWatchDirectiveCache } from "../../../html/render";
 import { observeProxyMap } from "../../observable/observe";
 
 
@@ -9,7 +9,7 @@ export default options => function(){
 
   infoTarget.isConnected = false;
 
-  unWatchBindDirectiveWatches( $hu.$el )
+  unWatchDirectiveCache( $hu.$el )
 
   callLifecycle( $hu, 'disconnected', options );
 }
