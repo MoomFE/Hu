@@ -1,6 +1,5 @@
 describe( 'Hu.html.directive', () => {
 
-
   it( 'html.repeat: 使用该指令方法渲染数组内容, 在数组变化时基于 key 的变化重新排列元素', () => {
     const div = document.createElement('div');
     const arr = [
@@ -377,5 +376,43 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
+  it( 'html.bind: 该指令方法绑定的元素属性会在下次使用 render 时进行解绑', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      name: 1
+    });
+
+    Hu.render( div )`
+      <div name=${ bind( data, 'name' ) }></div>
+    `;
+
+    const first = div.firstElementChild;
+
+    expect( first.getAttribute('name') ).is.equals( '1' );
+
+    data.name = 2;
+    Hu.nextTick(() => {
+      expect( first.getAttribute('name') ).is.equals( '2' );
+
+      Hu.render( div )`
+        <div name2=${ bind( data, 'name' ) }></div>
+      `;
+
+      const second = div.firstElementChild;
+
+      expect( first ).is.not.equals( second );
+      expect( first.getAttribute('name') ).is.equals( '2' );
+      expect( second.getAttribute('name2') ).is.equals( '2' );
+
+      data.name = 3;
+      Hu.nextTick(() => {
+        expect( first.getAttribute('name') ).is.equals( '2' );
+        expect( second.getAttribute('name2') ).is.equals( '3' );
+
+        done();
+      });
+    });
+  });
 
 });
