@@ -6,24 +6,25 @@ import callLifecycle from "../../../../static/define/util/callLifecycle";
 
 /**
  * 挂载实例
+ * - 只在使用 new 创建的实例中可用
  */
 export default function( selectors ){
-  const { $info } = this;
+  const $info = this.$info;
+  const { isMounted, isCustomElement } = $info;
 
-  // 首次挂载
-  if( !$info.isMounted ){
-
-    // 使用 new 创建的实例
-    if( !$info.isCustomElement ){
-      const el = selectors && (
-        isString( selectors ) ? document.querySelector( selectors )
-                              : selectors
-      );
-
-      if( !el || el === document.body || el === document.documentElement ){
-        return this;
-      }
-
+  // 是使用 new 创建的实例
+  // 且实例未挂载
+  if( !isCustomElement && !isMounted ){
+    /** 当前实例挂载目标对象 */
+    const el = selectors && (
+      isString( selectors ) ? document.querySelector( selectors )
+                            : selectors
+    );
+    
+    // 不允许挂载到 body 和 html 下
+    if( !el || el === document.body || el === document.documentElement ){
+      return this;
+    }else{
       observeProxyMap.get( this ).target.$el = el;
     }
 

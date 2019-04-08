@@ -24,6 +24,7 @@ export default function init( isCustomElement, root, name, options, userOptions 
   /** 当前实例观察者对象 */
   const targetProxy = observeMap.get( target ).proxy;
 
+  // 
   if( isCustomElement ){
     target.$el = root.attachShadow({ mode: 'open' });
     target.$customElement = root;
@@ -34,13 +35,17 @@ export default function init( isCustomElement, root, name, options, userOptions 
   initMethods( options, target, targetProxy );
   initData( options, target, targetProxy );
 
+  // 运行 beforeCreate 生命周期方法
   callLifecycle( targetProxy, 'beforeCreate', options );
 
   initComputed( options, target, targetProxy );
   initWatch( options, target, targetProxy );
 
+  // 运行 created 生命周期方法
   callLifecycle( targetProxy, 'created', options );
 
+  // 使用 new 创建的实例可以在创建完成后立即进行挂载
+  // 使用自定义元素创建的实例会在首次添加到文档流后进行挂载
   if( !isCustomElement && options.el ){
     targetProxy.$mount( options.el );
   }
