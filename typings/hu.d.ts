@@ -219,7 +219,7 @@ interface Hu{
    * 在下次 DOM 更新循环结束之后执行回调, 在修改数据之后立即使用这个方法, 可以获取更新后的 DOM
    * @param callback 需要执行的回调
    * @param context 回调的 this 对象
-   * 
+   *
    */
   nextTick<T>( callback: ( this: T ) => void, context: T ): void;
   /**
@@ -304,27 +304,29 @@ interface ComponentOptions{
   render?( this: $hu, html: html ): TemplateResult;
 
   /**
-   * 在实例初始化后立即调用, 但是 computed, watch 还未初始化
+   * 实例初始化后被调用, 计算属性 computed 和数据监听 watch 还未初始化
    */
   beforeCreate?( this: $hu );
 
   /**
-   * 在实例创建完成后被立即调用, 但是挂载阶段还没开始
+   * 实例创建完成后被调用, 但是挂载还未开始
    */
   created?( this: $hu );
 
   /**
-   * 在自定义元素挂载开始之前被调用
+   * 首次挂载开始之前被调用
+   * - 对于自定义元素, 会在首次被添加到文档流时调用
    */
   beforeMount?( this: $hu );
 
   /**
-   * 在自定义元素挂载开始之后被调用, 组件 DOM 已挂载
+   * 首次挂载之后被调用
+   * - 对于自定义元素, 会在首次被添加到文档流时调用
    */
   mounted?( this: $hu );
 
   /**
-   * 实例销毁之前调用, 在这一步, 实例仍然完全可用
+   * 实例销毁之前调用. 在这一步, 实例仍然完全可用
    */
   beforeDestroy?( this: $hu );
 
@@ -332,6 +334,24 @@ interface ComponentOptions{
    * 实例销毁后调用
    */
   destroyed?( this: $hu );
+
+  /**
+   * 自定义元素被添加到文档流 ( 自定义元素独有 )
+   * - 此时实例完全可用
+   */
+  connected?( this: $hu );
+
+  /**
+   * 自定义元素位置被移动 ( 自定义元素独有 )
+   * - 此时实例完全可用
+   */
+  adopted?( this: $hu );
+
+  /**
+   * 自定义元素被从文档流移除 ( 自定义元素独有 )
+   * - 此时实例完全可用
+   */
+  disconnected?( this: $hu );
 
   /**
    * 选项接受一个混入对象的数组, 这些混入实例对象可以像正常的实例对象一样包含选项
@@ -414,7 +434,7 @@ interface html{
    * 将内容按普通 HTML 不转义直接插入到当前位置
    *   - 在网站上动态渲染任意 HTML 是非常危险的, 因为容易导致 XSS 攻击
    *   - 只在可信内容上使用 unsafe, 永不用在用户提交的内容上
-   * @param value 
+   * @param value
    */
   unsafe( value: string );
 
