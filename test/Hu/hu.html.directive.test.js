@@ -220,6 +220,148 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
+  it( 'html.bind: 该指令方法绑定的元素属性会在下次使用 render 时进行解绑', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      name: 1
+    });
+
+    Hu.render( div )`
+      <div name=${ bind( data, 'name' ) }></div>
+    `;
+
+    const first = div.firstElementChild;
+
+    expect( first.getAttribute('name') ).is.equals( '1' );
+
+    data.name = 2;
+    Hu.nextTick(() => {
+      expect( first.getAttribute('name') ).is.equals( '2' );
+
+      Hu.render( div )`
+        <div name2=${ bind( data, 'name' ) }></div>
+      `;
+
+      const second = div.firstElementChild;
+
+      expect( first ).is.not.equals( second );
+      expect( first.getAttribute('name') ).is.equals( '2' );
+      expect( second.getAttribute('name2') ).is.equals( '2' );
+
+      data.name = 3;
+      Hu.nextTick(() => {
+        expect( first.getAttribute('name') ).is.equals( '2' );
+        expect( second.getAttribute('name2') ).is.equals( '3' );
+
+        done();
+      });
+    });
+  });
+
+  it( 'html.bind: 该指令在自定义元素实例中, 自定义元素被从文档流移除后, 指令方法的绑定会被解绑', ( done ) => {
+    const customName = window.customName;
+    const bind = Hu.html.bind;
+    const data = Hu.observable({
+      name: 1
+    });
+
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <div name=${ bind( data, 'name' ) }></div>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false,
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( isConnected ).is.true;
+    expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('1');
+    
+    data.name = 2;
+    hu.$nextTick(() => {
+      expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
+
+      div.$remove();
+      expect( isConnected ).is.false;
+
+      data.name = 3;
+      hu.$nextTick(() => {
+        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
+
+        div.$appendTo( document.body );
+        expect( isConnected ).is.true;
+        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('3');
+
+        data.name = 4;
+        hu.$nextTick(() => {
+          expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('4');
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( 'html.bind: 该指令对观察者对象的依赖不会被 render 收集, 所以不会触发重新渲染', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      el: document.createElement('div'),
+      data: {
+        name: '1'
+      },
+      render( html ){
+        index++;
+        return html`
+          <div ref="div" name=${ html.bind( this, 'name' ) }></div>
+        `;
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( hu.$refs.div.getAttribute('name') ).is.equals('1');
+    
+    hu.name = '2';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.$refs.div.getAttribute('name') ).is.equals('2');
+
+      hu.name = '3';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( hu.$refs.div.getAttribute('name') ).is.equals('3');
+
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+
+        expect( index ).is.equals( 4 );
+        expect( hu.$refs.div.getAttribute('name') ).is.equals('3');
+
+        hu.name = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+          expect( hu.$refs.div.getAttribute('name') ).is.equals('4');
+
+          hu.name = '5';
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+            expect( hu.$refs.div.getAttribute('name') ).is.equals('5');
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
   it( 'html.bind: 该指令方法可使用普通方式对元素属性 ( Attribute ) 进行绑定', ( done ) => {
     const bind = Hu.html.bind;
     const div = document.createElement('div');
@@ -372,96 +514,6 @@ describe( 'Hu.html.directive', () => {
         });
 
         done();
-      });
-    });
-  });
-
-  it( 'html.bind: 该指令方法绑定的元素属性会在下次使用 render 时进行解绑', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = Hu.observable({
-      name: 1
-    });
-
-    Hu.render( div )`
-      <div name=${ bind( data, 'name' ) }></div>
-    `;
-
-    const first = div.firstElementChild;
-
-    expect( first.getAttribute('name') ).is.equals( '1' );
-
-    data.name = 2;
-    Hu.nextTick(() => {
-      expect( first.getAttribute('name') ).is.equals( '2' );
-
-      Hu.render( div )`
-        <div name2=${ bind( data, 'name' ) }></div>
-      `;
-
-      const second = div.firstElementChild;
-
-      expect( first ).is.not.equals( second );
-      expect( first.getAttribute('name') ).is.equals( '2' );
-      expect( second.getAttribute('name2') ).is.equals( '2' );
-
-      data.name = 3;
-      Hu.nextTick(() => {
-        expect( first.getAttribute('name') ).is.equals( '2' );
-        expect( second.getAttribute('name2') ).is.equals( '3' );
-
-        done();
-      });
-    });
-  });
-
-  it( 'html.bind: 在自定义元素实例中, 自定义元素被从文档流移除后, 指令方法的绑定会被解绑', ( done ) => {
-    const customName = window.customName;
-    const bind = Hu.html.bind;
-    const data = Hu.observable({
-      name: 1
-    });
-
-    let isConnected = false;
-
-    Hu.define( customName, {
-      render( html ){
-        return html`
-          <div name=${ bind( data, 'name' ) }></div>
-        `;
-      },
-      connected: () => isConnected = true,
-      disconnected: () => isConnected = false,
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( isConnected ).is.true;
-    expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('1');
-    
-    data.name = 2;
-    hu.$nextTick(() => {
-      expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
-
-      div.$remove();
-      expect( isConnected ).is.false;
-
-      data.name = 3;
-      hu.$nextTick(() => {
-        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
-
-        div.$appendTo( document.body );
-        expect( isConnected ).is.true;
-        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('3');
-
-        data.name = 4;
-        hu.$nextTick(() => {
-          expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('4');
-
-          done();
-        });
       });
     });
   });

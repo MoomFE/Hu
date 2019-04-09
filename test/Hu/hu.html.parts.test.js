@@ -939,6 +939,58 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用 :model 指令时对观察者对象的依赖不会被 render 收集, 所以不会触发重新渲染', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      el: document.createElement('div'),
+      data: {
+        value: '1'
+      },
+      render( html ){
+        index++;
+        return html`
+          <input ref="input" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( hu.$refs.input.value ).is.equals('1');
+
+    hu.value = '2';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.$refs.input.value ).is.equals('2');
+
+      hu.value = '3';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( hu.$refs.input.value ).is.equals('3');
+
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+
+        expect( index ).is.equals( 4 );
+        expect( hu.$refs.input.value ).is.equals('3');
+
+        hu.value = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+          expect( hu.$refs.input.value ).is.equals('4');
+
+          hu.value = '5';
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+            expect( hu.$refs.input.value ).is.equals('5');
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
   it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑', ( done ) => {
     const customName = window.customName;
 
