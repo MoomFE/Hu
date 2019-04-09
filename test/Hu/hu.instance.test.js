@@ -875,4 +875,96 @@ describe( 'Hu.instance', () => {
     expect( result ).is.deep.equals([ 1, 2 ]);
   });
 
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会依次触发 beforeDestroy, destroyed 生命周期回调', () => {
+    const steps = [];
+    const hu = new Hu({
+      beforeDestroy: () => steps.push('beforeDestroy'),
+      destroyed: () => steps.push('destroyed')
+    });
+
+    expect( steps ).is.deep.equals([ ]);
+
+    hu.$destroy();
+
+    expect( steps ).is.deep.equals([ 'beforeDestroy', 'destroyed' ]);
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的 watch 绑定', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
+      watch: {
+        a: () => index++
+      }
+    });
+
+    hu.$watch( 'a', () => index++ );
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+
+      hu.a = 3;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 4 );
+
+        hu.$destroy();
+
+        hu.a = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的计算属性', ( done ) => {
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
+      computed: {
+        b(){
+          return this.a * 2;
+        },
+        c(){
+          return this.b * 2;
+        }
+      }
+    });
+
+    expect( hu.a ).is.equals( 1 );
+    expect( hu.b ).is.equals( 2 );
+    expect( hu.c ).is.equals( 4 );
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( hu.a ).is.equals( 2 );
+      expect( hu.b ).is.equals( 4 );
+      expect( hu.c ).is.equals( 8 );
+
+      hu.a = 3;
+      hu.$nextTick(() => {
+        expect( hu.a ).is.equals( 3 );
+        expect( hu.b ).is.equals( 6 );
+        expect( hu.c ).is.equals( 12 );
+
+        hu.$destroy();
+
+        hu.a = 4;
+        hu.$nextTick(() => {
+          expect( hu.a ).is.equals( 4 );
+          expect( hu.b ).is.equals( 6 );
+          expect( hu.c ).is.equals( 12 );
+
+          done();
+        });
+      });
+    });
+  });
+
 });
