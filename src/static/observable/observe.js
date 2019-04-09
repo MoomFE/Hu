@@ -7,6 +7,7 @@ import isFunction from "../../shared/util/isFunction";
 import { hasOwnProperty } from "../../shared/global/Object/prototype";
 import isPlainObject from "../../shared/util/isPlainObject";
 import { isArray } from "../../shared/global/Array/index";
+import each from "../../shared/util/each";
 
 
 /**
@@ -54,7 +55,9 @@ function createObserver(
     // 订阅了当前观察者对象深度监听的 watcher 集合
     deepSubs: new Set(),
     // 上次访问及设置的值缓存
-    lastValue: create( null )
+    lastValue: create( null ),
+    // 是否是数组
+    isArray: isArray( target )
   };
 
   /**
@@ -121,7 +124,7 @@ const createObserverProxyGetter = ({ before } = emptyObject, { subs, lastValue }
 /**
  * 创建响应更新方法
  */
-const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, lastValue }) => ( target, name, value, targetProxy ) => {
+const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, lastValue, isArray }) => ( target, name, value, targetProxy ) => {
 
   // @return 0: 阻止设置值
   if( before ){
@@ -148,6 +151,10 @@ const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, l
 
   // 改变值
   target[ name ] = value;
+
+  if( isArray && name === 'length' ){
+    arrayLengthHook( targetProxy, value, oldValue );
+  }
 
   // 触发更新
   triggerUpdate( subs, deepSubs, lastValue, set, name, value );
@@ -219,5 +226,15 @@ function triggerUpdate( subs, deepSubs, lastValue, handler, name, value ){
   // 遍历当前参数的订阅及父级对象的深度监听数据
   for( let watcher of [ ...sub || [], ...deepSubs ] ){
     watcher.update();
+  }
+}
+
+/**
+ * 修复使用 arr.length = 0 等方式删除数组的值时
+ * 无法触发 Watcher 的更新的问题
+ */
+function arrayLengthHook( targetProxy, length, oldLength ){
+  while( length < oldLength ){
+    deleteProperty( targetProxy, length++ );
   }
 }

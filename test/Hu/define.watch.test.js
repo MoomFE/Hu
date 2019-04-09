@@ -982,6 +982,136 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 对数组进行监听, 使用 length = num 的方式删除值后也会触发', ( done ) => {
+    let result0, result1, result2;
+    let index0 = 0, index1 = 0, index2 = 0;
+    const hu = new Hu({
+      data: {
+        arr: [ 1, 2, 3 ]
+      }
+    });
+
+    hu.$watch(
+      () => hu.arr[ 0 ],
+      ( value, oldValue ) => {
+        index0++;
+        result0 = [ value, oldValue ];
+      }
+    );
+    hu.$watch(
+      () => hu.arr[ 1 ],
+      ( value, oldValue ) => {
+        index1++;
+        result1 = [ value, oldValue ];
+      }
+    );
+    hu.$watch(
+      () => hu.arr[ 2 ],
+      ( value, oldValue ) => {
+        index2++;
+        result2 = [ value, oldValue ];
+      }
+    );
+
+    hu.arr.splice( 0, 3, 4, 5, 6 );
+    hu.$nextTick(() => {
+      expect( index0 ).is.equals( 1 );
+      expect( index1 ).is.equals( 1 );
+      expect( index2 ).is.equals( 1 );
+      expect( result0 ).is.deep.equals([ 4, 1 ]);
+      expect( result1 ).is.deep.equals([ 5, 2 ]);
+      expect( result2 ).is.deep.equals([ 6, 3 ]);
+
+      hu.arr.length = 2;
+      hu.$nextTick(() => {
+        expect( index0 ).is.equals( 1 );
+        expect( index1 ).is.equals( 1 );
+        expect( index2 ).is.equals( 2 );
+        expect( result0 ).is.deep.equals([ 4, 1 ]);
+        expect( result1 ).is.deep.equals([ 5, 2 ]);
+        expect( result2 ).is.deep.equals([ undefined, 6 ]);
+
+        hu.arr.length = 0;
+        hu.$nextTick(() => {
+          expect( index0 ).is.equals( 2 );
+          expect( index1 ).is.equals( 2 );
+          expect( index2 ).is.equals( 2 );
+          expect( result0 ).is.deep.equals([ undefined, 4 ]);
+          expect( result1 ).is.deep.equals([ undefined, 5 ]);
+          expect( result2 ).is.deep.equals([ undefined, 6 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 $watch 对数组进行监听, 使用 length = num 的方式删除值后也会触发 ( Vue ) ( 不支持 )', ( done ) => {
+    let result0, result1, result2;
+    let index0 = 0, index1 = 0, index2 = 0;
+    const vm = new Vue({
+      data: {
+        arr: [ 1, 2, 3 ]
+      }
+    });
+
+    vm.$watch(
+      () => vm.arr[ 0 ],
+      ( value, oldValue ) => {
+        index0++;
+        result0 = [ value, oldValue ];
+      }
+    );
+    vm.$watch(
+      () => vm.arr[ 1 ],
+      ( value, oldValue ) => {
+        index1++;
+        result1 = [ value, oldValue ];
+      }
+    );
+    vm.$watch(
+      () => vm.arr[ 2 ],
+      ( value, oldValue ) => {
+        index2++;
+        result2 = [ value, oldValue ];
+      }
+    );
+
+    vm.arr.splice( 0, 3, 4, 5, 6 );
+    vm.$nextTick(() => {
+      expect( index0 ).is.equals( 1 );
+      expect( index1 ).is.equals( 1 );
+      expect( index2 ).is.equals( 1 );
+      expect( result0 ).is.deep.equals([ 4, 1 ]);
+      expect( result1 ).is.deep.equals([ 5, 2 ]);
+      expect( result2 ).is.deep.equals([ 6, 3 ]);
+
+      vm.arr.length = 2;
+      vm.$set( vm.arr, 'length', 2 );
+      vm.$nextTick(() => {
+        expect( index0 ).is.equals( 1 );
+        expect( index1 ).is.equals( 1 );
+        expect( index2 ).is.equals( 1 );
+        expect( result0 ).is.deep.equals([ 4, 1 ]);
+        expect( result1 ).is.deep.equals([ 5, 2 ]);
+        expect( result2 ).is.deep.equals([ 6, 3 ]);
+
+        vm.arr.length = 0;
+        vm.$set( vm.arr, 'length', 0 );
+        vm.$nextTick(() => {
+          expect( index0 ).is.equals( 1 );
+          expect( index1 ).is.equals( 1 );
+          expect( index2 ).is.equals( 1 );
+          expect( result0 ).is.deep.equals([ 4, 1 ]);
+          expect( result1 ).is.deep.equals([ 5, 2 ]);
+          expect( result2 ).is.deep.equals([ 6, 3 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
   it( '使用 $watch 监听值后, 值被删除时也会受到回调', ( done ) => {
     let result;
     const hu = new Hu({
