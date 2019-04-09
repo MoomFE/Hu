@@ -1,5 +1,5 @@
 import uid from "../../shared/util/uid";
-import { targetStack } from "./const";
+import { pushTarget, popTarget } from "./const";
 import { observeProxyMap } from "./observe";
 import define from "../../shared/util/define";
 import { queueUpdate } from "./scheduler";
@@ -50,7 +50,7 @@ export class Watcher{
     if( this.isComputed ) this.shouldUpdate = false;
 
     // 开始收集依赖
-    targetStack.push( this );
+    pushTarget( this );
 
     // 执行方法
     // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
@@ -60,7 +60,7 @@ export class Watcher{
     if( this.isWatchDeep ) this.wd( result );
 
     // 方法执行完成, 则依赖收集完成
-    targetStack.pop();
+    popTarget();
 
     return result;
   }

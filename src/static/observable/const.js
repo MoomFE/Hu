@@ -4,3 +4,13 @@
  * - [ watcher, watcher, ... ]
  */
 export const targetStack = [];
+
+export function pushTarget( target ){
+  targetStack.push( target);
+  targetStack.target = target;
+}
+
+export function popTarget(){
+  targetStack.pop();
+  targetStack.target = targetStack[ targetStack.length - 1 ];
+}

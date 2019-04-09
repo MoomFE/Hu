@@ -103,7 +103,7 @@ const createObserverProxyGetter = ({ before } = emptyObject, { subs, lastValue }
   }
 
   // 获取当前正在收集依赖的 watcher
-  const watcher = targetStack[ targetStack.length - 1 ];
+  const watcher = targetStack.target;
 
   // 当前有正在收集依赖的 watcher
   if( watcher ){
@@ -168,7 +168,7 @@ const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, l
 const createObserverProxyOwnKeys = ({ deepSubs }) => ( target ) => {
 
   // 获取当前正在收集依赖的 watcher
-  const watcher = targetStack[ targetStack.length - 1 ];
+  const watcher = targetStack.target;
 
   // 当前有正在收集依赖的 watcher
   if( watcher ){
