@@ -3,13 +3,13 @@ import { filter } from "../../shared/global/Array/prototype";
 import addEventListener from "../../shared/util/addEventListener";
 import $watch from "../../core/prototype/$watch";
 import { observe } from "../../static/observable/observe";
-import { assign } from "../../shared/global/Object/index";
 import getAttribute from "../../shared/util/getAttribute";
 import isFunction from "../../shared/util/isFunction";
 import triggerEvent from "../../shared/util/triggerEvent";
 import { renderStack, modelDirectiveCacheMap } from "../const";
 import { apply } from "../../shared/global/Reflect/index";
 import emptyObject from "../../shared/const/emptyObject";
+import { popTarget, pushTarget } from "../../static/observable/const";
 
 
 export default class ModelPart{
@@ -38,10 +38,15 @@ export default class ModelPart{
       throw new Error(':model 指令的参数出错, :model 指令不支持此种传参 !');
     }
 
-    this.options = assign(
-      this.options || observe([]),
-      options
+    pushTarget();
+
+    const optionsProxy = this.options || (
+      this.options = observe([])
     );
+
+    optionsProxy.splice( 0, 2, ...options );
+
+    popTarget();
 
     // 当前渲染元素
     const rendering = renderStack[ renderStack.length - 1 ];
@@ -135,7 +140,7 @@ function handlerDefault( elem, options ){
     triggerEvent( elem, 'input' );
   });
   addEventListener( elem, 'input', event => {
-    if( elem.composing ) return;
+    if( elem.composing || !options.length ) return;
 
     const [ proxy, name ] = this.options;
     proxy[ name ] = elem.value;
