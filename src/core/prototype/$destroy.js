@@ -7,31 +7,25 @@ export default function(){
 
   callLifecycle( this, 'beforeDestroy' );
 
-  // 注销实例所有计算属性
+  // 注销实例所有计算属性和 watch 数据
   {
     const computedOptions = computedMap.get( this );
-
-    if( computedOptions ){
-      const [ computedOptionsMap, removeComputed ] = computedOptions;
-
-      computedOptionsMap.forEach(( value, name ) => {
-        return removeComputed( name );
-      });
-    }
-  }
-  // 注销实例所有 watch 数据
-  {
     const watchOptions = watcherMap.get( this );
 
-    if( watchOptions ){
-      const [ watchOptionsMap, removeWatch ] = watchOptions;
-
-      watchOptionsMap.forEach(( value, name ) => {
-        return removeWatch( name );
-      });
-    }
+    removeComputed( computedOptions );
+    removeComputed( watchOptions );
   }
 
   callLifecycle( this, 'destroyed' );
 
+}
+
+function removeComputed( options ){
+  if( options ){
+    const [ optionsMap, remove ] = options;
+
+    optionsMap.forEach(( value, name ) => {
+      return remove( name );
+    })
+  }
 }
