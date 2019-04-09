@@ -153,11 +153,14 @@ const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, l
   target[ name ] = value;
 
   if( isArray && name === 'length' ){
+    value = target[ name ];
     arrayLengthHook( targetProxy, value, oldValue );
   }
 
   // 触发更新
-  triggerUpdate( subs, deepSubs, lastValue, set, name, value );
+  if( !isArray || value !== oldValue ){
+    triggerUpdate( subs, deepSubs, lastValue, set, name, value );
+  }
 
   return true;
 };
