@@ -1112,6 +1112,84 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 对数组长度进行监听, 当使用了字符串数字给数组长度进行赋值后, 触发回调的也应该是正确的数组长度', ( done ) => {
+    let result;
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        arr: [ 1, 2, 3, 4, 5, 6 ]
+      }
+    });
+
+    hu.$watch(
+      () => hu.arr.length,
+      ( value, oldValue ) => {
+        index++;
+        result = [ value, oldValue ];
+      }
+    );
+
+    hu.arr.length = 5;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( result ).is.deep.equals([ 5, 6 ]);
+
+      hu.arr.length = '5';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( result ).is.deep.equals([ 5, 6 ]);
+
+        hu.arr.length = '4';
+        hu.arr.length = '3';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 2 );
+          expect( result ).is.deep.equals([ 3, 5 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 $watch 对数组长度进行监听, 当使用了字符串数字给数组长度进行赋值后, 触发回调的也应该是正确的数组长度 ( Vue ) ( 不支持 )', ( done ) => {
+    let result;
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        arr: [ 1, 2, 3, 4, 5, 6 ]
+      }
+    });
+
+    vm.$watch(
+      () => vm.arr.length,
+      ( value, oldValue ) => {
+        index++;
+        result = [ value, oldValue ];
+      }
+    );
+
+    vm.$set( vm.arr, 'length', 5 );
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 0 );
+      expect( result ).is.equals( undefined );
+
+      vm.$set( vm.arr, 'length', '5' );
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 0 );
+        expect( result ).is.equals( undefined );
+
+        vm.$set( vm.arr, 'length', '4' );
+        vm.$set( vm.arr, 'length', '3' );
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 0 );
+          expect( result ).is.equals( undefined );
+
+          done();
+        });
+      });
+    });
+  });
+
   it( '使用 $watch 监听值后, 值被删除时也会受到回调', ( done ) => {
     let result;
     const hu = new Hu({

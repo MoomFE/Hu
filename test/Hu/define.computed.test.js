@@ -1237,5 +1237,78 @@ describe( 'Hu.define - computed', () => {
     expect( index ).is.equals( 1 );
   });
 
+  it( '计算属性在依赖了数组长度时, 若数组长度被字符串数字赋值后, 若值相同, 则不应该被调起', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        arr: [ 1, 2, 3, 4, 5, 6 ]
+      },
+      computed: {
+        a(){
+          index++;
+          this.arr.length;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+
+    hu.arr.length = 5;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+
+      hu.arr.length = '5';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.arr.length = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '计算属性在依赖了数组长度时, 若数组长度被字符串数字赋值后, 若值相同, 则不应该被调起 ( Vue ) ( 不支持 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        arr: [ 1, 2, 3, 4, 5, 6 ]
+      },
+      computed: {
+        a(){
+          index++;
+          this.arr.length;
+        }
+      },
+      watch: {
+        a(){}
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+
+    vm.$set( vm.arr, 'length', 5 );
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      vm.$set( vm.arr, 'length', '5' );
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+
+        vm.$set( vm.arr, 'length', '4' );
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 1 );
+
+          done();
+        });
+      });
+    });
+  });
 
 });
