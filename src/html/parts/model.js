@@ -72,18 +72,16 @@ export default class ModelPart{
 
 }
 
-function watch( options, elem, callbackOrProps ){
+function watch( options, elem, prop ){
+  const callback = isFunction( prop ) ? prop : ( value ) => elem[ prop ] = value;
+
   apply( $watch, this, [
     () => {
       return options.length ? options[0][ options[1] ]
                             : emptyObject;
     },
     function( value ){
-      value !== emptyObject && apply(
-        isFunction( callbackOrProps ) ? callbackOrProps : ( value ) => elem[ callbackOrProps ] = value,
-        this,
-        arguments
-      );
+      value !== emptyObject && apply( callback, this, arguments );
     },
     {
       immediate: true
