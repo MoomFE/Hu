@@ -26,15 +26,15 @@ export default ( self, isWatch ) => {
 
   /** 给当前计算属性添加子级的方法 */
   const appendComputed = createAppendComputed.call( self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch );
-  /** 给当前计算属性移除子级的方法, 目前仅有监听需要使用 */
-  let removeComputed = isWatch ? createRemoveComputed.call( self, computedOptionsMap )
-                               : void 0;
+  /** 给当前计算属性移除子级的方法 */
+  let removeComputed = createRemoveComputed.call( self, computedOptionsMap );
 
   return [
-    computedTarget,
-    computedTargetProxyInterceptor,
+    computedOptionsMap,
+    removeComputed,
     appendComputed,
-    removeComputed
+    computedTarget,
+    computedTargetProxyInterceptor
   ];
 }
 

@@ -12,7 +12,7 @@ import emptyObject from "../../shared/const/emptyObject";
 /**
  * 存放每个实例的 watch 数据
  */
-const watcherMap = new WeakMap();
+export const watcherMap = new WeakMap();
 
 /**
  * 监听 Hu 实例对象
@@ -37,16 +37,18 @@ export default function $watch( expOrFn, callback, options ){
   // 不支持其他写法
   else return;
 
-  let watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed;
+  let removeWatch, appendWatch, watchTarget, watchTargetProxyInterceptor;
+  let watchOptions;
 
   if( watcherMap.has( self ) ){
-    [ watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed ] = watcherMap.get( self );
+    watchOptions = watcherMap.get( self );
   }else{
-    watcherMap.set(
-      self,
-      [ watchTarget, watchTargetProxyInterceptor, appendComputed, removeComputed ] = createComputed( null, true )
-    );
+    watchOptions = createComputed( null, true );
+    // 存储当前实例 watch 相关数据
+    watcherMap.set( self, watchOptions );
   }
+
+  [ , removeWatch, appendWatch, watchTarget, watchTargetProxyInterceptor ] = watchOptions;
 
   // 初始化选项参数
   options = options || {};
@@ -61,7 +63,7 @@ export default function $watch( expOrFn, callback, options ){
   let immediate, runCallback = immediate = !!options.immediate;
 
   // 添加监听
-  appendComputed( name, {
+  appendWatch( name, {
     get: () => {
       const oldValue = watchTarget[ name ];
       const value = watchFn();
@@ -85,6 +87,6 @@ export default function $watch( expOrFn, callback, options ){
 
   // 返回取消监听的方法
   return () => {
-    removeComputed( name );
+    removeWatch( name );
   }
 };
