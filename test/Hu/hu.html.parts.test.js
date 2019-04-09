@@ -999,7 +999,6 @@ describe( 'Hu.html.parts', () => {
         value: '1'
       }),
       render( html ){
-        console.log(123);
         return html`
           <input ref="input" :model=${[ this, 'value' ]}>
         `;
@@ -1037,23 +1036,26 @@ describe( 'Hu.html.parts', () => {
         expect( hu.$refs.input.value ).is.equals( '5' );
 
         custom.$appendTo( document.body );
-
-        expect( hu.value ).is.equals( '4' );
-        expect( hu.$refs.input.value ).is.equals( '4' );
-
-        hu.value = '6';
         hu.$nextTick(() => {
-          expect( hu.value ).is.equals( '6' );
-          expect( hu.$refs.input.value ).is.equals( '6' );
+          expect( hu.value ).is.equals( '4' );
+          expect( hu.$refs.input.value ).is.equals( '4' );
 
-          hu.$refs.input.value = '7';
-          triggerEvent( hu.$refs.input, 'input' );
+          hu.value = '6';
+          hu.$nextTick(() => {
+            expect( hu.value ).is.equals( '6' );
+            expect( hu.$refs.input.value ).is.equals( '6' );
 
-          expect( hu.value ).is.equals( '7' );
-          expect( hu.$refs.input.value ).is.equals( '7' );
+            hu.$refs.input.value = '7';
+            triggerEvent( hu.$refs.input, 'input' );
 
-          done();
-        });
+            expect( hu.value ).is.equals( '7' );
+            expect( hu.$refs.input.value ).is.equals( '7' );
+
+            custom.$remove();
+
+            done();
+          });
+        })
       });
     });
   });
