@@ -88,6 +88,8 @@ describe( 'Hu.define - render', () => {
     div.$appendTo( document.body );
 
     expect( isRender ).is.true;
+
+    div.$remove();
   });
 
   it( '由 new 创建的实例将在绑定 el 时立即运行 render 方法进行渲染', () => {

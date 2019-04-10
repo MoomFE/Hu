@@ -304,6 +304,8 @@ describe( 'Hu.html.directive', () => {
         hu.$nextTick(() => {
           expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('4');
 
+          div.$remove();
+
           done();
         });
       });
