@@ -15,7 +15,7 @@ export default function( result, container, options ){
 
 
 /**
- * 解绑上次渲染时使用 bind 指令方法绑定的属性
+ * 解绑上次渲染时收集到的属性监听和双向数据绑定信息
  */
 export function unWatchAllDirectiveCache( container ){
   // 解绑上次渲染时收集到的属性监听
