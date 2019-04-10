@@ -347,10 +347,12 @@ interface ComponentOptions{
   connected?( this: $hu );
 
   /**
-   * 自定义元素位置被移动 ( 自定义元素独有 )
+   * 自定义元素被移动到新文档时调用 ( 自定义元素独有 )
    * - 此时实例完全可用
+   * @param newDocument 被移动到的新文档 document 引用
+   * @param oldDocument 被移动到的旧文档 document 引用
    */
-  adopted?( this: $hu );
+  adopted?( this: $hu, newDocument: Document, oldDocument: Document );
 
   /**
    * 自定义元素被从文档流移除 ( 自定义元素独有 )
