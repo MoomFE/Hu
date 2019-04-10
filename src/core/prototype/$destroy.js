@@ -17,6 +17,9 @@ export default function(){
 
   callLifecycle( this, 'destroyed' );
 
+  // 删除所有自定义事件绑定
+  this.$off();
+
 }
 
 function removeComputed( optionsMap, self ){
