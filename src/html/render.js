@@ -4,7 +4,7 @@ import { renderStack, bindDirectiveCacheMap, modelDirectiveCacheMap } from './co
 
 export default function( result, container, options ){
 
-  unWatchDirectiveCache( container );
+  unWatchAllDirectiveCache( container );
 
   renderStack.push( container );
 
@@ -17,27 +17,24 @@ export default function( result, container, options ){
 /**
  * 解绑上次渲染时使用 bind 指令方法绑定的属性
  */
-export function unWatchDirectiveCache( container ){
-  /** 当前渲染元素属性监听解绑方法集 */
-  const bindWatches = bindDirectiveCacheMap.get( container );
+export function unWatchAllDirectiveCache( container ){
+  // 解绑上次渲染时收集到的属性监听
+  unWatchDirectiveCache( bindDirectiveCacheMap, container, unWatch => {
+    return unWatch();
+  });
+  // 解绑上次渲染时收集到的双向数据绑定信息
+  unWatchDirectiveCache( modelDirectiveCacheMap, container, modelPart => {
+    return modelPart.options.length = 0;
+  });
+}
 
-  if( bindWatches ){
-    // 解绑上次渲染时收集到的属性监听
-    for( const unWatch of bindWatches ){
-      unWatch();
+function unWatchDirectiveCache( cache, container, fn ){
+  const options = cache.get( container );
+
+  if( options ){
+    for( const option of options ){
+      fn( option );
     }
-    // 清空属性监听, 重新进行收集
-    bindWatches.length = 0;
-  }
-
-  /** 当前渲染元素使用的双向数据绑定信息 */
-  const modelParts = modelDirectiveCacheMap.get( container );
-
-  if( modelParts ){
-    for( const modelPart of modelParts ){
-      modelPart.options.length = 0;
-    }
-    // 清空双向数据绑定信息, 重新进行收集
-    modelParts.length = 0;
+    options.length = 0;
   }
 }
