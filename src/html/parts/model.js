@@ -62,18 +62,21 @@ export default class ModelPart{
   }
 
   commit(){
+    if( this.init && this.options.length && this.set ){
+      pushTarget();
+      this.set( this.options[0][ this.options[1] ] );
+      popTarget();
+    }
     if( this.init || !this.handler ) return;
 
-    const { elem, options } = this;
-
     this.init = true;
-    this.handler( elem, options );
+    this.handler( this.elem, this.options );
   }
 
 }
 
-function watch( options, elem, prop ){
-  const callback = isFunction( prop ) ? prop : ( value ) => elem[ prop ] = value;
+function watch( part, options, elem, prop ){
+  const set = part.set = isFunction( prop ) ? prop : ( value ) => elem[ prop ] = value;
 
   apply( $watch, this, [
     () => {
@@ -81,7 +84,7 @@ function watch( options, elem, prop ){
                             : emptyObject;
     },
     function( value ){
-      value !== emptyObject && apply( callback, this, arguments );
+      value !== emptyObject && apply( set, this, arguments );
     },
     {
       immediate: true
@@ -91,7 +94,7 @@ function watch( options, elem, prop ){
 
 function handlerSelect( elem, options ){
   // 监听绑定值改变
-  watch( options, elem, 'value' );
+  watch( this, options, elem, 'value' );
   // 监听控件值改变
   addEventListener( elem, 'change', event => {
     const [ proxy, name ] = options;
@@ -104,7 +107,7 @@ function handlerSelect( elem, options ){
 
 function handlerCheckbox( elem, options ){
   // 监听绑定值改变
-  watch( options, elem, 'checked' );
+  watch( this, options, elem, 'checked' );
   // 监听控件值改变
   addEventListener( elem, 'change', event => {
     const [ proxy, name ] = this.options;
@@ -114,7 +117,7 @@ function handlerCheckbox( elem, options ){
 
 function handlerRadio( elem, options ){
   // 监听绑定值改变
-  watch( options, elem, value => {
+  watch( this, options, elem, value => {
     elem.checked = value == ( getAttribute( elem, 'value' ) || null );
   });
   // 监听控件值改变
@@ -126,7 +129,7 @@ function handlerRadio( elem, options ){
 
 function handlerDefault( elem, options ){
   // 监听绑定值改变
-  watch( options, elem, 'value' );
+  watch( this, options, elem, 'value' );
   // 监听控件值改变
   addEventListener( elem, 'compositionstart', event => {
     elem.composing = true;
