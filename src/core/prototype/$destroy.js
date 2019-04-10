@@ -9,18 +9,17 @@ export default function(){
 
   // 注销实例所有计算属性和 watch 数据
   {
-    const computedOptions = computedMap.get( this );
-    const watchOptions = watcherMap.get( this );
-
-    removeComputed( computedOptions );
-    removeComputed( watchOptions );
+    removeComputed( computedMap, this );
+    removeComputed( watcherMap, this );
   }
 
   callLifecycle( this, 'destroyed' );
 
 }
 
-function removeComputed( options ){
+function removeComputed( optionsMap, self ){
+  const options = optionsMap.get( self );
+
   if( options ){
     const [ optionsMap, remove ] = options;
 
