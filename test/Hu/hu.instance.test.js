@@ -1015,4 +1015,37 @@ describe( 'Hu.instance', () => {
     });
   });
 
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有自定义事件绑定', () => {
+    let index = 0;
+    const hu = new Hu();
+
+    hu.$on( 'test', () => index++ );
+    hu.$on( 'test', () => index++ );
+    hu.$on( 'test', () => index++ );
+
+    expect( index ).is.equals( 0 );
+
+    hu.$emit('test');
+    expect( index ).is.equals( 3 );
+
+    hu.$emit('test');
+    expect( index ).is.equals( 6 );
+
+    hu.$emit('test');
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    hu.$destroy();
+
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    hu.$emit('test');
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+  });
+
 });
