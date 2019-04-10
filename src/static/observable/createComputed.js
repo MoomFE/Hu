@@ -92,6 +92,8 @@ function createRemoveComputed( computedOptionsMap ){
     if( computedOptions ){
       // 清空依赖
       computedOptions.watcher.clean();
+      // 删除计算属性
+      computedOptionsMap.delete( name );
     }
   };
 }
