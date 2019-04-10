@@ -2,6 +2,7 @@ import callLifecycle from "../../static/define/util/callLifecycle";
 import { computedMap } from "../../static/define/init/initComputed";
 import { watcherMap } from "./$watch";
 import { unWatchAllDirectiveCache } from "../../html/render";
+import { removeRenderDeps } from "../init/initForceUpdate";
 
 
 export default function(){
@@ -14,6 +15,9 @@ export default function(){
 
   // 解绑上次渲染时收集到的属性监听和双向数据绑定信息
   unWatchAllDirectiveCache( this.$el );
+
+  // 清空 render 方法收集到的依赖
+  removeRenderDeps( this );
 
   callLifecycle( this, 'destroyed' );
 
