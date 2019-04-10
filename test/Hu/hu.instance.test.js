@@ -1048,4 +1048,50 @@ describe( 'Hu.instance', () => {
     expect( index ).is.equals( 12 );
   });
 
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除 render 方法收集到的依赖', ( done ) => {
+    let index = 0;
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: 123
+      },
+      render( html ){
+        index++;
+        return html`<div ref="div">${ this.value }</div>`;
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( hu.$refs.div.innerText ).is.equals('123');
+
+    hu.value = 1234;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+      expect( hu.$refs.div.innerText ).is.equals('1234');
+
+      hu.value = 12345;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 3 );
+        expect( hu.$refs.div.innerText ).is.equals('12345');
+
+        hu.$destroy();
+
+        hu.value = 123456;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( hu.$refs.div.innerText ).is.equals('12345');
+
+          hu.value = 1234567;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 3 );
+            expect( hu.$refs.div.innerText ).is.equals('12345');
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
 });
