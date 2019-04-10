@@ -1036,26 +1036,78 @@ describe( 'Hu.html.parts', () => {
         expect( hu.$refs.input.value ).is.equals( '5' );
 
         custom.$appendTo( document.body );
+
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '4' );
+
+        hu.value = '6';
         hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '6' );
+          expect( hu.$refs.input.value ).is.equals( '6' );
+
+          hu.$refs.input.value = '7';
+          triggerEvent( hu.$refs.input, 'input' );
+
+          expect( hu.value ).is.equals( '7' );
+          expect( hu.$refs.input.value ).is.equals( '7' );
+
+          custom.$remove();
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后又被加回文档流, 指令的绑定的值应该立即更新', ( done ) => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      data: () => ({
+        value: '1'
+      }),
+      render( html ){
+        index++;
+        return html`
+          <input ref="input" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    hu.value = '2';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.value ).is.equals( '2' );
+      expect( hu.$refs.input.value ).is.equals( '2' );
+
+      custom.$remove();
+
+      hu.value = '3';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( hu.value ).is.equals( '3' );
+        expect( hu.$refs.input.value ).is.equals( '2' );
+
+        custom.$appendTo( document.body );
+
+        expect( index ).is.equals( 2 );
+        expect( hu.value ).is.equals( '3' );
+        expect( hu.$refs.input.value ).is.equals( '3' );
+
+        hu.value = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 2 );
           expect( hu.value ).is.equals( '4' );
           expect( hu.$refs.input.value ).is.equals( '4' );
 
-          hu.value = '6';
-          hu.$nextTick(() => {
-            expect( hu.value ).is.equals( '6' );
-            expect( hu.$refs.input.value ).is.equals( '6' );
+          custom.$remove();
 
-            hu.$refs.input.value = '7';
-            triggerEvent( hu.$refs.input, 'input' );
-
-            expect( hu.value ).is.equals( '7' );
-            expect( hu.$refs.input.value ).is.equals( '7' );
-
-            custom.$remove();
-
-            done();
-          });
-        })
+          done();
+        });
       });
     });
   });
