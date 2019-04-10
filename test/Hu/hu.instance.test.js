@@ -967,4 +967,52 @@ describe( 'Hu.instance', () => {
     });
   });
 
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有 bind 指令方法绑定和双向数据绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '1'
+      },
+      render( html ){
+        const bind = html.bind;
+
+        return html`
+          <input ref="input" :model=${[ this, 'value' ]} data-value=${ bind( this, 'value' ) } />
+        `;
+      }
+    });
+
+    expect( hu.$refs.input.value ).is.equals('1');
+    expect( hu.$refs.input.getAttribute('data-value') ).is.equals('1');
+
+    hu.value = '2';
+    hu.$nextTick(() => {
+      expect( hu.$refs.input.value ).is.equals('2');
+      expect( hu.$refs.input.getAttribute('data-value') ).is.equals('2');
+
+      hu.value = '3';
+      hu.$nextTick(() => {
+        expect( hu.$refs.input.value ).is.equals('3');
+        expect( hu.$refs.input.getAttribute('data-value') ).is.equals('3');
+
+        hu.$destroy();
+
+        hu.value = '4';
+        hu.$nextTick(() => {
+          expect( hu.$refs.input.value ).is.equals('3');
+          expect( hu.$refs.input.getAttribute('data-value') ).is.equals('3');
+
+          hu.value = '5';
+          hu.$nextTick(() => {
+            expect( hu.$refs.input.value ).is.equals('3');
+            expect( hu.$refs.input.getAttribute('data-value') ).is.equals('3');
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
 });
