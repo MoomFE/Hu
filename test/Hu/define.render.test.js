@@ -242,4 +242,66 @@ describe( 'Hu.define - render', () => {
     });
   });
 
+  it( '由自定义元素创建的实例, 自定义元素被从文档流移除后, 清空 render 方法收集到的依赖', ( done ) => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      data: () => ({
+        value: 123
+      }),
+      render( html ){
+        index++;
+        return html`<div ref="div">${ this.value }</div>`;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( index ).is.equals( 1 );
+    expect( hu.$refs.div.innerText ).is.equals('123');
+
+    hu.value = 1234;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+      expect( hu.$refs.div.innerText ).is.equals('1234');
+
+      hu.value = 12345;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 3 );
+        expect( hu.$refs.div.innerText ).is.equals('12345');
+
+        custom.$remove();
+
+        hu.value = 123456;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( hu.$refs.div.innerText ).is.equals('12345');
+
+          hu.value = 1234567;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 3 );
+            expect( hu.$refs.div.innerText ).is.equals('12345');
+
+            custom.$appendTo( document.body );
+
+            expect( index ).is.equals( 4 );
+            expect( hu.$refs.div.innerText ).is.equals('1234567');
+
+            hu.value = 12345678;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 5 );
+              expect( hu.$refs.div.innerText ).is.equals('12345678');
+
+              custom.$remove();
+
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
 });
