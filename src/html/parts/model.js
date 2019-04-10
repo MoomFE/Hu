@@ -62,12 +62,16 @@ export default class ModelPart{
   }
 
   commit(){
-    if( this.init && this.options.length && this.set ){
+    let init = this.init,
+        options,
+        set;
+
+    if( init && ( options = this.options ).length && ( set = this.set ) ){
       pushTarget();
-      this.set( this.options[0][ this.options[1] ] );
+      set( options[0][ options[1] ] );
       popTarget();
     }
-    if( this.init || !this.handler ) return;
+    if( init || !this.handler ) return;
 
     this.init = true;
     this.handler( this.elem, this.options );
