@@ -1,6 +1,8 @@
 import callLifecycle from "../util/callLifecycle";
 
 
-export default options => function(){
-  callLifecycle( this.$hu, 'adopted', options );
+export default options => function( oldDocument, newDocument ){
+  callLifecycle( this.$hu, 'adopted', options, [
+    newDocument, oldDocument
+  ]);
 }

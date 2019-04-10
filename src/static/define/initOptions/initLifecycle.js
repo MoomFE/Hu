@@ -27,7 +27,7 @@ export default function initLifecycle( userOptions, options, mixins, isMixin ){
      */
     'connected',
     /**
-     * 自定义元素位置被移动 ( 自定义元素独有 )
+     * 自定义元素被移动到新文档时调用 ( 自定义元素独有 )
      * - 此时实例完全可用
      */
     'adopted',
