@@ -1,13 +1,15 @@
 import Hu from "../../core/index";
+import { inBrowser } from "../../shared/const/env";
 
 
-const otherHu = window.Hu;
+const otherHu = inBrowser ? window.Hu
+                          : undefined;
 
 Hu.noConflict = () => {
-  if( window.Hu === Hu ) window.Hu = otherHu;
+  if( inBrowser && window.Hu === Hu ) window.Hu = otherHu;
   return Hu;
 }
 
-if( typeof window !== 'undefined' ){
+if( inBrowser ){
   window.Hu = Hu;
 }

@@ -1,4 +1,4 @@
-import './webcomponentsjs/index';
+import '@webcomponents/webcomponentsjs/webcomponents-bundle';
 import Hu from './index';
 
 

@@ -1,6 +1,6 @@
 import 'colors';
 import '@moomfe/zenjs';
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import zlib from 'zlib';
 import resolve from 'rollup-plugin-node-resolve';
@@ -25,6 +25,34 @@ const basic = {
     banner: `/*!\n * ${ packages.title } v${ packages.version }\n * ${ packages.homepage }\n * \n * (c) 2018-present ${ packages.author }\n * Released under the MIT License.\n */\n`
   },
   plugins: [
+    {
+      name: 'fix lit-html: window is not defined',
+      async load( id ){
+        if( /\\node_modules\\lit-html\\lib\\dom\.js$/i.test( id ) ){
+          const source = ( await fs.readFile( id, 'utf-8' ) ).replace(
+            'window.customElements !== undefined &&',
+            'inBrowser && window.customElements !== undefined &&'
+          );
+
+          return `
+            import { inBrowser } from '../../../src/shared/const/env';
+            ${ source }
+          `;
+        }else if( /\\node_modules\\lit-html\\lit-html\.js$/i.test( id ) ){
+          const source = ( await fs.readFile( id, 'utf-8' ) ).replace(
+            `(window['litHtmlVersions']`,
+            `inBrowser && (window['litHtmlVersions']`
+          );
+
+          return `
+            import { inBrowser } from '../../src/shared/const/env';
+            ${ source }
+          `;
+        }
+
+        return null;
+      }
+    },
     {
       name: 'console',
       buildStart( inputOptions ){
@@ -182,19 +210,31 @@ if( process.env.build ){
 else if( process.env.watch ){
   configs.push( basic );
 }
-// 使用 watch:polyfill 指令构建
-else{
-  const polyfillConfig = Object.$assign( null, basic, {
-    input: 'src/build/webcomponentsjs/src/index.js',
-    context: 'window',
-    output: {
-      file: 'src/build/webcomponentsjs/index.js',
-      format: 'iife',
-      banner: 'typeof window !== "undefined" &&'
+
+// 修复 webcomponentsjs polyfill 的 "window is not defined" 错误
+if( configs.length ){
+  configs.$each( config => {
+    const isPolyfill = /\.polyfill\./.test( config.output.file );
+
+    if( isPolyfill ){
+      config.plugins.push({
+        name: 'fix webcomponentsjs: window is not defined',
+        async load( id ){
+          if( /\\node_modules\\@webcomponents\\webcomponentsjs\\webcomponents-(bundle|loader)\.js$/.test( id ) ){
+            const source = ( await fs.readFile( id, 'utf-8' ) );
+
+            return `
+              import { inBrowser } from '../../../src/shared/const/env';
+              inBrowser && (() => {
+                ${ source }
+              })();
+            `;
+          }
+          return null;
+        }
+      })
     }
   });
-
-  configs.push( polyfillConfig );
 }
 
 // 字符串替换

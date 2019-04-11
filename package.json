@@ -21,8 +21,7 @@
   "homepage": "https://github.com/MoomFE/Hu",
   "scripts": {
     "build": "node_modules\\.bin\\rollup --silent --config --environment build:true",
-    "watch": "node_modules\\.bin\\rollup --silent --config --watch --environment watch:true",
-    "watch:polyfill": "node_modules\\.bin\\rollup --silent --config --watch"
+    "watch": "node_modules\\.bin\\rollup --silent --config --watch --environment watch:true"
   },
   "devDependencies": {
     "@moomfe/zenjs": "^5.0.0-beta.5",
