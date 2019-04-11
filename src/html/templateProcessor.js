@@ -40,7 +40,7 @@ class TemplateProcessor{
         new BooleanPart( element, attr )
       ];
     }
-    // 扩展属性支持
+    // 功能指令
     else if( prefix === ':' ){
       const [ attr ] = name.slice(1).split('.');
 
