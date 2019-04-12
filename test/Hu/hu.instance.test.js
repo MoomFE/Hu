@@ -380,9 +380,16 @@ describe( 'Hu.instance', () => {
     const hu2 = new Hu({
       render(){}
     });
+    const hu3 = new Hu({
+      render(){}
+    });
 
-    expect( hu.$forceUpdate.toString() ).is.equals('() => {}');
-    expect( hu.$forceUpdate.toString() ).is.not.equals( hu2.$forceUpdate.toString() );
+    expect(
+      hu.$forceUpdate.toString() === '() => {}' ||
+      hu.$forceUpdate.toString() === '()=>{}'
+    ).is.true;
+    expect( hu.$forceUpdate ).is.not.equals( hu2.$forceUpdate );
+    expect( hu.$forceUpdate ).is.not.equals( hu3.$forceUpdate );
   });
 
   it( '实例上的 $data 属性会存放所有定义了的属性', () => {
