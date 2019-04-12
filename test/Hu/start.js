@@ -22,18 +22,40 @@
     target.dispatchEvent( event );
   }
 
-  const error = console.error;
+  {
+    const error = console.error;
 
-  window.errorMsg = void 0;
+    window.errorMsg = void 0;
 
-  window.errorStart = function(){
-    console.error = msg => {
-      errorMsg = msg;
-    };
+    window.errorStart = function(){
+      console.error = msg => {
+        errorMsg = msg;
+      };
+    }
+
+    window.errorEnd = function(){
+      console.error = error;
+    }
   }
 
-  window.errorEnd = function(){
-    console.error = error;
+  {
+    let supportsPassive = false;
+
+    try{
+
+      const options = {};
+
+      Reflect.defineProperty( options, 'passive', {
+        get: () => {
+          return supportsPassive = true;
+        }
+      });
+
+      window.addEventListener( 'test-passive', null, options );
+
+    }catch(e){}
+
+    window.supportsPassive = supportsPassive;
   }
 
 }();

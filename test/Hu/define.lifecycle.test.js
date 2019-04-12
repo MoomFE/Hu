@@ -562,7 +562,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( index ).is.equals( 0 );
     expect( result ).is.undefined;
 
-    custom.$appendTo( document.body );
+    document.body.appendChild( custom );
 
     expect( index ).is.equals( 0 );
     expect( result ).is.undefined;
@@ -571,12 +571,12 @@ describe( 'Hu.define - lifecycle', () => {
     const iframeDocument = iframe.contentWindow.document;
     const iframeBody = iframeDocument.body;
 
-    custom.$appendTo( iframeBody );
+    iframeBody.appendChild( custom );
 
     expect( index ).is.equals( 1 );
     expect( result ).is.deep.equals([ iframeDocument, document ]);
 
-    custom.$appendTo( document.body );
+    document.body.appendChild( custom );
     expect( result ).is.deep.equals([ document, iframeDocument ]);
 
     expect( index ).is.equals( 2 );
