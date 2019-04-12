@@ -10,6 +10,17 @@ module.exports = function( config ){
       'mocha',
       'chai'
     ],
+    preprocessors: {
+      'dist/hu.js': 'coverage'
+    },
+    reporters: [
+      'progress',
+      'coverage'
+    ],
+    coverageReporter: {
+      type: 'html',
+      dir: 'coverage/'
+    },
     files: [
       // Lib
       'test/Lib/zen.fat.js',
