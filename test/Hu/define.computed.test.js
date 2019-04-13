@@ -758,45 +758,49 @@ describe( 'Hu.define - computed', () => {
     expect( vm.b ).is.equals( 4 );
   });
 
-  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( for ... in )', () => {
-    const hu = new Hu({
-      data: {
-        json: {}
-      },
-      computed: {
-        a(){
-          const json = {};
-          for( const name in this.json ){
-            json[ name ] = this.json[ name ];
+  if( supportsForInTriggerProxyOwnKeys ){
+
+    it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( for ... in )', () => {
+      const hu = new Hu({
+        data: {
+          json: {}
+        },
+        computed: {
+          a(){
+            const json = {};
+            for( const name in this.json ){
+              json[ name ] = this.json[ name ];
+            }
+            return json;
           }
-          return json;
+        },
+        watch: {
+          a(){}
         }
-      },
-      watch: {
-        a(){}
-      }
+      });
+
+      expect( hu.a ).is.deep.equals({});
+
+      hu.json.aaa = 1;
+      hu.json.bbb = 2;
+
+      expect( hu.a ).is.deep.equals({
+        aaa: 1,
+        bbb: 2
+      });
+
+      const ccc = Symbol('ccc');
+
+      hu.json[ ccc ] = 3;
+
+      expect( hu.a ).is.deep.equals({
+        aaa: 1,
+        bbb: 2,
+        [ ccc ]: 3
+      });
     });
-
-    expect( hu.a ).is.deep.equals({});
-
-    hu.json.aaa = 1;
-    hu.json.bbb = 2;
-
-    expect( hu.a ).is.deep.equals({
-      aaa: 1,
-      bbb: 2
-    });
-
-    const ccc = Symbol('ccc');
-
-    hu.json[ ccc ] = 3;
-
-    expect( hu.a ).is.deep.equals({
-      aaa: 1,
-      bbb: 2,
-      [ ccc ]: 3
-    });
-  });
+    
+  }
 
   it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Reflect.ownKeys )', () => {
     const hu = new Hu({
@@ -878,77 +882,85 @@ describe( 'Hu.define - computed', () => {
     });
   });
 
-  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.values )', () => {
-    const hu = new Hu({
-      data: {
-        json: {}
-      },
-      computed: {
-        a(){
-          const arr = [];
-          for( const value of Object.values( this.json ) ){
-            arr.push( value );
+  if( Object.values ){
+
+    it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.values )', () => {
+      const hu = new Hu({
+        data: {
+          json: {}
+        },
+        computed: {
+          a(){
+            const arr = [];
+            for( const value of Object.values( this.json ) ){
+              arr.push( value );
+            }
+            return arr;
           }
-          return arr;
+        },
+        watch: {
+          a(){}
         }
-      },
-      watch: {
-        a(){}
-      }
+      });
+
+      expect( hu.a ).is.deep.equals([]);
+
+      hu.json.aaa = 1;
+      hu.json.bbb = 2;
+
+      expect( hu.a ).is.deep.equals([ 1, 2 ]);
+
+      const ccc = Symbol('ccc');
+
+      hu.json[ ccc ] = 3;
+
+      expect( hu.a ).is.deep.equals([ 1, 2 ]);
     });
 
-    expect( hu.a ).is.deep.equals([]);
+  }
 
-    hu.json.aaa = 1;
-    hu.json.bbb = 2;
+  if( Object.entries ){
 
-    expect( hu.a ).is.deep.equals([ 1, 2 ]);
-
-    const ccc = Symbol('ccc');
-
-    hu.json[ ccc ] = 3;
-
-    expect( hu.a ).is.deep.equals([ 1, 2 ]);
-  });
-
-  it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.entries )', () => {
-    const hu = new Hu({
-      data: {
-        json: {}
-      },
-      computed: {
-        a(){
-          const json = {};
-          for( const [ name, value ] of Object.entries( this.json ) ){
-            json[ name ] = value;
+    it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.entries )', () => {
+      const hu = new Hu({
+        data: {
+          json: {}
+        },
+        computed: {
+          a(){
+            const json = {};
+            for( const [ name, value ] of Object.entries( this.json ) ){
+              json[ name ] = value;
+            }
+            return json;
           }
-          return json;
+        },
+        watch: {
+          a(){}
         }
-      },
-      watch: {
-        a(){}
-      }
+      });
+
+      expect( hu.a ).is.deep.equals({});
+
+      hu.json.aaa = 1;
+      hu.json.bbb = 2;
+
+      expect( hu.a ).is.deep.equals({
+        aaa: 1,
+        bbb: 2
+      });
+
+      const ccc = Symbol('ccc');
+
+      hu.json[ ccc ] = 3;
+
+      expect( hu.a ).is.deep.equals({
+        aaa: 1,
+        bbb: 2
+      });
     });
 
-    expect( hu.a ).is.deep.equals({});
-
-    hu.json.aaa = 1;
-    hu.json.bbb = 2;
-
-    expect( hu.a ).is.deep.equals({
-      aaa: 1,
-      bbb: 2
-    });
-
-    const ccc = Symbol('ccc');
-
-    hu.json[ ccc ] = 3;
-
-    expect( hu.a ).is.deep.equals({
-      aaa: 1,
-      bbb: 2
-    });
-  });
+  }
 
   it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( Object.getOwnPropertyNames )', () => {
     const hu = new Hu({
@@ -1024,34 +1036,38 @@ describe( 'Hu.define - computed', () => {
     });
   });
 
-  it( '计算属性在计算时需要遍历数组时, 若数组内部元素被更改, 计算属性也会触发 ( for ... in )', () => {
-    const hu = new Hu({
-      data: {
-        arr: []
-      },
-      computed: {
-        a(){
-          const arr = [];
-          for( const index in this.arr ){
-            arr.push(
-              this.arr[ index ]
-            );
+  if( supportsForInTriggerProxyOwnKeys ){
+
+    it( '计算属性在计算时需要遍历数组时, 若数组内部元素被更改, 计算属性也会触发 ( for ... in )', () => {
+      const hu = new Hu({
+        data: {
+          arr: []
+        },
+        computed: {
+          a(){
+            const arr = [];
+            for( const index in this.arr ){
+              arr.push(
+                this.arr[ index ]
+              );
+            }
+            return arr;
           }
-          return arr;
         }
-      }
+      });
+
+      expect( hu.a ).is.deep.equals([]);
+
+      hu.arr.push( 2 );
+
+      expect( hu.a ).is.deep.equals([ 2 ]);
+      
+      hu.arr.push( 3 );
+
+      expect( hu.a ).is.deep.equals([ 2, 3 ]);
     });
 
-    expect( hu.a ).is.deep.equals([]);
-
-    hu.arr.push( 2 );
-
-    expect( hu.a ).is.deep.equals([ 2 ]);
-    
-    hu.arr.push( 3 );
-
-    expect( hu.a ).is.deep.equals([ 2, 3 ]);
-  });
+  }
 
   it( '计算属性在计算时需要遍历数组时, 若数组内部元素被更改, 计算属性也会触发 ( for ... of )', () => {
     const hu = new Hu({

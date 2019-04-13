@@ -58,4 +58,19 @@
     window.supportsPassive = supportsPassive;
   }
 
+  {
+    let supportsForInTriggerProxyOwnKeys = false;
+
+    const proxyObj = new Proxy({}, {
+      ownKeys(){
+        supportsForInTriggerProxyOwnKeys = true;
+        return [];
+      }
+    });
+
+    for( const item in proxyObj );
+
+    window.supportsForInTriggerProxyOwnKeys = supportsForInTriggerProxyOwnKeys;
+  }
+
 }();
