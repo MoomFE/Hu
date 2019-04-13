@@ -262,6 +262,19 @@ if( configs.length ){
   });
 }
 
+if( configs.length ){
+  configs
+    .filter( config => config.output.file === basic.output.file )
+    .forEach( config => {
+      config.plugins.push({
+        name: 'copy to test',
+        writeBundle( bundle ){
+          fs.writeFileSync( 'test/Lib/hu.js', bundle['hu.js'].code, 'utf-8' )
+        }
+      });
+    });
+}
+
 // 拷贝最新的 polyfill 到测试文件夹中
 fs.copy( 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js', 'test/Lib/webcomponents-bundle.js', {
   overwrite: true
