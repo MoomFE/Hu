@@ -25,7 +25,7 @@ module.exports = function( config ){
       // Lib
       'test/Lib/zen.fat.js',
       'test/Lib/vue.js',
-      'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js',
+      'test/Lib/webcomponents-bundle.js',
       'dist/hu.js',
       // Test
       'test/Hu/start.js',
