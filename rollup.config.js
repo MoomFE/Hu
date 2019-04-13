@@ -16,6 +16,7 @@ function getSize( size ){
   else return ( size / 1024 ).toFixed( 2 ) + 'KB';
 }
 
+// 基础配置
 const basic = {
   input: 'src/build/index.js',
   output: {
@@ -260,5 +261,10 @@ if( configs.length ){
     config.plugins.push( myReplace );
   });
 }
+
+// 拷贝最新的 polyfill 到测试文件夹中
+fs.copy( 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js', 'test/Lib/webcomponents-bundle.js', {
+  overwrite: true
+});
 
 module.exports = configs;
