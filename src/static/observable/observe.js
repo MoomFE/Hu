@@ -166,7 +166,7 @@ const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, l
 
 /**
  * 响应以下方式的依赖收集:
- *   - for ... in
+ *   - for ... in ( 低版本浏览器不支持, 请避免使用 )
  *   - Object.keys
  *   - Object.values
  *   - Object.entries
