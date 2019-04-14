@@ -32,7 +32,7 @@ function unWatchDirectiveCache( cache, container, fn ){
   const options = cache.get( container );
 
   if( options ){
-    for( const option of options ){
+    for( let option of options ){
       fn( option );
     }
     options.length = 0;

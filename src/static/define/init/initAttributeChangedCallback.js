@@ -9,7 +9,7 @@ export default propsMap => function( name, oldValue, value ){
   const { target: propsTarget } = observeProxyMap.get( propsTargetProxy );
   const props = propsMap[ name ];
 
-  for( const { name, from } of props ){
+  for( let { name, from } of props ){
     const fromValue = from( value );
 
     isEqual( propsTarget[ name ], fromValue ) || (

@@ -19,7 +19,7 @@ export default function parsePath( path ){
   return function(){
     let obj = this;
 
-    for( const segment of segments ){
+    for( let segment of segments ){
       if( !obj ) return;
       obj = obj[ segment ];
     }

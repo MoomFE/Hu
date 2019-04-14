@@ -124,7 +124,7 @@ const eventModifiers = {
       return keys.indexOf( key ) < 0;
     });
 
-    for( const key of modifierKey ){
+    for( let key of modifierKey ){
       if( event[ key + 'Key' ] ) return false;
     }
     return true;

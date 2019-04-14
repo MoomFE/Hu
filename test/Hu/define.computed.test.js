@@ -768,7 +768,7 @@ describe( 'Hu.define - computed', () => {
         computed: {
           a(){
             const json = {};
-            for( const name in this.json ){
+            for( let name in this.json ){
               json[ name ] = this.json[ name ];
             }
             return json;
@@ -810,7 +810,7 @@ describe( 'Hu.define - computed', () => {
       computed: {
         a(){
           const json = {};
-          for( const name of Reflect.ownKeys( this.json ) ){
+          for( let name of Reflect.ownKeys( this.json ) ){
             json[ name ] = this.json[ name ];
           }
           return json;
@@ -850,7 +850,7 @@ describe( 'Hu.define - computed', () => {
       computed: {
         a(){
           const json = {};
-          for( const name of Object.keys( this.json ) ){
+          for( let name of Object.keys( this.json ) ){
             json[ name ] = this.json[ name ];
           }
           return json;
@@ -892,7 +892,7 @@ describe( 'Hu.define - computed', () => {
         computed: {
           a(){
             const arr = [];
-            for( const value of Object.values( this.json ) ){
+            for( let value of Object.values( this.json ) ){
               arr.push( value );
             }
             return arr;
@@ -929,7 +929,7 @@ describe( 'Hu.define - computed', () => {
         computed: {
           a(){
             const json = {};
-            for( const [ name, value ] of Object.entries( this.json ) ){
+            for( let [ name, value ] of Object.entries( this.json ) ){
               json[ name ] = value;
             }
             return json;
@@ -970,7 +970,7 @@ describe( 'Hu.define - computed', () => {
       computed: {
         a(){
           const json = {};
-          for( const name of Object.getOwnPropertyNames( this.json ) ){
+          for( let name of Object.getOwnPropertyNames( this.json ) ){
             json[ name ] = this.json[ name ];
           }
           return json;
@@ -1009,7 +1009,7 @@ describe( 'Hu.define - computed', () => {
       computed: {
         a(){
           const json = {};
-          for( const name of Object.getOwnPropertySymbols( this.json ) ){
+          for( let name of Object.getOwnPropertySymbols( this.json ) ){
             json[ name ] = this.json[ name ];
           }
           return json;
@@ -1046,7 +1046,7 @@ describe( 'Hu.define - computed', () => {
         computed: {
           a(){
             const arr = [];
-            for( const index in this.arr ){
+            for( let index in this.arr ){
               arr.push(
                 this.arr[ index ]
               );
@@ -1077,7 +1077,7 @@ describe( 'Hu.define - computed', () => {
       computed: {
         a(){
           const arr = [];
-          for( const item of this.arr ){
+          for( let item of this.arr ){
             arr.push( item );
           }
           return arr;

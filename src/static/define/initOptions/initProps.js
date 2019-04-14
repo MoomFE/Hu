@@ -41,7 +41,7 @@ export default function initProps( userOptions, options, mixins, isMixin ){
 
   if( !isMixin ){
     if( mixins ){
-      for( const mixin of mixins ){
+      for( let mixin of mixins ){
         initProps( mixin, options, null, true );
       }
     }

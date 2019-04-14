@@ -59,7 +59,7 @@ describe( 'Hu.instance', () => {
     const custom = div.firstElementChild;
     const hu = custom.$hu;
 
-    for( const name of Reflect.ownKeys( hu ) ){
+    for( let name of Reflect.ownKeys( hu ) ){
       const value = hu[ name ];
       const type = Object.prototype.toString.call( value );
 
@@ -80,7 +80,7 @@ describe( 'Hu.instance', () => {
   it( '实例创建后所有前缀为 $ 的私有选项全部不能进行修改及删除 ( 二 )', () => {
     const hu = new Hu();
 
-    for( const name of Reflect.ownKeys( hu ) ){
+    for( let name of Reflect.ownKeys( hu ) ){
       const value = hu[ name ];
       const type = Object.prototype.toString.call( value );
 
@@ -107,7 +107,7 @@ describe( 'Hu.instance', () => {
     const custom = div.firstElementChild;
     const hu = custom.$hu;
 
-    for( const name of Reflect.ownKeys( hu ) ){
+    for( let name of Reflect.ownKeys( hu ) ){
       if( name === '$methods' ) continue;
 
       const value = hu[ name ];
@@ -168,7 +168,7 @@ describe( 'Hu.instance', () => {
 
     expect( hu.$info.name ).is.equals( customName );
 
-    for( const name of Reflect.ownKeys( hu.$info ) ){
+    for( let name of Reflect.ownKeys( hu.$info ) ){
       const value = hu.$info[ name ];
       const type = Object.prototype.toString.call( value );
 
@@ -189,7 +189,7 @@ describe( 'Hu.instance', () => {
   it( '实例上的 $info 选项, 包含了当前实例的各种信息, 且不可更改 ( 二 )', () => {
     const hu = new Hu();
 
-    for( const name of Reflect.ownKeys( hu.$info ) ){
+    for( let name of Reflect.ownKeys( hu.$info ) ){
       const value = hu.$info[ name ];
       const type = Object.prototype.toString.call( value );
 

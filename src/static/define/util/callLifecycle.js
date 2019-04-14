@@ -11,7 +11,7 @@ export default (
   const fns = options[ lifecycle ];
 
   if( fns ){
-    for( const fn of fns ) apply( fn, targetProxy, args )
+    for( let fn of fns ) apply( fn, targetProxy, args )
   }
 
   targetProxy.$emit( 'hook:' + lifecycle, ...args );

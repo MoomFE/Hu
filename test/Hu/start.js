@@ -68,7 +68,7 @@
       }
     });
 
-    for( const item in proxyObj );
+    for( let item in proxyObj );
 
     window.supportsForInTriggerProxyOwnKeys = supportsForInTriggerProxyOwnKeys;
   }

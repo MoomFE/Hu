@@ -19,7 +19,7 @@ export default function initState( isCustomElement, userOptions, options, mixins
   initWatch( watch, options );
 
   if( !isMixin && mixins ){
-    for( const mixin of mixins ){
+    for( let mixin of mixins ){
       initState( isCustomElement, mixin, options, null, true );
     }
   }

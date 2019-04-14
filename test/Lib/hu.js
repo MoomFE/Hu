@@ -450,7 +450,7 @@
 
     if( !isMixin ){
       if( mixins ){
-        for( const mixin of mixins ){
+        for( let mixin of mixins ){
           initProps( mixin, options, null, true );
         }
       }
@@ -606,7 +606,7 @@
     });
 
     if( !isMixin && mixins ){
-      for( const mixin of mixins ){
+      for( let mixin of mixins ){
         initLifecycle( mixin, options, null, true );
       }
     }
@@ -636,7 +636,7 @@
     initWatch( watch, options );
 
     if( !isMixin && mixins ){
-      for( const mixin of mixins ){
+      for( let mixin of mixins ){
         initState( isCustomElement, mixin, options, null, true );
       }
     }
@@ -1303,7 +1303,7 @@
           };
           _prepareTemplate(element);
           // Remove text binding nodes after the walk to not disturb the TreeWalker
-          for (const n of nodesToRemove) {
+          for( let n of nodesToRemove) {
               n.parentNode.removeChild(n);
           }
       }
@@ -1365,13 +1365,13 @@
       }
       update(values) {
           let i = 0;
-          for (const part of this._parts) {
+          for( let part of this._parts) {
               if (part !== undefined) {
                   part.setValue(values[i]);
               }
               i++;
           }
-          for (const part of this._parts) {
+          for( let part of this._parts) {
               if (part !== undefined) {
                   part.commit();
               }
@@ -1663,7 +1663,7 @@
           const itemParts = this.value;
           let partIndex = 0;
           let itemPart;
-          for (const item of value) {
+          for( let item of value) {
               // Try to reuse an existing part
               itemPart = itemParts[partIndex];
               // If no existing part, create a new one
@@ -2016,7 +2016,7 @@
     return function(){
       let obj = this;
 
-      for( const segment of segments ){
+      for( let segment of segments ){
         if( !obj ) return;
         obj = obj[ segment ];
       }
@@ -2542,7 +2542,7 @@
         return keys.indexOf( key ) < 0;
       });
 
-      for( const key of modifierKey ){
+      for( let key of modifierKey ){
         if( event[ key + 'Key' ] ) return false;
       }
       return true;
@@ -2968,7 +2968,7 @@
     const options = cache.get( container );
 
     if( options ){
-      for( const option of options ){
+      for( let option of options ){
         fn( option );
       }
       options.length = 0;
@@ -3047,7 +3047,7 @@
     const fns = options[ lifecycle ];
 
     if( fns ){
-      for( const fn of fns ) apply( fn, targetProxy, args );
+      for( let fn of fns ) apply( fn, targetProxy, args );
     }
 
     targetProxy.$emit( 'hook:' + lifecycle, ...args );
@@ -3108,7 +3108,7 @@
 
   function $on( type, fn ){
     if( isArray( type ) ){
-      for( const event of type ) this.$on( event, fn );
+      for( let event of type ) this.$on( event, fn );
     }else{
       const events = eventMap.get( this );
       const fns = events[ type ] || (
@@ -3137,7 +3137,7 @@
     }
     // 解绑绑定了同一方法的多个事件
     if( isArray( type ) ){
-      for( const _type of type ) this.$off( _type, fn );
+      for( let _type of type ) this.$off( _type, fn );
       return this;
     }
 
@@ -3176,7 +3176,7 @@
       const cbs = fns.length > 1 ? slice.call( fns ) : fns;
       const [ , ...args ] = arguments;
 
-      for( const cb of cbs ){
+      for( let cb of cbs ){
         apply( cb, this, args );
       }
     }
@@ -3437,7 +3437,7 @@
     // 添加监听方法
     each( options.watch, function createWatcher( expOrFn, options ){
       if( isArray( options ) ){
-        for( const handler of options ){
+        for( let handler of options ){
           createWatcher( expOrFn, handler );
         }
       }else if( isPlainObject( options ) || isFunction( options ) ){
@@ -3531,7 +3531,7 @@
     const { target: propsTarget } = observeProxyMap.get( propsTargetProxy );
     const props = propsMap[ name ];
 
-    for( const { name, from } of props ){
+    for( let { name, from } of props ){
       const fromValue = from( value );
 
       isEqual( propsTarget[ name ], fromValue ) || (

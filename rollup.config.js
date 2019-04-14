@@ -27,6 +27,15 @@ const basic = {
   },
   plugins: [
     {
+      name: 'Fix SyntaxError error in Firefox 51 and below',
+      renderChunk( code, chunk, outputOptions ){
+        return code.replace(
+          /for\s*\(\s*const\s*([^\s]+)\s*of/g,
+          'for( let $1 of'
+        );
+      }
+    },
+    {
       name: 'fix lit-html: window is not defined',
       async load( id ){
         if( /\\node_modules\\lit-html\\lib\\dom\.js$/i.test( id ) ){

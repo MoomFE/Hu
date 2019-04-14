@@ -14,7 +14,7 @@ export function initEvents( targetProxy ){
 
 export default function $on( type, fn ){
   if( isArray( type ) ){
-    for( const event of type ) this.$on( event, fn );
+    for( let event of type ) this.$on( event, fn );
   }else{
     const events = eventMap.get( this );
     const fns = events[ type ] || (
@@ -43,7 +43,7 @@ export function $off( type, fn ){
   }
   // 解绑绑定了同一方法的多个事件
   if( isArray( type ) ){
-    for( const _type of type ) this.$off( _type, fn );
+    for( let _type of type ) this.$off( _type, fn );
     return this;
   }
 
@@ -82,7 +82,7 @@ export function $emit( type ){
     const cbs = fns.length > 1 ? slice.call( fns ) : fns;
     const [ , ...args ] = arguments;
 
-    for( const cb of cbs ){
+    for( let cb of cbs ){
       apply( cb, this, args );
     }
   }
