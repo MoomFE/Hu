@@ -2,6 +2,7 @@ import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import noop from "../../../shared/util/noop";
 import isPlainObject from "../../../shared/util/isPlainObject";
+import { hasOwnProperty } from "../../../shared/global/Object/prototype";
 
 
 export default function initState( isCustomElement, userOptions, options, mixins, isMixin ){
@@ -67,7 +68,9 @@ function initComputed( userComputed, options ){
 
 function initWatch( userWatch, options ){
   if( userWatch ){
-    const watches = options.watch || ( options.watch = {} );
+    const watches = hasOwnProperty.call( options, 'watch' ) ? options.watch : (
+      options.watch = {}
+    );
 
     each( userWatch, ( key, value ) => {
       const watch = watches[ key ] || ( watches[ key ] = [] );
