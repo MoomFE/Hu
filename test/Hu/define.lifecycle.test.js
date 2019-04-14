@@ -542,48 +542,52 @@ describe( 'Hu.define - lifecycle', () => {
     custom.$remove();
   });
 
-  it( 'adopted 声明周期回调: 自定义元素被移动到新文档时调用', () => {
-    const customName = window.customName;
-    let index = 0;
-    let result;
+  if( customElements.polyfillWrapFlushCallback === undefined ){
 
-    Hu.define( customName, {
-      adopted(){
-        result = [ ...arguments ];
-        index++;
-      }
+    it( 'adopted 声明周期回调: 自定义元素被移动到新文档时调用', () => {
+      const customName = window.customName;
+      let index = 0;
+      let result;
+  
+      Hu.define( customName, {
+        adopted(){
+          result = [ ...arguments ];
+          index++;
+        }
+      });
+  
+      expect( index ).is.equals( 0 );
+      expect( result ).is.undefined;
+  
+      const custom = document.createElement( customName );
+  
+      expect( index ).is.equals( 0 );
+      expect( result ).is.undefined;
+  
+      document.body.appendChild( custom );
+  
+      expect( index ).is.equals( 0 );
+      expect( result ).is.undefined;
+  
+      const iframe = document.createElement('iframe').$appendTo( document.body );
+      const iframeDocument = iframe.contentWindow.document;
+      const iframeBody = iframeDocument.body;
+  
+      iframeBody.appendChild( custom );
+  
+      expect( index ).is.equals( 1 );
+      expect( result ).is.deep.equals([ iframeDocument, document ]);
+  
+      document.body.appendChild( custom );
+      expect( result ).is.deep.equals([ document, iframeDocument ]);
+  
+      expect( index ).is.equals( 2 );
+  
+      custom.$remove();
+      iframe.$remove();
     });
 
-    expect( index ).is.equals( 0 );
-    expect( result ).is.undefined;
-
-    const custom = document.createElement( customName );
-
-    expect( index ).is.equals( 0 );
-    expect( result ).is.undefined;
-
-    document.body.appendChild( custom );
-
-    expect( index ).is.equals( 0 );
-    expect( result ).is.undefined;
-
-    const iframe = document.createElement('iframe').$appendTo( document.body );
-    const iframeDocument = iframe.contentWindow.document;
-    const iframeBody = iframeDocument.body;
-
-    iframeBody.appendChild( custom );
-
-    expect( index ).is.equals( 1 );
-    expect( result ).is.deep.equals([ iframeDocument, document ]);
-
-    document.body.appendChild( custom );
-    expect( result ).is.deep.equals([ document, iframeDocument ]);
-
-    expect( index ).is.equals( 2 );
-
-    custom.$remove();
-    iframe.$remove();
-  });
+  }
 
   it( 'disconnected 声明周期回调: 自定义元素被从文档流移除', () => {
     const customName = window.customName;

@@ -247,17 +247,21 @@ describe( 'Hu.instance', () => {
     expect( hu.$customElement ).is.equals( custom );
   });
 
-  it( '实例上的 $el 属性存放的是当前实例的根节点', () => {
-    const customName = window.customName;
+  if( customElements.polyfillWrapFlushCallback === undefined ){
 
-    Hu.define( customName );
+    it( '实例上的 $el 属性存放的是当前实例的根节点', () => {
+      const customName = window.customName;
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
+      Hu.define( customName );
 
-    expect( hu.$el ).is.a('ShadowRoot');
-  });
+      const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+      const custom = div.firstElementChild;
+      const hu = custom.$hu;
+
+      expect( hu.$el ).is.a('ShadowRoot');
+    });
+
+  }
 
   it( '实例上的 $el 属性存放的是当前实例的根节点 ( 二 )', () => {
     const div = document.createElement('div');
