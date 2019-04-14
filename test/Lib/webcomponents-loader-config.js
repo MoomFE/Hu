@@ -1,0 +1,3 @@
+window.WebComponents = {
+  root: './Lib/'
+};

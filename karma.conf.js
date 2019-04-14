@@ -11,7 +11,7 @@ module.exports = function( config ){
       'chai'
     ],
     preprocessors: {
-      'test/hu.js': 'coverage'
+      'test/Lib/hu.js': 'coverage'
     },
     reporters: [
       'progress',
@@ -25,8 +25,9 @@ module.exports = function( config ){
       // Lib
       'test/Lib/zen.fat.js',
       'test/Lib/vue.js',
-      'test/Lib/webcomponents-bundle.js',
-      'test/hu.js',
+      'test/Lib/webcomponents-loader-karma-config.js',
+      'test/Lib/webcomponents-loader.js',
+      'test/Lib/hu.js',
       // Test
       'test/Hu/start.js',
       'test/Hu/*.test.js'

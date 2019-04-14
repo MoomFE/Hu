@@ -275,9 +275,23 @@ if( configs.length ){
     });
 }
 
-// 拷贝最新的 polyfill 到测试文件夹中
-fs.copy( 'node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js', 'test/Lib/webcomponents-bundle.js', {
-  overwrite: true
-});
+{
+  const from = 'node_modules/@webcomponents/webcomponentsjs';
+  const to = 'test/Lib';
+
+  // 拷贝最新的 polyfill 加载器到测试文件夹中
+  fs.copy( `${ from }/webcomponents-loader.js`, `${ to }/webcomponents-loader.js`, {
+    overwrite: true
+  });
+
+  // 拷贝最新的 polyfill 到测试文件夹中
+  fs.readdir( `${ from }/bundles`, ( err, files ) => {
+    files.forEach( name => {
+      /\.js$/.test( name ) && fs.copy( `${ from }/bundles/${ name }`, `${ to }/bundles/${ name }`, {
+        overwrite: true
+      });
+    });
+  });
+}
 
 module.exports = configs;
