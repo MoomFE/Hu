@@ -98,26 +98,6 @@ describe( 'Hu.instance', () => {
     }
   });
 
-  it( '实例创建后所有前缀为 $ 的私有对象 ( 除了 $methods ) 都是观察者对象', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    for( let name of Reflect.ownKeys( hu ) ){
-      if( name === '$methods' ) continue;
-
-      const value = hu[ name ];
-
-      if( Object.prototype.toString.call( value ) === '[object Object]' || Array.isArray( value ) ){
-        expect( value ).is.equals( Hu.observable( value ) );
-      }
-    }
-  });
-
   it( '实例上的 $options 选项, 包含了实例初始化选项, 且不可更改', () => {
     const customName = window.customName;
     const data = () => ({
