@@ -8,7 +8,7 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 
 |              | Chrome | Firefox | Safari | Edge | IE |
 | :-           | :-     | :-      | :-     | :-   | :- |
-| Use Polyfill | 49+    | 45+     | 10+    | 14+  | ×  |
+| Use Polyfill | 49+    | 47+     | 10+    | 14+  | ×  |
 | No Polyfill  | 54+    | 63+     | 10.1+  | ×    | ×  |
 
 > 在目前支持的这些浏览器下, 已经支持大部分的 ES5 / ES6 等特性及方法了,<br>
