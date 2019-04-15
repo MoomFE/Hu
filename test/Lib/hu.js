@@ -1816,6 +1816,293 @@
   // TODO(justinfagnani): inject version number at build time
   inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
 
+  class AttributeCommitter{
+
+    constructor(){
+      [
+        this.elem,
+        this.attr,
+        this.strings
+      ] = arguments;
+      this.parts = this.createParts();
+    }
+
+    createParts(){
+      return Array.apply( null, { length: this.strings.length - 1 } ).map(() => {
+        return new AttributePart( this );
+      });
+    }
+
+    getValue(){
+      const { strings, parts } = this;
+      const length = strings.length - 1;
+      let result = '';
+
+      for( let index = 0, part; index < length; index++ ){
+        result += strings[ index ];
+
+        if( part = parts[ index ] ){
+          const value = part.value;
+
+          if( value != null ){
+            if( isArray( value ) || !isString( value ) && value[ Symbol.iterator ] ){
+              for( let item of value ){
+                result += isString( item ) ? item : String( item );
+              }
+              continue;
+            }
+          }
+          result += isString( value ) ? value : String( value );
+        }
+      }
+
+      return result + strings[ length ];
+    }
+
+    commit(){
+      this.elem.setAttribute(
+        this.attr,
+        this.getValue()
+      );
+    }
+
+  }
+
+
+  class AttributePart{
+
+    constructor( committer ){
+      this.committer = committer;
+    }
+
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
+    }
+
+    commit(){
+      const { value, oldValue } = this;
+
+      isEqual( value, oldValue ) || (
+        this.committer.commit( this.value = value )
+      );
+    }
+
+  }
+
+  var removeEventListener = /**
+   * 移除事件
+   * @param {Element} elem
+   * @param {string} type
+   * @param {function} listener
+   * @param {boolean|{}} options
+   */
+  ( elem, type, listener, options ) => {
+    elem.removeEventListener( type, listener, options );
+  };
+
+  var addEventListener = /**
+   * 绑定事件
+   * @param {Element} elem
+   * @param {string} type
+   * @param {function} listener
+   * @param {boolean|{}} options
+   */
+  ( elem, type, listener, options ) => {
+    elem.addEventListener( type, listener, options );
+  };
+
+  class BasicEventDirective{
+
+    constructor( element, type, modifierKeys ){
+      this.elem = element;
+      this.type = type;
+      this.opts = initEventOptions( modifierKeys );
+    }
+
+    setValue( listener ){
+      if( isDirective( listener ) ){
+        throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
+      }
+
+      this.oldListener = this.listener;
+      this.listener = isFunction( listener ) ? listener : null;
+    }
+
+    commit(){
+      const { listener, oldListener } = this;
+
+      // 新的事件绑定与旧的事件绑定不一致
+      if( listener !== oldListener ){
+        const { elem, type, opts } = this;
+        const { options, modifiers, once, add = true } = opts;
+
+        // 移除旧的事件绑定
+        // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
+        if( oldListener && !once ){
+          removeEventListener( elem, type, this.value, options );
+        }
+        // 添加新的事件绑定
+        if( listener && add ){
+          // once 修饰符绑定的事件不允许修改
+          if( once ) opts.add = false;
+          // 生成绑定的方法
+          const value = this.value = function callback( event ){
+            // 修饰符检测
+            for( let modifier of modifiers ){
+              if( modifier( elem, event, modifiers ) === false ) return;
+            }
+            // 只执行一次
+            if( once ){
+              removeEventListener( elem, type, callback, options );
+            }
+            // 修饰符全部检测通过, 执行用户传入方法
+            apply( listener, this, arguments );
+          };
+          // 注册事件
+          addEventListener( elem, type, value, options );
+        }
+      }
+    }
+
+  }
+
+  function initEventOptions( modifierKeys ){
+    const options = {};
+    const modifiers = [];
+
+    for( let name of modifierKeys ){
+      if( eventOptions[ name ] ) options[ name ] = true;
+      else if( eventModifiers[ name ] ) modifiers.push( eventModifiers[ name ] );
+    }
+
+    modifiers.keys = modifierKeys;
+
+    const { once, passive, capture } = options;
+
+    return {
+      once,
+      options: passive ? { passive, capture } : capture,
+      modifiers
+    };
+  }
+
+  /**
+   * 事件可选参数
+   */
+  const eventOptions = {
+    once: true,
+    capture: true,
+    passive: supportsPassive
+  };
+
+  /**
+   * 功能性事件修饰符
+   */
+  const eventModifiers = {
+
+    /**
+     * 阻止事件冒泡
+     */
+    stop( elem, event ){
+      event.stopPropagation();
+    },
+
+    /**
+     * 阻止浏览器默认事件
+     */
+    prevent( elem, event ){
+      event.preventDefault();
+    },
+
+    /**
+     * 只在当前元素自身时触发事件时
+     */
+    self( elem, event ){
+      return event.target === elem;
+    },
+
+    /**
+     * 系统修饰键限定符
+     */
+    exact( elem, event, { keys } ){
+      const modifierKey = [ 'ctrl', 'alt', 'shift', 'meta' ].filter( key => {
+        return keys.indexOf( key ) < 0;
+      });
+
+      for( let key of modifierKey ){
+        if( event[ key + 'Key' ] ) return false;
+      }
+      return true;
+    }
+
+  };
+
+  /**
+   * 鼠标按钮
+   */
+  [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
+    eventModifiers[ button ] = ( elem, event ) => {
+      return has( event, 'button' ) && event.button === index;
+    };
+  });
+
+  /**
+   * 系统修饰键
+   */
+  [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
+    eventModifiers[ key ] = ( elem, event ) => {
+      return !!event[ key + 'Key' ];
+    };
+  });
+
+  class BasicBooleanDirective{
+
+    constructor( element, attr ){
+      this.elem = element;
+      this.attr = attr;
+    }
+
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
+    }
+
+    commit(){
+      const value = this.value = !!this.value;
+      const oldValue = this.oldValue;
+
+      if( value !== oldValue ){
+        if( value ){
+          this.elem.setAttribute( this.attr , '' );
+        }else{
+          this.elem.removeAttribute( this.attr );
+        }
+      }
+    }
+
+  }
+
+  class BasicPropertyDirective extends BasicBooleanDirective{
+
+    commit(){
+      const { value, oldValue } = this;
+
+      isEqual( value, oldValue ) || (
+        this.elem[ this.attr ] = value
+      );
+    }
+
+  }
+
   var rWhitespace = /\s+/;
 
   /**
@@ -1988,17 +2275,6 @@
     filter,
     slice
   } = prototype$1;
-
-  var addEventListener = /**
-   * 绑定事件
-   * @param {Element} elem
-   * @param {string} type
-   * @param {function} listener
-   * @param {boolean|{}} options
-   */
-  ( elem, type, listener, options ) => {
-    elem.addEventListener( type, listener, options );
-  };
 
   /**
    * unicode letters used for parsing html tags, component names and property paths.
@@ -2418,282 +2694,6 @@
     });
   }
 
-  var removeEventListener = /**
-   * 移除事件
-   * @param {Element} elem
-   * @param {string} type
-   * @param {function} listener
-   * @param {boolean|{}} options
-   */
-  ( elem, type, listener, options ) => {
-    elem.removeEventListener( type, listener, options );
-  };
-
-  class EventDirective{
-
-    constructor( element, type, modifierKeys ){
-      this.elem = element;
-      this.type = type;
-      this.opts = initEventOptions( modifierKeys );
-    }
-
-    setValue( listener ){
-      if( isDirective( listener ) ){
-        throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
-      }
-
-      this.oldListener = this.listener;
-      this.listener = isFunction( listener ) ? listener : null;
-    }
-
-    commit(){
-      const { listener, oldListener } = this;
-
-      // 新的事件绑定与旧的事件绑定不一致
-      if( listener !== oldListener ){
-        const { elem, type, opts } = this;
-        const { options, modifiers, once, add = true } = opts;
-
-        // 移除旧的事件绑定
-        // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
-        if( oldListener && !once ){
-          removeEventListener( elem, type, this.value, options );
-        }
-        // 添加新的事件绑定
-        if( listener && add ){
-          // once 修饰符绑定的事件不允许修改
-          if( once ) opts.add = false;
-          // 生成绑定的方法
-          const value = this.value = function callback( event ){
-            // 修饰符检测
-            for( let modifier of modifiers ){
-              if( modifier( elem, event, modifiers ) === false ) return;
-            }
-            // 只执行一次
-            if( once ){
-              removeEventListener( elem, type, callback, options );
-            }
-            // 修饰符全部检测通过, 执行用户传入方法
-            apply( listener, this, arguments );
-          };
-          // 注册事件
-          addEventListener( elem, type, value, options );
-        }
-      }
-    }
-
-  }
-
-  function initEventOptions( modifierKeys ){
-    const options = {};
-    const modifiers = [];
-
-    for( let name of modifierKeys ){
-      if( eventOptions[ name ] ) options[ name ] = true;
-      else if( eventModifiers[ name ] ) modifiers.push( eventModifiers[ name ] );
-    }
-
-    modifiers.keys = modifierKeys;
-
-    const { once, passive, capture } = options;
-
-    return {
-      once,
-      options: passive ? { passive, capture } : capture,
-      modifiers
-    };
-  }
-
-  /**
-   * 事件可选参数
-   */
-  const eventOptions = {
-    once: true,
-    capture: true,
-    passive: supportsPassive
-  };
-
-  /**
-   * 功能性事件修饰符
-   */
-  const eventModifiers = {
-
-    /**
-     * 阻止事件冒泡
-     */
-    stop( elem, event ){
-      event.stopPropagation();
-    },
-
-    /**
-     * 阻止浏览器默认事件
-     */
-    prevent( elem, event ){
-      event.preventDefault();
-    },
-
-    /**
-     * 只在当前元素自身时触发事件时
-     */
-    self( elem, event ){
-      return event.target === elem;
-    },
-
-    /**
-     * 系统修饰键限定符
-     */
-    exact( elem, event, { keys } ){
-      const modifierKey = [ 'ctrl', 'alt', 'shift', 'meta' ].filter( key => {
-        return keys.indexOf( key ) < 0;
-      });
-
-      for( let key of modifierKey ){
-        if( event[ key + 'Key' ] ) return false;
-      }
-      return true;
-    }
-
-  };
-
-  /**
-   * 鼠标按钮
-   */
-  [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
-    eventModifiers[ button ] = ( elem, event ) => {
-      return has( event, 'button' ) && event.button === index;
-    };
-  });
-
-  /**
-   * 系统修饰键
-   */
-  [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
-    eventModifiers[ key ] = ( elem, event ) => {
-      return !!event[ key + 'Key' ];
-    };
-  });
-
-  class BooleanDirective{
-
-    constructor( element, attr ){
-      this.elem = element;
-      this.attr = attr;
-    }
-
-    setValue( value ){
-      if( isDirective( value ) ){
-        return value( this );
-      }
-
-      this.oldValue = this.value;
-      this.value = value;
-    }
-
-    commit(){
-      const value = this.value = !!this.value;
-      const oldValue = this.oldValue;
-
-      if( value !== oldValue ){
-        if( value ){
-          this.elem.setAttribute( this.attr , '' );
-        }else{
-          this.elem.removeAttribute( this.attr );
-        }
-      }
-    }
-
-  }
-
-  class PropertyCommitter extends BooleanDirective{
-
-    commit(){
-      const { value, oldValue } = this;
-
-      isEqual( value, oldValue ) || (
-        this.elem[ this.attr ] = value
-      );
-    }
-
-  }
-
-  class AttributeCommitter{
-
-    constructor(){
-      [
-        this.elem,
-        this.attr,
-        this.strings
-      ] = arguments;
-      this.parts = this.createParts();
-    }
-
-    createParts(){
-      return Array.apply( null, { length: this.strings.length - 1 } ).map(() => {
-        return new AttributePart( this );
-      });
-    }
-
-    getValue(){
-      const { strings, parts } = this;
-      const length = strings.length - 1;
-      let result = '';
-
-      for( let index = 0, part; index < length; index++ ){
-        result += strings[ index ];
-
-        if( part = parts[ index ] ){
-          const value = part.value;
-
-          if( value != null ){
-            if( isArray( value ) || !isString( value ) && value[ Symbol.iterator ] ){
-              for( let item of value ){
-                result += isString( item ) ? item : String( item );
-              }
-              continue;
-            }
-          }
-          result += isString( value ) ? value : String( value );
-        }
-      }
-
-      return result + strings[ length ];
-    }
-
-    commit(){
-      this.elem.setAttribute(
-        this.attr,
-        this.getValue()
-      );
-    }
-
-  }
-
-
-  class AttributePart{
-
-    constructor( committer ){
-      this.committer = committer;
-    }
-
-    setValue( value ){
-      if( isDirective( value ) ){
-        return value( this );
-      }
-
-      this.oldValue = this.value;
-      this.value = value;
-    }
-
-    commit(){
-      const { value, oldValue } = this;
-
-      isEqual( value, oldValue ) || (
-        this.committer.commit( this.value = value )
-      );
-    }
-
-  }
-
   class TemplateProcessor{
     handleAttributeExpressions( element, name, strings, options ){
 
@@ -2704,7 +2704,7 @@
         const [ attr ] = name.slice(1).split('.');
 
         return [
-          new PropertyCommitter( element, attr )
+          new BasicPropertyDirective( element, attr )
         ];
       }
       // 事件绑定
@@ -2712,7 +2712,7 @@
         const [ type, ...modifierKeys ] = name.slice(1).split('.');
 
         return [
-          new EventDirective( element, type, modifierKeys )
+          new BasicEventDirective( element, type, modifierKeys )
         ];
       }
       // 若属性值为 Truthy 则保留 DOM 属性
@@ -2722,7 +2722,7 @@
         const [ attr ] = name.slice(1).split('.');
 
         return [
-          new BooleanDirective( element, attr )
+          new BasicBooleanDirective( element, attr )
         ];
       }
       // 功能指令

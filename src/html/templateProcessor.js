@@ -1,12 +1,12 @@
 import { NodePart } from 'lit-html/lib/parts';
 import { has } from '../shared/global/Reflect/index';
+import AttributeCommitter from './committer/attribute';
+import BasicEventDirective from './directiveBasic/event';
+import BasicBooleanDirective from './directiveBasic/boolean';
+import BasicPropertyDirective from './directiveBasic/property';
 import ClassDirective from './directive/class';
 import StyleDirective from './directive/style';
 import ModelDirective from './directive/model';
-import EventDirective from './directive/event';
-import BooleanDirective from './directive/boolean';
-import PropertyCommitter from './committer/property';
-import AttributeCommitter from './committer/attribute';
 
 
 class TemplateProcessor{
@@ -19,7 +19,7 @@ class TemplateProcessor{
       const [ attr ] = name.slice(1).split('.');
 
       return [
-        new PropertyCommitter( element, attr )
+        new BasicPropertyDirective( element, attr )
       ];
     }
     // 事件绑定
@@ -27,7 +27,7 @@ class TemplateProcessor{
       const [ type, ...modifierKeys ] = name.slice(1).split('.');
 
       return [
-        new EventDirective( element, type, modifierKeys )
+        new BasicEventDirective( element, type, modifierKeys )
       ];
     }
     // 若属性值为 Truthy 则保留 DOM 属性
@@ -37,7 +37,7 @@ class TemplateProcessor{
       const [ attr ] = name.slice(1).split('.');
 
       return [
-        new BooleanDirective( element, attr )
+        new BasicBooleanDirective( element, attr )
       ];
     }
     // 功能指令

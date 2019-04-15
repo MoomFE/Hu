@@ -1,7 +1,7 @@
 import { isDirective } from 'lit-html'
 
 
-export default class BooleanDirective{
+export default class BasicBooleanDirective{
 
   constructor( element, attr ){
     this.elem = element;
