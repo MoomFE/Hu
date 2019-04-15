@@ -2,7 +2,7 @@ import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import noop from "../../../shared/util/noop";
 import isPlainObject from "../../../shared/util/isPlainObject";
-import { hasOwnProperty } from "../../../shared/global/Object/prototype";
+import isObject from "../../../shared/util/isObject";
 
 
 export default function initState( isCustomElement, userOptions, options, mixins, isMixin ){
@@ -67,11 +67,14 @@ function initComputed( userComputed, options ){
 }
 
 function initWatch( userWatch, options ){
-  if( userWatch ){
-    const watches = hasOwnProperty.call( options, 'watch' ) ? options.watch : (
-      options.watch = {}
-    );
+  // 保证 watch 始终被初始化
+  // 防止其他地方使用 watch 时且在 Firefox 57 版本之前读取到 Object.prototype.watch
+  const watches = options.watch || (
+    options.watch = {}
+  );
 
+  // 同上, 防止用户未定义 watch 时读取到的是 Object.prototype.watch
+  if( isObject( userWatch ) ){
     each( userWatch, ( key, value ) => {
       const watch = watches[ key ] || ( watches[ key ] = [] );
 

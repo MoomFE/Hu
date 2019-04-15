@@ -683,11 +683,14 @@
   }
 
   function initWatch( userWatch, options ){
-    if( userWatch ){
-      const watches = hasOwnProperty.call( options, 'watch' ) ? options.watch : (
-        options.watch = {}
-      );
+    // 保证 watch 始终被初始化
+    // 防止其他地方使用 watch 时且在 Firefox 57 版本之前读取到 Object.prototype.watch
+    const watches = options.watch || (
+      options.watch = {}
+    );
 
+    // 同上, 防止用户未定义 watch 时读取到的是 Object.prototype.watch
+    if( isObject( userWatch ) ){
       each( userWatch, ( key, value ) => {
         const watch = watches[ key ] || ( watches[ key ] = [] );
 
@@ -743,7 +746,7 @@
     /** 克隆一份用户配置 */
     const userOptions = assign( {}, _userOptions );
     /** 格式化后的组件配置 */
-    const options = optionsMap[ name ] = {};
+    const options = optionsMap[ name ] = create( null );
     /** 混入选项 */
     let mixins = userOptions.mixins;
         mixins = mixins && mixins.length ? mixins.reverse() : null;
@@ -3437,7 +3440,7 @@
 
   function initWatch$1( options, target, targetProxy ){
     // 添加监听方法
-    hasOwnProperty.call( options, 'watch' ) && each( options.watch, function createWatcher( expOrFn, options ){
+    each( options.watch, function createWatcher( expOrFn, options ){
       if( isArray( options ) ){
         for( let handler of options ){
           createWatcher( expOrFn, handler );
