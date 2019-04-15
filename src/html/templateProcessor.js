@@ -52,9 +52,7 @@ class TemplateProcessor{
     }
 
     // 正常属性
-    return [
-      new AttributeCommitter( element, name )
-    ];
+    return ( new AttributeCommitter( element, name, strings ) ).parts;
   }
   handleTextExpression( options ){
     return new NodePart( options );

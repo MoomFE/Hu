@@ -24,7 +24,7 @@ describe( 'Hu.html.parts', () => {
     expect( div.firstElementChild.style ).is.deep.include({
       width: '100px',
       height: '200px',
-      opacity: 0.5
+      opacity: '0.5'
     });
   });
 

@@ -1,8 +1,8 @@
 import isEqual from "../../shared/util/isEqual";
-import AttributeCommitter from "./attribute";
+import BooleanDirective from "../directive/boolean";
 
 
-export default class PropertyCommitter extends AttributeCommitter{
+export default class PropertyCommitter extends BooleanDirective{
 
   commit(){
     const { value, oldValue } = this;
