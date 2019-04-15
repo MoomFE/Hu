@@ -12,7 +12,7 @@ import { has } from "../../shared/global/Reflect/index";
 const styleMap = new WeakMap();
 
 
-export default class StylePart{
+export default class StyleDirective{
 
   constructor( element ){
     this.elem = element;

@@ -12,7 +12,7 @@ import emptyObject from "../../shared/const/emptyObject";
 import { popTarget, pushTarget } from "../../static/observable/const";
 
 
-export default class ModelPart{
+export default class ModelDirective{
 
   constructor( element ){
     const tag = element.nodeName.toLowerCase();

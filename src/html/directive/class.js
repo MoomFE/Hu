@@ -11,7 +11,7 @@ import { has } from "../../shared/global/Reflect/index";
 const classesMap = new WeakMap();
 
 
-export default class ClassPart{
+export default class ClassDirective{
 
   constructor( element ){
     this.elem = element;

@@ -1,8 +1,8 @@
 import isEqual from "../../shared/util/isEqual";
-import AttributePart from "./attribute";
+import AttributeCommitter from "./attribute";
 
 
-export default class PropertyPart extends AttributePart{
+export default class PropertyCommitter extends AttributeCommitter{
 
   commit(){
     const { value, oldValue } = this;

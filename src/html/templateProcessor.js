@@ -1,12 +1,12 @@
 import { NodePart } from 'lit-html/lib/parts';
 import { has } from '../shared/global/Reflect/index';
-import ClassPart from './parts/class';
-import StylePart from './parts/style';
-import ModelPart from './parts/model';
-import EventPart from './parts/event';
-import BooleanPart from './parts/boolean';
-import PropertyPart from './parts/property';
-import AttributePart from './parts/attribute';
+import ClassDirective from './directive/class';
+import StyleDirective from './directive/style';
+import ModelDirective from './directive/model';
+import EventDirective from './directive/event';
+import BooleanDirective from './directive/boolean';
+import PropertyCommitter from './committer/property';
+import AttributeCommitter from './committer/attribute';
 
 
 class TemplateProcessor{
@@ -19,7 +19,7 @@ class TemplateProcessor{
       const [ attr ] = name.slice(1).split('.');
 
       return [
-        new PropertyPart( element, attr )
+        new PropertyCommitter( element, attr )
       ];
     }
     // 事件绑定
@@ -27,7 +27,7 @@ class TemplateProcessor{
       const [ type, ...modifierKeys ] = name.slice(1).split('.');
 
       return [
-        new EventPart( element, type, modifierKeys )
+        new EventDirective( element, type, modifierKeys )
       ];
     }
     // 若属性值为 Truthy 则保留 DOM 属性
@@ -37,7 +37,7 @@ class TemplateProcessor{
       const [ attr ] = name.slice(1).split('.');
 
       return [
-        new BooleanPart( element, attr )
+        new BooleanDirective( element, attr )
       ];
     }
     // 功能指令
@@ -53,7 +53,7 @@ class TemplateProcessor{
 
     // 正常属性
     return [
-      new AttributePart( element, name )
+      new AttributeCommitter( element, name )
     ];
   }
   handleTextExpression( options ){
@@ -68,7 +68,7 @@ export default new TemplateProcessor();
  * 存放指定属性的特殊处理
  */
 const attrHandler = {
-  class: ClassPart,
-  style: StylePart,
-  model: ModelPart
+  class: ClassDirective,
+  style: StyleDirective,
+  model: ModelDirective
 };

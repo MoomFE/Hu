@@ -1824,7 +1824,7 @@
   const classesMap = new WeakMap();
 
 
-  class ClassPart{
+  class ClassDirective{
 
     constructor( element ){
       this.elem = element;
@@ -1924,7 +1924,7 @@
   const styleMap = new WeakMap();
 
 
-  class StylePart{
+  class StyleDirective{
 
     constructor( element ){
       this.elem = element;
@@ -2278,7 +2278,7 @@
    */
   const modelDirectiveCacheMap = new WeakMap();
 
-  class ModelPart{
+  class ModelDirective{
 
     constructor( element ){
       const tag = element.nodeName.toLowerCase();
@@ -2429,7 +2429,7 @@
     elem.removeEventListener( type, listener, options );
   };
 
-  class EventPart{
+  class EventDirective{
 
     constructor( element, type, modifierKeys ){
       this.elem = element;
@@ -2573,7 +2573,38 @@
     };
   });
 
-  class AttributePart{
+  class BooleanDirective{
+
+    constructor( element, attr ){
+      this.elem = element;
+      this.attr = attr;
+    }
+
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
+    }
+
+    commit(){
+      const value = this.value = !!this.value;
+      const oldValue = this.oldValue;
+
+      if( value !== oldValue ){
+        if( value ){
+          this.elem.setAttribute( this.attr , '' );
+        }else{
+          this.elem.removeAttribute( this.attr );
+        }
+      }
+    }
+
+  }
+
+  class AttributeCommitter{
 
     constructor( element, attr ){
       this.elem = element;
@@ -2599,24 +2630,7 @@
 
   }
 
-  class BooleanPart extends AttributePart{
-
-    commit(){
-      const value = this.value = !!this.value;
-      const oldValue = this.oldValue;
-
-      if( value !== oldValue ){
-        if( value ){
-          this.elem.setAttribute( this.attr , '' );
-        }else{
-          this.elem.removeAttribute( this.attr );
-        }
-      }
-    }
-
-  }
-
-  class PropertyPart extends AttributePart{
+  class PropertyCommitter extends AttributeCommitter{
 
     commit(){
       const { value, oldValue } = this;
@@ -2638,7 +2652,7 @@
         const [ attr ] = name.slice(1).split('.');
 
         return [
-          new PropertyPart( element, attr )
+          new PropertyCommitter( element, attr )
         ];
       }
       // 事件绑定
@@ -2646,7 +2660,7 @@
         const [ type, ...modifierKeys ] = name.slice(1).split('.');
 
         return [
-          new EventPart( element, type, modifierKeys )
+          new EventDirective( element, type, modifierKeys )
         ];
       }
       // 若属性值为 Truthy 则保留 DOM 属性
@@ -2656,7 +2670,7 @@
         const [ attr ] = name.slice(1).split('.');
 
         return [
-          new BooleanPart( element, attr )
+          new BooleanDirective( element, attr )
         ];
       }
       // 功能指令
@@ -2672,7 +2686,7 @@
 
       // 正常属性
       return [
-        new AttributePart( element, name )
+        new AttributeCommitter( element, name )
       ];
     }
     handleTextExpression( options ){
@@ -2687,9 +2701,9 @@
    * 存放指定属性的特殊处理
    */
   const attrHandler = {
-    class: ClassPart,
-    style: StylePart,
-    model: ModelPart
+    class: ClassDirective,
+    style: StyleDirective,
+    model: ModelDirective
   };
 
   /**

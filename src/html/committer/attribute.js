@@ -2,7 +2,7 @@ import { isDirective } from 'lit-html'
 import isEqual from "../../shared/util/isEqual";
 
 
-export default class AttributePart{
+export default class AttributeCommitter{
 
   constructor( element, attr ){
     this.elem = element;

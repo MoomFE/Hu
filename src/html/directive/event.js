@@ -6,7 +6,7 @@ import removeEventListener from '../../shared/util/removeEventListener';
 import addEventListener from '../../shared/util/addEventListener';
 
 
-export default class EventPart{
+export default class EventDirective{
 
   constructor( element, type, modifierKeys ){
     this.elem = element;

@@ -11,6 +11,23 @@ describe( 'Hu.html.parts', () => {
     expect( div.firstElementChild.getAttribute('name') ).is.equals( attr );
   });
 
+  it( '正常对元素属性 ( Attribute ) 进行绑定 ( 二 )', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div style="
+        width: ${ 100 }px; height: ${ 200 }px;
+        opacity: ${ 0.5 }
+      "></div>
+    `;
+
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '200px',
+      opacity: 0.5
+    });
+  });
+
   it( '使用 .attr 的方式对元素属性 ( Property ) 进行绑定', () => {
     const div = document.createElement('div');
     const props = {
