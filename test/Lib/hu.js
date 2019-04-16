@@ -1,5 +1,5 @@
 /*!
- * Hu.js v1.0.0-bata.0
+ * Hu.js v1.0.0-bata.1
  * https://github.com/MoomFE/Hu
  * 
  * (c) 2018-present Wei Zhang
@@ -769,7 +769,7 @@
    */
   () => '' + uid++;
 
-  var define = /**
+  var defineProperty$1 = /**
    * 在传入对象上定义可枚举可删除的一个新属性
    * 
    * @param {any} 需要定义属性的对象
@@ -937,7 +937,7 @@
         this.observeOptions = observeOptions;
         this.name = name;
         // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
-        define( this, 'shouldUpdate', () => shouldUpdate, value => {
+        defineProperty$1( this, 'shouldUpdate', () => shouldUpdate, value => {
           if( shouldUpdate = value ) this.ssu();
         });
       }else if( isComputed === false ){
@@ -3272,7 +3272,7 @@
 
     // 使用 Object.defineProperty 对值进行定义
     if( set ){
-      define( litTarget, key, set, get );
+      defineProperty$1( litTarget, key, set, get );
     }
     // 直接写入到 $hu 上
     else{
@@ -3438,7 +3438,7 @@
     // 将 $props 上的属性在 $hu 上建立引用
     each( props, ( name, options ) => {
       if( options.isSymbol || !isReserved( name ) ){
-        define(
+        defineProperty$1(
           target, name,
           () => propsTargetProxy[ name ],
           value => propsTargetProxy[ name ] = value
@@ -3591,7 +3591,7 @@
     }
   });
 
-  Hu.version = '1.0.0-bata.0';
+  Hu.version = '1.0.0-bata.1';
 
   var initAttributeChangedCallback = propsMap => function( name, oldValue, value ){
     if( value === oldValue ) return;
@@ -3660,7 +3660,7 @@
    * @param {string} name 标签名
    * @param {{}} _userOptions 组件配置
    */
-  function define$1( name, _userOptions ){
+  function define( name, _userOptions ){
 
     const [ userOptions, options ] = initOptions( true, name, _userOptions );
 
@@ -3716,7 +3716,7 @@
   }
 
   assign( Hu, {
-    define: define$1,
+    define,
     render: render$1,
     html,
     nextTick,

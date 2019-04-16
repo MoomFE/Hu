@@ -1,6 +1,6 @@
-import './webcomponentsjs/config';
+import './const/webcomponentsjs.config';
 import '@webcomponents/webcomponentsjs/webcomponents-loader';
-import Hu from './index';
 
 
-export default Hu;
+export * from './index';
+export { default } from './index';

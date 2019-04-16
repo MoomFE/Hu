@@ -2,7 +2,7 @@ import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
-import define from "../../../shared/util/define";
+import defineProperty from "../../../shared/util/defineProperty";
 import { observe } from "../../observable/observe";
 import isReserved from "../../../shared/util/isReserved";
 
@@ -44,7 +44,7 @@ export default function initProps( isCustomElement, root, options, target, targe
   // 将 $props 上的属性在 $hu 上建立引用
   each( props, ( name, options ) => {
     if( options.isSymbol || !isReserved( name ) ){
-      define(
+      defineProperty(
         target, name,
         () => propsTargetProxy[ name ],
         value => propsTargetProxy[ name ] = value

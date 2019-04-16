@@ -1,6 +1,6 @@
 import isSymbolOrNotReserved from "../../../shared/util/isSymbolOrNotReserved";
 import { has } from "../../../shared/global/Reflect/index";
-import define from "../../../shared/util/define";
+import defineProperty from "../../../shared/util/defineProperty";
 
 
 export default
@@ -23,7 +23,7 @@ export default
 
   // 使用 Object.defineProperty 对值进行定义
   if( set ){
-    define( litTarget, key, set, get )
+    defineProperty( litTarget, key, set, get )
   }
   // 直接写入到 $hu 上
   else{

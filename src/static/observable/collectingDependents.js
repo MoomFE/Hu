@@ -1,7 +1,7 @@
 import uid from "../../shared/util/uid";
 import { pushTarget, popTarget } from "./const";
 import { observeProxyMap } from "./observe";
-import define from "../../shared/util/define";
+import defineProperty from "../../shared/util/defineProperty";
 import { queueUpdate } from "./scheduler";
 
 
@@ -32,7 +32,7 @@ export class Watcher{
       this.observeOptions = observeOptions;
       this.name = name;
       // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
-      define( this, 'shouldUpdate', () => shouldUpdate, value => {
+      defineProperty( this, 'shouldUpdate', () => shouldUpdate, value => {
         if( shouldUpdate = value ) this.ssu();
       });
     }else if( isComputed === false ){
