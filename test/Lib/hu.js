@@ -2705,6 +2705,18 @@
 
   }
 
+  class HtmlDirective extends TextDirective{
+
+    commit(){
+      const { value, oldValue } = this;
+
+      isEqual( value, oldValue ) || (
+        this.elem.innerHTML = value
+      );
+    }
+
+  }
+
   class TemplateProcessor{
     handleAttributeExpressions( element, name, strings, options ){
 
@@ -2765,7 +2777,8 @@
     class: ClassDirective,
     style: StyleDirective,
     model: ModelDirective,
-    text: TextDirective
+    text: TextDirective,
+    html: HtmlDirective
   };
 
   /**
