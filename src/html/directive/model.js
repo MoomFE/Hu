@@ -101,11 +101,13 @@ function handlerSelect( elem, options ){
   watch( this, options, elem, 'value' );
   // 监听控件值改变
   addEventListener( elem, 'change', event => {
-    const [ proxy, name ] = options;
-    const value = filter.call( elem.options, option => option.selected )
-                        .map( option => option.value );
+    if( options.length ){
+      const [ proxy, name ] = options;
+      const value = filter.call( elem.options, option => option.selected )
+                          .map( option => option.value );
 
-    proxy[ name ] = elem.multiple ? value : value[0];
+      proxy[ name ] = elem.multiple ? value : value[0];
+    }
   });
 }
 
@@ -114,8 +116,10 @@ function handlerCheckbox( elem, options ){
   watch( this, options, elem, 'checked' );
   // 监听控件值改变
   addEventListener( elem, 'change', event => {
-    const [ proxy, name ] = this.options;
-    proxy[ name ] = elem.checked;
+    if( options.length ){
+      const [ proxy, name ] = options;
+      proxy[ name ] = elem.checked;
+    }
   });
 }
 
@@ -126,8 +130,10 @@ function handlerRadio( elem, options ){
   });
   // 监听控件值改变
   addEventListener( elem, 'change', event => {
-    const [ proxy, name ] = this.options;
-    proxy[ name ] = getAttribute( elem, 'value' ) || null;
+    if( options.length ){
+      const [ proxy, name ] = this.options;
+      proxy[ name ] = getAttribute( elem, 'value' ) || null;
+    }
   });
 }
 
