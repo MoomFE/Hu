@@ -454,7 +454,7 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
-  it( '使用 $watch 方法, 会返回取消监听的方法', () => {
+  it( '使用 $watch 方法, 会返回取消监听的方法, 运行后, 会立即停止监听', () => {
     let result;
     const hu = new Hu({
       data: () => ({
@@ -482,7 +482,7 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
-  it( '使用 $watch 方法, 会返回取消监听的方法 ( Vue )', () => {
+  it( '使用 $watch 方法, 会返回取消监听的方法, 运行后, 会立即停止监听 ( Vue )', () => {
     let result;
     const vm = new Vue({
       data: () => ({
@@ -506,6 +506,100 @@ describe( 'Hu.define - watch', () => {
       expect( result ).is.deep.equals([ 2, 1 ]);
       vm.$nextTick(() => {
         expect( result ).is.deep.equals([ 2, 1 ]);
+      });
+    });
+  });
+
+  it( '使用 $watch 方法, 会返回取消监听的方法, 运行后, 会立即停止监听 ( 二 )', ( done ) => {
+    let index = 0;
+    let unWatch;
+    const hu = new Hu({
+      data: {
+        a: 'aaa'
+      },
+      computed: {
+        b(){
+          if( unWatch ) unWatch();
+          return this.a;
+        }
+      },
+      watch: {
+        b(){}
+      }
+    });
+
+    expect( hu.b ).is.equals( 'aaa' );
+
+    hu.$watch( 'a', () => {} );
+    hu.$watch( 'a', () => {} );
+    const unWatchCache = hu.$watch( 'a', {
+      immediate: true,
+      handler(){
+        index++;
+      }
+    });
+    hu.$watch( 'a', () => {} );
+    hu.$watch( 'a', () => {} );
+
+    expect( index ).is.equals( 1 );
+
+    hu.a = 'aaaa';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+
+      unWatch = unWatchCache;
+      hu.a = 'aaaaa';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法, 会返回取消监听的方法, 运行后, 会立即停止监听 ( 二 ) ( Vue )', ( done ) => {
+    let index = 0;
+    let unWatch;
+    const vm = new Vue({
+      data: {
+        a: 'aaa'
+      },
+      computed: {
+        b(){
+          if( unWatch ) unWatch();
+          return this.a;
+        }
+      },
+      watch: {
+        b(){}
+      }
+    });
+
+    expect( vm.b ).is.equals( 'aaa' );
+
+    vm.$watch( 'a', () => {} );
+    vm.$watch( 'a', () => {} );
+    const unWatchCache = vm.$watch( 'a', {
+      immediate: true,
+      handler(){
+        index++;
+      }
+    });
+    vm.$watch( 'a', () => {} );
+    vm.$watch( 'a', () => {} );
+
+    expect( index ).is.equals( 1 );
+
+    vm.a = 'aaaa';
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+
+      unWatch = unWatchCache;
+      vm.a = 'aaaaa';
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        done();
       });
     });
   });
