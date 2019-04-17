@@ -1129,6 +1129,20 @@ describe( 'Hu.html.parts', () => {
     });
   });
 
+  it( '使用 :text 指令的方式, 对元素内容进行插入 ( innerText )', () => {
+    const div = document.createElement('div');
+    let text = '<span>123</span>'
+
+    Hu.render( div )`
+      <div :text=${ text }></div>
+    `;
+
+    expect( div.firstElementChild.innerHTML ).is.equals(
+      text.$replaceAll('<','&lt;')
+          .$replaceAll('>','&gt;')
+    );
+  });
+
   it( '使用 @event 的方式对元素事件进行绑定', () => {
     const div = document.createElement('div');
     let index = 0;
