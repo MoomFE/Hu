@@ -2680,6 +2680,31 @@
     });
   }
 
+  class TextDirective{
+
+    constructor( element ){
+      this.elem = element;
+    }
+
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this, true );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
+    }
+
+    commit(){
+      const { value, oldValue } = this;
+
+      isEqual( value, oldValue ) || (
+        this.elem.innerText = value
+      );
+    }
+
+  }
+
   class TemplateProcessor{
     handleAttributeExpressions( element, name, strings, options ){
 
@@ -2739,7 +2764,8 @@
   const attrHandler = {
     class: ClassDirective,
     style: StyleDirective,
-    model: ModelDirective
+    model: ModelDirective,
+    text: TextDirective
   };
 
   /**
