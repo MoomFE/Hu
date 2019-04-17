@@ -1,310 +1,288 @@
 describe( 'Hu.html.directive', () => {
 
-  it( 'html.repeat: 使用该指令方法渲染数组内容, 在数组变化时基于 key 的变化重新排列元素', () => {
+  it( '正常对元素属性 ( Attribute ) 进行绑定', () => {
     const div = document.createElement('div');
-    const arr = [
-      { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
-      { text: '4', key: 4 }, { text: '5', key: 5 }, { text: '6', key: 6 }
-    ];
-
-    Hu.render( div )`${
-      Hu.html.repeat( arr, 'key', data => {
-        return Hu.html`<span>${ data.text }</span>`
-      })
-    }`;
-
-    // 保存当前的元素顺序
-    const children = Array.from( div.children );
-    // 保存当前的元素内容顺序
-    const childrenText = children.map( elem => elem.innerHTML );
-
-    // 逆序后重新渲染
-    arr.reverse();
-    Hu.render( div )`${
-      Hu.html.repeat( arr, 'key', data => {
-        return Hu.html`<span>${ data.text }</span>`
-      })
-    }`;
-
-    // 保存最新的元素顺序
-    const newChildren = Array.from( div.children );
-    // 保存最新的元素内容顺序
-    const newChildrenText = newChildren.map( elem => elem.innerHTML );
-
-    // 元素的位置跟着数组一起交换了
-    expect( children ).is.deep.equals( newChildren.reverse() );
-    // 内容的位置跟着数组一起交换了
-    expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
-  });
-
-  it( 'html.repeat: 使用其他方式渲染数组内容, 在数组变化时尽可能的重用之前的元素进行渲染', () => {
-    const div = document.createElement('div');
-    const arr = [
-      { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
-      { text: '4', key: 4 }, { text: '5', key: 5 }, { text: '6', key: 6 }
-    ];
-
-    Hu.render( div )`${
-      arr.map( data => {
-        return Hu.html`<span>${ data.text }</span>`
-      })
-    }`;
-
-    // 保存当前的元素顺序
-    const children = Array.from( div.children );
-    // 保存当前的元素内容顺序
-    const childrenText = children.map( elem => elem.innerHTML );
-
-    // 逆序后重新渲染
-    arr.reverse();
-    Hu.render( div )`${
-      arr.map( data => {
-        return Hu.html`<span>${ data.text }</span>`
-      })
-    }`;
-
-    // 保存最新的元素顺序
-    const newChildren = Array.from( div.children );
-    // 保存最新的元素内容顺序
-    const newChildrenText = newChildren.map( elem => elem.innerHTML );
-
-    // 元素的位置未着数组一起交换
-    expect( children ).is.deep.equals( newChildren );
-    // 内容的位置跟着数组一起交换了
-    expect( childrenText ).is.deep.equals( newChildrenText.reverse() );
-  });
-
-  it( 'html.repeat: 该指令方法只能在文本区域中使用', () => {
-    const div = document.createElement('div');
-
-    const arr = [
-      { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
-      { text: '4', key: 4 }, { text: '5', key: 5 }, { text: '6', key: 6 }
-    ];
-
-    Hu.render( div )`${
-      Hu.html.repeat( arr, 'key', data => {
-        return Hu.html`<span>${ data.text }</span>`
-      })
-    }`;
+    let attr = '123';
 
     Hu.render( div )`
-      <div>${
-        Hu.html.repeat( arr, 'key', data => {
-          return Hu.html`<span>${ data.text }</span>`
-        })
-      }</div>
+      <div name=${ attr }></div>
     `;
 
-    should.throw(() => {
-      Hu.render( div )`
-        <div text=${ Hu.html.repeat( arr, 'key', data => data.text ) }></div>
-      `;
-    }, 'Hu.html.repeat 指令方法只能在文本区域中使用 !');
-
-    should.throw(() => {
-      Hu.render( div )`
-        <div .text=${ Hu.html.repeat( arr, 'key', data => data.text ) }></div>
-      `;
-    }, 'Hu.html.repeat 指令方法只能在文本区域中使用 !');
-
-    should.throw(() => {
-      Hu.render( div )`
-        <div ?text=${ Hu.html.repeat( arr, 'key', data => data.text ) }></div>
-      `;
-    }, 'Hu.html.repeat 指令方法只能在文本区域中使用 !');
+    expect( div.firstElementChild.getAttribute('name') ).is.equals( attr );
   });
 
-
-  it( 'html.unsafe: 使用该指令方法包装的 HTML 片段不会被转义', () => {
+  it( '正常对元素属性 ( Attribute ) 进行绑定 ( 二 )', () => {
     const div = document.createElement('div');
-    const span = '<span>123</span>';
-
-    Hu.render( div )`${
-      Hu.html.unsafe( span )
-    }`;
-
-    expect( div.firstElementChild.nodeName ).is.equals('SPAN');
-    expect( div.firstElementChild.innerText ).is.equals('123');
-  });
-
-  it( 'html.unsafe: 使用其他方式插入的 HTML 片段会被转义', () => {
-    const div = document.createElement('div');
-    const span = '<span>123</span>';
-
-    Hu.render( div )`${
-      span
-    }`;
-
-    expect( div.firstElementChild ).is.null;
-    expect( div.innerText ).is.equals( span );
-  });
-
-  it( 'html.unsafe: 该指令方法只能在文本区域中使用', () => {
-    const div = document.createElement('div');
-    const span = '<span>123</span>';
-
-    Hu.render( div )`${
-      Hu.html.unsafe( span )
-    }`;
 
     Hu.render( div )`
-      <div>${
-        Hu.html.unsafe( span )
-      }</div>
+      <div style="
+        width: ${ 100 }px; height: ${ 200 }px;
+        opacity: ${ 0.5 }
+      "></div>
     `;
 
-    should.throw(() => {
-      Hu.render( div )`
-        <div unsafe=${ Hu.html.unsafe( span ) }></div>
-      `;
-    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
-
-    should.throw(() => {
-      Hu.render( div )`
-        <div .unsafe=${ Hu.html.unsafe( span ) }></div>
-      `;
-    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
-
-    should.throw(() => {
-      Hu.render( div )`
-        <div ?unsafe=${ Hu.html.unsafe( span ) }></div>
-      `;
-    }, 'Hu.html.unsafe 指令方法只能在文本区域中使用 !');
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '200px',
+      opacity: '0.5'
+    });
   });
 
 
-  it( 'html.bind: 使用该指令方法可以将观察者对象的值与元素的属性进行绑定', ( done ) => {
-    const bind = Hu.html.bind;
+  it( '使用 :class 的方式对元素 className 进行绑定 - 字符串方式', () => {
     const div = document.createElement('div');
-    const data = Hu.observable({
-      name: '1'
-    });
 
+    // 1
     Hu.render( div )`
-      <div name=${ bind( data, 'name' ) }></div>
+      <div :class=${ 'a b c' }></div>
     `;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
 
-    data.name = 2;
+    // 2
+    Hu.render( div )`
+      <div class="a" :class=${ 'b c' }></div>
+    `;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals( '2' );
-
-      done();
-    });
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
   });
 
-  it( 'html.bind: 该指令方法传入的参数若不是观察者对象则不会响应值的变化', ( done ) => {
-    const bind = Hu.html.bind;
+  it( '使用 :class 的方式对元素 className 进行绑定 - JSON 方式', () => {
     const div = document.createElement('div');
-    const data = {
-      name: '1'
-    };
 
+    // 1
     Hu.render( div )`
-      <div name=${ bind( data, 'name' ) }></div>
+      <div :class=${{ a: true, b: true, c: true }}></div>
     `;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
 
-    data.name = 2;
+    // 2
+    Hu.render( div )`
+      <div :class=${{ a: true, b: false, c: true }}></div>
+    `;
 
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'c' ]);
 
-      done();
-    });
+    // 3
+    Hu.render( div )`
+      <div class="a" :class=${{ b: true, c: true }}></div>
+    `;
+
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+    // 4
+    Hu.render( div )`
+      <div class="a" :class=${{ b: false, c: true }}></div>
+    `;
+
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'c' ]);
   });
 
-  it( 'html.bind: 该指令方法绑定的元素属性会在下次使用 render 时进行解绑', ( done ) => {
-    const bind = Hu.html.bind;
+  it( '使用 :class 的方式对元素 className 进行绑定 - 数组方式', () => {
     const div = document.createElement('div');
-    const data = Hu.observable({
-      name: 1
-    });
 
+    // 1
     Hu.render( div )`
-      <div name=${ bind( data, 'name' ) }></div>
+      <div :class=${[ 'a', 'b', 'c' ]}></div>
     `;
 
-    const first = div.firstElementChild;
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
 
-    expect( first.getAttribute('name') ).is.equals( '1' );
+    // 2
+    Hu.render( div )`
+      <div :class=${[ { a: true }, 'b', { c: true } ]}></div>
+    `;
 
-    data.name = 2;
-    Hu.nextTick(() => {
-      expect( first.getAttribute('name') ).is.equals( '2' );
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
 
-      Hu.render( div )`
-        <div name2=${ bind( data, 'name' ) }></div>
-      `;
+    // 3
+    Hu.render( div )`
+      <div :class=${[ 'a b', { c: false } ]}></div>
+    `;
 
-      const second = div.firstElementChild;
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b' ]);
 
-      expect( first ).is.not.equals( second );
-      expect( first.getAttribute('name') ).is.equals( '2' );
-      expect( second.getAttribute('name2') ).is.equals( '2' );
+    // 4
+    Hu.render( div )`
+      <div class="a" :class=${[ 'b', 'c' ]}></div>
+    `;
 
-      data.name = 3;
-      Hu.nextTick(() => {
-        expect( first.getAttribute('name') ).is.equals( '2' );
-        expect( second.getAttribute('name2') ).is.equals( '3' );
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
 
-        done();
-      });
+    // 5
+    Hu.render( div )`
+      <div class="a" :class=${[ 'b', { c: true } ]}></div>
+    `;
+
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+    // 6
+    Hu.render( div )`
+      <div class="a" :class=${[ 'b', { c: false } ]}></div>
+    `;
+
+    expect(
+      Array.from( div.firstElementChild.classList )
+    ).is.deep.equals([ 'a', 'b' ]);
+  });
+
+
+  it( '使用 :style 的方式对元素 style 进行绑定 - 字符串方式', () => {
+    const div = document.createElement('div');
+
+    // 1
+    Hu.render( div )`
+      <div :style=${ 'width: 100px; height: 120px' }></div>
+    `;
+
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '120px'
+    });
+
+    // 2
+    Hu.render( div )`
+      <div style="width: 100px" :style=${ 'height: 120px' }></div>
+    `;
+
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '120px'
     });
   });
 
-  it( 'html.bind: 该指令在自定义元素实例中, 自定义元素被从文档流移除后, 指令方法的绑定会被解绑', ( done ) => {
-    const customName = window.customName;
-    const bind = Hu.html.bind;
-    const data = Hu.observable({
-      name: 1
+  it( '使用 :style 的方式对元素 style 进行绑定 - JSON 方式', () => {
+    var div = document.createElement('div');
+
+    // 1
+    Hu.render( div )`
+      <div :style=${{ width: '100px', height: '120px' }}></div>
+    `;
+
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '120px'
     });
 
-    let isConnected = false;
+    // 2
+    Hu.render( div )`
+      <div style="width: 100px" :style=${{ height: '120px' }}></div>
+    `;
 
-    Hu.define( customName, {
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '120px'
+    });
+  });
+
+  it( '使用 :style 的方式对元素 style 进行绑定 - 数组方式', () => {
+    var div = document.createElement('div');
+
+    // 1
+    Hu.render( div )`
+      <div :style=${[ 'width: 100px', { height: '120px' } ]}></div>
+    `;
+
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '120px'
+    });
+
+    // 2
+    Hu.render( div )`
+      <div style="width: 100px" :style=${[ { height: '120px' } ]}></div>
+    `;
+
+    expect( div.firstElementChild.style ).is.deep.include({
+      width: '100px',
+      height: '120px'
+    });
+  });
+
+
+  it( '使用 :model 指令对 select 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
       render( html ){
         return html`
-          <div name=${ bind( data, 'name' ) }></div>
+          <select ref="select" :model=${[ this, 'value' ]}>
+            <option value="1">11</option>
+            <option value="12">1212</option>
+            <option value="123">123123</option>
+          </select>
         `;
-      },
-      connected: () => isConnected = true,
-      disconnected: () => isConnected = false,
+      }
     });
 
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.select.value ).is.equals( '12' );
+    expect( hu.$refs.select.options[1].selected ).is.true;
 
-    expect( isConnected ).is.true;
-    expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('1');
-    
-    data.name = 2;
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$refs.select.options[ 0 ].selected = true;
+    triggerEvent( hu.$refs.select, 'change' );
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$refs.select.value ).is.equals( '1' );
+    expect( hu.$refs.select.options[0].selected ).is.true;
+
+    hu.$refs.select.options[ 1 ].selected = true;
+    triggerEvent( hu.$refs.select, 'change' );
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.select.value ).is.equals( '12' );
+    expect( hu.$refs.select.options[1].selected ).is.true;
+
+    hu.$refs.select.options[ 2 ].selected = true;
+    triggerEvent( hu.$refs.select, 'change' );
+    expect( hu.value ).is.equals( '123' );
+    expect( hu.$refs.select.value ).is.equals( '123' );
+    expect( hu.$refs.select.options[2].selected ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = '1';
     hu.$nextTick(() => {
-      expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
+      expect( hu.value ).is.equals( '1' );
+      expect( hu.$refs.select.value ).is.equals( '1' );
+      expect( hu.$refs.select.options[0].selected ).is.true;
 
-      div.$remove();
-      expect( isConnected ).is.false;
-
-      data.name = 3;
+      hu.value = '12';
       hu.$nextTick(() => {
-        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
+        expect( hu.value ).is.equals( '12' );
+        expect( hu.$refs.select.value ).is.equals( '12' );
+        expect( hu.$refs.select.options[1].selected ).is.true;
 
-        div.$appendTo( document.body );
-        expect( isConnected ).is.true;
-        expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('3');
-
-        data.name = 4;
+        hu.value = '123';
         hu.$nextTick(() => {
-          expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('4');
-
-          div.$remove();
+          expect( hu.value ).is.equals( '123' );
+          expect( hu.$refs.select.value ).is.equals( '123' );
+          expect( hu.$refs.select.options[2].selected ).is.true;
 
           done();
         });
@@ -312,50 +290,670 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
-  it( 'html.bind: 该指令对观察者对象的依赖不会被 render 收集, 所以不会触发重新渲染', ( done ) => {
+  it( '使用 v-model 指令对 select 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <select ref="select" v-model="value">
+          <option value="1">11</option>
+          <option value="12">1212</option>
+          <option value="123">123123</option>
+        </select>
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.select.value ).is.equals( '12' );
+    expect( vm.$refs.select.options[1].selected ).is.true;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$refs.select.options[ 0 ].selected = true;
+    triggerEvent( vm.$refs.select, 'change' );
+    expect( vm.value ).is.equals( '1' );
+    expect( vm.$refs.select.value ).is.equals( '1' );
+    expect( vm.$refs.select.options[0].selected ).is.true;
+
+    vm.$refs.select.options[ 1 ].selected = true;
+    triggerEvent( vm.$refs.select, 'change' );
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.select.value ).is.equals( '12' );
+    expect( vm.$refs.select.options[1].selected ).is.true;
+
+    vm.$refs.select.options[ 2 ].selected = true;
+    triggerEvent( vm.$refs.select, 'change' );
+    expect( vm.value ).is.equals( '123' );
+    expect( vm.$refs.select.value ).is.equals( '123' );
+    expect( vm.$refs.select.options[2].selected ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = '1';
+    vm.$nextTick(() => {
+      expect( vm.value ).is.equals( '1' );
+      expect( vm.$refs.select.value ).is.equals( '1' );
+      expect( vm.$refs.select.options[0].selected ).is.true;
+
+      vm.value = '12';
+      vm.$nextTick(() => {
+        expect( vm.value ).is.equals( '12' );
+        expect( vm.$refs.select.value ).is.equals( '12' );
+        expect( vm.$refs.select.options[1].selected ).is.true;
+
+        vm.value = '123';
+        vm.$nextTick(() => {
+          expect( vm.value ).is.equals( '123' );
+          expect( vm.$refs.select.value ).is.equals( '123' );
+          expect( vm.$refs.select.options[2].selected ).is.true;
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令对 input[type=checkbox] 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: true
+      },
+      render( html ){
+        return html`
+          <input ref="checkbox" type="checkbox" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( true );
+    expect( hu.$refs.checkbox.checked ).is.true;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$refs.checkbox.checked = false;
+    triggerEvent( hu.$refs.checkbox, 'change' );
+    expect( hu.value ).is.equals( false );
+    expect( hu.$refs.checkbox.checked ).is.false;
+
+    hu.$refs.checkbox.checked = true;
+    triggerEvent( hu.$refs.checkbox, 'change' );
+    expect( hu.value ).is.equals( true );
+    expect( hu.$refs.checkbox.checked ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = false;
+    hu.$nextTick(() => {
+      expect( hu.$refs.checkbox.checked ).is.false;
+
+      hu.value = true;
+      hu.$nextTick(() => {
+        expect( hu.$refs.checkbox.checked ).is.true;
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 v-model 指令对 input[type=checkbox] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: true
+      },
+      template: `
+        <input ref="checkbox" type="checkbox" v-model="value">
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( true );
+    expect( vm.$refs.checkbox.checked ).is.true;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$refs.checkbox.checked = false;
+    triggerEvent( vm.$refs.checkbox, 'change' );
+    expect( vm.value ).is.equals( false );
+    expect( vm.$refs.checkbox.checked ).is.false;
+
+    vm.$refs.checkbox.checked = true;
+    triggerEvent( vm.$refs.checkbox, 'change' );
+    expect( vm.value ).is.equals( true );
+    expect( vm.$refs.checkbox.checked ).is.true;
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = false;
+    vm.$nextTick(() => {
+      expect( vm.$refs.checkbox.checked ).is.false;
+
+      vm.value = true;
+      vm.$nextTick(() => {
+        expect( vm.$refs.checkbox.checked ).is.true;
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 :model 指令对 input[type=radio] 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <input type="radio" value="1" :model=${[ this, 'value' ]}>
+          <input type="radio" value="12" :model=${[ this, 'value' ]}>
+          <input type="radio" value="123" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+    expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$el.querySelector(':nth-child(1)').checked = true;
+    triggerEvent( hu.$el.querySelector(':nth-child(1)'), 'change' );
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+    expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '1' );
+      expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+      expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+      hu.$el.querySelector(':nth-child(2)').checked = true;
+      triggerEvent( hu.$el.querySelector(':nth-child(2)'), 'change' );
+      expect( hu.value ).is.equals( '12' );
+      expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+      expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '12' );
+        expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+        hu.$el.querySelector(':nth-child(3)').checked = true;
+        triggerEvent( hu.$el.querySelector(':nth-child(3)'), 'change' );
+        expect( hu.value ).is.equals( '123' );
+        expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( hu.$el.querySelector(':nth-child(3)').checked ).is.true;
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '123' );
+          expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+          expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+          expect( hu.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+          // 绑定值发生改变, 控件值也会发生更改
+          hu.value = '1';
+          hu.$nextTick(() => {
+            expect( hu.$el.querySelector(':nth-child(1)').checked ).is.true;
+            expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+            expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+            hu.value = '12';
+            hu.$nextTick(() => {
+              expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+              expect( hu.$el.querySelector(':nth-child(2)').checked ).is.true;
+              expect( hu.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+              hu.value = '123';
+              hu.$nextTick(() => {
+                expect( hu.$el.querySelector(':nth-child(1)').checked ).is.false;
+                expect( hu.$el.querySelector(':nth-child(2)').checked ).is.false;
+                expect( hu.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 v-model 指令对 input[type=radio] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <div>
+          <input type="radio" value="1" v-model="value">
+          <input type="radio" value="12" v-model="value">
+          <input type="radio" value="123" v-model="value">
+        </div>
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+    expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$el.querySelector(':nth-child(1)').checked = true;
+    triggerEvent( vm.$el.querySelector(':nth-child(1)'), 'change' );
+    expect( vm.value ).is.equals( '1' );
+    expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+    expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+    expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+    vm.$nextTick(() => {
+      expect( vm.value ).is.equals( '1' );
+      expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+      expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+      vm.$el.querySelector(':nth-child(2)').checked = true;
+      triggerEvent( vm.$el.querySelector(':nth-child(2)'), 'change' );
+      expect( vm.value ).is.equals( '12' );
+      expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+      expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+      expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+      vm.$nextTick(() => {
+        expect( vm.value ).is.equals( '12' );
+        expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+        vm.$el.querySelector(':nth-child(3)').checked = true;
+        triggerEvent( vm.$el.querySelector(':nth-child(3)'), 'change' );
+        expect( vm.value ).is.equals( '123' );
+        expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+        expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+        expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+        vm.$nextTick(() => {
+          expect( vm.value ).is.equals( '123' );
+          expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+          expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+          expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+          // 绑定值发生改变, 控件值也会发生更改
+          vm.value = '1';
+          vm.$nextTick(() => {
+            expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+            expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+            expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+            vm.value = '12';
+            vm.$nextTick(() => {
+              expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+              expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+              expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+              vm.value = '123';
+              vm.$nextTick(() => {
+                expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+                expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+                expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令对 input 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <input ref="text" type="text" :model=${[ this, 'value' ]} />
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.text.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$refs.text.value = '123';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '123' );
+
+    hu.$refs.text.value = '1234';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = '12345';
+    hu.$nextTick(() => {
+      expect( hu.$refs.text.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
+  it( '使用 v-model 指令对 input 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <input ref="text" type="text" v-model="value" />
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.text.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$refs.text.value = '123';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '123' );
+
+    vm.$refs.text.value = '1234';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = '12345';
+    vm.$nextTick(() => {
+      expect( vm.$refs.text.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
+  it( '使用 :model 指令对 textarea 表单控件进行双向绑定', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <textarea ref="textarea" :model=${[ this, 'value' ]}></textarea>
+        `;
+      }
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.textarea.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    hu.$refs.textarea.value = '123';
+    triggerEvent( hu.$refs.textarea, 'input' );
+    expect( hu.value ).is.equals( '123' );
+
+    hu.$refs.textarea.value = '1234';
+    triggerEvent( hu.$refs.textarea, 'input' );
+    expect( hu.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    hu.value = '12345';
+    hu.$nextTick(() => {
+      expect( hu.$refs.textarea.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
+  it( '使用 v-model 指令对 textarea 表单控件进行双向绑定 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <textarea ref="textarea" v-model="value"></textarea>
+      `
+    });
+
+    // 指令首次绑定会进行赋值
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.textarea.value ).is.equals( '12' );
+
+    // 控件值发生改变, 绑定值也会发生更改
+    vm.$refs.textarea.value = '123';
+    triggerEvent( vm.$refs.textarea, 'input' );
+    expect( vm.value ).is.equals( '123' );
+
+    vm.$refs.textarea.value = '1234';
+    triggerEvent( vm.$refs.textarea, 'input' );
+    expect( vm.value ).is.equals( '1234' );
+
+    // 绑定值发生改变, 控件值也会发生更改
+    vm.value = '12345';
+    vm.$nextTick(() => {
+      expect( vm.$refs.textarea.value ).is.equals( '12345' );
+
+      done();
+    });
+  });
+
+  it( '使用 :model 指令对 input / textarea 表单控件进行双向绑定时, 不会受到输入法的影响', ( done ) => {
+    const div = document.createElement('div');
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '12'
+      },
+      render( html ){
+        return html`
+          <input ref="text" type="text" :model=${[ this, 'value' ]} />
+        `;
+      }
+    });
+
+    expect( hu.value ).is.equals( '12' );
+    expect( hu.$refs.text.value ).is.equals( '12' );
+
+    hu.$refs.text.value = '1';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '1' );
+
+    hu.$refs.text.value = '2';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '2' );
+
+    triggerEvent( hu.$refs.text, 'compositionstart' );
+
+    hu.$refs.text.value = '3';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '2' );
+
+    hu.$refs.text.value = '4';
+    triggerEvent( hu.$refs.text, 'input' );
+    expect( hu.value ).is.equals( '2' );
+
+    triggerEvent( hu.$refs.text, 'compositionend' );
+    expect( hu.value ).is.equals( '4' );
+
+    done();
+  });
+
+  it( '使用 v-model 指令对 input / textarea 表单控件进行双向绑定时, 不会受到输入法的影响 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    const vm = new Vue({
+      el: div,
+      data: {
+        value: '12'
+      },
+      template: `
+        <input ref="text" type="text" v-model="value" />
+      `
+    });
+
+    expect( vm.value ).is.equals( '12' );
+    expect( vm.$refs.text.value ).is.equals( '12' );
+
+    vm.$refs.text.value = '1';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '1' );
+
+    vm.$refs.text.value = '2';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '2' );
+
+    triggerEvent( vm.$refs.text, 'compositionstart' );
+
+    vm.$refs.text.value = '3';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '2' );
+
+    vm.$refs.text.value = '4';
+    triggerEvent( vm.$refs.text, 'input' );
+    expect( vm.value ).is.equals( '2' );
+
+    triggerEvent( vm.$refs.text, 'compositionend' );
+    expect( vm.value ).is.equals( '4' );
+
+    done();
+  });
+
+  it( '使用 :model 指令时的绑定会在下次使用 render 时进行解绑', ( done ) => {
+    const div = document.createElement('div');
+    let input, textarea;
+
+    const hu = new Hu({
+      el: div,
+      data: {
+        renderInput: true,
+        value: '0'
+      },
+      render( html ){
+        if( this.renderInput ){
+          return html`<input ref="input" :model=${[ this, 'value' ]} />`;
+        }else{
+          return html`<textarea ref="textarea" :model=${[ this, 'value' ]}></textarea>`;
+        }
+      }
+    });
+
+    input = hu.$refs.input;
+    expect( hu.value ).is.equals('0');
+    expect( input.value ).is.equals('0');
+
+    hu.renderInput = false;
+    hu.$nextTick(() => {
+      textarea = hu.$refs.textarea;
+      expect( hu.value ).is.equals('0');
+      expect( textarea.value ).is.equals('0');
+
+      hu.value = '1';
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals('1');
+        expect( input.value ).is.equals('0');
+        expect( textarea.value ).is.equals('1');
+
+        done();
+      });
+    })
+  });
+
+  it( '使用 v-model 指令时的绑定会在下次使用 render 时进行解绑 ( Vue )', ( done ) => {
+    const div = document.createElement('div');
+    let input, textarea;
+
+    const vm = new Vue({
+      el: div,
+      data: {
+        renderInput: true,
+        value: '0'
+      },
+      template: `
+        <input v-if="renderInput" ref="input" v-model="value" />
+        <textarea v-else ref="textarea" v-model="value"></textarea>
+      `
+    });
+
+    input = vm.$refs.input;
+    expect( vm.value ).is.equals('0');
+    expect( input.value ).is.equals('0');
+
+    vm.renderInput = false;
+    vm.$nextTick(() => {
+      textarea = vm.$refs.textarea;
+      expect( vm.value ).is.equals('0');
+      expect( textarea.value ).is.equals('0');
+
+      vm.value = '1';
+      vm.$nextTick(() => {
+        expect( vm.value ).is.equals('1');
+        expect( input.value ).is.equals('0');
+        expect( textarea.value ).is.equals('1');
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 :model 指令时对观察者对象的依赖不会被 render 收集, 所以不会触发重新渲染', ( done ) => {
     let index = 0;
     const hu = new Hu({
       el: document.createElement('div'),
       data: {
-        name: '1'
+        value: '1'
       },
       render( html ){
         index++;
         return html`
-          <div ref="div" name=${ html.bind( this, 'name' ) }></div>
+          <input ref="input" :model=${[ this, 'value' ]}>
         `;
       }
     });
 
     expect( index ).is.equals( 1 );
-    expect( hu.$refs.div.getAttribute('name') ).is.equals('1');
-    
-    hu.name = '2';
+    expect( hu.$refs.input.value ).is.equals('1');
+
+    hu.value = '2';
     hu.$nextTick(() => {
       expect( index ).is.equals( 1 );
-      expect( hu.$refs.div.getAttribute('name') ).is.equals('2');
+      expect( hu.$refs.input.value ).is.equals('2');
 
-      hu.name = '3';
+      hu.value = '3';
       hu.$nextTick(() => {
         expect( index ).is.equals( 1 );
-        expect( hu.$refs.div.getAttribute('name') ).is.equals('3');
+        expect( hu.$refs.input.value ).is.equals('3');
 
         hu.$forceUpdate();
         hu.$forceUpdate();
         hu.$forceUpdate();
 
         expect( index ).is.equals( 4 );
-        expect( hu.$refs.div.getAttribute('name') ).is.equals('3');
+        expect( hu.$refs.input.value ).is.equals('3');
 
-        hu.name = '4';
+        hu.value = '4';
         hu.$nextTick(() => {
           expect( index ).is.equals( 4 );
-          expect( hu.$refs.div.getAttribute('name') ).is.equals('4');
+          expect( hu.$refs.input.value ).is.equals('4');
 
-          hu.name = '5';
+          hu.value = '5';
           hu.$nextTick(() => {
             expect( index ).is.equals( 4 );
-            expect( hu.$refs.div.getAttribute('name') ).is.equals('5');
+            expect( hu.$refs.input.value ).is.equals('5');
 
             done();
           });
@@ -364,160 +962,165 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
-  it( 'html.bind: 该指令方法可使用普通方式对元素属性 ( Attribute ) 进行绑定', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = Hu.observable({
-      name: '1'
-    });
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑', ( done ) => {
+    const customName = window.customName;
 
-    Hu.render( div )`
-      <div name=${ bind( data, 'name' ) }></div>
-    `;
-
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-
-    data.name = 2;
-
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals( '2' );
-
-      done();
-    });
-  });
-
-  it( 'html.bind: 该指令方法可使用 .attr 指令对元素属性 ( Property ) 进行绑定', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = Hu.observable({
-      name: 1
-    });
-
-    Hu.render( div )`
-      <div .name=${ bind( data, 'name' ) }></div>
-    `;
-
-    expect( div.firstElementChild.name ).is.equals( 1 );
-
-    data.name = 2;
-
-    expect( div.firstElementChild.name ).is.equals( 1 );
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.name ).is.equals( 2 );
-
-      done();
-    });
-  });
-
-  it( 'html.bind: 该指令方法可使用 ?attr 指令对元素属性 ( Attribute ) 进行绑定', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = Hu.observable({
-      name: true
-    });
-
-    Hu.render( div )`
-      <div ?name=${ bind( data, 'name' ) }></div>
-    `;
-
-    expect( div.firstElementChild.hasAttribute('name') ).is.true;
-
-    data.name = false;
-
-    expect( div.firstElementChild.hasAttribute('name') ).is.true;
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.hasAttribute('name') ).is.false;
-
-      done();
-    });
-  });
-
-  it( 'html.bind: 该指令方法可使用 :class 指令对元素 className 进行绑定', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = Hu.observable({
-      class: {
-        a: false,
-        b: true
+    Hu.define( customName, {
+      data: () => ({
+        value: '1'
+      }),
+      render( html ){
+        return html`
+          <input ref="input" :model=${[ this, 'value' ]}>
+        `;
       }
     });
 
-    Hu.render( div )`
-      <div :class=${ bind( data, 'class' ) }></div>
-    `;
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
 
-    expect( div.firstElementChild.className ).is.equals( 'b' );
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$refs.input.value ).is.equals( '1' );
 
-    data.class = {
-      a: true,
-      b: false
-    };
+    hu.value = '2'
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '2' );
+      expect( hu.$refs.input.value ).is.equals( '2' );
 
-    expect( div.firstElementChild.className ).is.equals( 'b' );
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.className ).is.equals( 'a' );
+      hu.$refs.input.value = '3';
+      triggerEvent( hu.$refs.input, 'input' );
 
-      data.class.b = true;
+      expect( hu.value ).is.equals( '3' );
+      expect( hu.$refs.input.value ).is.equals( '3' );
 
-      expect( div.firstElementChild.className ).is.equals( 'a' );
-      Hu.nextTick(() => {
-        expect( div.firstElementChild.className ).is.equals( 'a b' );
+      custom.$remove();
 
-        done();
-      });
-    });
-  });
+      hu.value = '4';
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '3' );
 
-  it( 'html.bind: 该指令方法可使用 :style 指令对元素 style 进行绑定', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = Hu.observable({
-      style: {
-        fontSize: '12px',
-        width: '100px'
-      }
-    });
+        hu.$refs.input.value = '5';
+        triggerEvent( hu.$refs.input, 'input' );
 
-    Hu.render( div )`
-      <div :style=${ bind( data, 'style' ) }></div>
-    `;
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '5' );
 
-    expect( div.firstElementChild.style ).is.deep.include({
-      fontSize: '12px',
-      width: '100px'
-    });
+        custom.$appendTo( document.body );
 
-    data.style = {
-      fontSize: '16px',
-      width: '120px'
-    };
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '4' );
 
-    expect( div.firstElementChild.style ).is.deep.include({
-      fontSize: '12px',
-      width: '100px'
-    });
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.style ).is.deep.include({
-        fontSize: '16px',
-        width: '120px'
-      });
+        hu.value = '6';
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '6' );
+          expect( hu.$refs.input.value ).is.equals( '6' );
 
-      data.style.width = '160px';
+          hu.$refs.input.value = '7';
+          triggerEvent( hu.$refs.input, 'input' );
 
-      expect( div.firstElementChild.style ).is.deep.include({
-        fontSize: '16px',
-        width: '120px'
-      });
-      Hu.nextTick(() => {
-        expect( div.firstElementChild.style ).is.deep.include({
-          fontSize: '16px',
-          width: '160px'
+          expect( hu.value ).is.equals( '7' );
+          expect( hu.$refs.input.value ).is.equals( '7' );
+
+          custom.$remove();
+
+          done();
         });
-
-        done();
       });
     });
+  });
+
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后又被加回文档流, 指令的绑定的值应该立即更新', ( done ) => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      data: () => ({
+        value: '1'
+      }),
+      render( html ){
+        index++;
+        return html`
+          <input ref="input" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    hu.value = '2';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.value ).is.equals( '2' );
+      expect( hu.$refs.input.value ).is.equals( '2' );
+
+      custom.$remove();
+
+      hu.value = '3';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( hu.value ).is.equals( '3' );
+        expect( hu.$refs.input.value ).is.equals( '2' );
+
+        custom.$appendTo( document.body );
+
+        expect( index ).is.equals( 2 );
+        expect( hu.value ).is.equals( '3' );
+        expect( hu.$refs.input.value ).is.equals( '3' );
+
+        hu.value = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 2 );
+          expect( hu.value ).is.equals( '4' );
+          expect( hu.$refs.input.value ).is.equals( '4' );
+
+          custom.$remove();
+
+          done();
+        });
+      });
+    });
+  });
+
+
+  it( '使用 :text 指令的方式, 对元素内容进行插入 ( innerText )', () => {
+    const div = document.createElement('div');
+    let text = '<span>123</span>'
+
+    Hu.render( div )`
+      <div :text=${ text }></div>
+    `;
+
+    expect( div.firstElementChild.innerHTML ).is.equals(
+      text.$replaceAll('<','&lt;')
+          .$replaceAll('>','&gt;')
+    );
+  });
+
+
+  it( '使用 :html 指令的方式, 对元素内容进行插入 ( innerHTML )', () => {
+    const div = document.createElement('div');
+    let text = '<span>123</span>'
+
+    Hu.render( div )`
+      <div :html=${ text }></div>
+    `;
+
+    expect( div.firstElementChild.innerHTML ).is.equals(
+      text
+    );
+  });
+
+
+  it( '使用不存在的指令, 将会被当做普通属性处理', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div :zhang-wei=${ 666 }></div>
+    `;
+
+    expect( div.firstElementChild.getAttribute(':zhang-wei') ).equals('666');
   });
 
 });
