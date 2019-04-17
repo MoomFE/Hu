@@ -22,7 +22,7 @@ export default class ClassDirective{
       return value( this, true );
     }
 
-    parseClass( this.value = {}, value );
+    this.parse( this.value = {}, value );
   }
 
   commit(){
@@ -52,31 +52,30 @@ export default class ClassDirective{
     classesMap.set( this, classes );
   }
 
-}
-
-
-/**
- * 格式化用户传入的 class 内容
- */
-function parseClass( classes, value ){
-  switch( typeof value ){
-    case 'string': {
-      value.split( rWhitespace ).forEach( name => {
-        return classes[ name ] = true;
-      });
-      break;
-    };
-    case 'object': {
-      if( isArray( value ) ){
-        value.forEach( name => {
-          return parseClass( classes, name );
+  /**
+   * 格式化用户传入的 class 内容
+   */
+  parse( classes, value ){
+    switch( typeof value ){
+      case 'string': {
+        value.split( rWhitespace ).forEach( name => {
+          return classes[ name ] = true;
         });
-      }else{
-        each( value, ( name, truthy ) => {
-          return truthy ? parseClass( classes, name )
-                        : delete classes[ name ];
-        });
+        break;
+      };
+      case 'object': {
+        if( isArray( value ) ){
+          value.forEach( name => {
+            return this.parse( classes, name );
+          });
+        }else{
+          each( value, ( name, truthy ) => {
+            return truthy ? this.parse( classes, name )
+                          : delete classes[ name ];
+          });
+        }
       }
     }
   }
+
 }

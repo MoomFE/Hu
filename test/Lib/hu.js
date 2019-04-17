@@ -2122,7 +2122,7 @@
         return value( this, true );
       }
 
-      parseClass( this.value = {}, value );
+      this.parse( this.value = {}, value );
     }
 
     commit(){
@@ -2152,33 +2152,32 @@
       classesMap.set( this, classes );
     }
 
-  }
-
-
-  /**
-   * 格式化用户传入的 class 内容
-   */
-  function parseClass( classes, value ){
-    switch( typeof value ){
-      case 'string': {
-        value.split( rWhitespace ).forEach( name => {
-          return classes[ name ] = true;
-        });
-        break;
-      }
-      case 'object': {
-        if( isArray( value ) ){
-          value.forEach( name => {
-            return parseClass( classes, name );
+    /**
+     * 格式化用户传入的 class 内容
+     */
+    parse( classes, value ){
+      switch( typeof value ){
+        case 'string': {
+          value.split( rWhitespace ).forEach( name => {
+            return classes[ name ] = true;
           });
-        }else{
-          each( value, ( name, truthy ) => {
-            return truthy ? parseClass( classes, name )
-                          : delete classes[ name ];
-          });
+          break;
+        }
+        case 'object': {
+          if( isArray( value ) ){
+            value.forEach( name => {
+              return this.parse( classes, name );
+            });
+          }else{
+            each( value, ( name, truthy ) => {
+              return truthy ? this.parse( classes, name )
+                            : delete classes[ name ];
+            });
+          }
         }
       }
     }
+
   }
 
   var rListDelimiter = /;(?![^(]*\))/g;
@@ -2211,19 +2210,7 @@
   const styleMap = new WeakMap();
 
 
-  class StyleDirective{
-
-    constructor( element ){
-      this.elem = element;
-    }
-
-    setValue( value ){
-      if( isDirective( value ) ){
-        return value( this, true );
-      }
-
-      parseStyle( this.value = {}, value );
-    }
+  class StyleDirective extends ClassDirective{
 
     commit(){
       const { value: styles, elem: { style } } = this;
@@ -2243,32 +2230,31 @@
       styleMap.set( this, styles );
     }
 
-  }
-
-
-  /**
-   * 格式化用户传入的 style 内容
-   */
-  function parseStyle( styles, value ){
-    switch( typeof value ){
-      case 'string': {
-        return parseStyle(
-          styles,
-          parseStyleText( value )
-        );
-      }
-      case 'object': {
-        if( isArray( value ) ){
-          value.forEach( value => {
-            return parseStyle( styles, value );
-          });
-        }else{
-          each( value, ( name, value ) => {
-            return styles[ hyphenate( name ) ] = value;
-          });
+    /**
+     * 格式化用户传入的 style 内容
+     */
+    parse( styles, value ){
+      switch( typeof value ){
+        case 'string': {
+          return this.parse(
+            styles,
+            parseStyleText( value )
+          );
+        }
+        case 'object': {
+          if( isArray( value ) ){
+            value.forEach( value => {
+              return this.parse( styles, value );
+            });
+          }else{
+            each( value, ( name, value ) => {
+              return styles[ hyphenate( name ) ] = value;
+            });
+          }
         }
       }
     }
+
   }
 
   const {
