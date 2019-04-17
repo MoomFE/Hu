@@ -161,6 +161,7 @@ if( process.env.build ){
   configs.$concat([
     basic,
     Object.$assign( null, basic, {
+      context: 'window',
       input: 'src/build/polyfill.js',
       output: {
         file: 'dist/hu.polyfill.js'
