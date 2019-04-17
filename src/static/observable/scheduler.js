@@ -2,15 +2,15 @@ import nextTick from "../nextTick/index";
 
 
 /** 异步更新队列 */
-const queue = [];
+export const queue = [];
 /** 判断异步更新队列中是否有一个更新请求 */
-const queueMap = new Map();
+export const queueMap = new Map();
 /** 是否已经有一个队列正在等待执行或正在执行了 */
 let waiting = false;
 /** 是否已经有一个队列正在执行了 */
 let flushing = false;
 /** 队列执行到哪了 */
-let index = 0;
+export let index = 0;
 
 
 /**

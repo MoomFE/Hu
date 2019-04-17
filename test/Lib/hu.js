@@ -2381,10 +2381,24 @@
 
       // 有这个计算属性
       if( computedOptions ){
+        const watcher = computedOptions.watcher;
+
         // 清空依赖
-        computedOptions.watcher.clean();
+        watcher.clean();
         // 删除计算属性
         computedOptionsMap.delete( name );
+        // 如果当前 ( 计算属性 / watch ) 在异步更新队列中, 则进行删除
+        if( queueMap.has( watcher ) ){
+          // 从异步更新队列标记中删除
+          queueMap.delete( watcher );
+          // 从异步更新队列中删除
+          for( let i = index + 1, len = queue.length; i < len; i++ ){
+            if( queue[ i ] === watcher ){
+              queue.splice( i, 1 );
+              break;
+            }
+          }
+        }
       }
     };
   }
