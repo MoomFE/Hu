@@ -962,7 +962,7 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑', ( done ) => {
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑 ( input )', ( done ) => {
     const customName = window.customName;
 
     Hu.define( customName, {
@@ -1030,6 +1030,246 @@ describe( 'Hu.html.directive', () => {
     });
   });
 
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑 ( textarea )', ( done ) => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        value: '1'
+      }),
+      render( html ){
+        return html`
+          <textarea ref="input" :model=${[ this, 'value' ]}></textarea>
+        `;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$refs.input.value ).is.equals( '1' );
+
+    hu.value = '2'
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '2' );
+      expect( hu.$refs.input.value ).is.equals( '2' );
+
+      hu.$refs.input.value = '3';
+      triggerEvent( hu.$refs.input, 'input' );
+
+      expect( hu.value ).is.equals( '3' );
+      expect( hu.$refs.input.value ).is.equals( '3' );
+
+      custom.$remove();
+
+      hu.value = '4';
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '3' );
+
+        hu.$refs.input.value = '5';
+        triggerEvent( hu.$refs.input, 'input' );
+
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '5' );
+
+        custom.$appendTo( document.body );
+
+        expect( hu.value ).is.equals( '4' );
+        expect( hu.$refs.input.value ).is.equals( '4' );
+
+        hu.value = '6';
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '6' );
+          expect( hu.$refs.input.value ).is.equals( '6' );
+
+          hu.$refs.input.value = '7';
+          triggerEvent( hu.$refs.input, 'input' );
+
+          expect( hu.value ).is.equals( '7' );
+          expect( hu.$refs.input.value ).is.equals( '7' );
+
+          custom.$remove();
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑 ( checkbox )', ( done ) => {
+    const customName = window.customName;
+
+
+    Hu.define( customName, {
+      data: () => ({
+        value: true
+      }),
+      render( html ){
+        return html`
+          <input ref="checkbox" type="checkbox" :model=${[ this, 'value' ]} />
+        `;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( hu.value ).is.equals( true );
+    expect( hu.$refs.checkbox.checked ).is.equals( true );
+
+    hu.value = false
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( false );
+      expect( hu.$refs.checkbox.checked ).is.equals( false );
+
+      hu.$refs.checkbox.checked = true;
+      triggerEvent( hu.$refs.checkbox, 'change' );
+
+      expect( hu.value ).is.equals( true );
+      expect( hu.$refs.checkbox.checked ).is.equals( true );
+
+      custom.$remove();
+
+      hu.value = false;
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( false );
+        expect( hu.$refs.checkbox.checked ).is.equals( true );
+
+        triggerEvent( hu.$refs.checkbox, 'change' );
+
+        expect( hu.value ).is.equals( false );
+        expect( hu.$refs.checkbox.checked ).is.equals( true );
+
+        custom.$appendTo( document.body );
+
+        expect( hu.value ).is.equals( false );
+        expect( hu.$refs.checkbox.checked ).is.equals( false );
+
+        hu.value = true;
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( true );
+          expect( hu.$refs.checkbox.checked ).is.equals( true );
+
+          hu.$refs.checkbox.checked = false;
+          triggerEvent( hu.$refs.checkbox, 'change' );
+
+          expect( hu.value ).is.equals( false );
+          expect( hu.$refs.checkbox.checked ).is.equals( false );
+
+          custom.$remove();
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑 ( radio )', ( done ) => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        value: '1'
+      }),
+      render( html ){
+        return html`
+          <input ref="input" type="radio" value="1" :model=${[ this, 'value' ]}>
+          <input ref="input" type="radio" value="12" :model=${[ this, 'value' ]}>
+          <input ref="input" type="radio" value="123" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$refs.input[0].checked ).is.equals( true );
+    expect( hu.$refs.input[1].checked ).is.equals( false );
+    expect( hu.$refs.input[2].checked ).is.equals( false );
+
+    hu.value = '12'
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '12' );
+      expect( hu.$refs.input[0].checked ).is.equals( false );
+      expect( hu.$refs.input[1].checked ).is.equals( true );
+      expect( hu.$refs.input[2].checked ).is.equals( false );
+
+      hu.$refs.input[2].checked = true;
+      triggerEvent( hu.$refs.input[2], 'change' );
+
+      expect( hu.value ).is.equals( '123' );
+      expect( hu.$refs.input[0].checked ).is.equals( false );
+      expect( hu.$refs.input[1].checked ).is.equals( true );
+      expect( hu.$refs.input[2].checked ).is.equals( true );
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '123' );
+        expect( hu.$refs.input[0].checked ).is.equals( false );
+        expect( hu.$refs.input[1].checked ).is.equals( false );
+        expect( hu.$refs.input[2].checked ).is.equals( true );
+
+        custom.$remove();
+  
+        hu.value = '1';
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '1' );
+          expect( hu.$refs.input[0].checked ).is.equals( false );
+          expect( hu.$refs.input[1].checked ).is.equals( false );
+          expect( hu.$refs.input[2].checked ).is.equals( true );
+  
+          hu.$refs.input[1].checked = true;
+          triggerEvent( hu.$refs.input[1], 'change' );
+  
+          expect( hu.value ).is.equals( '1' );
+          expect( hu.$refs.input[0].checked ).is.equals( false );
+          expect( hu.$refs.input[1].checked ).is.equals( true );
+          expect( hu.$refs.input[2].checked ).is.equals( true );
+          hu.$nextTick(() => {
+            expect( hu.value ).is.equals( '1' );
+            expect( hu.$refs.input[0].checked ).is.equals( false );
+            expect( hu.$refs.input[1].checked ).is.equals( true );
+            expect( hu.$refs.input[2].checked ).is.equals( true );
+  
+            custom.$appendTo( document.body );
+    
+            expect( hu.value ).is.equals( '1' );
+            expect( hu.$refs.input[0].checked ).is.equals( true );
+            expect( hu.$refs.input[1].checked ).is.equals( false );
+            expect( hu.$refs.input[2].checked ).is.equals( false );
+    
+            hu.value = '12';
+            hu.$nextTick(() => {
+              expect( hu.value ).is.equals( '12' );
+              expect( hu.$refs.input[0].checked ).is.equals( false );
+              expect( hu.$refs.input[1].checked ).is.equals( true );
+              expect( hu.$refs.input[2].checked ).is.equals( false );
+    
+              hu.$refs.input[2].checked = true;
+              triggerEvent( hu.$refs.input[2], 'change' );
+    
+              expect( hu.value ).is.equals( '123' );
+              expect( hu.$refs.input[0].checked ).is.equals( false );
+              expect( hu.$refs.input[1].checked ).is.equals( true );
+              expect( hu.$refs.input[2].checked ).is.equals( true );
+              hu.$nextTick(() => {
+                expect( hu.value ).is.equals( '123' );
+                expect( hu.$refs.input[0].checked ).is.equals( false );
+                expect( hu.$refs.input[1].checked ).is.equals( false );
+                expect( hu.$refs.input[2].checked ).is.equals( true );
+    
+                custom.$remove();
+      
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后又被加回文档流, 指令的绑定的值应该立即更新', ( done ) => {
     const customName = window.customName;
     let index = 0;
@@ -1074,6 +1314,78 @@ describe( 'Hu.html.directive', () => {
           expect( index ).is.equals( 2 );
           expect( hu.value ).is.equals( '4' );
           expect( hu.$refs.input.value ).is.equals( '4' );
+
+          custom.$remove();
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令的自定义元素实例中, 自定义元素被从文档流移除后, 指令的绑定会被解绑 ( Select )', ( done ) => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        value: '1'
+      }),
+      render( html ){
+        return html`
+          <select ref="select" :model=${[ this, 'value' ]}>
+            <option value="1">11</option>
+            <option value="12">1212</option>
+            <option value="123">123123</option>
+          </select>
+        `;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( hu.value ).is.equals( '1' );
+    expect( hu.$refs.select.value ).is.equals( '1' );
+
+    hu.value = '12'
+    hu.$nextTick(() => {
+      expect( hu.value ).is.equals( '12' );
+      expect( hu.$refs.select.value ).is.equals( '12' );
+
+      hu.$refs.select.value = '123';
+      triggerEvent( hu.$refs.select, 'change' );
+
+      expect( hu.value ).is.equals( '123' );
+      expect( hu.$refs.select.value ).is.equals( '123' );
+
+      custom.$remove();
+
+      hu.value = '1';
+      hu.$nextTick(() => {
+        expect( hu.value ).is.equals( '1' );
+        expect( hu.$refs.select.value ).is.equals( '123' );
+
+        hu.$refs.select.value = '12';
+        triggerEvent( hu.$refs.select, 'change' );
+
+        expect( hu.value ).is.equals( '1' );
+        expect( hu.$refs.select.value ).is.equals( '12' );
+
+        custom.$appendTo( document.body );
+
+        expect( hu.value ).is.equals( '1' );
+        expect( hu.$refs.select.value ).is.equals( '1' );
+
+        hu.value = '12';
+        hu.$nextTick(() => {
+          expect( hu.value ).is.equals( '12' );
+          expect( hu.$refs.select.value ).is.equals( '12' );
+
+          hu.$refs.select.value = '123';
+          triggerEvent( hu.$refs.select, 'change' );
+
+          expect( hu.value ).is.equals( '123' );
+          expect( hu.$refs.select.value ).is.equals( '123' );
 
           custom.$remove();
 
