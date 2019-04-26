@@ -232,6 +232,108 @@ interface Hu{
    */
   nextTick<T>( context: T ): Promise<T>;
 
+  /**
+   * 共享出来的部分内部使用的方法
+   */
+  util: {
+
+    /**
+     * 绑定事件
+     * @param elem 绑定事件的元素对象
+     * @param type 事件名称
+     * @param listener 事件回调
+     * @param options 事件修饰符
+     */
+    addEvent( elem: Element, type: string, listener: function, options: boolean | {} ): void;
+
+    /**
+     * 解绑事件
+     * @param elem 解绑事件的元素对象
+     * @param type 事件名称
+     * @param listener 事件回调
+     * @param options 事件修饰符
+     */
+    removeEvent( elem: Element, type: string, listener: function, options: boolean | {} ): void;
+
+    /**
+     * 触发事件
+     * @param elem 触发事件的元素对象
+     * @param type 事件名称
+     */
+    triggerEvent( elem: Element, type: string ): void;
+
+    /**
+     * 对象遍历方法
+     *  - 和 jQuery 的 each 方法不同, 遍历过程无法通过返回 false 进行中断
+     *  - 就是个普通的对象遍历方法
+     * @param obj 
+     * @param callback 
+     */
+    each( obj: {}, callback: function ): void;
+
+    /**
+     * 判断传入对象是否是纯粹的对象
+     * @param obj 需要判断的对象
+     */
+    isPlainObject( obj: any ): boolean;
+
+    /**
+     * 判断传入对象是否是一个空对象
+     * @param obj 需要判断的对象
+     */
+    isEmptyObject( obj: any ): boolean;
+
+    /**
+     * 判断传入对象是否是原始对象
+     * @param obj 需要判断的对象
+     */
+    isPrimitive( obj: any ): boolean;
+
+    /**
+     * 判断传入的两个值是否相等
+     *  - 用于避免 NaN !== NaN 的问题
+     * @param value 需要判断的对象
+     * @param value2 需要判断的对象
+     */
+    isEqual( value, value2 ): boolean;
+
+    /**
+     * 判断传入对象是否是 String 类型
+     * @param obj 需要判断的对象
+     */
+    isString( obj ): boolean;
+
+    /**
+     * 判断传入对象是否是 Object 类型且不为 null
+     * @param obj 需要判断的对象
+     */
+    isObject( obj ): boolean;
+
+    /**
+     * 判断传入对象是否是 Function 类型
+     * @param obj 需要判断的对象
+     */
+    isFunction( obj ): boolean;
+
+    /**
+     * 判断传入对象是否是 Symbol 类型
+     * @param obj 需要判断的对象
+     */
+    isSymbol( obj ): boolean;
+
+    /**
+     * 返回一个字符串 UID
+     */
+    uid(): string;
+
+    /**
+     * 创建一个可以缓存方法返回值的方法
+     * @param fn 需要缓存值的方法
+     */
+    cached( fn: ( str: string ) => any ): function;
+
+  }
+
 }
 
 declare const Hu: Hu;
@@ -444,6 +546,16 @@ interface html{
    * @param value
    */
   unsafe( value: string );
+
+  /**
+   * 将元素属性与观察者对象的目标对象绑定, 若观察者对象的目标对象更新, 元素属性也会更新
+   *  - 和正常实例相比, 若是使用此方法绑定的元素属性, 变量更新时可以不触发整体重新渲染
+   *  - 纯渲染实例可以使用此方法达到和正常实例一样的体验
+   *  - 和正常实例一样, 观察者对象的目标对象更新后, 属性值会在下一 tick 进行更新, 可以使用 nextTick 方法获取更新后的值
+   * @param obj 观察者对象
+   * @param name 目标对象名称
+   */
+  bind( obj, name );
 
 }
 
