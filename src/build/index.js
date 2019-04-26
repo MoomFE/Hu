@@ -6,6 +6,7 @@ import define from '../static/define/index';
 import html, { render } from '../static/html/index';
 import nextTick from '../static/nextTick/index';
 import { observable } from '../static/observable/observe';
+import util from '../static/util/index';
 import '../static/noConflict/index';
 
 
@@ -14,7 +15,8 @@ assign( Hu, {
   render,
   html,
   nextTick,
-  observable
+  observable,
+  util
 });
 
 

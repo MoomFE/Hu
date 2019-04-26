@@ -1,5 +1,6 @@
   - 🐞 修复当一个 Watcher 在收集依赖时注销了另一个 watch 时, 被注销的 watch 依旧还会执行的问题
   - 🐞 修复使用 :model 功能指令在绑定 Select, Radio, Checkbox 时在某些情况下报错的问题
+  - 🌟 将部分内置方法共享到 Hu.util 中
 
 # 1.0.0-bata.3
   - 📅 2019-4-17
