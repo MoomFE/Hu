@@ -9,6 +9,7 @@ import StyleDirective from './directive/style';
 import ModelDirective from './directive/model';
 import TextDirective from './directive/text';
 import HtmlDirective from './directive/html';
+import ShowDirective from './directive/show';
 
 
 class TemplateProcessor{
@@ -72,5 +73,6 @@ const attrHandler = {
   style: StyleDirective,
   model: ModelDirective,
   text: TextDirective,
-  html: HtmlDirective
+  html: HtmlDirective,
+  show: ShowDirective
 };

@@ -2,6 +2,7 @@
   - 🐞 修复使用 :model 功能指令在绑定 Select, Radio, Checkbox 时在某些情况下报错的问题
   - 🌟 将部分内置方法共享到 Hu.util 中
   - 🌟 新增 html.svg 方法, 弥补 html 方法创建的 `<svg>` 标签内部元素无用的问题
+  - 🌟 新增 :show 功能指令
 
 # 1.0.0-bata.3
   - 📅 2019-4-17
