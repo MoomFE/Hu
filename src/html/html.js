@@ -1,4 +1,4 @@
-import { TemplateResult } from 'lit-html';
+import { TemplateResult, SVGTemplateResult } from 'lit-html';
 import templateProcessor from './templateProcessor';
 import { assign } from '../shared/global/Object/index';
 import repeat from './directiveFn/repeat';
@@ -10,8 +10,13 @@ export default function html( strings, ...values ){
   return new TemplateResult( strings, values, 'html', templateProcessor );
 }
 
+function svg( strings, ...values ){
+  return new SVGTemplateResult( strings, values, 'svg', templateProcessor );
+}
+
 assign( html, {
   unsafe: unsafeHTML,
   repeat,
-  bind
+  bind,
+  svg
 });
