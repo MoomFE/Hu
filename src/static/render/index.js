@@ -3,9 +3,7 @@ import litRender from "../../html/render";
 import { apply } from "../../shared/global/Reflect/index";
 
 
-export default html;
-
-export function render( result, container ){
+export default function render( result, container ){
   if( arguments.length > 1 ){
     return litRender( result, container );
   }
