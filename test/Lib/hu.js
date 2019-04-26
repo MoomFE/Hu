@@ -1504,6 +1504,26 @@
           return template;
       }
   }
+  /**
+   * A TemplateResult for SVG fragments.
+   *
+   * This class wraps HTMl in an `<svg>` tag in order to parse its contents in the
+   * SVG namespace, then modifies the template to remove the `<svg>` tag so that
+   * clones only container the original fragment.
+   */
+  class SVGTemplateResult extends TemplateResult {
+      getHTML() {
+          return `<svg>${super.getHTML()}</svg>`;
+      }
+      getTemplateElement() {
+          const template = super.getTemplateElement();
+          const content = template.content;
+          const svgElement = content.firstChild;
+          content.removeChild(svgElement);
+          reparentNodes(content, svgElement.firstChild);
+          return template;
+      }
+  }
 
   /**
    * @license
@@ -2737,6 +2757,18 @@
 
   }
 
+  class ShowDirective extends TextDirective{
+
+    commit(){
+      const { value, oldValue } = this;
+
+      isEqual( value, oldValue ) || (
+        this.elem.style.display = value ? '' : 'none'
+      );
+    }
+
+  }
+
   class TemplateProcessor{
     handleAttributeExpressions( element, name, strings, options ){
 
@@ -2798,7 +2830,8 @@
     style: StyleDirective,
     model: ModelDirective,
     text: TextDirective,
-    html: HtmlDirective
+    html: HtmlDirective,
+    show: ShowDirective
   };
 
   /**
@@ -3046,10 +3079,15 @@
     return new TemplateResult( strings, values, 'html', templateProcessor );
   }
 
+  function svg( strings, ...values ){
+    return new SVGTemplateResult( strings, values, 'svg', templateProcessor );
+  }
+
   assign( html, {
     unsafe: unsafeHTML,
     repeat,
-    bind
+    bind,
+    svg
   });
 
   function litRender( result, container, options ){
@@ -3748,6 +3786,25 @@
     }
   }
 
+  const util = create( null );
+
+  assign( util, {
+    addEvent: addEventListener,
+    removeEvent: removeEventListener,
+    triggerEvent,
+    each,
+    isPlainObject,
+    isEmptyObject,
+    isPrimitive,
+    isEqual,
+    isString,
+    isObject,
+    isFunction,
+    isSymbol,
+    uid: uid$1,
+    cached
+  });
+
   const otherHu = inBrowser ? window.Hu
                             : undefined;
 
@@ -3765,7 +3822,8 @@
     render: render$1,
     html,
     nextTick,
-    observable
+    observable,
+    util
   });
 
   return Hu;
