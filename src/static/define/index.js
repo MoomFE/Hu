@@ -6,6 +6,7 @@ import initDisconnectedCallback from "./init/initDisconnectedCallback";
 import initAdoptedCallback from "./init/initAdoptedCallback";
 import { assign } from "../../shared/global/Object/index";
 import initConnectedCallback from "./init/initConnectedCallback";
+import $on, { $once, $off } from "../../core/prototype/$on";
 
 
 /**
@@ -36,7 +37,11 @@ export default function define( name, _userOptions ){
     // 自定义元素位置被移动
     adoptedCallback: initAdoptedCallback( options ),
     // 自定义元素属性被更改
-    attributeChangedCallback: initAttributeChangedCallback( options.propsMap )
+    attributeChangedCallback: initAttributeChangedCallback( options.propsMap ),
+    // 自定义元素实例上的事件处理相关方法
+    $on,
+    $once,
+    $off
   });
 
   // 注册组件

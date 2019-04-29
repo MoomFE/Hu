@@ -2,17 +2,31 @@ import { isArray } from "../../shared/global/Array/index";
 import { create } from "../../shared/global/Object/index";
 import { apply } from "../../shared/global/Reflect/index";
 import { slice } from "../../shared/global/Array/prototype";
+import HuConstructor from "../hu";
 
 
 const eventMap = new WeakMap();
 const onceMap = new WeakMap();
+
+function processing( handler ){
+  return function(){
+    let hu;
+
+    if( ( hu = this ) instanceof HuConstructor || ( hu = hu.$hu ) instanceof HuConstructor ){
+      apply( handler, hu, arguments );
+    }
+
+    return this;
+  };
+}
 
 export function initEvents( targetProxy ){
   const events = create( null );
   eventMap.set( targetProxy, events );
 }
 
-export default function $on( type, fn ){
+
+export default processing(function( type, fn ){
   if( isArray( type ) ){
     for( let event of type ) this.$on( event, fn );
   }else{
@@ -23,20 +37,18 @@ export default function $on( type, fn ){
 
     fns.push( fn );
   }
-  return this;
-}
+});
 
-export function $once( type, fn ){
+export const $once = processing(function( type, fn ){
   function once(){
     this.$off( type, once );
     apply( fn, this, arguments );
   }
   onceMap.set( once, fn );
   this.$on( type, once );
-  return this;
-}
+});
 
-export function $off( type, fn ){
+export const $off = processing(function( type, fn ){
   // 解绑所有事件
   if( !arguments.length ){
     return initEvents( this ), this;
@@ -72,9 +84,9 @@ export function $off( type, fn ){
   }
 
   return this;
-}
+});
 
-export function $emit( type ){
+export const $emit = processing(function( type ){
   const events = eventMap.get( this );
   const fns = events[ type ];
 
@@ -88,4 +100,4 @@ export function $emit( type ){
   }
 
   return this;
-}
+});

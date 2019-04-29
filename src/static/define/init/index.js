@@ -7,6 +7,8 @@ import initWatch from "./initWatch";
 import initOptions from "./initOptions";
 import { observeMap } from "../../observable/observe";
 import callLifecycle from "../util/callLifecycle";
+import { assign } from "../../../shared/global/Object/index";
+import $on, { $once, $off, $emit } from "../../../core/prototype/$on";
 
 
 /**
@@ -24,7 +26,7 @@ export default function init( isCustomElement, root, name, options, userOptions 
   /** 当前实例观察者对象 */
   const targetProxy = observeMap.get( target ).proxy;
 
-  // 
+  // 使用自定义元素创建的实例
   if( isCustomElement ){
     target.$el = root.attachShadow({ mode: 'open' });
     target.$customElement = root;
