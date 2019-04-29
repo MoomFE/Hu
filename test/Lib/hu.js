@@ -3253,12 +3253,25 @@
   const eventMap = new WeakMap();
   const onceMap = new WeakMap();
 
+  function processing( handler ){
+    return function(){
+      let hu;
+
+      if( ( hu = this ) instanceof HuConstructor || ( hu = hu.$hu ) instanceof HuConstructor ){
+        apply( handler, hu, arguments );
+      }
+
+      return this;
+    };
+  }
+
   function initEvents( targetProxy ){
     const events = create( null );
     eventMap.set( targetProxy, events );
   }
 
-  function $on( type, fn ){
+
+  var $on = processing(function( type, fn ){
     if( isArray( type ) ){
       for( let event of type ) this.$on( event, fn );
     }else{
@@ -3269,20 +3282,18 @@
 
       fns.push( fn );
     }
-    return this;
-  }
+  });
 
-  function $once( type, fn ){
+  const $once = processing(function( type, fn ){
     function once(){
       this.$off( type, once );
       apply( fn, this, arguments );
     }
     onceMap.set( once, fn );
     this.$on( type, once );
-    return this;
-  }
+  });
 
-  function $off( type, fn ){
+  const $off = processing(function( type, fn ){
     // 解绑所有事件
     if( !arguments.length ){
       return initEvents( this ), this;
@@ -3318,9 +3329,9 @@
     }
 
     return this;
-  }
+  });
 
-  function $emit( type ){
+  const $emit = processing(function( type ){
     const events = eventMap.get( this );
     const fns = events[ type ];
 
@@ -3334,7 +3345,7 @@
     }
 
     return this;
-  }
+  });
 
   var injectionToLit = /**
    * 在 $hu 上建立对象的映射
@@ -3635,7 +3646,7 @@
     /** 当前实例观察者对象 */
     const targetProxy = observeMap.get( target ).proxy;
 
-    // 
+    // 使用自定义元素创建的实例
     if( isCustomElement ){
       target.$el = root.attachShadow({ mode: 'open' });
       target.$customElement = root;
@@ -3766,7 +3777,11 @@
       // 自定义元素位置被移动
       adoptedCallback: initAdoptedCallback( options ),
       // 自定义元素属性被更改
-      attributeChangedCallback: initAttributeChangedCallback( options.propsMap )
+      attributeChangedCallback: initAttributeChangedCallback( options.propsMap ),
+      // 自定义元素实例上的事件处理相关方法
+      $on,
+      $once,
+      $off
     });
 
     // 注册组件
