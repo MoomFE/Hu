@@ -4,6 +4,7 @@ import { has, apply } from "../../shared/global/Reflect/index";
 import { supportsPassive } from "../../shared/const/env";
 import removeEventListener from '../../shared/util/removeEventListener';
 import addEventListener from '../../shared/util/addEventListener';
+import { definedCustomElement } from '../../static/define/const';
 
 
 export default class BasicEventDirective{
@@ -12,6 +13,7 @@ export default class BasicEventDirective{
     this.elem = element;
     this.type = type;
     this.opts = initEventOptions( modifierKeys );
+    this.isCE = definedCustomElement.get( element.nodeName.toLowerCase() )
   }
 
   setValue( listener ){
@@ -28,33 +30,43 @@ export default class BasicEventDirective{
 
     // 新的事件绑定与旧的事件绑定不一致
     if( listener !== oldListener ){
-      const { elem, type, opts } = this;
+      const { elem, type, opts, isCE } = this;
       const { options, modifiers, once, add = true } = opts;
 
       // 移除旧的事件绑定
       // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
       if( oldListener && !once ){
-        removeEventListener( elem, type, this.value, options );
+        if( isCE ){
+          elem.$off( type, listener );
+        }else{
+          removeEventListener( elem, type, this.value, options );
+        }
       }
       // 添加新的事件绑定
       if( listener && add ){
         // once 修饰符绑定的事件不允许修改
         if( once ) opts.add = false;
-        // 生成绑定的方法
-        const value = this.value = function callback( event ){
-          // 修饰符检测
-          for( let modifier of modifiers ){
-            if( modifier( elem, event, modifiers ) === false ) return;
-          }
-          // 只执行一次
-          if( once ){
-            removeEventListener( elem, type, callback, options );
-          }
-          // 修饰符全部检测通过, 执行用户传入方法
-          apply( listener, this, arguments );
-        };
-        // 注册事件
-        addEventListener( elem, type, value, options );
+
+        // 绑定的对象是通过 Hu 注册的自定义元素
+        if( isCE ){
+          elem[ once ? '$once' : '$on' ]( type, listener );
+        }else{
+          // 生成绑定的方法
+          const value = this.value = function callback( event ){
+            // 修饰符检测
+            for( let modifier of modifiers ){
+              if( modifier( elem, event, modifiers ) === false ) return;
+            }
+            // 只执行一次
+            if( once ){
+              removeEventListener( elem, type, callback, options );
+            }
+            // 修饰符全部检测通过, 执行用户传入方法
+            apply( listener, this, arguments );
+          };
+          // 注册事件
+          addEventListener( elem, type, value, options );
+        }
       }
     }
   }
