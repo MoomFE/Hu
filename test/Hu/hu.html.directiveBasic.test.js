@@ -1793,4 +1793,43 @@ describe( 'Hu.html.directiveBasic', () => {
     expect( result ).is.deep.equals([ 1 ]);
   });
 
+  it( '使用 @event 绑定事件且绑定对象是自定义元素, 使用 .native 修饰符', () => {
+    const customName = window.customName;
+    const div = document.createElement('div');
+    let index = 0;
+
+    Hu.define( customName );
+
+    const row = [
+      `<${ customName } @click.native=`,`></${ customName }>`
+    ];
+
+    row.row = Array.prototype.slice.apply( row );
+
+    Hu.render( div )(
+      row,
+      function(){
+        index++;
+      }
+    );
+
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    custom.click();
+    expect( index ).is.equals( 1 );
+
+    hu.$emit( 'click', 1 );
+    expect( index ).is.equals( 1 );
+
+    hu.$emit( 'click', 1, 2 );
+    expect( index ).is.equals( 1 );
+
+    custom.click();
+    expect( index ).is.equals( 2 );
+
+    custom.click();
+    expect( index ).is.equals( 3 );
+  });
+
 });
