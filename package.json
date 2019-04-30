@@ -28,7 +28,7 @@
     "build": "node_modules\\.bin\\rollup --silent --config --environment build:true",
     "watch": "node_modules\\.bin\\rollup --silent --config --watch --environment watch:true",
     "test": "node_modules\\.bin\\karma start",
-    "publish": "npm run build & npm publish"
+    "publish": "npm run build && npm publish"
   },
   "devDependencies": {
     "@moomfe/zenjs": "^5.0.0-beta.5",
