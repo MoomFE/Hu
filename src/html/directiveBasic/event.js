@@ -31,12 +31,12 @@ export default class BasicEventDirective{
     // 新的事件绑定与旧的事件绑定不一致
     if( listener !== oldListener ){
       const { elem, type, opts, isCE } = this;
-      const { options, modifiers, once, add = true } = opts;
+      const { options, modifiers, once, native, add = true } = opts;
 
       // 移除旧的事件绑定
       // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
       if( oldListener && !once ){
-        if( isCE ){
+        if( isCE && !native ){
           elem.$off( type, listener );
         }else{
           removeEventListener( elem, type, this.value, options );
@@ -48,7 +48,7 @@ export default class BasicEventDirective{
         if( once ) opts.add = false;
 
         // 绑定的对象是通过 Hu 注册的自定义元素
-        if( isCE ){
+        if( isCE && !native ){
           elem[ once ? '$once' : '$on' ]( type, listener );
         }else{
           // 生成绑定的方法
@@ -84,10 +84,11 @@ function initEventOptions( modifierKeys ){
 
   modifiers.keys = modifierKeys;
 
-  const { once, passive, capture } = options;
+  const { once, passive, capture, native } = options;
 
   return {
     once,
+    native,
     options: passive ? { passive, capture } : capture,
     modifiers
   };
@@ -99,7 +100,8 @@ function initEventOptions( modifierKeys ){
 const eventOptions = {
   once: true,
   capture: true,
-  passive: supportsPassive
+  passive: supportsPassive,
+  native: true
 };
 
 /**
