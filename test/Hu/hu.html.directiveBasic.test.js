@@ -1323,7 +1323,7 @@ describe( 'Hu.html.directiveBasic', () => {
       expect( hu.$refs.passive.checked ).is.equals( supportsCheckboxCheckedPrevent );
       expect( hu.$refs.exclusive.checked ).is.equals( supportsCheckboxCheckedPrevent );
     });
-  
+
     it( '使用 @event 绑定事件, 使用 .passive 修饰符 ( Vue )', () => {
       const div = document.createElement('div');
 
@@ -1711,6 +1711,86 @@ describe( 'Hu.html.directiveBasic', () => {
 
       done();
     });
+  });
+
+  it( '使用 @event 绑定事件且绑定对象是自定义元素, 则会用于监听自定义元素对应的实例中的自定义事件', () => {
+    const customName = window.customName;
+    const div = document.createElement('div');
+    let index = 0;
+    let result;
+
+    Hu.define( customName );
+
+    const row = [
+      `<${ customName } @click=`,`></${ customName }>`
+    ];
+
+    row.row = Array.prototype.slice.apply( row );
+
+    Hu.render( div )(
+      row,
+      function(){
+        index++;
+        result = [ ...arguments ];
+      }
+    );
+
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    custom.click();
+    expect( index ).is.equals( 0 );
+    expect( result ).is.undefined;
+
+    hu.$emit('click');
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ ]);
+
+    hu.$emit( 'click', 1 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1 ]);
+
+    hu.$emit( 'click', 1, 2 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2 ]);
+  });
+
+  it( '使用 @event 绑定事件且绑定对象是自定义元素, 使用 .once 修饰符', () => {
+    const customName = window.customName;
+    const div = document.createElement('div');
+    let index = 0;
+    let result;
+
+    Hu.define( customName );
+
+    const row = [
+      `<${ customName } @click.once=`,`></${ customName }>`
+    ];
+
+    row.row = Array.prototype.slice.apply( row );
+
+    Hu.render( div )(
+      row,
+      function(){
+        index++;
+        result = [ ...arguments ];
+      }
+    );
+
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    custom.click();
+    expect( index ).is.equals( 0 );
+    expect( result ).is.undefined;
+
+    hu.$emit( 'click', 1 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1 ]);
+
+    hu.$emit( 'click', 1, 2 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1 ]);
   });
 
 });
