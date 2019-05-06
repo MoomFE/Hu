@@ -9,14 +9,27 @@ import injectionToLit from "../util/injectionToLit";
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
-export default function initMethods( options, target, targetProxy ){
-
+export default function initMethods(
+  {
+    methods,
+    globalMethods
+  },
+  target,
+  targetProxy
+){
   const methodsTarget = target.$methods = create( null );
+  const globalMethodsTarget = target.$globalMethods = create( null );
 
-  each( options.methods, ( name, value ) => {
-    const method = methodsTarget[ name ] = value.bind( targetProxy );
+  injectionMethods( methodsTarget, methods, target, targetProxy );
+  injectionMethods( globalMethodsTarget, globalMethods, target, targetProxy );
+}
 
-    injectionToLit( target, name, method );
+function injectionMethods( methodsTarget, methods, target, targetProxy ){
+  each( methods, ( name, value ) => {
+    injectionToLit(
+      target,
+      name,
+      methodsTarget[ name ] = value.bind( targetProxy )
+    );
   });
-
 }

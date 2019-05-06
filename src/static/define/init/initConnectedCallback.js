@@ -1,5 +1,6 @@
 import callLifecycle from "../util/callLifecycle";
 import { observeProxyMap } from "../../observable/observe";
+import each from "../../../shared/util/each";
 
 
 export default options => function(){
@@ -10,8 +11,13 @@ export default options => function(){
 
   infoTarget.isConnected = true;
 
-  // 如果是首次挂载, 需要运行 beforeMount 生命周期方法
+  // 是首次挂载
   if( !isMounted ){
+    // 挂载全局方法
+    each( $hu.$globalMethods, ( name, value ) => {
+      return this[ name ] = value;
+    });
+    // 运行 beforeMount 生命周期方法
     callLifecycle( $hu, 'beforeMount', options );
   }
 

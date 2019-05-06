@@ -630,7 +630,8 @@
       watch
     } = userOptions;
 
-    initMethods( methods, options );
+    initMethods( methods, options, 'methods' );
+    initMethods( methods, options, 'globalMethods' );
     initData( isCustomElement, data, options );
     initComputed( computed, options );
     initWatch( watch, options );
@@ -643,9 +644,9 @@
   }
 
 
-  function initMethods( userMethods, options ){
+  function initMethods( userMethods, options, name ){
     if( userMethods ){
-      const methods = options.methods || ( options.methods = {} );
+      const methods = options[ name ] || ( options[ name ] = {} );
 
       each( userMethods, ( key, method ) => {
         if( !methods[ key ] && isFunction( method ) ){
@@ -3560,16 +3561,29 @@
    * @param {{}} target 
    * @param {{}} targetProxy 
    */
-  function initMethods$1( options, target, targetProxy ){
-
+  function initMethods$1(
+    {
+      methods,
+      globalMethods
+    },
+    target,
+    targetProxy
+  ){
     const methodsTarget = target.$methods = create( null );
+    const globalMethodsTarget = target.$globalMethods = create( null );
 
-    each( options.methods, ( name, value ) => {
-      const method = methodsTarget[ name ] = value.bind( targetProxy );
+    injectionMethods( methodsTarget, methods, target, targetProxy );
+    injectionMethods( globalMethodsTarget, globalMethods, target, targetProxy );
+  }
 
-      injectionToLit( target, name, method );
+  function injectionMethods( methodsTarget, methods, target, targetProxy ){
+    each( methods, ( name, value ) => {
+      injectionToLit(
+        target,
+        name,
+        methodsTarget[ name ] = value.bind( targetProxy )
+      );
     });
-
   }
 
   /**
@@ -3741,8 +3755,13 @@
 
     infoTarget.isConnected = true;
 
-    // 如果是首次挂载, 需要运行 beforeMount 生命周期方法
+    // 是首次挂载
     if( !isMounted ){
+      // 挂载全局方法
+      each( $hu.$globalMethods, ( name, value ) => {
+        return this[ name ] = value;
+      });
+      // 运行 beforeMount 生命周期方法
       callLifecycle( $hu, 'beforeMount', options );
     }
 

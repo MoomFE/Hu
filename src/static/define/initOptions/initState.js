@@ -14,7 +14,8 @@ export default function initState( isCustomElement, userOptions, options, mixins
     watch
   } = userOptions;
 
-  initMethods( methods, options );
+  initMethods( methods, options, 'methods' );
+  initMethods( methods, options, 'globalMethods' );
   initData( isCustomElement, data, options );
   initComputed( computed, options );
   initWatch( watch, options );
@@ -27,9 +28,9 @@ export default function initState( isCustomElement, userOptions, options, mixins
 }
 
 
-function initMethods( userMethods, options ){
+function initMethods( userMethods, options, name ){
   if( userMethods ){
-    const methods = options.methods || ( options.methods = {} );
+    const methods = options[ name ] || ( options[ name ] = {} );
 
     each( userMethods, ( key, method ) => {
       if( !methods[ key ] && isFunction( method ) ){
