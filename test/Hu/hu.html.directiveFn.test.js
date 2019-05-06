@@ -284,7 +284,7 @@ describe( 'Hu.html.directiveFn', () => {
 
     expect( isConnected ).is.true;
     expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('1');
-    
+
     data.name = 2;
     hu.$nextTick(() => {
       expect( hu.$el.firstElementChild.getAttribute('name') ).is.equals('2');
@@ -320,25 +320,30 @@ describe( 'Hu.html.directiveFn', () => {
         name: '1'
       },
       render( html ){
+        const bind = html.bind( this, 'name' );
+
         index++;
         return html`
-          <div ref="div" name=${ html.bind( this, 'name' ) }></div>
+          <div ref="div" name=${ bind }>${ bind }</div>
         `;
       }
     });
 
     expect( index ).is.equals( 1 );
     expect( hu.$refs.div.getAttribute('name') ).is.equals('1');
-    
+    expect( hu.$refs.div.innerText ).is.equals('1');
+
     hu.name = '2';
     hu.$nextTick(() => {
       expect( index ).is.equals( 1 );
       expect( hu.$refs.div.getAttribute('name') ).is.equals('2');
+      expect( hu.$refs.div.innerText ).is.equals('2');
 
       hu.name = '3';
       hu.$nextTick(() => {
         expect( index ).is.equals( 1 );
         expect( hu.$refs.div.getAttribute('name') ).is.equals('3');
+        expect( hu.$refs.div.innerText ).is.equals('3');
 
         hu.$forceUpdate();
         hu.$forceUpdate();
@@ -346,16 +351,19 @@ describe( 'Hu.html.directiveFn', () => {
 
         expect( index ).is.equals( 4 );
         expect( hu.$refs.div.getAttribute('name') ).is.equals('3');
+        expect( hu.$refs.div.innerText ).is.equals('3');
 
         hu.name = '4';
         hu.$nextTick(() => {
           expect( index ).is.equals( 4 );
           expect( hu.$refs.div.getAttribute('name') ).is.equals('4');
+          expect( hu.$refs.div.innerText ).is.equals('4');
 
           hu.name = '5';
           hu.$nextTick(() => {
             expect( index ).is.equals( 4 );
             expect( hu.$refs.div.getAttribute('name') ).is.equals('5');
+            expect( hu.$refs.div.innerText ).is.equals('5');
 
             done();
           });
@@ -384,6 +392,100 @@ describe( 'Hu.html.directiveFn', () => {
       expect( div.firstElementChild.getAttribute('name') ).is.equals( '2' );
 
       done();
+    });
+  });
+
+  it( 'html.bind: 该指令方法可使用普通方式对文本区域进行绑定', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    const data = Hu.observable({
+      text: '1'
+    });
+
+    Hu.render( div )`
+      <div>${ bind( data, 'text' ) }</div>
+    `;
+
+    expect( div.firstElementChild.innerText ).is.equals( '1' );
+
+    data.text = '2';
+
+    expect( div.firstElementChild.innerText ).is.equals( '1' );
+    Hu.nextTick(() => {
+      expect( div.firstElementChild.innerText ).is.equals( '2' );
+
+      data.text = '3';
+
+      expect( div.firstElementChild.innerText ).is.equals( '2' );
+      Hu.nextTick(() => {
+        expect( div.firstElementChild.innerText ).is.equals( '3' );
+
+        done();
+      });
+    });
+  });
+
+  it( 'html.bind: 该指令方法可使用普通方式对文本区域进行绑定 ( 二 )', ( done ) => {
+    const bind = Hu.html.bind;
+    const div = document.createElement('div');
+    let renderIndex = 0;
+    let computedIndex = 0;
+
+    const hu = new Hu({
+      el: div,
+      data: {
+        arr: [ '1', '2', '3' ]
+      },
+      render( html ){
+        renderIndex++;
+        return html`
+          <div>${ bind( this, 'renderArr' ) }</div>
+        `;
+      },
+      computed: {
+        renderArr(){
+          computedIndex++;
+          return this.arr.map( item => {
+            return Hu.html`<span>${ item }</span>`
+          });
+        }
+      }
+    });
+
+    expect( renderIndex ).is.equals( 1 );
+    expect( computedIndex ).is.equals( 1 );
+    expect( div.firstElementChild.children.length ).is.equals( 3 );
+    expect( [ ...new Set( Array.from( div.firstElementChild.children ).map( elem => elem.nodeName.toLowerCase() ) ) ] ).is.deep.equals([ 'span' ]);
+    expect( Array.from( div.firstElementChild.children ).map( elem => elem.innerText ) ).is.deep.equals([ '1', '2', '3' ]);
+
+    hu.arr = [ '2', '3', '4', '5' ];
+    expect( renderIndex ).is.equals( 1 );
+    expect( computedIndex ).is.equals( 1 );
+    expect( div.firstElementChild.children.length ).is.equals( 3 );
+    expect( [ ...new Set( Array.from( div.firstElementChild.children ).map( elem => elem.nodeName.toLowerCase() ) ) ] ).is.deep.equals([ 'span' ]);
+    expect( Array.from( div.firstElementChild.children ).map( elem => elem.innerText ) ).is.deep.equals([ '1', '2', '3' ]);
+    Hu.nextTick(() => {
+      expect( renderIndex ).is.equals( 1 );
+      expect( computedIndex ).is.equals( 2 );
+      expect( div.firstElementChild.children.length ).is.equals( 4 );
+      expect( [ ...new Set( Array.from( div.firstElementChild.children ).map( elem => elem.nodeName.toLowerCase() ) ) ] ).is.deep.equals([ 'span' ]);
+      expect( Array.from( div.firstElementChild.children ).map( elem => elem.innerText ) ).is.deep.equals([ '2', '3', '4', '5' ]);
+
+      hu.arr.push( '6' );
+      expect( renderIndex ).is.equals( 1 );
+      expect( computedIndex ).is.equals( 2 );
+      expect( div.firstElementChild.children.length ).is.equals( 4 );
+      expect( [ ...new Set( Array.from( div.firstElementChild.children ).map( elem => elem.nodeName.toLowerCase() ) ) ] ).is.deep.equals([ 'span' ]);
+      expect( Array.from( div.firstElementChild.children ).map( elem => elem.innerText ) ).is.deep.equals([ '2', '3', '4', '5' ]);
+      Hu.nextTick(() => {
+        expect( renderIndex ).is.equals( 1 );
+        expect( computedIndex ).is.equals( 3 );
+        expect( div.firstElementChild.children.length ).is.equals( 5 );
+        expect( [ ...new Set( Array.from( div.firstElementChild.children ).map( elem => elem.nodeName.toLowerCase() ) ) ] ).is.deep.equals([ 'span' ]);
+        expect( Array.from( div.firstElementChild.children ).map( elem => elem.innerText ) ).is.deep.equals([ '2', '3', '4', '5', '6' ]);
+
+        done();
+      });
     });
   });
 
