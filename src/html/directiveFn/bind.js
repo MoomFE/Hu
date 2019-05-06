@@ -1,6 +1,6 @@
 import { directive } from 'lit-html';
 import { observeProxyMap } from '../../static/observable/observe';
-import { bindDirectiveCacheMap, renderStack } from '../const';
+import { bindDirectiveCacheMap, renderStack } from '../../render/const/index';
 import $watch from '../../core/prototype/$watch';
 
 
@@ -30,7 +30,7 @@ export default directive(( proxy, name ) => {
         deep
       }
     );
-  
+
     // 当前渲染元素
     const rendering = renderStack[ renderStack.length - 1 ];
     // 当前渲染元素属性监听解绑方法集

@@ -1,5 +1,5 @@
 import html from "../../html/html";
-import render from "../../html/render";
+import render from "../../render/index";
 import { apply } from "../../shared/global/Reflect/index";
 
 

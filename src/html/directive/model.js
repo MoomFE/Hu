@@ -6,7 +6,7 @@ import { observe } from "../../static/observable/observe";
 import getAttribute from "../../shared/util/getAttribute";
 import isFunction from "../../shared/util/isFunction";
 import triggerEvent from "../../shared/util/triggerEvent";
-import { renderStack, modelDirectiveCacheMap } from "../const";
+import { renderStack, modelDirectiveCacheMap } from "../../render/const/index";
 import { apply } from "../../shared/global/Reflect/index";
 import emptyObject from "../../shared/const/emptyObject";
 import { popTarget, pushTarget } from "../../static/observable/const";

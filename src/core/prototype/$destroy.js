@@ -1,7 +1,7 @@
 import callLifecycle from "../../static/define/util/callLifecycle";
 import { computedMap } from "../../static/define/init/initComputed";
 import { watcherMap } from "./$watch";
-import { unWatchAllDirectiveCache } from "../../html/render";
+import { unWatchAllDirectiveCache } from "../../render/util/unWatchAllDirectiveCache";
 import { removeRenderDeps } from "../init/initForceUpdate";
 
 

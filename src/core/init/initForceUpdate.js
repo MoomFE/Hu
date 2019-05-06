@@ -1,7 +1,7 @@
 import { optionsMap } from "../../static/define/initOptions/index";
 import { Watcher } from "../../static/observable/collectingDependents";
 import html from "../../html/html";
-import render from "../../html/render";
+import render from "../../render/index";
 import { slice } from "../../shared/global/Array/prototype";
 
 

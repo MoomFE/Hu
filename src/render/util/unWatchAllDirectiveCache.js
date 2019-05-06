@@ -1,17 +1,4 @@
-import { render } from 'lit-html';
-import { renderStack, bindDirectiveCacheMap, modelDirectiveCacheMap } from './const';
-
-
-export default function( result, container, options ){
-
-  unWatchAllDirectiveCache( container );
-
-  renderStack.push( container );
-
-  render( result, container, options );
-
-  renderStack.pop();
-}
+import { bindDirectiveCacheMap, modelDirectiveCacheMap } from "../const/index";
 
 
 /**
