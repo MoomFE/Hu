@@ -3103,7 +3103,7 @@
     svg
   });
 
-  function litRender( result, container, options ){
+  function render$1( result, container, options ){
 
     unWatchAllDirectiveCache( container );
 
@@ -3155,7 +3155,7 @@
 
       if( userRender && ( el = target.$el ) ){
         // 执行用户渲染方法
-        litRender(
+        render$1(
           userRender.call( targetProxy, html ),
           el
         );
@@ -3821,16 +3821,16 @@
     definedCustomElement.set( name, true );
   }
 
-  function render$1( result, container ){
+  function staticRender( result, container ){
     if( arguments.length > 1 ){
-      return litRender( result, container );
+      return render$1( result, container );
     }
 
     container = result;
 
     return function(){
       const result = apply( html, null, arguments );
-      return litRender( result, container );
+      return render$1( result, container );
     }
   }
 
@@ -3867,7 +3867,7 @@
 
   assign( Hu, {
     define,
-    render: render$1,
+    render: staticRender,
     html,
     nextTick,
     observable,

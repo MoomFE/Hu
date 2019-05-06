@@ -3,7 +3,7 @@ import { assign } from '../shared/global/Object/index';
 
 import Hu from '../core/index';
 import define from '../static/define/index';
-import render from '../static/render/index';
+import staticRender from '../static/render/index';
 import nextTick from '../static/nextTick/index';
 import { observable } from '../static/observable/observe';
 import util from '../static/util/index';
@@ -13,7 +13,7 @@ import '../static/noConflict/index';
 
 assign( Hu, {
   define,
-  render,
+  render: staticRender,
   html,
   nextTick,
   observable,
