@@ -1,6 +1,6 @@
 import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
-import injectionToLit from "../util/injectionToLit";
+import injectionToHu from "../util/injectionToHu";
 
 
 /**
@@ -26,7 +26,7 @@ export default function initMethods(
 
 function injectionMethods( methodsTarget, methods, target, targetProxy ){
   each( methods, ( name, value ) => {
-    injectionToLit(
+    injectionToHu(
       target,
       name,
       methodsTarget[ name ] = value.bind( targetProxy )

@@ -1,5 +1,5 @@
 import each from "../../../shared/util/each";
-import injectionToLit from "../util/injectionToLit";
+import injectionToHu from "../util/injectionToHu";
 import createComputed from "../../observable/createComputed";
 import { observeProxyMap, observe } from "../../observable/observe";
 import isEmptyObject from "../../../shared/util/isEmptyObject";
@@ -41,7 +41,7 @@ export default function initComputed( options, target, targetProxy ){
 
   each( computed, ( name, computed ) => {
     appendComputed( name, computed );
-    injectionToLit(
+    injectionToHu(
       target, name, 0,
       () => computedTargetProxyInterceptor[ name ],
       value => computedTargetProxyInterceptor[ name ] = value

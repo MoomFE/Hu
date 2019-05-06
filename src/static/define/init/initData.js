@@ -1,6 +1,6 @@
 import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
-import injectionToLit from "../util/injectionToLit";
+import injectionToHu from "../util/injectionToHu";
 import { observe } from "../../observable/observe";
 import isFunction from "../../../shared/util/isFunction";
 import { has } from "../../../shared/global/Reflect/index";
@@ -33,7 +33,7 @@ export default function initData( options, target, targetProxy ){
   const dataTargetProxy = target.$data = observe( dataTarget );
 
   each( dataTarget, name => {
-    injectionToLit(
+    injectionToHu(
       target, name, 0,
       () => dataTargetProxy[ name ],
       value => dataTargetProxy[ name ] = value
