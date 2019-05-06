@@ -3147,27 +3147,27 @@
 
   /** 迫使 Hu 实例重新渲染 */
   var initForceUpdate = ( name, target, targetProxy ) => {
-    /** 当前实例的实例配置 */
-    const userRender = optionsMap[ name ].render;
+    /** 当前实例的渲染方法 */
+    const { render: userRender } = optionsMap[ name ];
+    /** 当前实例渲染方法的 Watcher */
+    const renderWatcher = new Watcher(() => {
+      let el;
 
-    if( userRender ){
-      // 创建当前实例渲染方法的 Watcher
-      const watcher = new Watcher(() => {
-        const $el = target.$el;
+      if( userRender && ( el = target.$el ) ){
+        // 执行用户渲染方法
+        litRender(
+          userRender.call( targetProxy, html ),
+          el
+        );
+        // 获取 refs 引用信息
+        target.$refs = getRefs( el );
+      }
+    });
 
-        if( $el ){
-          litRender( userRender.call( targetProxy, html ), $el );
-          target.$refs = getRefs( $el );
-        }
-      });
-
-      // 缓存当前实例渲染方法的 Watcher
-      renderWatcherCache.set( targetProxy, watcher );
-
-      target.$forceUpdate = watcher.get;
-    }else{
-      target.$forceUpdate = noop;
-    }
+    // 缓存当前实例渲染方法的 Watcher
+    renderWatcherCache.set( targetProxy, renderWatcher );
+    // 返回收集依赖方法
+    target.$forceUpdate = renderWatcher.get;
   };
 
   /**
@@ -3186,7 +3186,7 @@
     const elems = root.querySelectorAll('[ref]');
 
     if( elems.length ){
-      Array.from( elems ).forEach( elem => {
+      slice.call( elems ).forEach( elem => {
         const name = elem.getAttribute('ref');
         refs[ name ] = refs[ name ] ? [].concat( refs[ name ], elem )
                                     : elem;
