@@ -3053,9 +3053,6 @@
     const isObserve = observeProxyMap.has( proxy );
 
     return ( part, deep = false ) => {
-      if( part instanceof NodePart ){
-        throw new Error('Hu.html.bind 指令方法只能在元素属性绑定中使用 !');
-      }
 
       const setValue = ( value ) => {
         part.setValue( value );
