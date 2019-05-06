@@ -1814,32 +1814,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  const parts = new WeakMap();
-  /**
-   * Renders a template to a container.
-   *
-   * To update a container with new values, reevaluate the template literal and
-   * call `render` with the new result.
-   *
-   * @param result a TemplateResult created by evaluating a template tag like
-   *     `html` or `svg`.
-   * @param container A DOM parent to render to. The entire contents are either
-   *     replaced, or efficiently updated if the same result type was previous
-   *     rendered there.
-   * @param options RenderOptions for the entire render tree rendered to this
-   *     container. Render options must *not* change between renders to the same
-   *     container, as those changes will not effect previously rendered DOM.
-   */
-  const render = (result, container, options) => {
-      let part = parts.get(container);
-      if (part === undefined) {
-          removeNodes(container, container.firstChild);
-          parts.set(container, part = new NodePart(Object.assign({ templateFactory }, options)));
-          part.appendInto(container);
-      }
-      part.setValue(result);
-      part.commit();
-  };
   //# sourceMappingURL=render.js.map
 
   // IMPORTANT: do not change the property name or the assignment expression.
@@ -3139,14 +3113,39 @@
     }
   }
 
-  function render$1( result, container, options ){
+  const parts = new WeakMap();
 
+  function render( result, container, options ){
+    // 尝试获取上次创建的节点对象
+    let part = parts.get( container );
+
+    // 首次在该目标对象下进行渲染, 对节点对象进行创建
+    if( !part ){
+      // 移除需要渲染的目标对象下的所有内容
+      removeNodes( container, container.firstChild );
+
+      // 创建节点对象
+      parts.set(
+        container,
+        part = new NodePart(
+          assign(
+            { templateFactory }, options
+          )
+        )
+      );
+      // 将节点对象添加至目标元素
+      part.appendInto( container );
+    }
+
+    part.setValue( result );
+    part.commit();
+  }
+
+
+  function basicRender( result, container, options ){
     unWatchAllDirectiveCache( container );
-
     renderStack.push( container );
-
     render( result, container, options );
-
     renderStack.pop();
   }
 
@@ -3165,7 +3164,7 @@
 
       if( userRender && ( el = target.$el ) ){
         // 执行用户渲染方法
-        render$1(
+        basicRender(
           userRender.call( targetProxy, html ),
           el
         );
@@ -3833,14 +3832,14 @@
 
   function staticRender( result, container ){
     if( arguments.length > 1 ){
-      return render$1( result, container );
+      return basicRender( result, container );
     }
 
     container = result;
 
     return function(){
       const result = apply( html, null, arguments );
-      return render$1( result, container );
+      return basicRender( result, container );
     }
   }
 
