@@ -1044,6 +1044,52 @@
   }
 
   /**
+   * 渲染函数的 Watcher 缓存
+   */
+  const renderWatcherCache = new WeakMap();
+
+  /**
+   * Render 渲染方法调用堆栈
+   */
+  const renderStack = [];
+
+  /**
+   * 存放渲染时收集到的属性监听的解绑方法
+   * 用于下次渲染时的解绑
+   */
+  const bindDirectiveCacheMap = new WeakMap();
+
+  /**
+   * 存放渲染时收集到的双向数据绑定信息
+   */
+  const modelDirectiveCacheMap = new WeakMap();
+
+  /**
+   * 解绑上次渲染时收集到的属性监听和双向数据绑定信息
+   */
+  function unWatchAllDirectiveCache( container ){
+    // 解绑上次渲染时收集到的属性监听
+    unWatchDirectiveCache( bindDirectiveCacheMap, container, unWatch => {
+      return unWatch();
+    });
+    // 解绑上次渲染时收集到的双向数据绑定信息
+    unWatchDirectiveCache( modelDirectiveCacheMap, container, modelPart => {
+      return modelPart.options.length = 0;
+    });
+  }
+
+  function unWatchDirectiveCache( cache, container, fn ){
+    const options = cache.get( container );
+
+    if( options ){
+      for( let option of options ){
+        fn( option );
+      }
+      options.length = 0;
+    }
+  }
+
+  /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
    * This code may only be used under the BSD style license found at
@@ -1811,6 +1857,42 @@
   // TODO(justinfagnani): inject version number at build time
   inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
 
+  const parts = new WeakMap();
+
+  function basicRender( result, container, options ){
+    // 尝试获取上次创建的节点对象
+    let part = parts.get( container );
+
+    // 首次在该目标对象下进行渲染, 对节点对象进行创建
+    if( !part ){
+      // 移除需要渲染的目标对象下的所有内容
+      removeNodes( container, container.firstChild );
+
+      // 创建节点对象
+      parts.set(
+        container,
+        part = new NodePart(
+          assign(
+            { templateFactory }, options
+          )
+        )
+      );
+      // 将节点对象添加至目标元素
+      part.appendInto( container );
+    }
+
+    part.setValue( result );
+    part.commit();
+  }
+
+
+  var render = ( result, container, options ) => {
+    unWatchAllDirectiveCache( container );
+    renderStack.push( container );
+    basicRender( result, container, options );
+    renderStack.pop();
+  };
+
   class AttributeCommitter{
 
     constructor(){
@@ -2548,22 +2630,6 @@
     target.dispatchEvent( event );
   };
 
-  /**
-   * Render 渲染方法调用堆栈
-   */
-  const renderStack = [];
-
-  /**
-   * 存放渲染时收集到的属性监听的解绑方法
-   * 用于下次渲染时的解绑
-   */
-  const bindDirectiveCacheMap = new WeakMap();
-
-  /**
-   * 存放渲染时收集到的双向数据绑定信息
-   */
-  const modelDirectiveCacheMap = new WeakMap();
-
   class ModelDirective{
 
     constructor( element ){
@@ -3077,71 +3143,20 @@
     svg
   });
 
-  /**
-   * 解绑上次渲染时收集到的属性监听和双向数据绑定信息
-   */
-  function unWatchAllDirectiveCache( container ){
-    // 解绑上次渲染时收集到的属性监听
-    unWatchDirectiveCache( bindDirectiveCacheMap, container, unWatch => {
-      return unWatch();
-    });
-    // 解绑上次渲染时收集到的双向数据绑定信息
-    unWatchDirectiveCache( modelDirectiveCacheMap, container, modelPart => {
-      return modelPart.options.length = 0;
-    });
-  }
+  var getRefs = root => {
+    const refs = {};
+    const elems = root.querySelectorAll('[ref]');
 
-  function unWatchDirectiveCache( cache, container, fn ){
-    const options = cache.get( container );
-
-    if( options ){
-      for( let option of options ){
-        fn( option );
-      }
-      options.length = 0;
-    }
-  }
-
-  const parts = new WeakMap();
-
-  function basicRender( result, container, options ){
-    // 尝试获取上次创建的节点对象
-    let part = parts.get( container );
-
-    // 首次在该目标对象下进行渲染, 对节点对象进行创建
-    if( !part ){
-      // 移除需要渲染的目标对象下的所有内容
-      removeNodes( container, container.firstChild );
-
-      // 创建节点对象
-      parts.set(
-        container,
-        part = new NodePart(
-          assign(
-            { templateFactory }, options
-          )
-        )
-      );
-      // 将节点对象添加至目标元素
-      part.appendInto( container );
+    if( elems.length ){
+      slice.call( elems ).forEach( elem => {
+        const name = elem.getAttribute('ref');
+        refs[ name ] = refs[ name ] ? [].concat( refs[ name ], elem )
+                                    : elem;
+      });
     }
 
-    part.setValue( result );
-    part.commit();
-  }
-
-
-  var render = ( result, container, options ) => {
-    unWatchAllDirectiveCache( container );
-    renderStack.push( container );
-    basicRender( result, container, options );
-    renderStack.pop();
+    return freeze( refs );
   };
-
-  /**
-   * 渲染函数的 Watcher 缓存
-   */
-  const renderWatcherCache = new WeakMap();
 
   /** 迫使 Hu 实例重新渲染 */
   var initForceUpdate = ( name, target, targetProxy ) => {
@@ -3167,32 +3182,6 @@
     // 返回收集依赖方法
     target.$forceUpdate = renderWatcher.get;
   };
-
-  /**
-   * 清空 render 方法收集到的依赖
-   */
-  function removeRenderDeps( targetProxy ){
-    const watcher = renderWatcherCache.get( targetProxy );
-
-    if( watcher ){
-      watcher.clean();
-    }
-  }
-
-  function getRefs( root ){
-    const refs = {};
-    const elems = root.querySelectorAll('[ref]');
-
-    if( elems.length ){
-      slice.call( elems ).forEach( elem => {
-        const name = elem.getAttribute('ref');
-        refs[ name ] = refs[ name ] ? [].concat( refs[ name ], elem )
-                                    : elem;
-      });
-    }
-
-    return Object.freeze( refs );
-  }
 
   /**
    * 在下次 DOM 更新循环结束之后执行回调
@@ -3449,6 +3438,17 @@
       );
     });
   }
+
+  /**
+   * 清空 render 方法收集到的依赖
+   */
+  var removeRenderDeps = targetProxy => {
+    const watcher = renderWatcherCache.get( targetProxy );
+
+    if( watcher ){
+      watcher.clean();
+    }
+  };
 
   function $destroy(){
 

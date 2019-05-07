@@ -1,6 +1,6 @@
 import { observe } from "../static/observable/observe";
 import observeHu from "../shared/const/observeHu";
-import initForceUpdate from "./init/initForceUpdate";
+import initForceUpdate from "./init/initForceUpdate/index";
 import { assign } from "../shared/global/Object/index";
 import $watch from "./prototype/$watch";
 import $nextTick from "./prototype/$nextTick";
