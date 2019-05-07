@@ -1804,39 +1804,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  /**
-   * The default TemplateFactory which caches Templates keyed on
-   * result.type and result.strings.
-   */
-  function templateFactory(result) {
-      let templateCache = templateCaches.get(result.type);
-      if (templateCache === undefined) {
-          templateCache = {
-              stringsArray: new WeakMap(),
-              keyString: new Map()
-          };
-          templateCaches.set(result.type, templateCache);
-      }
-      let template = templateCache.stringsArray.get(result.strings);
-      if (template !== undefined) {
-          return template;
-      }
-      // If the TemplateStringsArray is new, generate a key from the strings
-      // This key is shared between all templates with identical content
-      const key = result.strings.join(marker);
-      // Check if we already have a Template for this key
-      template = templateCache.keyString.get(key);
-      if (template === undefined) {
-          // If we have not seen this key before, create a new Template
-          template = new Template(result, result.getTemplateElement());
-          // Cache the Template for this key
-          templateCache.keyString.set(key, template);
-      }
-      // Cache all future queries for this TemplateStringsArray
-      templateCache.stringsArray.set(result.strings, template);
-      return template;
-  }
-  const templateCaches = new Map();
 
   /**
    * @license
@@ -1857,6 +1824,46 @@
   // TODO(justinfagnani): inject version number at build time
   inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
 
+  const templateCaches = new Map();
+
+  var defaultTemplateFactory = result => {
+    let templateCache = templateCaches.get( result.type );
+
+    if( !templateCache ){
+      templateCaches.set(
+        result.type,
+        templateCache = {
+          stringsArray: new WeakMap(),
+          keyString: new Map()
+        }
+      );
+    }
+
+    let template = templateCache.stringsArray.get( result.strings );
+
+    if( template ){
+      return template;
+    }
+
+    const key = result.strings.join( marker );
+
+    template = templateCache.keyString.get( key );
+
+    if( !template ){
+      templateCache.keyString.set(
+        key,
+        template = new Template(
+          result,
+          result.getTemplateElement()
+        )
+      );
+    }
+
+    templateCache.stringsArray.set( result.strings, template );
+
+    return template;
+  };
+
   const parts = new WeakMap();
 
   function basicRender( result, container, options ){
@@ -1873,7 +1880,7 @@
         container,
         part = new NodePart(
           assign(
-            { templateFactory }, options
+            { templateFactory: defaultTemplateFactory }, options
           )
         )
       );

@@ -1,7 +1,8 @@
 import { renderStack } from './const/index';
 import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
-import { removeNodes, NodePart, templateFactory } from 'lit-html';
+import { removeNodes, NodePart } from 'lit-html';
 import { assign } from '../shared/global/Object/index';
+import defaultTemplateFactory from './templateFactory/defaultTemplateFactory';
 
 
 const parts = new WeakMap();
@@ -20,7 +21,7 @@ function basicRender( result, container, options ){
       container,
       part = new NodePart(
         assign(
-          { templateFactory }, options
+          { templateFactory: defaultTemplateFactory }, options
         )
       )
     );
