@@ -7,8 +7,6 @@ import initWatch from "./initWatch";
 import initOptions from "./initOptions";
 import { observeMap } from "../../observable/observe";
 import callLifecycle from "../util/callLifecycle";
-import { assign } from "../../../shared/global/Object/index";
-import $on, { $once, $off, $emit } from "../../../core/prototype/$on";
 
 
 /**
