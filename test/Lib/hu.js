@@ -635,10 +635,21 @@
     initData( isCustomElement, data, options );
     initComputed( computed, options );
     initWatch( watch, options );
+    isCustomElement && initStyles( userOptions.styles, options );
 
-    if( !isMixin && mixins ){
-      for( let mixin of mixins ){
-        initState( isCustomElement, mixin, options, null, true );
+    if( !isMixin ){
+      // 处理 Mixins
+      if( mixins ){
+        for( let mixin of mixins ){
+          initState( isCustomElement, mixin, options, null, true );
+        }
+      }
+      // 处理自定义元素的样式
+      if( isCustomElement && options.styles ){
+        const style = document.createElement('style');
+
+        style.textContent = options.styles.join('');
+        options.styles = style;
       }
     }
   }
@@ -697,6 +708,17 @@
 
         watch.splice( 0, 0, value );
       });
+    }
+  }
+
+  function initStyles( userStyles, options ){
+    let stylesIsString = isString( userStyles );
+
+    if( stylesIsString || isArray( userStyles ) ){
+      const styles = options.styles || ( options.styles = [] );
+
+      if( stylesIsString ) styles.splice( 0, 0, userStyles );
+      else styles.splice( 0, 0, ...userStyles );
     }
   }
 
@@ -3182,19 +3204,30 @@
   };
 
   /** 迫使 Hu 实例重新渲染 */
-  var initForceUpdate = ( name, target, targetProxy ) => {
+  var initForceUpdate = ( name, target, targetProxy, isCustomElement ) => {
+    /** 当前实例实例选项 */
+    const options = optionsMap[ name ];
     /** 当前实例的渲染方法 */
-    const { render: userRender } = optionsMap[ name ];
+    const userRender = options.render;
+    /** 当前实例的样式 */
+    const userStyles = isCustomElement && options.styles && options.styles.cloneNode( true );
+    /** 是否已经渲染过当前实例的样式 */
+    let canRenderedStyles = !!userStyles;
+
     /** 当前实例渲染方法的 Watcher */
     const renderWatcher = new Watcher(() => {
-      let el;
+      const el = target.$el;
 
-      if( userRender && ( el = target.$el ) ){
+      if( el ){
         // 执行用户渲染方法
-        render(
-          userRender.call( targetProxy, html ),
-          el
-        );
+        if( userRender ){
+          render( userRender.call( targetProxy, html ), el );
+        }
+        // 添加自定义元素样式
+        if( canRenderedStyles ){
+          canRenderedStyles = false;
+          el.appendChild( userStyles );
+        }
         // 获取 refs 引用信息
         target.$refs = getRefs( el );
       }
@@ -3507,12 +3540,12 @@
   }
 
   class HuConstructor{
-    constructor( name ){
+    constructor( name, isCustomElement ){
       /** 当前实例观察者对象 */
       const targetProxy = observe( this, observeHu );
 
       // 初始化 $forceUpdate 方法
-      initForceUpdate( name, this, targetProxy );
+      initForceUpdate( name, this, targetProxy, isCustomElement );
       // 初始化事件相关
       initEvents( targetProxy );
     }
@@ -3689,7 +3722,7 @@
   function init( isCustomElement, root, name, options, userOptions ){
 
     /** 当前实例对象 */
-    const target = new HuConstructor( name );
+    const target = new HuConstructor( name, isCustomElement );
     /** 当前实例观察者对象 */
     const targetProxy = observeMap.get( target ).proxy;
 

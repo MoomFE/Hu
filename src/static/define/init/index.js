@@ -20,7 +20,7 @@ import callLifecycle from "../util/callLifecycle";
 export default function init( isCustomElement, root, name, options, userOptions ){
 
   /** 当前实例对象 */
-  const target = new HuConstructor( name );
+  const target = new HuConstructor( name, isCustomElement );
   /** 当前实例观察者对象 */
   const targetProxy = observeMap.get( target ).proxy;
 

@@ -10,12 +10,12 @@ import $destroy from "./prototype/$destroy";
 
 
 export default class HuConstructor{
-  constructor( name ){
+  constructor( name, isCustomElement ){
     /** 当前实例观察者对象 */
     const targetProxy = observe( this, observeHu );
 
     // 初始化 $forceUpdate 方法
-    initForceUpdate( name, this, targetProxy );
+    initForceUpdate( name, this, targetProxy, isCustomElement );
     // 初始化事件相关
     initEvents( targetProxy );
   }

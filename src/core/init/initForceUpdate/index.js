@@ -7,19 +7,30 @@ import getRefs from "./util/getRefs";
 
 
 /** 迫使 Hu 实例重新渲染 */
-export default ( name, target, targetProxy ) => {
+export default ( name, target, targetProxy, isCustomElement ) => {
+  /** 当前实例实例选项 */
+  const options = optionsMap[ name ];
   /** 当前实例的渲染方法 */
-  const { render: userRender } = optionsMap[ name ];
+  const userRender = options.render;
+  /** 当前实例的样式 */
+  const userStyles = isCustomElement && options.styles && options.styles.cloneNode( true );
+  /** 是否已经渲染过当前实例的样式 */
+  let canRenderedStyles = !!userStyles;
+
   /** 当前实例渲染方法的 Watcher */
   const renderWatcher = new Watcher(() => {
-    let el;
+    const el = target.$el;
 
-    if( userRender && ( el = target.$el ) ){
+    if( el ){
       // 执行用户渲染方法
-      render(
-        userRender.call( targetProxy, html ),
-        el
-      );
+      if( userRender ){
+        render( userRender.call( targetProxy, html ), el );
+      }
+      // 添加自定义元素样式
+      if( canRenderedStyles ){
+        canRenderedStyles = false;
+        el.appendChild( userStyles );
+      }
       // 获取 refs 引用信息
       target.$refs = getRefs( el );
     }

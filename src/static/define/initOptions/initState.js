@@ -3,6 +3,8 @@ import isFunction from "../../../shared/util/isFunction";
 import noop from "../../../shared/util/noop";
 import isPlainObject from "../../../shared/util/isPlainObject";
 import isObject from "../../../shared/util/isObject";
+import isString from "../../../shared/util/isString";
+import { isArray } from "../../../shared/global/Array/index";
 
 
 export default function initState( isCustomElement, userOptions, options, mixins, isMixin ){
@@ -19,10 +21,21 @@ export default function initState( isCustomElement, userOptions, options, mixins
   initData( isCustomElement, data, options );
   initComputed( computed, options );
   initWatch( watch, options );
+  isCustomElement && initStyles( userOptions.styles, options );
 
-  if( !isMixin && mixins ){
-    for( let mixin of mixins ){
-      initState( isCustomElement, mixin, options, null, true );
+  if( !isMixin ){
+    // 处理 Mixins
+    if( mixins ){
+      for( let mixin of mixins ){
+        initState( isCustomElement, mixin, options, null, true );
+      }
+    }
+    // 处理自定义元素的样式
+    if( isCustomElement && options.styles ){
+      const style = document.createElement('style');
+
+      style.textContent = options.styles.join('');
+      options.styles = style;
     }
   }
 }
@@ -81,5 +94,16 @@ function initWatch( userWatch, options ){
 
       watch.splice( 0, 0, value );
     });
+  }
+}
+
+function initStyles( userStyles, options ){
+  let stylesIsString = isString( userStyles );
+
+  if( stylesIsString || isArray( userStyles ) ){
+    const styles = options.styles || ( options.styles = [] );
+
+    if( stylesIsString ) styles.splice( 0, 0, userStyles );
+    else styles.splice( 0, 0, ...userStyles );
   }
 }
