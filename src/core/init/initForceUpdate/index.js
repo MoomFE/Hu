@@ -4,6 +4,8 @@ import { renderWatcherCache } from "./const/index";
 import render from "../../../render/index";
 import html from "../../../html/html";
 import getRefs from "./util/getRefs";
+import { hasShadyCss } from "../../../shared/const/env";
+import prepareTemplateStyles from "./util/prepareTemplateStyles";
 
 
 /** 迫使 Hu 实例重新渲染 */
@@ -30,6 +32,7 @@ export default ( name, target, targetProxy, isCustomElement ) => {
       if( canRenderedStyles ){
         canRenderedStyles = false;
         el.appendChild( userStyles );
+        hasShadyCss && prepareTemplateStyles( el, name );
       }
       // 获取 refs 引用信息
       target.$refs = getRefs( el );

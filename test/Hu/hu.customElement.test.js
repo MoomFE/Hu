@@ -111,13 +111,13 @@ describe( 'hu.customElement', () => {
     const customName = window.customName;
 
     Hu.define( customName, {
+      styles: `
+        :host > div{
+          position: fixed;
+        }
+      `,
       render( html ){
         return html`
-          <style>
-            :host > div{
-              position: fixed;
-            }
-          </style>
           <div>polyfill test</div>
         `;
       }
@@ -136,15 +136,13 @@ describe( 'hu.customElement', () => {
     const customName = window.customName;
 
     Hu.define( customName, {
+      styles: `
+        :host > div{
+          position: fixed;
+        }
+      `,
       render( html ){
         return [
-          html`
-            <style>
-              :host > div{
-                position: fixed;
-              }
-            </style>
-          `,
           html`
             <div>polyfill test</div>
           `

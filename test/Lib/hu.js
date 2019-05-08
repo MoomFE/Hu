@@ -743,6 +743,9 @@
 
   }catch(e){}
 
+
+  const hasShadyCss = typeof window.ShadyCSS !== 'undefined' && !window.ShadyCSS.nativeShadow;
+
   function initOther( isCustomElement, userOptions, options, mixins, isMixin ){
 
     const { render } = userOptions;
@@ -3203,6 +3206,13 @@
     return freeze( refs );
   };
 
+  var prepareTemplateStyles = ( el, name ) => {
+    const frame = document.createElement('div');
+          frame.content = el;
+
+    window.ShadyCSS.ScopingShim.prepareTemplateStyles( frame, name );
+  };
+
   /** 迫使 Hu 实例重新渲染 */
   var initForceUpdate = ( name, target, targetProxy, isCustomElement ) => {
     /** 当前实例实例选项 */
@@ -3227,6 +3237,7 @@
         if( canRenderedStyles ){
           canRenderedStyles = false;
           el.appendChild( userStyles );
+          hasShadyCss && prepareTemplateStyles( el, name );
         }
         // 获取 refs 引用信息
         target.$refs = getRefs( el );

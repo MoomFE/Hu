@@ -21,3 +21,6 @@ try{
   window.addEventListener( 'test-passive', null, options );
 
 }catch(e){}
+
+
+export const hasShadyCss = typeof window.ShadyCSS !== 'undefined' && !window.ShadyCSS.nativeShadow;
