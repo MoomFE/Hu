@@ -306,4 +306,52 @@ describe( 'Hu.define - render', () => {
     });
   });
 
+  it( '由自定义元素创建的实例, 可以使用 styles 选项来传入自定义元素的样式', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      styles: `
+        :host > div{
+          position: fixed;
+        }
+      `,
+      render( html ){
+        return html`<div ref="div"></div>`;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+
+    custom.$remove();
+  });
+
+  it( '由自定义元素创建的实例, 可以使用 styles 选项来传入自定义元素的样式 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      mixins: [
+        { styles: `:host > div{ position: fixed }` },
+        { styles: `:host > div{ top: 0 }` }
+      ],
+      styles: `
+        :host > div{ left: 0 }
+      `,
+      render( html ){
+        return html`<div ref="div"></div>`;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+    expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
+    expect( getComputedStyle( hu.$refs.div ).left ).is.equals( '0px' );
+
+    custom.$remove();
+  });
+
 });
