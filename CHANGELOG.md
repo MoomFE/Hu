@@ -1,3 +1,5 @@
+  - 🐞 修复在使用 polyfill 时自定义元素的样式表可能会被初始化多次的问题
+
 # 1.0.0-bata.6
   - 📅 2019-5-9
   - 🌟 实例选项新增 `globalMethods` 选项和 `$globalMethods` 选项实例
