@@ -31,8 +31,9 @@ export default ( name, target, targetProxy, isCustomElement ) => {
       // 添加自定义元素样式
       if( canRenderedStyles ){
         canRenderedStyles = false;
-        el.appendChild( userStyles );
-        hasShadyCss && prepareTemplateStyles( el, name );
+
+        if( hasShadyCss ) prepareTemplateStyles( userStyles, name );
+        else el.appendChild( userStyles );
       }
       // 获取 refs 引用信息
       target.$refs = getRefs( el );

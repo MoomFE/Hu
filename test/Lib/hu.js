@@ -3206,11 +3206,14 @@
     return freeze( refs );
   };
 
-  var prepareTemplateStyles = ( el, name ) => {
-    const frame = document.createElement('div');
-          frame.content = el;
+  var prepareTemplateStyles = ( style, name ) => {
+    const root = document.createElement('div');
+    const content = document.createElement('div');
 
-    window.ShadyCSS.ScopingShim.prepareTemplateStyles( frame, name );
+    root.content = content;
+    content.appendChild( style );
+
+    window.ShadyCSS.ScopingShim.prepareTemplateStyles( root, name );
   };
 
   /** 迫使 Hu 实例重新渲染 */
@@ -3236,8 +3239,9 @@
         // 添加自定义元素样式
         if( canRenderedStyles ){
           canRenderedStyles = false;
-          el.appendChild( userStyles );
-          hasShadyCss && prepareTemplateStyles( el, name );
+
+          if( hasShadyCss ) prepareTemplateStyles( userStyles, name );
+          else el.appendChild( userStyles );
         }
         // 获取 refs 引用信息
         target.$refs = getRefs( el );

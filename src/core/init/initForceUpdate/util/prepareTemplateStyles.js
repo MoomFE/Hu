@@ -1,8 +1,11 @@
 
 
-export default ( el, name ) => {
-  const frame = document.createElement('div');
-        frame.content = el;
+export default ( style, name ) => {
+  const root = document.createElement('div');
+  const content = document.createElement('div');
 
-  window.ShadyCSS.ScopingShim.prepareTemplateStyles( frame, name );
+  root.content = content;
+  content.appendChild( style );
+
+  window.ShadyCSS.ScopingShim.prepareTemplateStyles( root, name );
 }
