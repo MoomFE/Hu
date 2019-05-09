@@ -642,4 +642,56 @@ describe( 'Hu.define - mixins', () => {
     });
   });
 
+  it( '使用 mixins 选项对当前实例 styles 选项进行混入', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      mixins: [
+        { styles: `:host > div{ position: fixed }` },
+        { styles: `:host > div{ top: 0 }` }
+      ],
+      styles: `
+        :host > div{ left: 0 }
+      `,
+      render( html ){
+        return html`<div ref="div"></div>`;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+    expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
+    expect( getComputedStyle( hu.$refs.div ).left ).is.equals( '0px' );
+
+    custom.$remove();
+  });
+
+  it( '使用 mixins 选项对当前实例 styles 选项进行混入, 使用数组传参', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      mixins: [
+        { styles: [ `:host > div{ position: fixed }` ] },
+        { styles: [ `:host > div{ top: 0 }` ] }
+      ],
+      styles: [
+        `:host > div{ left: 0 }`
+      ],
+      render( html ){
+        return html`<div ref="div"></div>`;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+    expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
+    expect( getComputedStyle( hu.$refs.div ).left ).is.equals( '0px' );
+
+    custom.$remove();
+  });
+
 });
