@@ -32,7 +32,7 @@ export default function init( isCustomElement, root, name, options, userOptions 
 
   initOptions( isCustomElement, name, target, userOptions );
   initProps( isCustomElement, root, options, target, targetProxy );
-  initMethods( options, target, targetProxy );
+  initMethods( isCustomElement, root, options, target, targetProxy );
   initData( options, target, targetProxy );
 
   // 运行 beforeCreate 生命周期方法

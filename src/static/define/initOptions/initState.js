@@ -11,13 +11,14 @@ export default function initState( isCustomElement, userOptions, options, mixins
 
   const {
     methods,
+    globalMethods,
     data,
     computed,
     watch
   } = userOptions;
 
   initMethods( methods, options, 'methods' );
-  initMethods( methods, options, 'globalMethods' );
+  initMethods( globalMethods, options, 'globalMethods' );
   initData( isCustomElement, data, options );
   initComputed( computed, options );
   initWatch( watch, options );

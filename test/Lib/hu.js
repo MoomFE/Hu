@@ -625,13 +625,14 @@
 
     const {
       methods,
+      globalMethods,
       data,
       computed,
       watch
     } = userOptions;
 
     initMethods( methods, options, 'methods' );
-    initMethods( methods, options, 'globalMethods' );
+    initMethods( globalMethods, options, 'globalMethods' );
     initData( isCustomElement, data, options );
     initComputed( computed, options );
     initWatch( watch, options );
@@ -3631,6 +3632,8 @@
    * @param {{}} targetProxy 
    */
   function initMethods$1(
+    isCustomElement,
+    root,
     {
       methods,
       globalMethods
@@ -3642,16 +3645,19 @@
     const globalMethodsTarget = target.$globalMethods = create( null );
 
     injectionMethods( methodsTarget, methods, target, targetProxy );
-    injectionMethods( globalMethodsTarget, globalMethods, target, targetProxy );
+    injectionMethods( globalMethodsTarget, globalMethods, target, targetProxy, ( name, method ) => {
+      isCustomElement && isSymbolOrNotReserved( name ) && (
+        root[ name ] = method
+      );
+    });
   }
 
-  function injectionMethods( methodsTarget, methods, target, targetProxy ){
+  function injectionMethods( methodsTarget, methods, target, targetProxy, callback ){
     each( methods, ( name, value ) => {
-      injectionToHu(
-        target,
-        name,
-        methodsTarget[ name ] = value.bind( targetProxy )
-      );
+      const method = methodsTarget[ name ] = value.bind( targetProxy );
+
+      injectionToHu( target, name, method );
+      callback && callback( name, method );
     });
   }
 
@@ -3749,7 +3755,7 @@
 
     initOptions$1( isCustomElement, name, target, userOptions );
     initProps$1( isCustomElement, root, options, target, targetProxy );
-    initMethods$1( options, target, targetProxy );
+    initMethods$1( isCustomElement, root, options, target, targetProxy );
     initData$1( options, target, targetProxy );
 
     // 运行 beforeCreate 生命周期方法
