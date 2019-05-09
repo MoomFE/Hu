@@ -20,22 +20,27 @@ interface $hu {
 
   /**
    * Hu 实例属性对象
-   * - 包含了声明自定义元素时的 props 属性上定义的所有属性
+   * - 包含了声明实例时的 props 属性上定义的所有属性
    */
   readonly $props: Record< KEYTYPE, any >;
   /**
    * Hu 实例方法对象
-   * - 包含了声明自定义元素时的 methods 属性上定义的所有方法
+   * - 包含了声明实例时的 methods 属性上定义的所有方法
    */
   readonly $methods: Record< KEYTYPE, any >;
   /**
+   * Hu 实例全局方法对象
+   *  - 包含了声明实例时的 globalMethods 属性上定义的所有方法
+   */
+  readonly $globalMethods: Record< KEYTYPE, any >;
+  /**
    * Hu 实例数据对象
-   * - 包含了声明自定义元素时的 data 方法返回的所有属性
+   * - 包含了声明实例时的 data 方法返回的所有属性
    */
   readonly $data: Record< KEYTYPE, any >;
   /**
    * Hu 实例计算属性对象
-   * - 包含了声明自定义元素时的 computed 属性上定义的所有的计算属性
+   * - 包含了声明实例时的 computed 属性上定义的所有的计算属性
    */
   readonly $computed: Record< KEYTYPE, any >;
   /**
@@ -377,6 +382,16 @@ interface ComponentOptions{
   };
 
   /**
+   * 定义一系列的方法以在 Hu 实例中使用
+   *  - 和 methods 选项不同的是, 实例创建后会将方法混入到自定义元素本身, 可以直接调用
+   */
+  globalMethods?: {
+    [ key: string ]: ( this: $hu, ...args: any[] ) => any;
+    [ key: number ]: ( this: $hu, ...args: any[] ) => any;
+    [ key: symbol ]: ( this: $hu, ...args: any[] ) => any;
+  };
+
+  /**
    * 返回 Hu 实例的初始数据对象的函数
    */
   data?( this: $hu ): {
@@ -403,6 +418,13 @@ interface ComponentOptions{
     [ key: string ]: (( this: $hu, value, oldValue ) => void) | WatchOptions;
     [ key: number ]: (( this: $hu, value, oldValue ) => void) | WatchOptions;
   };
+
+  /**
+   * 指定自定义元素的样式
+   *  - 只在自定义元素创建的实例下可用
+   *  - 在使用 polyfill 的环境下, 可以解决样式无法生效的问题
+   */
+  styles?: string | string[];
 
   /**
    * Hu 实例的渲染函数
