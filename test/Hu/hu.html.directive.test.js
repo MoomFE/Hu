@@ -1424,6 +1424,7 @@ describe( 'Hu.html.directive', () => {
     );
   });
 
+
   it( '使用 :show 指令对元素进行显示和隐藏', () => {
     const div = document.createElement('div');
 
@@ -1442,6 +1443,16 @@ describe( 'Hu.html.directive', () => {
     `;
     expect( div.firstElementChild.style.display ).is.equals('none');
   });
+
+  it( '使用 :show 指令对元素进行显示和隐藏, 即使首次传入的是 undefined, 元素的状态也应该是隐藏的', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div :show=${ undefined }></div>
+    `;
+    expect( div.firstElementChild.style.display ).is.equals('none');
+  });
+
 
   it( '使用不存在的指令, 将会被当做普通属性处理', () => {
     const div = document.createElement('div');

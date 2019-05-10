@@ -2867,11 +2867,7 @@
   class ShowDirective extends TextDirective{
 
     commit(){
-      const { value, oldValue } = this;
-
-      isEqual( value, oldValue ) || (
-        this.elem.style.display = value ? '' : 'none'
-      );
+      this.elem.style.display = this.value ? '' : 'none';
     }
 
   }
