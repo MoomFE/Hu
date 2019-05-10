@@ -33,8 +33,8 @@ export default directive(( items, key, template ) => {
     for( let index = 0, item; index < items.length; index++ ){
       item = items[ index ];
 
-      newKeys[ index ] = keyFn( item, index );
-      newValues[ index ] = template( item, index );
+      newKeys[ index ] = keyFn( item, index, items );
+      newValues[ index ] = template( item, index, items );
     }
 
     let newKeyToIndexMap;
