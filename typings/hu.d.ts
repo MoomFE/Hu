@@ -558,7 +558,7 @@ interface html{
   repeat<T>(
     items: T[],
     key: string | ((T) => string),
-    template: ( item: T, index: number ) => TemplateResult | undefined
+    template: ( item: T, index: number, items: T[] ) => TemplateResult | undefined
   );
 
   /**
