@@ -1,5 +1,6 @@
-import { directive, NodePart, reparentNodes, removeNodes, createMarker } from 'lit-html';
+import { directive, reparentNodes, removeNodes, createMarker } from 'lit-html';
 import isFunction from '../../shared/util/isFunction';
+import BasicNodeDirective from '../directiveBasic/node';
 
 
 /**
@@ -18,7 +19,7 @@ export default directive(( items, key, template ) => {
   const keyFn = isFunction( key ) ? key : item => item[ key ];
 
   return containerPart => {
-    if( !( containerPart instanceof NodePart ) ){
+    if( !( containerPart instanceof BasicNodeDirective ) ){
       throw new Error('Hu.html.repeat 指令方法只能在文本区域中使用 !');
     }
 
@@ -159,7 +160,7 @@ function createAndInsertPart( containerPart, beforePart ){
   const beforeNode = beforePart === undefined ? containerPart.endNode : beforePart.startNode;
   const startNode = container.insertBefore( createMarker(), beforeNode );
   container.insertBefore( createMarker(), beforeNode );
-  const newPart = new NodePart( containerPart.options );
+  const newPart = new BasicNodeDirective( containerPart.options );
   newPart.insertAfterNode( startNode );
   return newPart;
 }

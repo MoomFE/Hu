@@ -1,6 +1,6 @@
-import { NodePart } from 'lit-html/lib/parts';
 import { has } from '../shared/global/Reflect/index';
 import AttributeCommitter from './committer/attribute';
+import BasicNodeDirective from './directiveBasic/node';
 import BasicEventDirective from './directiveBasic/event';
 import BasicBooleanDirective from './directiveBasic/boolean';
 import BasicPropertyDirective from './directiveBasic/property';
@@ -58,7 +58,7 @@ class TemplateProcessor{
     return ( new AttributeCommitter( element, name, strings ) ).parts;
   }
   handleTextExpression( options ){
-    return new NodePart( options );
+    return new BasicNodeDirective( options );
   }
 }
 

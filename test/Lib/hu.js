@@ -1158,6 +1158,7 @@
   const isDirective = (o) => {
       return typeof o === 'function' && directives.has(o);
   };
+  //# sourceMappingURL=directive.js.map
 
   /**
    * @license
@@ -1204,6 +1205,7 @@
           node = n;
       }
   };
+  //# sourceMappingURL=dom.js.map
 
   /**
    * @license
@@ -1227,6 +1229,7 @@
    * A sentinel value that signals a NodePart to fully clear its content.
    */
   const nothing = {};
+  //# sourceMappingURL=part.js.map
 
   /**
    * @license
@@ -1416,6 +1419,7 @@
    *    * (') then any non-(')
    */
   const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+  //# sourceMappingURL=template.js.map
 
   /**
    * @license
@@ -1513,6 +1517,7 @@
           return fragment;
       }
   }
+  //# sourceMappingURL=template-instance.js.map
 
   /**
    * @license
@@ -1597,6 +1602,7 @@
           return template;
       }
   }
+  //# sourceMappingURL=template-result.js.map
 
   /**
    * @license
@@ -1802,6 +1808,7 @@
   }
   catch (_e) {
   }
+  //# sourceMappingURL=parts.js.map
 
   /**
    * @license
@@ -1816,6 +1823,7 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
+  //# sourceMappingURL=default-template-processor.js.map
 
   /**
    * @license
@@ -1830,6 +1838,7 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
+  //# sourceMappingURL=template-factory.js.map
 
   /**
    * @license
@@ -1844,11 +1853,13 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
+  //# sourceMappingURL=render.js.map
 
   // IMPORTANT: do not change the property name or the assignment expression.
   // This line will be used in regexes to search for lit-html usage.
   // TODO(justinfagnani): inject version number at build time
   inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
+  //# sourceMappingURL=lit-html.js.map
 
   /**
    * 所有模板类型的缓存对象
@@ -1906,6 +1917,8 @@
     return template;
   };
 
+  const BasicNodeDirective = NodePart;
+
   const parts = new WeakMap();
 
   function basicRender( result, container, options ){
@@ -1920,7 +1933,7 @@
       // 创建节点对象
       parts.set(
         container,
-        part = new NodePart(
+        part = new BasicNodeDirective(
           assign(
             { templateFactory: defaultTemplateFactory }, options
           )
@@ -2920,7 +2933,7 @@
       return ( new AttributeCommitter( element, name, strings ) ).parts;
     }
     handleTextExpression( options ){
-      return new NodePart( options );
+      return new BasicNodeDirective( options );
     }
   }
 
@@ -2955,7 +2968,7 @@
     const keyFn = isFunction( key ) ? key : item => item[ key ];
 
     return containerPart => {
-      if( !( containerPart instanceof NodePart ) ){
+      if( !( containerPart instanceof BasicNodeDirective ) ){
         throw new Error('Hu.html.repeat 指令方法只能在文本区域中使用 !');
       }
 
@@ -3096,7 +3109,7 @@
     const beforeNode = beforePart === undefined ? containerPart.endNode : beforePart.startNode;
     const startNode = container.insertBefore( createMarker(), beforeNode );
     container.insertBefore( createMarker(), beforeNode );
-    const newPart = new NodePart( containerPart.options );
+    const newPart = new BasicNodeDirective( containerPart.options );
     newPart.insertAfterNode( startNode );
     return newPart;
   }
@@ -3113,7 +3126,7 @@
   const oldValueMap = new WeakMap();
 
   var unsafeHTML = directive( value => part => {
-    if( !( part instanceof NodePart ) ){
+    if( !( part instanceof BasicNodeDirective ) ){
       throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
     }
 

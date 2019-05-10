@@ -1,4 +1,5 @@
-import { directive, NodePart } from 'lit-html';
+import { directive } from 'lit-html';
+import BasicNodeDirective from '../directiveBasic/node';
 import isPrimitive from '../../shared/util/isPrimitive';
 
 
@@ -14,7 +15,7 @@ import isPrimitive from '../../shared/util/isPrimitive';
 const oldValueMap = new WeakMap();
 
 export default directive( value => part => {
-  if( !( part instanceof NodePart ) ){
+  if( !( part instanceof BasicNodeDirective ) ){
     throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
   }
 

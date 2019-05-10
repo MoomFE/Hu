@@ -1,8 +1,9 @@
 import { renderStack } from './const/index';
 import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
-import { removeNodes, NodePart } from 'lit-html';
+import { removeNodes } from 'lit-html';
 import { assign } from '../shared/global/Object/index';
 import defaultTemplateFactory from './templateFactory/defaultTemplateFactory';
+import BasicNodeDirective from '../html/directiveBasic/node';
 
 
 const parts = new WeakMap();
@@ -19,7 +20,7 @@ function basicRender( result, container, options ){
     // 创建节点对象
     parts.set(
       container,
-      part = new NodePart(
+      part = new BasicNodeDirective(
         assign(
           { templateFactory: defaultTemplateFactory }, options
         )
