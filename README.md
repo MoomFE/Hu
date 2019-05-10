@@ -6,10 +6,10 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 
 ## 浏览器支持
 
-|              | Chrome | Firefox | Safari | Edge | IE |
-| :-           | :-     | :-      | :-     | :-   | :- |
-| Use Polyfill | 49+    | 47+     | 10+    | 14+  | ×  |
-| No Polyfill  | 54+    | 63+     | 10.1+  | ×    | ×  |
+|              | Chrome | Firefox | Safari | Edge | IE | UC    |
+| :-           | :-     | :-      | :-     | :-   | :- | :-    |
+| Use Polyfill | 49+    | 47+     | 10+    | 14+  | ×  | 11.8+ |
+| No Polyfill  | 54+    | 63+     | 10.1+  | 75+  | ×  | 11.8+ |
 
 > 在目前支持的这些浏览器下, 已经支持大部分的 ES5 / ES6 等特性及方法了,<br>
 > 在项目中就可以忽略对这些特性的 babel 转码和 polyfill 以达到更好的性能, 特在此罗列出来 ( 包括但不限于 ): <br>
