@@ -3,7 +3,7 @@ import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
 import { removeNodes } from 'lit-html';
 import { assign } from '../shared/global/Object/index';
 import defaultTemplateFactory from './templateFactory/defaultTemplateFactory';
-import BasicNodeDirective from '../html/directiveBasic/node';
+import NodePart from '../html/core/node';
 
 
 const parts = new WeakMap();
@@ -20,7 +20,7 @@ function basicRender( result, container, options ){
     // 创建节点对象
     parts.set(
       container,
-      part = new BasicNodeDirective(
+      part = new NodePart(
         assign(
           { templateFactory: defaultTemplateFactory }, options
         )

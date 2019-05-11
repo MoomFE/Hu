@@ -1,6 +1,6 @@
 import { has } from '../shared/global/Reflect/index';
-import AttributeCommitter from './committer/attribute';
-import BasicNodeDirective from './directiveBasic/node';
+import NodePart from './core/node';
+import AttributeCommitter from './directiveBasic/attribute';
 import BasicEventDirective from './directiveBasic/event';
 import BasicBooleanDirective from './directiveBasic/boolean';
 import BasicPropertyDirective from './directiveBasic/property';
@@ -58,7 +58,7 @@ class TemplateProcessor{
     return ( new AttributeCommitter( element, name, strings ) ).parts;
   }
   handleTextExpression( options ){
-    return new BasicNodeDirective( options );
+    return new NodePart( options );
   }
 }
 

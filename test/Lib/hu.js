@@ -1906,8 +1906,6 @@
     return template;
   };
 
-  const BasicNodeDirective = NodePart;
-
   const parts = new WeakMap();
 
   function basicRender( result, container, options ){
@@ -1922,7 +1920,7 @@
       // 创建节点对象
       parts.set(
         container,
-        part = new BasicNodeDirective(
+        part = new NodePart(
           assign(
             { templateFactory: defaultTemplateFactory }, options
           )
@@ -2918,7 +2916,7 @@
       return ( new AttributeCommitter( element, name, strings ) ).parts;
     }
     handleTextExpression( options ){
-      return new BasicNodeDirective( options );
+      return new NodePart( options );
     }
   }
 
@@ -2953,7 +2951,7 @@
     const keyFn = isFunction( key ) ? key : item => item[ key ];
 
     return containerPart => {
-      if( !( containerPart instanceof BasicNodeDirective ) ){
+      if( !( containerPart instanceof NodePart ) ){
         throw new Error('Hu.html.repeat 指令方法只能在文本区域中使用 !');
       }
 
@@ -3094,7 +3092,7 @@
     const beforeNode = beforePart === undefined ? containerPart.endNode : beforePart.startNode;
     const startNode = container.insertBefore( createMarker(), beforeNode );
     container.insertBefore( createMarker(), beforeNode );
-    const newPart = new BasicNodeDirective( containerPart.options );
+    const newPart = new NodePart( containerPart.options );
     newPart.insertAfterNode( startNode );
     return newPart;
   }
@@ -3111,7 +3109,7 @@
   const oldValueMap = new WeakMap();
 
   var unsafeHTML = directive( value => part => {
-    if( !( part instanceof BasicNodeDirective ) ){
+    if( !( part instanceof NodePart ) ){
       throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
     }
 
