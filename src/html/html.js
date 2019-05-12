@@ -1,5 +1,5 @@
 import { TemplateResult, SVGTemplateResult } from 'lit-html';
-import templateProcessor from './templateProcessor';
+import templateProcessor from './core/templateProcessor';
 import { assign } from '../shared/global/Object/index';
 import repeat from './directiveFn/repeat';
 import unsafeHTML from './directiveFn/unsafeHTML';

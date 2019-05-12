@@ -1558,7 +1558,7 @@
    */
   const templateCaches = create( null );
 
-  var defaultTemplateFactory = result => {
+  var templateFactory = result => {
     /**
      * 当前模板类型的缓存对象
      *  - 'html'
@@ -1637,7 +1637,7 @@
         container,
         part = new NodePart(
           assign(
-            { templateFactory: defaultTemplateFactory }, options
+            { templateFactory }, options
           )
         )
       );

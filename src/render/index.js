@@ -2,7 +2,7 @@ import { renderStack } from './const/index';
 import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
 import { removeNodes } from 'lit-html';
 import { assign } from '../shared/global/Object/index';
-import defaultTemplateFactory from './templateFactory/defaultTemplateFactory';
+import templateFactory from '../html/core/templateFactory';
 import NodePart from '../html/core/node';
 
 
@@ -22,7 +22,7 @@ function basicRender( result, container, options ){
       container,
       part = new NodePart(
         assign(
-          { templateFactory: defaultTemplateFactory }, options
+          { templateFactory }, options
         )
       )
     );

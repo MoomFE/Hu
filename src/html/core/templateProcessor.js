@@ -1,15 +1,15 @@
-import { has } from '../shared/global/Reflect/index';
-import NodePart from './core/node';
-import AttributeCommitter from './directiveBasic/attribute';
-import BasicEventDirective from './directiveBasic/event';
-import BasicBooleanDirective from './directiveBasic/boolean';
-import BasicPropertyDirective from './directiveBasic/property';
-import ClassDirective from './directive/class';
-import StyleDirective from './directive/style';
-import ModelDirective from './directive/model';
-import TextDirective from './directive/text';
-import HtmlDirective from './directive/html';
-import ShowDirective from './directive/show';
+import { has } from '../../shared/global/Reflect/index';
+import NodePart from './node';
+import AttributeCommitter from '../directiveBasic/attribute';
+import BasicEventDirective from '../directiveBasic/event';
+import BasicBooleanDirective from '../directiveBasic/boolean';
+import BasicPropertyDirective from '../directiveBasic/property';
+import ClassDirective from '../directive/class';
+import StyleDirective from '../directive/style';
+import ModelDirective from '../directive/model';
+import TextDirective from '../directive/text';
+import HtmlDirective from '../directive/html';
+import ShowDirective from '../directive/show';
 
 
 class TemplateProcessor{
