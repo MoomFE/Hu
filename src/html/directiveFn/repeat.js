@@ -1,6 +1,7 @@
-import { directive, reparentNodes, removeNodes, createMarker } from 'lit-html';
-import isFunction from '../../shared/util/isFunction';
 import NodePart from '../core/node';
+import directive from '../util/directive';
+import { reparentNodes, removeNodes, createMarker } from 'lit-html';
+import isFunction from '../../shared/util/isFunction';
 
 
 /**

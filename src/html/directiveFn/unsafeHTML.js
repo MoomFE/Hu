@@ -1,5 +1,5 @@
-import { directive } from 'lit-html';
 import NodePart from '../core/node';
+import directive from '../util/directive';
 import isPrimitive from '../../shared/util/isPrimitive';
 
 

@@ -1,4 +1,4 @@
-import { directive } from 'lit-html';
+import directive from '../util/directive';
 import { observeProxyMap } from '../../static/observable/observe';
 import { bindDirectiveCacheMap, renderStack } from '../../render/const/index';
 import $watch from '../../core/prototype/$watch';

@@ -1128,36 +1128,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  const directives = new WeakMap();
-  /**
-   * Brands a function as a directive so that lit-html will call the function
-   * during template rendering, rather than passing as a value.
-   *
-   * @param f The directive factory function. Must be a function that returns a
-   * function of the signature `(part: Part) => void`. The returned function will
-   * be called with the part object
-   *
-   * @example
-   *
-   * ```
-   * import {directive, html} from 'lit-html';
-   *
-   * const immutable = directive((v) => (part) => {
-   *   if (part.value !== v) {
-   *     part.setValue(v)
-   *   }
-   * });
-   * ```
-   */
-  // tslint:disable-next-line:no-any
-  const directive = (f) => ((...args) => {
-      const d = f(...args);
-      directives.set(d, true);
-      return d;
-  });
-  const isDirective = (o) => {
-      return typeof o === 'function' && directives.has(o);
-  };
 
   /**
    * @license
@@ -1218,15 +1188,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  /**
-   * A sentinel value that signals that a value was handled by a directive and
-   * should not be written to the DOM.
-   */
-  const noChange = {};
-  /**
-   * A sentinel value that signals a NodePart to fully clear its content.
-   */
-  const nothing = {};
 
   /**
    * @license
@@ -1386,7 +1347,6 @@
           }
       }
   }
-  const isTemplatePartActive = (part) => part.index !== -1;
   // Allows `document.createComment('')` to be renamed for a
   // small manual size-savings.
   const createMarker = () => document.createComment('');
@@ -1430,89 +1390,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  /**
-   * An instance of a `Template` that can be attached to the DOM and updated
-   * with new values.
-   */
-  class TemplateInstance {
-      constructor(template, processor, options) {
-          this._parts = [];
-          this.template = template;
-          this.processor = processor;
-          this.options = options;
-      }
-      update(values) {
-          let i = 0;
-          for( let part of this._parts) {
-              if (part !== undefined) {
-                  part.setValue(values[i]);
-              }
-              i++;
-          }
-          for( let part of this._parts) {
-              if (part !== undefined) {
-                  part.commit();
-              }
-          }
-      }
-      _clone() {
-          // When using the Custom Elements polyfill, clone the node, rather than
-          // importing it, to keep the fragment in the template's document. This
-          // leaves the fragment inert so custom elements won't upgrade and
-          // potentially modify their contents by creating a polyfilled ShadowRoot
-          // while we traverse the tree.
-          const fragment = isCEPolyfill ?
-              this.template.element.content.cloneNode(true) :
-              document.importNode(this.template.element.content, true);
-          const parts = this.template.parts;
-          let partIndex = 0;
-          let nodeIndex = 0;
-          const _prepareInstance = (fragment) => {
-              // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be
-              // null
-              const walker = document.createTreeWalker(fragment, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
-              let node = walker.nextNode();
-              // Loop through all the nodes and parts of a template
-              while (partIndex < parts.length && node !== null) {
-                  const part = parts[partIndex];
-                  // Consecutive Parts may have the same node index, in the case of
-                  // multiple bound attributes on an element. So each iteration we either
-                  // increment the nodeIndex, if we aren't on a node with a part, or the
-                  // partIndex if we are. By not incrementing the nodeIndex when we find a
-                  // part, we allow for the next part to be associated with the current
-                  // node if neccessasry.
-                  if (!isTemplatePartActive(part)) {
-                      this._parts.push(undefined);
-                      partIndex++;
-                  }
-                  else if (nodeIndex === part.index) {
-                      if (part.type === 'node') {
-                          const part = this.processor.handleTextExpression(this.options);
-                          part.insertAfterNode(node.previousSibling);
-                          this._parts.push(part);
-                      }
-                      else {
-                          this._parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
-                      }
-                      partIndex++;
-                  }
-                  else {
-                      nodeIndex++;
-                      if (node.nodeName === 'TEMPLATE') {
-                          _prepareInstance(node.content);
-                      }
-                      node = walker.nextNode();
-                  }
-              }
-          };
-          _prepareInstance(fragment);
-          if (isCEPolyfill) {
-              document.adoptNode(fragment);
-              customElements.upgrade(fragment);
-          }
-          return fragment;
-      }
-  }
 
   /**
    * @license
@@ -1615,180 +1492,6 @@
       return (value === null ||
           !(typeof value === 'object' || typeof value === 'function'));
   };
-  class NodePart {
-      constructor(options) {
-          this.value = undefined;
-          this._pendingValue = undefined;
-          this.options = options;
-      }
-      /**
-       * Inserts this part into a container.
-       *
-       * This part must be empty, as its contents are not automatically moved.
-       */
-      appendInto(container) {
-          this.startNode = container.appendChild(createMarker());
-          this.endNode = container.appendChild(createMarker());
-      }
-      /**
-       * Inserts this part between `ref` and `ref`'s next sibling. Both `ref` and
-       * its next sibling must be static, unchanging nodes such as those that appear
-       * in a literal section of a template.
-       *
-       * This part must be empty, as its contents are not automatically moved.
-       */
-      insertAfterNode(ref) {
-          this.startNode = ref;
-          this.endNode = ref.nextSibling;
-      }
-      /**
-       * Appends this part into a parent part.
-       *
-       * This part must be empty, as its contents are not automatically moved.
-       */
-      appendIntoPart(part) {
-          part._insert(this.startNode = createMarker());
-          part._insert(this.endNode = createMarker());
-      }
-      /**
-       * Appends this part after `ref`
-       *
-       * This part must be empty, as its contents are not automatically moved.
-       */
-      insertAfterPart(ref) {
-          ref._insert(this.startNode = createMarker());
-          this.endNode = ref.endNode;
-          ref.endNode = this.startNode;
-      }
-      setValue(value) {
-          this._pendingValue = value;
-      }
-      commit() {
-          while (isDirective(this._pendingValue)) {
-              const directive = this._pendingValue;
-              this._pendingValue = noChange;
-              directive(this);
-          }
-          const value = this._pendingValue;
-          if (value === noChange) {
-              return;
-          }
-          if (isPrimitive(value)) {
-              if (value !== this.value) {
-                  this._commitText(value);
-              }
-          }
-          else if (value instanceof TemplateResult) {
-              this._commitTemplateResult(value);
-          }
-          else if (value instanceof Node) {
-              this._commitNode(value);
-          }
-          else if (Array.isArray(value) ||
-              // tslint:disable-next-line:no-any
-              value[Symbol.iterator]) {
-              this._commitIterable(value);
-          }
-          else if (value === nothing) {
-              this.value = nothing;
-              this.clear();
-          }
-          else {
-              // Fallback, will render the string representation
-              this._commitText(value);
-          }
-      }
-      _insert(node) {
-          this.endNode.parentNode.insertBefore(node, this.endNode);
-      }
-      _commitNode(value) {
-          if (this.value === value) {
-              return;
-          }
-          this.clear();
-          this._insert(value);
-          this.value = value;
-      }
-      _commitText(value) {
-          const node = this.startNode.nextSibling;
-          value = value == null ? '' : value;
-          if (node === this.endNode.previousSibling &&
-              node.nodeType === 3 /* Node.TEXT_NODE */) {
-              // If we only have a single text node between the markers, we can just
-              // set its value, rather than replacing it.
-              // TODO(justinfagnani): Can we just check if this.value is primitive?
-              node.data = value;
-          }
-          else {
-              this._commitNode(document.createTextNode(typeof value === 'string' ? value : String(value)));
-          }
-          this.value = value;
-      }
-      _commitTemplateResult(value) {
-          const template = this.options.templateFactory(value);
-          if (this.value instanceof TemplateInstance &&
-              this.value.template === template) {
-              this.value.update(value.values);
-          }
-          else {
-              // Make sure we propagate the template processor from the TemplateResult
-              // so that we use its syntax extension, etc. The template factory comes
-              // from the render function options so that it can control template
-              // caching and preprocessing.
-              const instance = new TemplateInstance(template, value.processor, this.options);
-              const fragment = instance._clone();
-              instance.update(value.values);
-              this._commitNode(fragment);
-              this.value = instance;
-          }
-      }
-      _commitIterable(value) {
-          // For an Iterable, we create a new InstancePart per item, then set its
-          // value to the item. This is a little bit of overhead for every item in
-          // an Iterable, but it lets us recurse easily and efficiently update Arrays
-          // of TemplateResults that will be commonly returned from expressions like:
-          // array.map((i) => html`${i}`), by reusing existing TemplateInstances.
-          // If _value is an array, then the previous render was of an
-          // iterable and _value will contain the NodeParts from the previous
-          // render. If _value is not an array, clear this part and make a new
-          // array for NodeParts.
-          if (!Array.isArray(this.value)) {
-              this.value = [];
-              this.clear();
-          }
-          // Lets us keep track of how many items we stamped so we can clear leftover
-          // items from a previous render
-          const itemParts = this.value;
-          let partIndex = 0;
-          let itemPart;
-          for( let item of value) {
-              // Try to reuse an existing part
-              itemPart = itemParts[partIndex];
-              // If no existing part, create a new one
-              if (itemPart === undefined) {
-                  itemPart = new NodePart(this.options);
-                  itemParts.push(itemPart);
-                  if (partIndex === 0) {
-                      itemPart.appendIntoPart(this);
-                  }
-                  else {
-                      itemPart.insertAfterPart(itemParts[partIndex - 1]);
-                  }
-              }
-              itemPart.setValue(item);
-              itemPart.commit();
-              partIndex++;
-          }
-          if (partIndex < itemParts.length) {
-              // Truncate the parts array so _value reflects the current state
-              itemParts.length = partIndex;
-              this.clear(itemPart && itemPart.endNode);
-          }
-      }
-      clear(startNode = this.startNode) {
-          removeNodes(this.startNode.parentNode, startNode.nextSibling, this.endNode);
-      }
-  }
   try {
       const options = {
           get capture() {
@@ -1906,6 +1609,18 @@
     return template;
   };
 
+  class NodePart{
+
+    constructor( options ){
+      this.options = options;
+    }
+
+    setValue(){
+      
+    }
+
+  }
+
   const parts = new WeakMap();
 
   function basicRender( result, container, options ){
@@ -1940,6 +1655,18 @@
     renderStack.push( container );
     basicRender( result, container, options );
     renderStack.pop();
+  };
+
+  /**
+   * 指令方法合集
+   */
+  const directives = new WeakSet();
+
+  /**
+   * 判断传入参数是否是指令方法
+   */
+  var isDirective = obj => {
+    return isFunction( obj ) && directives.has( obj );
   };
 
   class AttributeCommitter{
@@ -2933,6 +2660,15 @@
     text: TextDirective,
     html: HtmlDirective,
     show: ShowDirective
+  };
+
+  /**
+   * 注册指令方法
+   */
+  var directive = ( directiveFn ) => ( ...args ) => {
+    const directive = directiveFn( ...args );
+    directives.add( directive );
+    return directive;
   };
 
   /**

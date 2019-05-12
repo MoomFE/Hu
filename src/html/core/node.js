@@ -1,4 +1,14 @@
-import { NodePart } from 'lit-html';
 
 
-export default NodePart;
+
+export default class NodePart{
+
+  constructor( options ){
+    this.options = options;
+  }
+
+  setValue(){
+    
+  }
+
+};

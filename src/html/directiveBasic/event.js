@@ -1,4 +1,4 @@
-import { isDirective } from 'lit-html'
+import isDirective from "../util/isDirective";
 import isFunction from "../../shared/util/isFunction";
 import { has, apply } from "../../shared/global/Reflect/index";
 import { supportsPassive } from "../../shared/const/env";

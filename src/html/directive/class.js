@@ -1,4 +1,4 @@
-import { isDirective } from 'lit-html'
+import isDirective from "../util/isDirective";
 import rWhitespace from "../../shared/const/rWhitespace";
 import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";

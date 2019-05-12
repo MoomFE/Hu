@@ -1,4 +1,4 @@
-import { isDirective } from 'lit-html'
+import isDirective from "../util/isDirective";
 
 
 export default class BasicBooleanDirective{
