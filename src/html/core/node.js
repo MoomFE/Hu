@@ -4,7 +4,8 @@ import isPrimitive from "../../shared/util/isPrimitive";
 import isString from "../../shared/util/isString";
 import removeNodes from "../../shared/util/removeNodes";
 import TemplateResult from "./templateResult";
-import { TemplateInstance, createMarker } from "lit-html";
+import TemplateInstance from "./templateInstance";
+import { createMarker } from "lit-html";
 import isIterable from "../../shared/util/isIterable";
 import { isArray } from "../../shared/global/Array/index";
 import templateFactory from "./templateFactory";
@@ -126,7 +127,7 @@ function commitTemplateResult( nodePart, value ){
     oldValue.update( value.values );
   }else{
     const instance = nodePart.value = new TemplateInstance( template, value.processor );
-    const fragment = instance._clone();
+    const fragment = instance.clone();
 
     instance.update( value.values );
     commitNode( nodePart, fragment );

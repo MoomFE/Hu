@@ -745,7 +745,13 @@
   }catch(e){}
 
 
-  const hasShadyCss = typeof window.ShadyCSS !== 'undefined' && !window.ShadyCSS.nativeShadow;
+  const hasShadyCss = inBrowser
+                          && window.ShadyCSS !== undefined
+                          && !window.ShadyCSS.nativeShadow;
+
+  const isCEPolyfill = inBrowser
+                           && window.customElements !== undefined
+                           && window.customElements.polyfillWrapFlushCallback !== undefined;
 
   function initOther( isCustomElement, userOptions, options, mixins, isMixin ){
 
@@ -1339,7 +1345,6 @@
           }
       }
   }
-  const isTemplatePartActive = (part) => part.index !== -1;
   // Allows `document.createComment('')` to be renamed for a
   // small manual size-savings.
   const createMarker = () => document.createComment('');
@@ -1369,6 +1374,7 @@
    *    * (') then any non-(')
    */
   const lastAttributeNameRegex$1 = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+  //# sourceMappingURL=template.js.map
 
   class TemplateResult{
 
@@ -1415,579 +1421,6 @@
     }
 
   }
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  /**
-   * True if the custom elements polyfill is in use.
-   */
-  const isCEPolyfill = inBrowser && window.customElements !== undefined &&
-      window.customElements.polyfillWrapFlushCallback !==
-          undefined;
-  /**
-   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
-   * (exclusive), into another container (could be the same container), before
-   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
-   * container.
-   */
-  const reparentNodes = (container, start, end = null, before = null) => {
-      let node = start;
-      while (node !== end) {
-          const n = node.nextSibling;
-          container.insertBefore(node, before);
-          node = n;
-      }
-  };
-
-  /**
-   * @license
-   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  /**
-   * An instance of a `Template` that can be attached to the DOM and updated
-   * with new values.
-   */
-  class TemplateInstance {
-      constructor(template, processor, options) {
-          this._parts = [];
-          this.template = template;
-          this.processor = processor;
-          this.options = options;
-      }
-      update(values) {
-          let i = 0;
-          for( let part of this._parts) {
-              if (part !== undefined) {
-                  part.setValue(values[i]);
-              }
-              i++;
-          }
-          for( let part of this._parts) {
-              if (part !== undefined) {
-                  part.commit();
-              }
-          }
-      }
-      _clone() {
-          // When using the Custom Elements polyfill, clone the node, rather than
-          // importing it, to keep the fragment in the template's document. This
-          // leaves the fragment inert so custom elements won't upgrade and
-          // potentially modify their contents by creating a polyfilled ShadowRoot
-          // while we traverse the tree.
-          const fragment = isCEPolyfill ?
-              this.template.element.content.cloneNode(true) :
-              document.importNode(this.template.element.content, true);
-          const parts = this.template.parts;
-          let partIndex = 0;
-          let nodeIndex = 0;
-          const _prepareInstance = (fragment) => {
-              // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be
-              // null
-              const walker = document.createTreeWalker(fragment, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
-              let node = walker.nextNode();
-              // Loop through all the nodes and parts of a template
-              while (partIndex < parts.length && node !== null) {
-                  const part = parts[partIndex];
-                  // Consecutive Parts may have the same node index, in the case of
-                  // multiple bound attributes on an element. So each iteration we either
-                  // increment the nodeIndex, if we aren't on a node with a part, or the
-                  // partIndex if we are. By not incrementing the nodeIndex when we find a
-                  // part, we allow for the next part to be associated with the current
-                  // node if neccessasry.
-                  if (!isTemplatePartActive(part)) {
-                      this._parts.push(undefined);
-                      partIndex++;
-                  }
-                  else if (nodeIndex === part.index) {
-                      if (part.type === 'node') {
-                          const part = this.processor.handleTextExpression(this.options);
-                          part.insertAfterNode(node.previousSibling);
-                          this._parts.push(part);
-                      }
-                      else {
-                          this._parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
-                      }
-                      partIndex++;
-                  }
-                  else {
-                      nodeIndex++;
-                      if (node.nodeName === 'TEMPLATE') {
-                          _prepareInstance(node.content);
-                      }
-                      node = walker.nextNode();
-                  }
-              }
-          };
-          _prepareInstance(fragment);
-          if (isCEPolyfill) {
-              document.adoptNode(fragment);
-              customElements.upgrade(fragment);
-          }
-          return fragment;
-      }
-  }
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  /**
-   * The return type of `html`, which holds a Template and the values from
-   * interpolated expressions.
-   */
-  class TemplateResult$1 {
-      constructor(strings, values, type, processor) {
-          this.strings = strings;
-          this.values = values;
-          this.type = type;
-          this.processor = processor;
-      }
-      /**
-       * Returns a string of HTML used to create a `<template>` element.
-       */
-      getHTML() {
-          const endIndex = this.strings.length - 1;
-          let html = '';
-          for (let i = 0; i < endIndex; i++) {
-              const s = this.strings[i];
-              // This exec() call does two things:
-              // 1) Appends a suffix to the bound attribute name to opt out of special
-              // attribute value parsing that IE11 and Edge do, like for style and
-              // many SVG attributes. The Template class also appends the same suffix
-              // when looking up attributes to create Parts.
-              // 2) Adds an unquoted-attribute-safe marker for the first expression in
-              // an attribute. Subsequent attribute expressions will use node markers,
-              // and this is safe since attributes with multiple expressions are
-              // guaranteed to be quoted.
-              const match = lastAttributeNameRegex$1.exec(s);
-              if (match) {
-                  // We're starting a new bound attribute.
-                  // Add the safe attribute suffix, and use unquoted-attribute-safe
-                  // marker.
-                  html += s.substr(0, match.index) + match[1] + match[2] +
-                      boundAttributeSuffix + match[3] + marker;
-              }
-              else {
-                  // We're either in a bound node, or trailing bound attribute.
-                  // Either way, nodeMarker is safe to use.
-                  html += s + nodeMarker;
-              }
-          }
-          return html + this.strings[endIndex];
-      }
-      getTemplateElement() {
-          const template = document.createElement('template');
-          template.innerHTML = this.getHTML();
-          return template;
-      }
-  }
-  /**
-   * A TemplateResult for SVG fragments.
-   *
-   * This class wraps HTMl in an `<svg>` tag in order to parse its contents in the
-   * SVG namespace, then modifies the template to remove the `<svg>` tag so that
-   * clones only container the original fragment.
-   */
-  class SVGTemplateResult extends TemplateResult$1 {
-      getHTML() {
-          return `<svg>${super.getHTML()}</svg>`;
-      }
-      getTemplateElement() {
-          const template = super.getTemplateElement();
-          const content = template.content;
-          const svgElement = content.firstChild;
-          content.removeChild(svgElement);
-          reparentNodes(content, svgElement.firstChild);
-          return template;
-      }
-  }
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  try {
-      const options = {
-          get capture() {
-              return false;
-          }
-      };
-      // tslint:disable-next-line:no-any
-      window.addEventListener('test', options, options);
-      // tslint:disable-next-line:no-any
-      window.removeEventListener('test', options, options);
-  }
-  catch (_e) {
-  }
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  // IMPORTANT: do not change the property name or the assignment expression.
-  // This line will be used in regexes to search for lit-html usage.
-  // TODO(justinfagnani): inject version number at build time
-  inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
-
-  /**
-   * 判断传入对象是否可迭代
-   */
-  var isIterable = value => {
-    return isArray( value ) || !!(
-      value && value[ Symbol.iterator ]
-    );
-  };
-
-  /**
-   * 所有模板类型的缓存对象
-   */
-  const templateCaches = create( null );
-
-  var templateFactory = result => {
-    /**
-     * 当前模板类型的缓存对象
-     *  - 'html'
-     *  - 'svg'
-     */
-    let templateCache = templateCaches[ result.type ];
-
-    // 如果没有获取到当前模板类型的缓存对象
-    // 则进行创建并进行缓存
-    if( !templateCache ){
-      templateCaches[ result.type ] = templateCache = {
-        stringsArray: new WeakMap(),
-        keyString: create( null )
-      };
-    }
-
-    /**
-     * 当前模板字面量对应的处理模板
-     */
-    let template = templateCache.stringsArray.get( result.strings );
-
-    // 获取到了值, 说明之前处理过该模板字面量, 直接返回对应模板
-    if( template ){
-      return template;
-    }
-
-    /**
-     * 使用随机的密钥连接模板字面量, 连接后完全相同的模板字面量字符串会公用同一个模板
-     */
-    const key = result.strings.join( marker );
-
-    // 尝试获取当前模板字面量字符串对应的模板
-    template = templateCache.keyString[ key ];
-
-    // 如果没有获取到当前模板字面量字符串对应的模板
-    // 则进行创建并进行缓存
-    if( !template ){
-      templateCache.keyString[ key ] = template = new Template(
-        result,
-        result.getTemplateElement()
-      );
-    }
-
-    // 缓存当前模板
-    templateCache.stringsArray.set( result.strings, template );
-
-    // 返回对应模板
-    return template;
-  };
-
-  class NodePart{
-
-    setValue( value ){
-      if( isDirective( value ) ){
-        return value( this );
-      }
-
-      this.oldValue = this.value;
-      this.value = value;
-    }
-
-    commit(){
-      const { value, oldValue } = this;
-
-      if( isEqual( value, oldValue ) ){
-        return;
-      }
-
-      if( isPrimitive( value ) ){
-        commitText( this, value );
-      }
-      else if( value instanceof TemplateResult ){
-        commitTemplateResult( this, value );
-      }
-      else if( value instanceof Node ){
-        commitNode( this, value );
-      }
-      else if( isIterable( value ) ){
-        commitIterable( this, value );
-      }else{
-        commitText( this, value );
-      }
-    }
-
-    /**
-     * 添加当前节点到父节点中
-     * @param {NodePart} part 
-     */
-    appendIntoPart( part ){
-      part.insert( this.startNode = createMarker() );
-      part.insert( this.endNode = createMarker() );
-    }
-    /**
-     * 添加当前节点到指定节点后
-     * @param {NodePart} part 
-     */
-    insertAfterPart( part ){
-      part.insert( this.startNode = createMarker() );
-      this.endNode = part.endNode;
-      part.endNode = this.startNode;
-    }
-    /**
-     * 将当前节点到指定 DOM 节点中
-     * @param {Element} container 
-     */
-    appendInto( container ){
-      this.startNode = container.appendChild( createMarker() );
-      this.endNode = container.appendChild( createMarker() );
-    }
-    /**
-     * 添加当前节点到指定节点后
-     * @param {NodePart} part 
-     */
-    insertAfterNode( part ){
-      this.startNode = part;
-      this.endNode = part.nextSibling;
-    }
-    /**
-     * 插入 DOM 节点到当前节点中
-     * @param {Node} node 
-     */
-    insert( node ){
-      const endNode = this.endNode;
-      endNode.parentNode.insertBefore( node, endNode );
-    }
-    /**
-     * 清空当前节点的所有内容
-     * @param {Node} startNode 
-     */
-    clear( startNode = this.startNode ){
-      removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
-    }
-
-  }
-
-  function commitText( nodePart, value ){
-    if( value == null ) value = '';
-
-    const node = nodePart.startNode.nextSibling;
-    const valueAsString = isString( value ) ? value : String( value );
-
-    if( node === nodePart.endNode.previousSibling && node.nodeType === 3 ){
-      node.data = valueAsString;
-    }else{
-      commitNode(
-        nodePart,
-        document.createTextNode( valueAsString )
-      );
-    }
-  }
-
-  function commitNode( nodePart, value ){
-    nodePart.clear();
-    nodePart.insert( value );
-  }
-
-  function commitTemplateResult( nodePart, value ){
-    const oldValue = nodePart.oldValue;
-    const template = templateFactory( value );
-
-    if( oldValue instanceof TemplateInstance && oldValue.template === template ){
-      nodePart.value = oldValue;
-      oldValue.update( value.values );
-    }else{
-      const instance = nodePart.value = new TemplateInstance( template, value.processor );
-      const fragment = instance._clone();
-
-      instance.update( value.values );
-      commitNode( nodePart, fragment );
-    }
-  }
-
-  function commitIterable( nodePart, value ){
-    if( !isArray( nodePart.oldValue ) ){
-      nodePart.oldValue = [];
-      nodePart.clear();
-    }
-
-    const itemParts = nodePart.oldValue;
-    let partIndex = 0;
-    let itemPart;
-
-    for( let item of value ){
-      itemPart = itemParts[ partIndex ];
-
-      if( itemPart === undefined ){
-        itemPart = new NodePart( nodePart.options );
-        itemParts.push( itemPart );
-
-        if( partIndex === 0 ){
-          itemPart.appendIntoPart( nodePart );
-        }else{
-          itemPart.insertAfterPart( itemParts[ partIndex - 1 ] );
-        }
-      }
-
-      itemPart.setValue( item );
-      itemPart.commit();
-      partIndex++;
-    }
-
-    if( partIndex < itemParts.length ){
-      itemParts.length = partIndex;
-      nodePart.clear( itemPart && itemPart.endNode );
-    }
-
-    nodePart.value = itemParts;
-  }
-
-  const parts = new WeakMap();
-
-  function basicRender( result, container ){
-    // 尝试获取上次创建的节点对象
-    let part = parts.get( container );
-
-    // 首次在该目标对象下进行渲染, 对节点对象进行创建
-    if( !part ){
-      // 移除需要渲染的目标对象下的所有内容
-      removeNodes( container, container.firstChild );
-
-      // 创建节点对象
-      parts.set(
-        container,
-        part = new NodePart()
-      );
-      // 将节点对象添加至目标元素
-      part.appendInto( container );
-    }
-
-    part.setValue( result );
-    part.commit();
-  }
-
-
-  var render = ( result, container ) => {
-    unWatchAllDirectiveCache( container );
-    renderStack.push( container );
-    basicRender( result, container );
-    renderStack.pop();
-  };
 
   class AttributeCommitter{
 
@@ -2962,9 +2395,6 @@
       // 正常属性
       return ( new AttributeCommitter( element, name, strings ) ).parts;
     }
-    handleTextExpression(){
-      return new NodePart();
-    }
   }
 
   var templateProcessor = new TemplateProcessor();
@@ -2980,6 +2410,591 @@
     text: TextDirective,
     html: HtmlDirective,
     show: ShowDirective
+  };
+
+  class TemplateInstance{
+
+    constructor( template, processor ){
+      this.parts = [];
+      this.template = template;
+      this.processor = processor;
+    }
+
+    update( values ){
+      const parts = this.parts;
+      let index = 0;
+
+      for( let part of parts ){
+        if( part !== undefined ) part.setValue( values[ index ] );
+        index++;
+      }
+      for( let part of parts ){
+        if( part !== undefined ) part.commit();
+      }
+    }
+
+    clone(){
+      const { template } = this;
+      const { parts, element: { content }, parts: { length: partsLength } } = template;
+      const fragment = isCEPolyfill ? content.cloneNode( true ) : document.importNode( content, true );
+      const stack = [];
+      const walker = document.createTreeWalker( fragment, 133, null, false );
+      let partIndex = 0;
+      let nodeIndex = 0;
+      let part;
+      let node = walker.nextNode();
+
+      while( partIndex < partsLength ){
+        part = parts[ partIndex ];
+
+        if( !isTemplatePartActive( part ) ){
+          this.parts.push( undefined );
+          partIndex++;
+          continue;
+        }
+
+        while( nodeIndex < part.index ){
+          nodeIndex++;
+
+          if( node.nodeName === 'TEMPLATE' ){
+            stack.push( node );
+            walker.currentNode = node.content;
+          }
+
+          node = walker.nextNode();
+
+          if( node === null ){
+            walker.currentNode = stack.pop();
+            node = walker.nextNode();
+          }
+        }
+
+        if( part.type === 'node' ){
+          const part = new NodePart();
+                part.insertAfterNode( node.previousSibling );
+          this.parts.push( part );
+        }else{
+          this.parts.push(
+            ...templateProcessor.handleAttributeExpressions( node, part.name, part.strings )
+          );
+        }
+
+        partIndex++;
+      }
+
+      if( isCEPolyfill ){
+        document.adoptNode( fragment );
+        customElements.upgrade( fragment );
+      }
+
+      return fragment;
+    }
+
+  }
+
+
+  function isTemplatePartActive( part ){
+    return part.index !== -1;
+  }
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  //# sourceMappingURL=directive.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * True if the custom elements polyfill is in use.
+   */
+  const isCEPolyfill$1 = inBrowser && window.customElements !== undefined &&
+      window.customElements.polyfillWrapFlushCallback !==
+          undefined;
+  /**
+   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
+   * (exclusive), into another container (could be the same container), before
+   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
+   * container.
+   */
+  const reparentNodes = (container, start, end = null, before = null) => {
+      let node = start;
+      while (node !== end) {
+          const n = node.nextSibling;
+          container.insertBefore(node, before);
+          node = n;
+      }
+  };
+  //# sourceMappingURL=dom.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  //# sourceMappingURL=part.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  //# sourceMappingURL=template-instance.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * The return type of `html`, which holds a Template and the values from
+   * interpolated expressions.
+   */
+  class TemplateResult$1 {
+      constructor(strings, values, type, processor) {
+          this.strings = strings;
+          this.values = values;
+          this.type = type;
+          this.processor = processor;
+      }
+      /**
+       * Returns a string of HTML used to create a `<template>` element.
+       */
+      getHTML() {
+          const endIndex = this.strings.length - 1;
+          let html = '';
+          for (let i = 0; i < endIndex; i++) {
+              const s = this.strings[i];
+              // This exec() call does two things:
+              // 1) Appends a suffix to the bound attribute name to opt out of special
+              // attribute value parsing that IE11 and Edge do, like for style and
+              // many SVG attributes. The Template class also appends the same suffix
+              // when looking up attributes to create Parts.
+              // 2) Adds an unquoted-attribute-safe marker for the first expression in
+              // an attribute. Subsequent attribute expressions will use node markers,
+              // and this is safe since attributes with multiple expressions are
+              // guaranteed to be quoted.
+              const match = lastAttributeNameRegex$1.exec(s);
+              if (match) {
+                  // We're starting a new bound attribute.
+                  // Add the safe attribute suffix, and use unquoted-attribute-safe
+                  // marker.
+                  html += s.substr(0, match.index) + match[1] + match[2] +
+                      boundAttributeSuffix + match[3] + marker;
+              }
+              else {
+                  // We're either in a bound node, or trailing bound attribute.
+                  // Either way, nodeMarker is safe to use.
+                  html += s + nodeMarker;
+              }
+          }
+          return html + this.strings[endIndex];
+      }
+      getTemplateElement() {
+          const template = document.createElement('template');
+          template.innerHTML = this.getHTML();
+          return template;
+      }
+  }
+  /**
+   * A TemplateResult for SVG fragments.
+   *
+   * This class wraps HTMl in an `<svg>` tag in order to parse its contents in the
+   * SVG namespace, then modifies the template to remove the `<svg>` tag so that
+   * clones only container the original fragment.
+   */
+  class SVGTemplateResult extends TemplateResult$1 {
+      getHTML() {
+          return `<svg>${super.getHTML()}</svg>`;
+      }
+      getTemplateElement() {
+          const template = super.getTemplateElement();
+          const content = template.content;
+          const svgElement = content.firstChild;
+          content.removeChild(svgElement);
+          reparentNodes(content, svgElement.firstChild);
+          return template;
+      }
+  }
+  //# sourceMappingURL=template-result.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  try {
+      const options = {
+          get capture() {
+              return false;
+          }
+      };
+      // tslint:disable-next-line:no-any
+      window.addEventListener('test', options, options);
+      // tslint:disable-next-line:no-any
+      window.removeEventListener('test', options, options);
+  }
+  catch (_e) {
+  }
+  //# sourceMappingURL=parts.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  //# sourceMappingURL=default-template-processor.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  //# sourceMappingURL=template-factory.js.map
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  //# sourceMappingURL=render.js.map
+
+  // IMPORTANT: do not change the property name or the assignment expression.
+  // This line will be used in regexes to search for lit-html usage.
+  // TODO(justinfagnani): inject version number at build time
+  inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
+  //# sourceMappingURL=lit-html.js.map
+
+  /**
+   * 判断传入对象是否可迭代
+   */
+  var isIterable = value => {
+    return isArray( value ) || !!(
+      value && value[ Symbol.iterator ]
+    );
+  };
+
+  /**
+   * 所有模板类型的缓存对象
+   */
+  const templateCaches = create( null );
+
+  var templateFactory = result => {
+    /**
+     * 当前模板类型的缓存对象
+     *  - 'html'
+     *  - 'svg'
+     */
+    let templateCache = templateCaches[ result.type ];
+
+    // 如果没有获取到当前模板类型的缓存对象
+    // 则进行创建并进行缓存
+    if( !templateCache ){
+      templateCaches[ result.type ] = templateCache = {
+        stringsArray: new WeakMap(),
+        keyString: create( null )
+      };
+    }
+
+    /**
+     * 当前模板字面量对应的处理模板
+     */
+    let template = templateCache.stringsArray.get( result.strings );
+
+    // 获取到了值, 说明之前处理过该模板字面量, 直接返回对应模板
+    if( template ){
+      return template;
+    }
+
+    /**
+     * 使用随机的密钥连接模板字面量, 连接后完全相同的模板字面量字符串会公用同一个模板
+     */
+    const key = result.strings.join( marker );
+
+    // 尝试获取当前模板字面量字符串对应的模板
+    template = templateCache.keyString[ key ];
+
+    // 如果没有获取到当前模板字面量字符串对应的模板
+    // 则进行创建并进行缓存
+    if( !template ){
+      templateCache.keyString[ key ] = template = new Template(
+        result,
+        result.getTemplateElement()
+      );
+    }
+
+    // 缓存当前模板
+    templateCache.stringsArray.set( result.strings, template );
+
+    // 返回对应模板
+    return template;
+  };
+
+  class NodePart{
+
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
+    }
+
+    commit(){
+      const { value, oldValue } = this;
+
+      if( isEqual( value, oldValue ) ){
+        return;
+      }
+
+      if( isPrimitive( value ) ){
+        commitText( this, value );
+      }
+      else if( value instanceof TemplateResult ){
+        commitTemplateResult( this, value );
+      }
+      else if( value instanceof Node ){
+        commitNode( this, value );
+      }
+      else if( isIterable( value ) ){
+        commitIterable( this, value );
+      }else{
+        commitText( this, value );
+      }
+    }
+
+    /**
+     * 添加当前节点到父节点中
+     * @param {NodePart} part 
+     */
+    appendIntoPart( part ){
+      part.insert( this.startNode = createMarker() );
+      part.insert( this.endNode = createMarker() );
+    }
+    /**
+     * 添加当前节点到指定节点后
+     * @param {NodePart} part 
+     */
+    insertAfterPart( part ){
+      part.insert( this.startNode = createMarker() );
+      this.endNode = part.endNode;
+      part.endNode = this.startNode;
+    }
+    /**
+     * 将当前节点到指定 DOM 节点中
+     * @param {Element} container 
+     */
+    appendInto( container ){
+      this.startNode = container.appendChild( createMarker() );
+      this.endNode = container.appendChild( createMarker() );
+    }
+    /**
+     * 添加当前节点到指定节点后
+     * @param {NodePart} part 
+     */
+    insertAfterNode( part ){
+      this.startNode = part;
+      this.endNode = part.nextSibling;
+    }
+    /**
+     * 插入 DOM 节点到当前节点中
+     * @param {Node} node 
+     */
+    insert( node ){
+      const endNode = this.endNode;
+      endNode.parentNode.insertBefore( node, endNode );
+    }
+    /**
+     * 清空当前节点的所有内容
+     * @param {Node} startNode 
+     */
+    clear( startNode = this.startNode ){
+      removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
+    }
+
+  }
+
+  function commitText( nodePart, value ){
+    if( value == null ) value = '';
+
+    const node = nodePart.startNode.nextSibling;
+    const valueAsString = isString( value ) ? value : String( value );
+
+    if( node === nodePart.endNode.previousSibling && node.nodeType === 3 ){
+      node.data = valueAsString;
+    }else{
+      commitNode(
+        nodePart,
+        document.createTextNode( valueAsString )
+      );
+    }
+  }
+
+  function commitNode( nodePart, value ){
+    nodePart.clear();
+    nodePart.insert( value );
+  }
+
+  function commitTemplateResult( nodePart, value ){
+    const oldValue = nodePart.oldValue;
+    const template = templateFactory( value );
+
+    if( oldValue instanceof TemplateInstance && oldValue.template === template ){
+      nodePart.value = oldValue;
+      oldValue.update( value.values );
+    }else{
+      const instance = nodePart.value = new TemplateInstance( template, value.processor );
+      const fragment = instance.clone();
+
+      instance.update( value.values );
+      commitNode( nodePart, fragment );
+    }
+  }
+
+  function commitIterable( nodePart, value ){
+    if( !isArray( nodePart.oldValue ) ){
+      nodePart.oldValue = [];
+      nodePart.clear();
+    }
+
+    const itemParts = nodePart.oldValue;
+    let partIndex = 0;
+    let itemPart;
+
+    for( let item of value ){
+      itemPart = itemParts[ partIndex ];
+
+      if( itemPart === undefined ){
+        itemPart = new NodePart( nodePart.options );
+        itemParts.push( itemPart );
+
+        if( partIndex === 0 ){
+          itemPart.appendIntoPart( nodePart );
+        }else{
+          itemPart.insertAfterPart( itemParts[ partIndex - 1 ] );
+        }
+      }
+
+      itemPart.setValue( item );
+      itemPart.commit();
+      partIndex++;
+    }
+
+    if( partIndex < itemParts.length ){
+      itemParts.length = partIndex;
+      nodePart.clear( itemPart && itemPart.endNode );
+    }
+
+    nodePart.value = itemParts;
+  }
+
+  const parts = new WeakMap();
+
+  function basicRender( result, container ){
+    // 尝试获取上次创建的节点对象
+    let part = parts.get( container );
+
+    // 首次在该目标对象下进行渲染, 对节点对象进行创建
+    if( !part ){
+      // 移除需要渲染的目标对象下的所有内容
+      removeNodes( container, container.firstChild );
+
+      // 创建节点对象
+      parts.set(
+        container,
+        part = new NodePart()
+      );
+      // 将节点对象添加至目标元素
+      part.appendInto( container );
+    }
+
+    part.setValue( result );
+    part.commit();
+  }
+
+
+  var render = ( result, container ) => {
+    unWatchAllDirectiveCache( container );
+    renderStack.push( container );
+    basicRender( result, container );
+    renderStack.pop();
   };
 
   /**

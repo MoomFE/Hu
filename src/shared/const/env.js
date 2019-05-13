@@ -23,4 +23,10 @@ try{
 }catch(e){}
 
 
-export const hasShadyCss = typeof window.ShadyCSS !== 'undefined' && !window.ShadyCSS.nativeShadow;
+export const hasShadyCss = inBrowser
+                        && window.ShadyCSS !== undefined
+                        && !window.ShadyCSS.nativeShadow;
+
+export const isCEPolyfill = inBrowser
+                         && window.customElements !== undefined
+                         && window.customElements.polyfillWrapFlushCallback !== undefined;

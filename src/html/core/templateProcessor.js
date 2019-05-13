@@ -1,5 +1,4 @@
 import { has } from '../../shared/global/Reflect/index';
-import NodePart from './node';
 import AttributeCommitter from '../directiveBasic/attribute';
 import BasicEventDirective from '../directiveBasic/event';
 import BasicBooleanDirective from '../directiveBasic/boolean';
@@ -56,9 +55,6 @@ class TemplateProcessor{
 
     // 正常属性
     return ( new AttributeCommitter( element, name, strings ) ).parts;
-  }
-  handleTextExpression(){
-    return new NodePart();
   }
 }
 
