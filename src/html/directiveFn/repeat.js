@@ -1,8 +1,9 @@
 import NodePart from '../core/node';
 import directive from '../util/directive';
-import { reparentNodes, createMarker } from 'lit-html';
 import isFunction from '../../shared/util/isFunction';
 import removeNodes from '../../shared/util/removeNodes';
+import moveChildNodes from '../../shared/util/moveChildNodes';
+import createMarker from '../util/createMarker';
 
 
 /**
@@ -141,7 +142,7 @@ function insertPartBefore( containerPart, part, ref ){
   const endNode = part.endNode.nextSibling;
   
   if( endNode !== beforeNode ){
-    reparentNodes( container, part.startNode, endNode, beforeNode );
+    moveChildNodes( container, part.startNode, endNode, beforeNode );
   }
 }
 
