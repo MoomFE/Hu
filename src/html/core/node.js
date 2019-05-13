@@ -5,10 +5,10 @@ import isString from "../../shared/util/isString";
 import removeNodes from "../../shared/util/removeNodes";
 import TemplateResult from "./templateResult";
 import TemplateInstance from "./templateInstance";
-import { createMarker } from "lit-html";
 import isIterable from "../../shared/util/isIterable";
 import { isArray } from "../../shared/global/Array/index";
 import templateFactory from "./templateFactory";
+import createMarker from "../util/createMarker";
 
 
 export default class NodePart{

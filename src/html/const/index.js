@@ -1,3 +1,6 @@
+import { random } from "../../shared/global/Math/index";
+
+
 /**
  * 指令方法合集
  */
@@ -30,3 +33,11 @@ export const directives = new WeakSet();
  *    * (') then any non-(')
  */
 export const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+
+export const boundAttributeSuffix = '$hu';
+
+export const marker = `{{hu-${ String( random() ).slice(2) }}}`;
+
+export const nodeMarker = `<!--${ marker }-->`;
+
+export const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);

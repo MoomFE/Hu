@@ -1,6 +1,6 @@
 import { create } from "../../shared/global/Object/index";
-import { marker } from "../../../node_modules/lit-html/lib/template";
 import Template from "./template";
+import { marker } from "../const/index";
 
 
 /**

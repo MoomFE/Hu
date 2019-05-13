@@ -1,5 +1,5 @@
-import { boundAttributeSuffix, markerRegex, marker, createMarker } from "../../../node_modules/lit-html/lib/template";
-import { lastAttributeNameRegex } from "../const/index";
+import { lastAttributeNameRegex, boundAttributeSuffix, markerRegex, marker } from "../const/index";
+import createMarker from "../util/createMarker";
 
 
 export default class Template{
