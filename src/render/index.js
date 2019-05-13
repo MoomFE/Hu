@@ -1,9 +1,9 @@
 import { renderStack } from './const/index';
 import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
-import { removeNodes } from 'lit-html';
 import { assign } from '../shared/global/Object/index';
 import templateFactory from '../html/core/templateFactory';
 import NodePart from '../html/core/node';
+import removeNodes from '../shared/util/removeNodes';
 
 
 const parts = new WeakMap();
