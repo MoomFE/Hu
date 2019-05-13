@@ -1215,136 +1215,6 @@
    * Suffix appended to all bound attribute names.
    */
   const boundAttributeSuffix = '$lit$';
-  /**
-   * An updateable Template that tracks the location of dynamic parts.
-   */
-  class Template {
-      constructor(result, element) {
-          this.parts = [];
-          this.element = element;
-          let index = -1;
-          let partIndex = 0;
-          const nodesToRemove = [];
-          const _prepareTemplate = (template) => {
-              const content = template.content;
-              // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be
-              // null
-              const walker = document.createTreeWalker(content, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
-              // Keeps track of the last index associated with a part. We try to delete
-              // unnecessary nodes, but we never want to associate two different parts
-              // to the same index. They must have a constant node between.
-              let lastPartIndex = 0;
-              while (walker.nextNode()) {
-                  index++;
-                  const node = walker.currentNode;
-                  if (node.nodeType === 1 /* Node.ELEMENT_NODE */) {
-                      if (node.hasAttributes()) {
-                          const attributes = node.attributes;
-                          // Per
-                          // https://developer.mozilla.org/en-US/docs/Web/API/NamedNodeMap,
-                          // attributes are not guaranteed to be returned in document order.
-                          // In particular, Edge/IE can return them out of order, so we cannot
-                          // assume a correspondance between part index and attribute index.
-                          let count = 0;
-                          for (let i = 0; i < attributes.length; i++) {
-                              if (attributes[i].value.indexOf(marker) >= 0) {
-                                  count++;
-                              }
-                          }
-                          while (count-- > 0) {
-                              // Get the template literal section leading up to the first
-                              // expression in this attribute
-                              const stringForPart = result.strings[partIndex];
-                              // Find the attribute name
-                              const name = lastAttributeNameRegex$1.exec(stringForPart)[2];
-                              // Find the corresponding attribute
-                              // All bound attributes have had a suffix added in
-                              // TemplateResult#getHTML to opt out of special attribute
-                              // handling. To look up the attribute value we also need to add
-                              // the suffix.
-                              const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
-                              const attributeValue = node.getAttribute(attributeLookupName);
-                              const strings = attributeValue.split(markerRegex);
-                              this.parts.push({ type: 'attribute', index, name, strings });
-                              node.removeAttribute(attributeLookupName);
-                              partIndex += strings.length - 1;
-                          }
-                      }
-                      if (node.tagName === 'TEMPLATE') {
-                          _prepareTemplate(node);
-                      }
-                  }
-                  else if (node.nodeType === 3 /* Node.TEXT_NODE */) {
-                      const data = node.data;
-                      if (data.indexOf(marker) >= 0) {
-                          const parent = node.parentNode;
-                          const strings = data.split(markerRegex);
-                          const lastIndex = strings.length - 1;
-                          // Generate a new text node for each literal section
-                          // These nodes are also used as the markers for node parts
-                          for (let i = 0; i < lastIndex; i++) {
-                              parent.insertBefore((strings[i] === '') ? createMarker() :
-                                  document.createTextNode(strings[i]), node);
-                              this.parts.push({ type: 'node', index: ++index });
-                          }
-                          // If there's no text, we must insert a comment to mark our place.
-                          // Else, we can trust it will stick around after cloning.
-                          if (strings[lastIndex] === '') {
-                              parent.insertBefore(createMarker(), node);
-                              nodesToRemove.push(node);
-                          }
-                          else {
-                              node.data = strings[lastIndex];
-                          }
-                          // We have a part for each match found
-                          partIndex += lastIndex;
-                      }
-                  }
-                  else if (node.nodeType === 8 /* Node.COMMENT_NODE */) {
-                      if (node.data === marker) {
-                          const parent = node.parentNode;
-                          // Add a new marker node to be the startNode of the Part if any of
-                          // the following are true:
-                          //  * We don't have a previousSibling
-                          //  * The previousSibling is already the start of a previous part
-                          if (node.previousSibling === null || index === lastPartIndex) {
-                              index++;
-                              parent.insertBefore(createMarker(), node);
-                          }
-                          lastPartIndex = index;
-                          this.parts.push({ type: 'node', index });
-                          // If we don't have a nextSibling, keep this node so we have an end.
-                          // Else, we can remove it to save future costs.
-                          if (node.nextSibling === null) {
-                              node.data = '';
-                          }
-                          else {
-                              nodesToRemove.push(node);
-                              index--;
-                          }
-                          partIndex++;
-                      }
-                      else {
-                          let i = -1;
-                          while ((i = node.data.indexOf(marker, i + 1)) !==
-                              -1) {
-                              // Comment node has a binding marker inside, make an inactive part
-                              // The binding won't work, but subsequent bindings will
-                              // TODO (justinfagnani): consider whether it's even worth it to
-                              // make bindings in comments work
-                              this.parts.push({ type: 'node', index: -1 });
-                          }
-                      }
-                  }
-              }
-          };
-          _prepareTemplate(element);
-          // Remove text binding nodes after the walk to not disturb the TreeWalker
-          for( let n of nodesToRemove) {
-              n.parentNode.removeChild(n);
-          }
-      }
-  }
   // Allows `document.createComment('')` to be renamed for a
   // small manual size-savings.
   const createMarker = () => document.createComment('');
@@ -1374,7 +1244,6 @@
    *    * (') then any non-(')
    */
   const lastAttributeNameRegex$1 = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-  //# sourceMappingURL=template.js.map
 
   class TemplateResult{
 
@@ -2510,7 +2379,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  //# sourceMappingURL=directive.js.map
 
   /**
    * @license
@@ -2545,7 +2413,6 @@
           node = n;
       }
   };
-  //# sourceMappingURL=dom.js.map
 
   /**
    * @license
@@ -2560,7 +2427,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  //# sourceMappingURL=part.js.map
 
   /**
    * @license
@@ -2575,7 +2441,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  //# sourceMappingURL=template-instance.js.map
 
   /**
    * @license
@@ -2660,7 +2525,6 @@
           return template;
       }
   }
-  //# sourceMappingURL=template-result.js.map
 
   /**
    * @license
@@ -2688,7 +2552,6 @@
   }
   catch (_e) {
   }
-  //# sourceMappingURL=parts.js.map
 
   /**
    * @license
@@ -2703,7 +2566,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  //# sourceMappingURL=default-template-processor.js.map
 
   /**
    * @license
@@ -2718,7 +2580,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  //# sourceMappingURL=template-factory.js.map
 
   /**
    * @license
@@ -2733,13 +2594,11 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  //# sourceMappingURL=render.js.map
 
   // IMPORTANT: do not change the property name or the assignment expression.
   // This line will be used in regexes to search for lit-html usage.
   // TODO(justinfagnani): inject version number at build time
   inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
-  //# sourceMappingURL=lit-html.js.map
 
   /**
    * 判断传入对象是否可迭代
@@ -2749,6 +2608,167 @@
       value && value[ Symbol.iterator ]
     );
   };
+
+  class Template{
+
+    constructor( result, element ){
+      this.parts = [];
+      this.element = element;
+
+      const nodesToRemove = [];
+      const stack = [];
+      const walker = document.createTreeWalker( element.content, 133, null, false );
+      const { strings, values: { length } } = result;
+      let lastPartIndex = 0;
+      let index = -1;
+      let partIndex = 0;
+
+      while( partIndex < length ){
+        const node = walker.nextNode();
+
+        if( node === null ){
+          walker.currentNode = stack.pop();
+          continue;
+        }
+
+        index++;
+
+        /**
+         * ElementNode
+         */
+        if( node.nodeType === 1 ){
+          if( node.hasAttributes() ){
+            const attributes = node.attributes;
+            const { length } = attributes;
+        
+            let count = 0;
+            for( let i = 0; i < length; i++ ){
+              if( endsWith( attributes[ i ].name, boundAttributeSuffix ) ){
+                count++;
+              }
+            }
+        
+            while( count-- > 0 ){
+              const stringForPart = strings[ partIndex ];
+              const name = lastAttributeNameRegex.exec( stringForPart )[2];
+              const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
+              const attributeValue = node.getAttribute( attributeLookupName );
+              const statics = attributeValue.split( markerRegex );
+
+              node.removeAttribute( attributeLookupName );
+              partIndex += statics.length - 1;
+              this.parts.push({
+                type: 'attribute',
+                index,
+                name,
+                strings: statics
+              });
+            }
+          }
+          if( node.tagName === 'TEMPLATE' ){
+            stack.push( node );
+            walker.currentNode = node.content;
+          }
+        }
+        /**
+         * TextNode
+         */
+        else if( node.nodeType === 3 ){
+          const data = node.data;
+
+          if( data.indexOf( marker ) >= 0 ){
+            const parent = node.parentNode;
+            const strings = data.split( markerRegex );
+            const lastIndex = strings.length - 1;
+
+            for( let i = 0; i < lastIndex; i++ ){
+              let insert;
+              let string = strings[ i ];
+              
+              if( string === '' ){
+                insert = createMarker();
+              }else{
+                const match = lastAttributeNameRegex.exec( s );
+
+                if( match !== null && endsWith( match[2], boundAttributeSuffix ) ){
+                  string = string.slice( 0, match.index )
+                         + match[ 1 ]
+                         + match[ 2 ].slice( 0, -boundAttributeSuffix.length )
+                         + match[ 3 ];
+                }
+
+                insert = document.createTextNode( string );
+              }
+
+              parent.insertBefore( insert, node );
+              this.parts.push({
+                type: 'node',
+                index: ++index
+              });
+            }
+
+            if( strings[ lastIndex ] === '' ){
+              parent.insertBefore( createMarker(), node );
+              nodesToRemove.push( node );
+            }else{
+              node.data = strings[ lastIndex ];
+            }
+
+            partIndex += lastIndex;
+          }
+        }
+        /**
+         * CommentNode
+         */
+        else if( node.nodeType === 8 ){
+          if( node.data === marker ){
+            const parent = node.parentNode;
+
+            if( node.previousSibling === null || index === lastPartIndex ){
+              index++;
+              parent.insertBefore( createMarker(), node );
+            }
+
+            lastPartIndex = index;
+            this.parts.push({
+              type: 'node',
+              index
+            });
+
+            if( node.nextSibling === null ){
+              node.data = '';
+            }else{
+              nodesToRemove.push( node );
+              index--;
+            }
+
+            partIndex++;
+          }else{
+            let i = -1;
+
+            while( ( i = node.data.indexOf( marker, i + 1 ) ) !== -1 ){
+              partIndex++;
+              this.parts.push({
+                type: 'node',
+                index: -1
+              });
+            }
+          }
+        }
+      }
+
+      for( let node of nodesToRemove ){
+        node.parentNode.removeChild( node );
+      }
+    }
+
+  }
+
+
+  function endsWith( str, suffix ){
+    const index = str.length - suffix.length;
+    return index >= 0 && str.slice( index ) === suffix;
+  }
 
   /**
    * 所有模板类型的缓存对象
