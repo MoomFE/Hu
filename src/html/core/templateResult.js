@@ -1,5 +1,5 @@
-import { lastAttributeNameRegex } from "../const/index";
-import { marker, nodeMarker, boundAttributeSuffix } from "../../../node_modules/lit-html/lib/template";
+import { lastAttributeNameRegex, boundAttributeSuffix, marker, nodeMarker } from "../const/index";
+import moveChildNodes from "../../shared/util/moveChildNodes";
 
 
 export default class TemplateResult{
@@ -42,6 +42,25 @@ export default class TemplateResult{
   getTemplateElement(){
     const template = document.createElement('template');
           template.innerHTML = this.getHTML();
+
+    return template;
+  }
+
+}
+
+export class SVGTemplateResult extends TemplateResult{
+
+  getHTML(){
+    return `<svg>${ super.getHTML() }</svg>`;
+  }
+
+  getTemplateElement(){
+    const template = super.getTemplateElement();
+    const content = template.content;
+    const elem = content.firstChild;
+
+    content.removeChild( elem );
+    moveChildNodes( content, elem.firstChild );
 
     return template;
   }
