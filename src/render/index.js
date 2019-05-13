@@ -1,14 +1,12 @@
 import { renderStack } from './const/index';
 import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
-import { assign } from '../shared/global/Object/index';
-import templateFactory from '../html/core/templateFactory';
 import NodePart from '../html/core/node';
 import removeNodes from '../shared/util/removeNodes';
 
 
 const parts = new WeakMap();
 
-function basicRender( result, container, options ){
+function basicRender( result, container ){
   // 尝试获取上次创建的节点对象
   let part = parts.get( container );
 
@@ -20,11 +18,7 @@ function basicRender( result, container, options ){
     // 创建节点对象
     parts.set(
       container,
-      part = new NodePart(
-        assign(
-          { templateFactory }, options
-        )
-      )
+      part = new NodePart()
     );
     // 将节点对象添加至目标元素
     part.appendInto( container );
@@ -35,9 +29,9 @@ function basicRender( result, container, options ){
 }
 
 
-export default ( result, container, options ) => {
+export default ( result, container ) => {
   unWatchAllDirectiveCache( container );
   renderStack.push( container );
-  basicRender( result, container, options );
+  basicRender( result, container );
   renderStack.pop();
 }

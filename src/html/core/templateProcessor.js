@@ -13,7 +13,7 @@ import ShowDirective from '../directive/show';
 
 
 class TemplateProcessor{
-  handleAttributeExpressions( element, name, strings, options ){
+  handleAttributeExpressions( element, name, strings ){
 
     const prefix = name[0];
 
@@ -57,8 +57,8 @@ class TemplateProcessor{
     // 正常属性
     return ( new AttributeCommitter( element, name, strings ) ).parts;
   }
-  handleTextExpression( options ){
-    return new NodePart( options );
+  handleTextExpression(){
+    return new NodePart();
   }
 }
 

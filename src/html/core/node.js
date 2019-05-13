@@ -6,13 +6,10 @@ import removeNodes from "../../shared/util/removeNodes";
 import { TemplateResult, TemplateInstance, createMarker } from "lit-html";
 import isIterable from "../../shared/util/isIterable";
 import { isArray } from "../../shared/global/Array/index";
+import templateFactory from "./templateFactory";
 
 
 export default class NodePart{
-
-  constructor( options ){
-    this.options = options;
-  }
 
   setValue( value ){
     if( isDirective( value ) ){
@@ -112,14 +109,14 @@ function commitNode( nodePart, value ){
 }
 
 function commitTemplateResult( nodePart, value ){
-  const { oldValue, options } = nodePart;
-  const template = options.templateFactory( value );
+  const oldValue = nodePart.oldValue;
+  const template = templateFactory( value );
 
   if( oldValue instanceof TemplateInstance && oldValue.template === template ){
     nodePart.value = oldValue;
     oldValue.update( value.values );
   }else{
-    const instance = new TemplateInstance( template, value.processor, options );
+    const instance = new TemplateInstance( template, value.processor );
     const fragment = instance._clone();
 
     instance.update( value.values );

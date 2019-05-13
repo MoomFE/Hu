@@ -1116,6 +1116,106 @@
   }
 
   /**
+   * 指令方法合集
+   */
+  const directives = new WeakSet();
+
+  /**
+   * 判断传入参数是否是指令方法
+   */
+  var isDirective = obj => {
+    return isFunction( obj ) && directives.has( obj );
+  };
+
+  /**
+   * 判断传入对象是否是原始对象
+   */
+  var isPrimitive = value => {
+    return value === null || !(
+      isObject( value ) || isFunction( value )
+    );
+  };
+
+  var removeNodes = /**
+   * 移除某个元素下的所有子元素
+   * @param {Element} container
+   * @param {Node} startNode
+   * @param {Node} endNode
+   */
+  ( container, startNode, endNode = null ) => {
+    let node = startNode;
+
+    while( node != endNode ){
+      const next = node.nextSibling;
+
+      container.removeChild( node );
+      node = next;
+    }
+  };
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * True if the custom elements polyfill is in use.
+   */
+  const isCEPolyfill = inBrowser && window.customElements !== undefined &&
+      window.customElements.polyfillWrapFlushCallback !==
+          undefined;
+  /**
+   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
+   * (exclusive), into another container (could be the same container), before
+   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
+   * container.
+   */
+  const reparentNodes = (container, start, end = null, before = null) => {
+      let node = start;
+      while (node !== end) {
+          const n = node.nextSibling;
+          container.insertBefore(node, before);
+          node = n;
+      }
+  };
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+
+  /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
    * This code may only be used under the BSD style license found at
@@ -1303,162 +1403,6 @@
    *    * (') then any non-(')
    */
   const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-
-  /**
-   * 所有模板类型的缓存对象
-   */
-  const templateCaches = create( null );
-
-  var templateFactory = result => {
-    /**
-     * 当前模板类型的缓存对象
-     *  - 'html'
-     *  - 'svg'
-     */
-    let templateCache = templateCaches[ result.type ];
-
-    // 如果没有获取到当前模板类型的缓存对象
-    // 则进行创建并进行缓存
-    if( !templateCache ){
-      templateCaches[ result.type ] = templateCache = {
-        stringsArray: new WeakMap(),
-        keyString: create( null )
-      };
-    }
-
-    /**
-     * 当前模板字面量对应的处理模板
-     */
-    let template = templateCache.stringsArray.get( result.strings );
-
-    // 获取到了值, 说明之前处理过该模板字面量, 直接返回对应模板
-    if( template ){
-      return template;
-    }
-
-    /**
-     * 使用随机的密钥连接模板字面量, 连接后完全相同的模板字面量字符串会公用同一个模板
-     */
-    const key = result.strings.join( marker );
-
-    // 尝试获取当前模板字面量字符串对应的模板
-    template = templateCache.keyString[ key ];
-
-    // 如果没有获取到当前模板字面量字符串对应的模板
-    // 则进行创建并进行缓存
-    if( !template ){
-      templateCache.keyString[ key ] = template = new Template(
-        result,
-        result.getTemplateElement()
-      );
-    }
-
-    // 缓存当前模板
-    templateCache.stringsArray.set( result.strings, template );
-
-    // 返回对应模板
-    return template;
-  };
-
-  /**
-   * 指令方法合集
-   */
-  const directives = new WeakSet();
-
-  /**
-   * 判断传入参数是否是指令方法
-   */
-  var isDirective = obj => {
-    return isFunction( obj ) && directives.has( obj );
-  };
-
-  /**
-   * 判断传入对象是否是原始对象
-   */
-  var isPrimitive = value => {
-    return value === null || !(
-      isObject( value ) || isFunction( value )
-    );
-  };
-
-  var removeNodes = /**
-   * 移除某个元素下的所有子元素
-   * @param {Element} container
-   * @param {Node} startNode
-   * @param {Node} endNode
-   */
-  ( container, startNode, endNode = null ) => {
-    let node = startNode;
-
-    while( node != endNode ){
-      const next = node.nextSibling;
-
-      container.removeChild( node );
-      node = next;
-    }
-  };
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  /**
-   * True if the custom elements polyfill is in use.
-   */
-  const isCEPolyfill = inBrowser && window.customElements !== undefined &&
-      window.customElements.polyfillWrapFlushCallback !==
-          undefined;
-  /**
-   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
-   * (exclusive), into another container (could be the same container), before
-   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
-   * container.
-   */
-  const reparentNodes = (container, start, end = null, before = null) => {
-      let node = start;
-      while (node !== end) {
-          const n = node.nextSibling;
-          container.insertBefore(node, before);
-          node = n;
-      }
-  };
-
-  /**
-   * @license
-   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
 
   /**
    * @license
@@ -1724,11 +1668,63 @@
     );
   };
 
-  class NodePart{
+  /**
+   * 所有模板类型的缓存对象
+   */
+  const templateCaches = create( null );
 
-    constructor( options ){
-      this.options = options;
+  var templateFactory = result => {
+    /**
+     * 当前模板类型的缓存对象
+     *  - 'html'
+     *  - 'svg'
+     */
+    let templateCache = templateCaches[ result.type ];
+
+    // 如果没有获取到当前模板类型的缓存对象
+    // 则进行创建并进行缓存
+    if( !templateCache ){
+      templateCaches[ result.type ] = templateCache = {
+        stringsArray: new WeakMap(),
+        keyString: create( null )
+      };
     }
+
+    /**
+     * 当前模板字面量对应的处理模板
+     */
+    let template = templateCache.stringsArray.get( result.strings );
+
+    // 获取到了值, 说明之前处理过该模板字面量, 直接返回对应模板
+    if( template ){
+      return template;
+    }
+
+    /**
+     * 使用随机的密钥连接模板字面量, 连接后完全相同的模板字面量字符串会公用同一个模板
+     */
+    const key = result.strings.join( marker );
+
+    // 尝试获取当前模板字面量字符串对应的模板
+    template = templateCache.keyString[ key ];
+
+    // 如果没有获取到当前模板字面量字符串对应的模板
+    // 则进行创建并进行缓存
+    if( !template ){
+      templateCache.keyString[ key ] = template = new Template(
+        result,
+        result.getTemplateElement()
+      );
+    }
+
+    // 缓存当前模板
+    templateCache.stringsArray.set( result.strings, template );
+
+    // 返回对应模板
+    return template;
+  };
+
+  class NodePart{
 
     setValue( value ){
       if( isDirective( value ) ){
@@ -1827,14 +1823,14 @@
   }
 
   function commitTemplateResult( nodePart, value ){
-    const { oldValue, options } = nodePart;
-    const template = options.templateFactory( value );
+    const oldValue = nodePart.oldValue;
+    const template = templateFactory( value );
 
     if( oldValue instanceof TemplateInstance && oldValue.template === template ){
       nodePart.value = oldValue;
       oldValue.update( value.values );
     }else{
-      const instance = new TemplateInstance( template, value.processor, options );
+      const instance = new TemplateInstance( template, value.processor );
       const fragment = instance._clone();
 
       instance.update( value.values );
@@ -1882,7 +1878,7 @@
 
   const parts = new WeakMap();
 
-  function basicRender( result, container, options ){
+  function basicRender( result, container ){
     // 尝试获取上次创建的节点对象
     let part = parts.get( container );
 
@@ -1894,11 +1890,7 @@
       // 创建节点对象
       parts.set(
         container,
-        part = new NodePart(
-          assign(
-            { templateFactory }, options
-          )
-        )
+        part = new NodePart()
       );
       // 将节点对象添加至目标元素
       part.appendInto( container );
@@ -1909,10 +1901,10 @@
   }
 
 
-  var render = ( result, container, options ) => {
+  var render = ( result, container ) => {
     unWatchAllDirectiveCache( container );
     renderStack.push( container );
-    basicRender( result, container, options );
+    basicRender( result, container );
     renderStack.pop();
   };
 
@@ -2845,7 +2837,7 @@
   }
 
   class TemplateProcessor{
-    handleAttributeExpressions( element, name, strings, options ){
+    handleAttributeExpressions( element, name, strings ){
 
       const prefix = name[0];
 
@@ -2889,8 +2881,8 @@
       // 正常属性
       return ( new AttributeCommitter( element, name, strings ) ).parts;
     }
-    handleTextExpression( options ){
-      return new NodePart( options );
+    handleTextExpression(){
+      return new NodePart();
     }
   }
 
