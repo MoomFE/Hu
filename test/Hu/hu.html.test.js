@@ -179,4 +179,129 @@ describe( 'Hu.html', () => {
     expect( child ).is.equals( newChild );
   });
 
+  it( '使用 Hu.html 渲染模板中的注释', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <!-- comment -->
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- comment -->
+    `);
+  });
+
+  it( '使用 Hu.html 同时渲染模板中的元素和注释', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <!-- comment -->
+      <div>div</div>
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- comment -->
+      <div>div</div>
+    `);
+  });
+
+  it( '使用 Hu.html 同时渲染模板中的元素和注释', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <!-- comment -->
+      <div>div</div>
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- comment -->
+      <div>div</div>
+    `);
+  });
+
+  it( '使用 Hu.html 同时渲染模板中的元素及绑定和注释', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <!-- comment -->
+      <div class=${ 'div' }>${ 'div' }</div>
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- comment -->
+      <div class="div">div</div>
+    `);
+  });
+
+  it( '使用 Hu.html 同时渲染模板中的元素及绑定和注释中的标签及绑定', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <!-- <div class=${ 'div' }>${ 'div' }</div> -->
+      <div class=${ 'div' }>${ 'div' }</div>
+    `;
+
+    expect( div.querySelector('div').innerText ).is.equals('div');
+  });
+
+  it( '使用 Hu.html 渲染模板注释中的多个绑定', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div>A<!-- ${ 'B' } ${ 'C' } -->D</div>
+    `;
+
+    expect( div.querySelector('div').innerText ).is.equals('AD');
+  });
+
+  it( '使用 Hu.html 渲染模板中类似值绑定的注释', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div>A<!-- <div>${ 'B' }</div> -->C</div>
+    `;
+
+    expect( div.querySelector('div').innerText ).is.equals('AC');
+  });
+
+  it( '使用 Hu.html 渲染模板中类似值绑定的注释 ( 二 )', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div>A<!-- <div>${ 'B' }</div>${ 'C' } -->D</div>
+    `;
+
+    expect( div.querySelector('div').innerText ).is.equals('AD');
+  });
+  
+  it( '使用 Hu.html 渲染模板中类似属性绑定的注释', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div>A<!-- <div class=${ 'B' }></div> -->C</div>
+    `;
+
+    expect( div.querySelector('div').innerText ).is.equals('AC');
+  });
+
+  it( '使用 Hu.html 渲染模板中类似属性绑定的注释 ( 二 )', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div>A<!-- class=${ 'B' } -->C</div>
+    `;
+
+    expect( div.querySelector('div').innerText ).is.equals('AC');
+  });
+
+  it( '使用 Hu.html 渲染模板中类似值绑定和属性绑定的注释', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div>A<!-- <div class=${ 'B' }>${ 'C' }</div> -->D</div>
+    `;
+
+    expect( div.querySelector('div').innerText ).is.equals('AD');
+  });
+
 });

@@ -1121,6 +1121,34 @@
   const directives = new WeakSet();
 
   /**
+   * This regex extracts the attribute name preceding an attribute-position
+   * expression. It does this by matching the syntax allowed for attributes
+   * against the string literal directly preceding the expression, assuming that
+   * the expression is in an attribute-value position.
+   *
+   * See attributes in the HTML spec:
+   * https://www.w3.org/TR/html5/syntax.html#elements-attributes
+   *
+   * " \x09\x0a\x0c\x0d" are HTML space characters:
+   * https://www.w3.org/TR/html5/infrastructure.html#space-characters
+   *
+   * "\0-\x1F\x7F-\x9F" are Unicode control characters, which includes every
+   * space character except " ".
+   *
+   * So an attribute is:
+   *  * The name: any character except a control character, space character, ('),
+   *    ("), ">", "=", or "/"
+   *  * Followed by zero or more space characters
+   *  * Followed by "="
+   *  * Followed by zero or more space characters
+   *  * Followed by:
+   *    * Any character except space, ('), ("), "<", ">", "=", (`), or
+   *    * (") then any non-("), or
+   *    * (') then any non-(')
+   */
+  const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+
+  /**
    * 判断传入参数是否是指令方法
    */
   var isDirective = obj => {
@@ -1152,68 +1180,6 @@
       node = next;
     }
   };
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  /**
-   * True if the custom elements polyfill is in use.
-   */
-  const isCEPolyfill = inBrowser && window.customElements !== undefined &&
-      window.customElements.polyfillWrapFlushCallback !==
-          undefined;
-  /**
-   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
-   * (exclusive), into another container (could be the same container), before
-   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
-   * container.
-   */
-  const reparentNodes = (container, start, end = null, before = null) => {
-      let node = start;
-      while (node !== end) {
-          const n = node.nextSibling;
-          container.insertBefore(node, before);
-          node = n;
-      }
-  };
-
-  /**
-   * @license
-   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
 
   /**
    * @license
@@ -1284,7 +1250,7 @@
                               // expression in this attribute
                               const stringForPart = result.strings[partIndex];
                               // Find the attribute name
-                              const name = lastAttributeNameRegex.exec(stringForPart)[2];
+                              const name = lastAttributeNameRegex$1.exec(stringForPart)[2];
                               // Find the corresponding attribute
                               // All bound attributes have had a suffix added in
                               // TemplateResult#getHTML to opt out of special attribute
@@ -1402,7 +1368,115 @@
    *    * (") then any non-("), or
    *    * (') then any non-(')
    */
-  const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+  const lastAttributeNameRegex$1 = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+
+  class TemplateResult{
+
+    constructor( strings, values, type, processor ){
+      this.strings = strings;
+      this.values = values;
+      this.type = type;
+      this.processor = processor;
+    }
+
+    getHTML(){
+      const strings = this.strings;
+      const length = strings.length - 1;
+      let html = '';
+      let isCommentBinding;
+
+      for( let index = 0; index < length; index++ ){
+        const string = strings[ index ];
+        const commentOpen = string.lastIndexOf('<!--');
+        const attributeMatch = lastAttributeNameRegex.exec( string );
+
+        isCommentBinding = ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
+
+        if( attributeMatch === null ){
+          html += string + ( isCommentBinding ? marker : nodeMarker );
+        }else{
+          html += string.substr( 0, attributeMatch.index )
+                + attributeMatch[ 1 ]
+                + attributeMatch[ 2 ]
+                + boundAttributeSuffix
+                + attributeMatch[ 3 ]
+                + marker;
+        }
+      }
+
+      return html + strings[ length ];
+    }
+
+    getTemplateElement(){
+      const template = document.createElement('template');
+            template.innerHTML = this.getHTML();
+
+      return template;
+    }
+
+  }
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * True if the custom elements polyfill is in use.
+   */
+  const isCEPolyfill = inBrowser && window.customElements !== undefined &&
+      window.customElements.polyfillWrapFlushCallback !==
+          undefined;
+  /**
+   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
+   * (exclusive), into another container (could be the same container), before
+   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
+   * container.
+   */
+  const reparentNodes = (container, start, end = null, before = null) => {
+      let node = start;
+      while (node !== end) {
+          const n = node.nextSibling;
+          container.insertBefore(node, before);
+          node = n;
+      }
+  };
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
 
   /**
    * @license
@@ -1518,7 +1592,7 @@
    * The return type of `html`, which holds a Template and the values from
    * interpolated expressions.
    */
-  class TemplateResult {
+  class TemplateResult$1 {
       constructor(strings, values, type, processor) {
           this.strings = strings;
           this.values = values;
@@ -1542,7 +1616,7 @@
               // an attribute. Subsequent attribute expressions will use node markers,
               // and this is safe since attributes with multiple expressions are
               // guaranteed to be quoted.
-              const match = lastAttributeNameRegex.exec(s);
+              const match = lastAttributeNameRegex$1.exec(s);
               if (match) {
                   // We're starting a new bound attribute.
                   // Add the safe attribute suffix, and use unquoted-attribute-safe
@@ -1571,7 +1645,7 @@
    * SVG namespace, then modifies the template to remove the `<svg>` tag so that
    * clones only container the original fragment.
    */
-  class SVGTemplateResult extends TemplateResult {
+  class SVGTemplateResult extends TemplateResult$1 {
       getHTML() {
           return `<svg>${super.getHTML()}</svg>`;
       }
@@ -1791,10 +1865,18 @@
       this.startNode = part;
       this.endNode = part.nextSibling;
     }
-
+    /**
+     * 插入 DOM 节点到当前节点中
+     * @param {Node} node 
+     */
     insert( node ){
-      this.endNode.parentNode.insertBefore( node, this.endNode );
+      const endNode = this.endNode;
+      endNode.parentNode.insertBefore( node, endNode );
     }
+    /**
+     * 清空当前节点的所有内容
+     * @param {Node} startNode 
+     */
     clear( startNode = this.startNode ){
       removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
     }
@@ -1830,12 +1912,11 @@
       nodePart.value = oldValue;
       oldValue.update( value.values );
     }else{
-      const instance = new TemplateInstance( template, value.processor );
+      const instance = nodePart.value = new TemplateInstance( template, value.processor );
       const fragment = instance._clone();
 
       instance.update( value.values );
       commitNode( nodePart, fragment );
-      nodePart.value = instance;
     }
   }
 
@@ -3067,7 +3148,7 @@
     const beforeNode = beforePart === undefined ? containerPart.endNode : beforePart.startNode;
     const startNode = container.insertBefore( createMarker(), beforeNode );
     container.insertBefore( createMarker(), beforeNode );
-    const newPart = new NodePart( containerPart.options );
+    const newPart = new NodePart();
     newPart.insertAfterNode( startNode );
     return newPart;
   }

@@ -11,6 +11,10 @@
     }
   });
 
+  window.stripExpressionMarkers = html => {
+    return html.replace( /<!---->/g, '' );
+  }
+
   window.triggerEvent = ( target, type, process ) => {
     const event = document.createEvent('HTMLEvents');
 
