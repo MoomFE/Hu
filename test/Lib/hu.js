@@ -1128,80 +1128,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  /**
-   * True if the custom elements polyfill is in use.
-   */
-  const isCEPolyfill = inBrowser && window.customElements !== undefined &&
-      window.customElements.polyfillWrapFlushCallback !==
-          undefined;
-  /**
-   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
-   * (exclusive), into another container (could be the same container), before
-   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
-   * container.
-   */
-  const reparentNodes = (container, start, end = null, before = null) => {
-      let node = start;
-      while (node !== end) {
-          const n = node.nextSibling;
-          container.insertBefore(node, before);
-          node = n;
-      }
-  };
-  /**
-   * Removes nodes, starting from `startNode` (inclusive) to `endNode`
-   * (exclusive), from `container`.
-   */
-  const removeNodes = (container, startNode, endNode = null) => {
-      let node = startNode;
-      while (node !== endNode) {
-          const n = node.nextSibling;
-          container.removeChild(node);
-          node = n;
-      }
-  };
-
-  /**
-   * @license
-   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
   /**
    * An expression marker with embedded unique key to avoid collision with
    * possible text in templates.
@@ -1347,6 +1273,7 @@
           }
       }
   }
+  const isTemplatePartActive = (part) => part.index !== -1;
   // Allows `document.createComment('')` to be renamed for a
   // small manual size-savings.
   const createMarker = () => document.createComment('');
@@ -1378,6 +1305,100 @@
   const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
 
   /**
+   * 所有模板类型的缓存对象
+   */
+  const templateCaches = create( null );
+
+  var templateFactory = result => {
+    /**
+     * 当前模板类型的缓存对象
+     *  - 'html'
+     *  - 'svg'
+     */
+    let templateCache = templateCaches[ result.type ];
+
+    // 如果没有获取到当前模板类型的缓存对象
+    // 则进行创建并进行缓存
+    if( !templateCache ){
+      templateCaches[ result.type ] = templateCache = {
+        stringsArray: new WeakMap(),
+        keyString: create( null )
+      };
+    }
+
+    /**
+     * 当前模板字面量对应的处理模板
+     */
+    let template = templateCache.stringsArray.get( result.strings );
+
+    // 获取到了值, 说明之前处理过该模板字面量, 直接返回对应模板
+    if( template ){
+      return template;
+    }
+
+    /**
+     * 使用随机的密钥连接模板字面量, 连接后完全相同的模板字面量字符串会公用同一个模板
+     */
+    const key = result.strings.join( marker );
+
+    // 尝试获取当前模板字面量字符串对应的模板
+    template = templateCache.keyString[ key ];
+
+    // 如果没有获取到当前模板字面量字符串对应的模板
+    // 则进行创建并进行缓存
+    if( !template ){
+      templateCache.keyString[ key ] = template = new Template(
+        result,
+        result.getTemplateElement()
+      );
+    }
+
+    // 缓存当前模板
+    templateCache.stringsArray.set( result.strings, template );
+
+    // 返回对应模板
+    return template;
+  };
+
+  /**
+   * 指令方法合集
+   */
+  const directives = new WeakSet();
+
+  /**
+   * 判断传入参数是否是指令方法
+   */
+  var isDirective = obj => {
+    return isFunction( obj ) && directives.has( obj );
+  };
+
+  /**
+   * 判断传入对象是否是原始对象
+   */
+  var isPrimitive = value => {
+    return value === null || !(
+      isObject( value ) || isFunction( value )
+    );
+  };
+
+  var removeNodes = /**
+   * 移除某个元素下的所有子元素
+   * @param {Element} container
+   * @param {Node} startNode
+   * @param {Node} endNode
+   */
+  ( container, startNode, endNode = null ) => {
+    let node = startNode;
+
+    while( node != endNode ){
+      const next = node.nextSibling;
+
+      container.removeChild( node );
+      node = next;
+    }
+  };
+
+  /**
    * @license
    * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
    * This code may only be used under the BSD style license found at
@@ -1390,6 +1411,151 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * True if the custom elements polyfill is in use.
+   */
+  const isCEPolyfill = inBrowser && window.customElements !== undefined &&
+      window.customElements.polyfillWrapFlushCallback !==
+          undefined;
+  /**
+   * Reparents nodes, starting from `startNode` (inclusive) to `endNode`
+   * (exclusive), into another container (could be the same container), before
+   * `beforeNode`. If `beforeNode` is null, it appends the nodes to the
+   * container.
+   */
+  const reparentNodes = (container, start, end = null, before = null) => {
+      let node = start;
+      while (node !== end) {
+          const n = node.nextSibling;
+          container.insertBefore(node, before);
+          node = n;
+      }
+  };
+
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+
+  /**
+   * @license
+   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  /**
+   * An instance of a `Template` that can be attached to the DOM and updated
+   * with new values.
+   */
+  class TemplateInstance {
+      constructor(template, processor, options) {
+          this._parts = [];
+          this.template = template;
+          this.processor = processor;
+          this.options = options;
+      }
+      update(values) {
+          let i = 0;
+          for( let part of this._parts) {
+              if (part !== undefined) {
+                  part.setValue(values[i]);
+              }
+              i++;
+          }
+          for( let part of this._parts) {
+              if (part !== undefined) {
+                  part.commit();
+              }
+          }
+      }
+      _clone() {
+          // When using the Custom Elements polyfill, clone the node, rather than
+          // importing it, to keep the fragment in the template's document. This
+          // leaves the fragment inert so custom elements won't upgrade and
+          // potentially modify their contents by creating a polyfilled ShadowRoot
+          // while we traverse the tree.
+          const fragment = isCEPolyfill ?
+              this.template.element.content.cloneNode(true) :
+              document.importNode(this.template.element.content, true);
+          const parts = this.template.parts;
+          let partIndex = 0;
+          let nodeIndex = 0;
+          const _prepareInstance = (fragment) => {
+              // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be
+              // null
+              const walker = document.createTreeWalker(fragment, 133 /* NodeFilter.SHOW_{ELEMENT|COMMENT|TEXT} */, null, false);
+              let node = walker.nextNode();
+              // Loop through all the nodes and parts of a template
+              while (partIndex < parts.length && node !== null) {
+                  const part = parts[partIndex];
+                  // Consecutive Parts may have the same node index, in the case of
+                  // multiple bound attributes on an element. So each iteration we either
+                  // increment the nodeIndex, if we aren't on a node with a part, or the
+                  // partIndex if we are. By not incrementing the nodeIndex when we find a
+                  // part, we allow for the next part to be associated with the current
+                  // node if neccessasry.
+                  if (!isTemplatePartActive(part)) {
+                      this._parts.push(undefined);
+                      partIndex++;
+                  }
+                  else if (nodeIndex === part.index) {
+                      if (part.type === 'node') {
+                          const part = this.processor.handleTextExpression(this.options);
+                          part.insertAfterNode(node.previousSibling);
+                          this._parts.push(part);
+                      }
+                      else {
+                          this._parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
+                      }
+                      partIndex++;
+                  }
+                  else {
+                      nodeIndex++;
+                      if (node.nodeName === 'TEMPLATE') {
+                          _prepareInstance(node.content);
+                      }
+                      node = walker.nextNode();
+                  }
+              }
+          };
+          _prepareInstance(fragment);
+          if (isCEPolyfill) {
+              document.adoptNode(fragment);
+              customElements.upgrade(fragment);
+          }
+          return fragment;
+      }
+  }
 
   /**
    * @license
@@ -1488,10 +1654,6 @@
    * subject to an additional IP rights grant found at
    * http://polymer.github.io/PATENTS.txt
    */
-  const isPrimitive = (value) => {
-      return (value === null ||
-          !(typeof value === 'object' || typeof value === 'function'));
-  };
   try {
       const options = {
           get capture() {
@@ -1554,59 +1716,12 @@
   inBrowser && (window['litHtmlVersions'] || (window['litHtmlVersions'] = [])).push('1.0.0');
 
   /**
-   * 所有模板类型的缓存对象
+   * 判断传入对象是否可迭代
    */
-  const templateCaches = create( null );
-
-  var templateFactory = result => {
-    /**
-     * 当前模板类型的缓存对象
-     *  - 'html'
-     *  - 'svg'
-     */
-    let templateCache = templateCaches[ result.type ];
-
-    // 如果没有获取到当前模板类型的缓存对象
-    // 则进行创建并进行缓存
-    if( !templateCache ){
-      templateCaches[ result.type ] = templateCache = {
-        stringsArray: new WeakMap(),
-        keyString: create( null )
-      };
-    }
-
-    /**
-     * 当前模板字面量对应的处理模板
-     */
-    let template = templateCache.stringsArray.get( result.strings );
-
-    // 获取到了值, 说明之前处理过该模板字面量, 直接返回对应模板
-    if( template ){
-      return template;
-    }
-
-    /**
-     * 使用随机的密钥连接模板字面量, 连接后完全相同的模板字面量字符串会公用同一个模板
-     */
-    const key = result.strings.join( marker );
-
-    // 尝试获取当前模板字面量字符串对应的模板
-    template = templateCache.keyString[ key ];
-
-    // 如果没有获取到当前模板字面量字符串对应的模板
-    // 则进行创建并进行缓存
-    if( !template ){
-      templateCache.keyString[ key ] = template = new Template(
-        result,
-        result.getTemplateElement()
-      );
-    }
-
-    // 缓存当前模板
-    templateCache.stringsArray.set( result.strings, template );
-
-    // 返回对应模板
-    return template;
+  var isIterable = value => {
+    return isArray( value ) || !!(
+      value && value[ Symbol.iterator ]
+    );
   };
 
   class NodePart{
@@ -1615,10 +1730,154 @@
       this.options = options;
     }
 
-    setValue(){
-      
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
     }
 
+    commit(){
+      const { value, oldValue } = this;
+
+      if( isEqual( value, oldValue ) ){
+        return;
+      }
+
+      if( isPrimitive( value ) ){
+        commitText( this, value );
+      }
+      else if( value instanceof TemplateResult ){
+        commitTemplateResult( this, value );
+      }
+      else if( value instanceof Node ){
+        commitNode( this, value );
+      }
+      else if( isIterable( value ) ){
+        commitIterable( this, value );
+      }else{
+        commitText( this, value );
+      }
+    }
+
+    /**
+     * 添加当前节点到父节点中
+     * @param {NodePart} part 
+     */
+    appendIntoPart( part ){
+      part.insert( this.startNode = createMarker() );
+      part.insert( this.endNode = createMarker() );
+    }
+    /**
+     * 添加当前节点到指定节点后
+     * @param {NodePart} part 
+     */
+    insertAfterPart( part ){
+      part.insert( this.startNode = createMarker() );
+      this.endNode = part.endNode;
+      part.endNode = this.startNode;
+    }
+    /**
+     * 将当前节点到指定 DOM 节点中
+     * @param {Element} container 
+     */
+    appendInto( container ){
+      this.startNode = container.appendChild( createMarker() );
+      this.endNode = container.appendChild( createMarker() );
+    }
+    /**
+     * 添加当前节点到指定节点后
+     * @param {NodePart} part 
+     */
+    insertAfterNode( part ){
+      this.startNode = part;
+      this.endNode = part.nextSibling;
+    }
+
+    insert( node ){
+      this.endNode.parentNode.insertBefore( node, this.endNode );
+    }
+    clear( startNode = this.startNode ){
+      removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
+    }
+
+  }
+
+  function commitText( nodePart, value ){
+    if( value == null ) value = '';
+
+    const node = nodePart.startNode.nextSibling;
+    const valueAsString = isString( value ) ? value : String( value );
+
+    if( node === nodePart.endNode.previousSibling && node.nodeType === 3 ){
+      node.data = valueAsString;
+    }else{
+      commitNode(
+        nodePart,
+        document.createTextNode( valueAsString )
+      );
+    }
+  }
+
+  function commitNode( nodePart, value ){
+    nodePart.clear();
+    nodePart.insert( value );
+  }
+
+  function commitTemplateResult( nodePart, value ){
+    const { oldValue, options } = nodePart;
+    const template = options.templateFactory( value );
+
+    if( oldValue instanceof TemplateInstance && oldValue.template === template ){
+      nodePart.value = oldValue;
+      oldValue.update( value.values );
+    }else{
+      const instance = new TemplateInstance( template, value.processor, options );
+      const fragment = instance._clone();
+
+      instance.update( value.values );
+      commitNode( nodePart, fragment );
+      nodePart.value = instance;
+    }
+  }
+
+  function commitIterable( nodePart, value ){
+    if( !isArray( nodePart.oldValue ) ){
+      nodePart.oldValue = [];
+      nodePart.clear();
+    }
+
+    const itemParts = nodePart.oldValue;
+    let partIndex = 0;
+    let itemPart;
+
+    for( let item of value ){
+      itemPart = itemParts[ partIndex ];
+
+      if( itemPart === undefined ){
+        itemPart = new NodePart( nodePart.options );
+        itemParts.push( itemPart );
+
+        if( partIndex === 0 ){
+          itemPart.appendIntoPart( nodePart );
+        }else{
+          itemPart.insertAfterPart( itemParts[ partIndex - 1 ] );
+        }
+      }
+
+      itemPart.setValue( item );
+      itemPart.commit();
+      partIndex++;
+    }
+
+    if( partIndex < itemParts.length ){
+      itemParts.length = partIndex;
+      nodePart.clear( itemPart && itemPart.endNode );
+    }
+
+    nodePart.value = itemParts;
   }
 
   const parts = new WeakMap();
@@ -1655,18 +1914,6 @@
     renderStack.push( container );
     basicRender( result, container, options );
     renderStack.pop();
-  };
-
-  /**
-   * 指令方法合集
-   */
-  const directives = new WeakSet();
-
-  /**
-   * 判断传入参数是否是指令方法
-   */
-  var isDirective = obj => {
-    return isFunction( obj ) && directives.has( obj );
   };
 
   class AttributeCommitter{
