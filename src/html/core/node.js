@@ -76,10 +76,18 @@ export default class NodePart{
     this.startNode = part;
     this.endNode = part.nextSibling;
   }
-
+  /**
+   * 插入 DOM 节点到当前节点中
+   * @param {Node} node 
+   */
   insert( node ){
-    this.endNode.parentNode.insertBefore( node, this.endNode );
+    const endNode = this.endNode;
+    endNode.parentNode.insertBefore( node, endNode );
   }
+  /**
+   * 清空当前节点的所有内容
+   * @param {Node} startNode 
+   */
   clear( startNode = this.startNode ){
     removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
   }
@@ -116,12 +124,11 @@ function commitTemplateResult( nodePart, value ){
     nodePart.value = oldValue;
     oldValue.update( value.values );
   }else{
-    const instance = new TemplateInstance( template, value.processor );
+    const instance = nodePart.value = new TemplateInstance( template, value.processor );
     const fragment = instance._clone();
 
     instance.update( value.values );
     commitNode( nodePart, fragment );
-    nodePart.value = instance;
   }
 }
 
