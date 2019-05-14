@@ -21,7 +21,7 @@ export default class TextDirective{
     const { value, oldValue } = this;
 
     isEqual( value, oldValue ) || (
-      this.elem.innerText = value
+      this.elem.textContent = value
     );
   }
 
