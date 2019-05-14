@@ -306,25 +306,25 @@ interface Hu{
      * 判断传入对象是否是 String 类型
      * @param obj 需要判断的对象
      */
-    isString( obj ): boolean;
+    isString( obj: any ): boolean;
 
     /**
      * 判断传入对象是否是 Object 类型且不为 null
      * @param obj 需要判断的对象
      */
-    isObject( obj ): boolean;
+    isObject( obj: any ): boolean;
 
     /**
      * 判断传入对象是否是 Function 类型
      * @param obj 需要判断的对象
      */
-    isFunction( obj ): boolean;
+    isFunction( obj: any ): boolean;
 
     /**
      * 判断传入对象是否是 Symbol 类型
      * @param obj 需要判断的对象
      */
-    isSymbol( obj ): boolean;
+    isSymbol( obj: any ): boolean;
 
     /**
      * 返回一个字符串 UID
@@ -383,7 +383,7 @@ interface ComponentOptions{
 
   /**
    * 定义一系列的方法以在 Hu 实例中使用
-   *  - 和 methods 选项不同的是, 实例创建后会将方法混入到自定义元素本身, 可以直接调用
+   *  - 和 methods 选项不同的是, 由自定义元素创建的实例会将方法混入到自定义元素本身, 可以直接调用
    */
   globalMethods?: {
     [ key: string ]: ( this: $hu, ...args: any[] ) => any;
@@ -549,8 +549,9 @@ interface html{
    * @param values
    */
   ( strings: TemplateStringsArray, ...values: unknown[] ): TemplateResult;
+
   /**
-   * 渲染数组时基于 key 的变化重新排列元素顺序而不是重新渲染他们
+   * 渲染数组时使用, 若数组发生变动, 将基于 key 的变化重新排列元素顺序而不是替换元素
    * @param items 需要遍历的数组
    * @param key 数组的 key 或者一个可以返回 key 的函数 ( key 必须是在当前数组中是唯一的 )
    * @param template 遍历数组的回调方法
@@ -570,14 +571,14 @@ interface html{
   unsafe( value: string );
 
   /**
-   * 将元素属性与观察者对象的目标对象绑定, 若观察者对象的目标对象更新, 元素属性也会更新
-   *  - 和正常实例相比, 若是使用此方法绑定的元素属性, 变量更新时可以不触发整体重新渲染
-   *  - 纯渲染实例可以使用此方法达到和正常实例一样的体验
-   *  - 和正常实例一样, 观察者对象的目标对象更新后, 属性值会在下一 tick 进行更新, 可以使用 nextTick 方法获取更新后的值
+   * 将元素属性或内容与观察者对象的目标对象绑定, 若观察者对象的目标对象更新, 元素属性也会更新
+   *  - 和常规绑定相比, 若是使用此方法绑定的元素属性或内容, 变量更新时可以不触发整体重新渲染
+   *  - 纯渲染实例可以使用此方法达到和常规绑定一样的体验
+   *  - 和常规绑定一样, 观察者对象的目标对象更新后, 属性值会在下一 tick 进行更新, 可以使用 nextTick 方法获取更新后的值
    * @param obj 观察者对象
    * @param name 目标对象名称
    */
-  bind( obj, name );
+  bind( obj: any, name: string | number | symbol );
 
 }
 
