@@ -7,11 +7,11 @@ import bind from './directiveFn/bind';
 
 
 export default function html( strings, ...values ){
-  return new TemplateResult( strings, values, 'html', templateProcessor );
+  return new TemplateResult( strings, values, 'html' );
 }
 
 function svg( strings, ...values ){
-  return new SVGTemplateResult( strings, values, 'svg', templateProcessor );
+  return new SVGTemplateResult( strings, values, 'svg' );
 }
 
 assign( html, {

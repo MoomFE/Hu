@@ -585,7 +585,6 @@ class TemplateResult{
   strings: TemplateStringsArray;
   values: unknown[];
   type: string;
-  processor: TemplateProcessor;
 
   getHTML(): string;
   getTemplateElement(): HTMLTemplateElement;

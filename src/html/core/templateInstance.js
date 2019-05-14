@@ -5,10 +5,9 @@ import NodePart from "./node";
 
 export default class TemplateInstance{
 
-  constructor( template, processor ){
+  constructor( template ){
     this.parts = [];
     this.template = template;
-    this.processor = processor;
   }
 
   update( values ){
@@ -66,7 +65,7 @@ export default class TemplateInstance{
         this.parts.push( part );
       }else{
         this.parts.push(
-          ...templateProcessor.handleAttributeExpressions( node, part.name, part.strings )
+          ...templateProcessor.attr( node, part.name, part.strings )
         );
       }
 

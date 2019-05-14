@@ -4,11 +4,10 @@ import moveChildNodes from "../../shared/util/moveChildNodes";
 
 export default class TemplateResult{
 
-  constructor( strings, values, type, processor ){
+  constructor( strings, values, type ){
     this.strings = strings;
     this.values = values;
     this.type = type;
-    this.processor = processor;
   }
 
   getHTML(){

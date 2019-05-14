@@ -1210,11 +1210,10 @@
 
   class TemplateResult{
 
-    constructor( strings, values, type, processor ){
+    constructor( strings, values, type ){
       this.strings = strings;
       this.values = values;
       this.type = type;
-      this.processor = processor;
     }
 
     getHTML(){
@@ -2201,8 +2200,9 @@
 
   }
 
-  class TemplateProcessor{
-    handleAttributeExpressions( element, name, strings ){
+  var templateProcessor = {
+
+    attr( element, name, strings ){
 
       const prefix = name[0];
 
@@ -2246,9 +2246,8 @@
       // 正常属性
       return ( new AttributeCommitter( element, name, strings ) ).parts;
     }
-  }
 
-  var templateProcessor = new TemplateProcessor();
+  };
 
 
   /**
@@ -2265,10 +2264,9 @@
 
   class TemplateInstance{
 
-    constructor( template, processor ){
+    constructor( template ){
       this.parts = [];
       this.template = template;
-      this.processor = processor;
     }
 
     update( values ){
@@ -2326,7 +2324,7 @@
           this.parts.push( part );
         }else{
           this.parts.push(
-            ...templateProcessor.handleAttributeExpressions( node, part.name, part.strings )
+            ...templateProcessor.attr( node, part.name, part.strings )
           );
         }
 
@@ -2692,7 +2690,7 @@
       nodePart.value = oldValue;
       oldValue.update( value.values );
     }else{
-      const instance = nodePart.value = new TemplateInstance( template, value.processor );
+      const instance = nodePart.value = new TemplateInstance( template );
       const fragment = instance.clone();
 
       instance.update( value.values );
@@ -3017,11 +3015,11 @@
   });
 
   function html( strings, ...values ){
-    return new TemplateResult( strings, values, 'html', templateProcessor );
+    return new TemplateResult( strings, values, 'html' );
   }
 
   function svg( strings, ...values ){
-    return new SVGTemplateResult( strings, values, 'svg', templateProcessor );
+    return new SVGTemplateResult( strings, values, 'svg' );
   }
 
   assign( html, {
