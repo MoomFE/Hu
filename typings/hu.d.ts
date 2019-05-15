@@ -85,7 +85,21 @@ interface $hu {
    */
   readonly $refs: {
     [ key: string ]: Element | Element[]
-  },
+  };
+  /**
+   * 为当前实例的根实例
+   *  - 若当前实例没有父实例, $root 选项会是自己
+   */
+  readonly $root: $hu;
+  /**
+   * 当前实例的父实例
+   */
+  readonly $parent: $hu | undefined;
+  /**
+   * 当前实例的直接子组件
+   *  - $children 并不保证顺序且不是响应式的
+   */
+  readonly $children: $hu[];
   /**
    * 在下次 DOM 更新循环结束之后执行回调, 在修改数据之后立即使用这个方法, 可以获取更新后的 DOM
    * @param callback 需要执行的回调
