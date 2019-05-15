@@ -1127,17 +1127,12 @@ describe( 'Hu.instance', () => {
     const customName = window.customName;
     const customName2 = window.customName;
 
+    Hu.define( customName2 );
     Hu.define( customName, {
       render( html ){
         return html([
           `<${ customName2 } ref="custom"></${ customName2 }>`
         ]);
-      }
-    });
-
-    Hu.define( customName2, {
-      render( html ){
-        return html`<div></div>`;
       }
     });
 
@@ -1228,17 +1223,12 @@ describe( 'Hu.instance', () => {
     const customName = window.customName;
     const customName2 = window.customName;
 
+    Hu.define( customName2 );
     Hu.define( customName, {
       render( html ){
         return html([
           `<${ customName2 } ref="custom"></${ customName2 }>`
         ]);
-      }
-    });
-
-    Hu.define( customName2, {
-      render( html ){
-        return html`<div></div>`;
       }
     });
 
@@ -1273,6 +1263,72 @@ describe( 'Hu.instance', () => {
     });
 
     expect( vm.$refs.custom.$refs.custom.$root ).is.equals( vm );
+  });
+
+  it( '实例上的 $children 选项会包含当前实例下渲染的所有自定义元素', () => {
+    const customName = window.customName;
+
+    Hu.define( customName );
+
+    const hu = new Hu({
+      el: document.createElement('div').$appendTo( document.body ),
+      render( html ){
+        return html([`
+          <${ customName } ref="custom"></${ customName }>
+          <${ customName } ref="custom"></${ customName }>
+          <${ customName } ref="custom"></${ customName }>
+        `]);
+      }
+    });
+
+    for( let custom of hu.$refs.custom ){
+      expect( custom.$hu.$root ).is.equals( hu );
+      expect( custom.$hu.$parent ).is.equals( hu );
+    }
+
+    expect( hu.$children ).is.deep.equals(
+      hu.$refs.custom.map( custom => custom.$hu )
+    );
+  });
+
+  it( '实例上的 $children 选项会包含当前实例下渲染的所有自定义元素 ( 二 )', () => {
+    const customName = window.customName;
+    const customName2 = window.customName;
+
+    Hu.define( customName2 );
+    Hu.define( customName, {
+      render( html ){
+        return html([`
+          <${ customName2 } ref="custom"></${ customName2 }>
+          <${ customName2 } ref="custom"></${ customName2 }>
+          <${ customName2 } ref="custom"></${ customName2 }>
+        `]);
+      }
+    });
+
+    const hu = new Hu({
+      el: document.createElement('div').$appendTo( document.body ),
+      render( html ){
+        return html([`
+          <${ customName } ref="custom"></${ customName }>
+        `]);
+      }
+    });
+
+    expect( hu.$refs.custom.$hu.$root ).is.equals( hu );
+    expect( hu.$refs.custom.$hu.$parent ).is.equals( hu );
+    expect( hu.$children ).is.deep.equals([ hu.$refs.custom.$hu ]);
+
+    const child = hu.$refs.custom.$hu;
+
+    for( let custom of child.$refs.custom ){
+      expect( custom.$hu.$root ).is.equals( hu );
+      expect( custom.$hu.$parent ).is.equals( child );
+    }
+
+    expect( child.$children ).is.deep.equals(
+      child.$refs.custom.map( custom => custom.$hu )
+    );
   });
 
 });
