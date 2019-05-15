@@ -1073,4 +1073,206 @@ describe( 'Hu.instance', () => {
     });
   });
 
+  it( '实例上的 $parent 选项在使用 new 创建的实例中会是 undefined', () => {
+    const hu = new Hu();
+
+    expect( hu.$parent ).is.undefined;
+  });
+
+  it( '实例上的 $parent 选项在使用 new 创建的实例中会是 undefined ( Vue )', () => {
+    const vm = new Vue();
+
+    expect( vm.$parent ).is.undefined;
+  });
+
+  it( '实例上的 $parent 选项在使用 new 创建的实例中渲染的组件时会是由 new 创建的实例', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    const hu = new Hu({
+      el: document.createElement('div').$appendTo( document.body ),
+      render( html ){
+        return html([
+          `<${ customName } ref="custom"></${ customName }>`
+        ]);
+      }
+    });
+
+    expect( hu.$refs.custom.$hu.$parent ).is.equals( hu );
+
+    hu.$el.$remove();
+  });
+
+  it( '实例上的 $parent 选项在使用 new 创建的实例中渲染的组件时会是由 new 创建的实例 ( Vue )', () => {
+    Vue.component('vue-element-1', {
+      template: '<div></div>'
+    });
+
+    const vm = new Vue({
+      el: document.createElement('div'),
+      template: `
+        <vue-element-1 ref="custom"></vue-element-1>
+      `
+    });
+
+    expect( vm.$refs.custom.$parent ).is.equals( vm );
+  });
+
+  it( '实例上的 $parent 选项在使用 new 创建的实例中渲染的组件中渲染的组件时会是上一层的父元素', () => {
+    const customName = window.customName;
+    const customName2 = window.customName;
+
+    Hu.define( customName, {
+      render( html ){
+        return html([
+          `<${ customName2 } ref="custom"></${ customName2 }>`
+        ]);
+      }
+    });
+
+    Hu.define( customName2, {
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    const hu = new Hu({
+      el: document.createElement('div').$appendTo( document.body ),
+      render( html ){
+        return html([
+          `<${ customName } ref="custom"></${ customName }>`
+        ]);
+      }
+    });
+
+    expect( hu.$refs.custom.$hu.$refs.custom.$hu.$parent ).is.equals( hu.$refs.custom.$hu );
+
+    hu.$el.$remove();
+  });
+
+  it( '实例上的 $parent 选项在使用 new 创建的实例中渲染的组件中渲染的组件时会是上一层的父元素 ( Vue )', () => {
+    Vue.component('vue-element-1', {
+      template: '<vue-element-2 ref="custom"></vue-element-2>'
+    });
+
+    Vue.component('vue-element-2', {
+      template: '<div></div>'
+    });
+
+    const vm = new Vue({
+      el: document.createElement('div'),
+      template: `
+        <vue-element-1 ref="custom"></vue-element-1>
+      `
+    });
+
+    expect( vm.$refs.custom.$refs.custom.$parent ).is.equals( vm.$refs.custom );
+  });
+
+  it( '实例上的 $root 选项在使用 new 创建的实例中会是当前实例', () => {
+    const hu = new Hu();
+
+    expect( hu.$root ).is.equals( hu );
+  });
+
+  it( '实例上的 $root 选项在使用 new 创建的实例中会是当前实例 ( Vue )', () => {
+    const vm = new Vue();
+
+    expect( vm.$root ).is.equals( vm );
+  });
+
+  it( '实例上的 $root 选项在使用 new 创建的实例中渲染的组件时会是由 new 创建的实例', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    const hu = new Hu({
+      el: document.createElement('div').$appendTo( document.body ),
+      render( html ){
+        return html([
+          `<${ customName } ref="custom"></${ customName }>`
+        ]);
+      }
+    });
+
+    expect( hu.$refs.custom.$hu.$root ).is.equals( hu );
+
+    hu.$el.$remove();
+  });
+
+  it( '实例上的 $root 选项在使用 new 创建的实例中渲染的组件时会是由 new 创建的实例 ( Vue )', () => {
+    Vue.component('vue-element-1', {
+      template: '<div></div>'
+    });
+
+    const vm = new Vue({
+      el: document.createElement('div'),
+      template: `
+        <vue-element-1 ref="custom"></vue-element-1>
+      `
+    });
+
+    expect( vm.$refs.custom.$root ).is.equals( vm );
+  });
+
+  it( '实例上的 $root 选项在使用 new 创建的实例中渲染的组件中渲染的组件时会是由 new 创建的实例', () => {
+    const customName = window.customName;
+    const customName2 = window.customName;
+
+    Hu.define( customName, {
+      render( html ){
+        return html([
+          `<${ customName2 } ref="custom"></${ customName2 }>`
+        ]);
+      }
+    });
+
+    Hu.define( customName2, {
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    const hu = new Hu({
+      el: document.createElement('div').$appendTo( document.body ),
+      render( html ){
+        return html([
+          `<${ customName } ref="custom"></${ customName }>`
+        ]);
+      }
+    });
+
+    expect( hu.$refs.custom.$hu.$refs.custom.$hu.$root ).is.equals( hu );
+
+    hu.$el.$remove();
+  });
+
+  it( '实例上的 $root 选项在使用 new 创建的实例中渲染的组件中渲染的组件时会是由 new 创建的实例 ( Vue )', () => {
+    Vue.component('vue-element-1', {
+      template: '<vue-element-2 ref="custom"></vue-element-2>'
+    });
+
+    Vue.component('vue-element-2', {
+      template: '<div></div>'
+    });
+
+    const vm = new Vue({
+      el: document.createElement('div'),
+      template: `
+        <vue-element-1 ref="custom"></vue-element-1>
+      `
+    });
+
+    expect( vm.$refs.custom.$refs.custom.$root ).is.equals( vm );
+  });
+
 });
