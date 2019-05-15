@@ -13,7 +13,9 @@ export default class BasicEventDirective{
     this.elem = element;
     this.type = type;
     this.opts = initEventOptions( modifierKeys );
-    this.isCE = definedCustomElement.get( element.nodeName.toLowerCase() )
+    this.isCE = definedCustomElement.has(
+      element.nodeName.toLowerCase()
+    );
   }
 
   setValue( listener ){

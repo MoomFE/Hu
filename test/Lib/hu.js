@@ -1372,7 +1372,10 @@
     elem.addEventListener( type, listener, options );
   };
 
-  const definedCustomElement = new Map();
+  /**
+   * 包含了使用 Hu 注册的组件合集
+   */
+  const definedCustomElement = new Set();
 
   class BasicEventDirective{
 
@@ -1380,7 +1383,9 @@
       this.elem = element;
       this.type = type;
       this.opts = initEventOptions( modifierKeys );
-      this.isCE = definedCustomElement.get( element.nodeName.toLowerCase() );
+      this.isCE = definedCustomElement.has(
+        element.nodeName.toLowerCase()
+      );
     }
 
     setValue( listener ){
@@ -3751,7 +3756,7 @@
     // 注册组件
     customElements.define( name, HuElement );
     // 标记组件已注册
-    definedCustomElement.set( name, true );
+    definedCustomElement.add( name );
   }
 
   function staticRender( result, container ){

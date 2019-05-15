@@ -48,5 +48,5 @@ export default function define( name, _userOptions ){
   // 注册组件
   customElements.define( name, HuElement );
   // 标记组件已注册
-  definedCustomElement.set( name, true );
+  definedCustomElement.add( name );
 }
