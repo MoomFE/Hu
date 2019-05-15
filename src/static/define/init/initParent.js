@@ -4,6 +4,7 @@ import { activeHu } from "../const";
 
 
 export default ( isCustomElement, target, targetProxy ) => {
+  let $root = targetProxy;
   let $parent;
 
   if( isCustomElement ){
@@ -15,12 +16,14 @@ export default ( isCustomElement, target, targetProxy ) => {
 
       if( targetProxy ){
         $parent = targetProxy;
+        $root = $parent.$root;
         break;
       }
     }
   }
 
   assign( target, {
+    $root,
     $parent
   });
 }
