@@ -723,7 +723,7 @@
     }
   }
 
-  const inBrowser = typeof window !== 'undefined';
+  const inBrowser = typeof window !== 'void 0';
   const UA = inBrowser && window.navigator.userAgent.toLowerCase();
   const isIOS = UA && /iphone|ipad|ipod|ios/.test( UA );
 
@@ -746,12 +746,12 @@
 
 
   const hasShadyCss = inBrowser
-                          && window.ShadyCSS !== undefined
+                          && window.ShadyCSS !== void 0
                           && !window.ShadyCSS.nativeShadow;
 
   const isCEPolyfill = inBrowser
-                           && window.customElements !== undefined
-                           && window.customElements.polyfillWrapFlushCallback !== undefined;
+                           && window.customElements !== void 0
+                           && window.customElements.polyfillWrapFlushCallback !== void 0;
 
   function initOther( isCustomElement, userOptions, options, mixins, isMixin ){
 
@@ -762,7 +762,7 @@
 
     if( inBrowser && !isCustomElement ){
       // 挂载目标
-      options.el = userOptions.el || undefined;
+      options.el = userOptions.el || void 0;
     }
 
   }
@@ -2285,11 +2285,11 @@
       let index = 0;
 
       for( let part of parts ){
-        if( part !== undefined ) part.setValue( values[ index ] );
+        if( part !== void 0 ) part.setValue( values[ index ] );
         index++;
       }
       for( let part of parts ){
-        if( part !== undefined ) part.commit();
+        if( part !== void 0 ) part.commit();
       }
     }
 
@@ -2308,7 +2308,7 @@
         part = parts[ partIndex ];
 
         if( !isTemplatePartActive( part ) ){
-          this.parts.push( undefined );
+          this.parts.push( void 0 );
           partIndex++;
           continue;
         }
@@ -2722,7 +2722,7 @@
     for( let item of value ){
       itemPart = itemParts[ partIndex ];
 
-      if( itemPart === undefined ){
+      if( itemPart === void 0 ){
         itemPart = new NodePart( nodePart.options );
         itemParts.push( itemPart );
 
@@ -2859,7 +2859,7 @@
           newHead++;
         }
         else{
-          if( newKeyToIndexMap === undefined ){
+          if( newKeyToIndexMap === void 0 ){
             newKeyToIndexMap = generateMap( newKeys, newHead, newTail );
             oldKeyToIndexMap = generateMap( oldKeys, oldHead, oldTail );
           }
@@ -2873,7 +2873,7 @@
           }
           else{
             const oldIndex = oldKeyToIndexMap.get( newKeys[ newHead ] );
-            const oldPart = oldIndex !== undefined ? oldParts[oldIndex] : null;
+            const oldPart = oldIndex !== void 0 ? oldParts[oldIndex] : null;
 
             if( oldPart === null ){
               const newPart = createAndInsertPart( containerPart, oldParts[ oldHead ] );
@@ -2941,7 +2941,7 @@
 
   function createAndInsertPart( containerPart, beforePart ){
     const container = containerPart.startNode.parentNode;
-    const beforeNode = beforePart === undefined ? containerPart.endNode : beforePart.startNode;
+    const beforeNode = beforePart === void 0 ? containerPart.endNode : beforePart.startNode;
     const startNode = container.insertBefore( createMarker(), beforeNode );
     container.insertBefore( createMarker(), beforeNode );
     const newPart = new NodePart();
@@ -3801,7 +3801,7 @@
   });
 
   const otherHu = inBrowser ? window.Hu
-                            : undefined;
+                            : void 0;
 
   Hu.noConflict = () => {
     if( inBrowser && window.Hu === Hu ) window.Hu = otherHu;

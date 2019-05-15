@@ -3,7 +3,7 @@ import { inBrowser } from "../../shared/const/env";
 
 
 const otherHu = inBrowser ? window.Hu
-                          : undefined;
+                          : void 0;
 
 Hu.noConflict = () => {
   if( inBrowser && window.Hu === Hu ) window.Hu = otherHu;

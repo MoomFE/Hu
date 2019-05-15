@@ -147,7 +147,7 @@ function commitIterable( nodePart, value ){
   for( const item of value ){
     itemPart = itemParts[ partIndex ];
 
-    if( itemPart === undefined ){
+    if( itemPart === void 0 ){
       itemPart = new NodePart( nodePart.options );
       itemParts.push( itemPart );
 

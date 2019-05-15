@@ -1,7 +1,7 @@
 import { defineProperty } from "../global/Reflect/index";
 
 
-export const inBrowser = typeof window !== 'undefined';
+export const inBrowser = typeof window !== 'void 0';
 export const UA = inBrowser && window.navigator.userAgent.toLowerCase();
 export const isIOS = UA && /iphone|ipad|ipod|ios/.test( UA );
 
@@ -24,9 +24,9 @@ try{
 
 
 export const hasShadyCss = inBrowser
-                        && window.ShadyCSS !== undefined
+                        && window.ShadyCSS !== void 0
                         && !window.ShadyCSS.nativeShadow;
 
 export const isCEPolyfill = inBrowser
-                         && window.customElements !== undefined
-                         && window.customElements.polyfillWrapFlushCallback !== undefined;
+                         && window.customElements !== void 0
+                         && window.customElements.polyfillWrapFlushCallback !== void 0;

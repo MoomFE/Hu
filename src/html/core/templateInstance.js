@@ -15,11 +15,11 @@ export default class TemplateInstance{
     let index = 0;
 
     for( const part of parts ){
-      if( part !== undefined ) part.setValue( values[ index ] );
+      if( part !== void 0 ) part.setValue( values[ index ] );
       index++;
     }
     for( const part of parts ){
-      if( part !== undefined ) part.commit();
+      if( part !== void 0 ) part.commit();
     }
   }
 
@@ -38,7 +38,7 @@ export default class TemplateInstance{
       part = parts[ partIndex ];
 
       if( !isTemplatePartActive( part ) ){
-        this.parts.push( undefined );
+        this.parts.push( void 0 );
         partIndex++;
         continue;
       }

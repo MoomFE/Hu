@@ -78,7 +78,7 @@ export default directive(( items, key, template ) => {
         newHead++;
       }
       else{
-        if( newKeyToIndexMap === undefined ){
+        if( newKeyToIndexMap === void 0 ){
           newKeyToIndexMap = generateMap( newKeys, newHead, newTail );
           oldKeyToIndexMap = generateMap( oldKeys, oldHead, oldTail );
         }
@@ -92,7 +92,7 @@ export default directive(( items, key, template ) => {
         }
         else{
           const oldIndex = oldKeyToIndexMap.get( newKeys[ newHead ] );
-          const oldPart = oldIndex !== undefined ? oldParts[oldIndex] : null;
+          const oldPart = oldIndex !== void 0 ? oldParts[oldIndex] : null;
 
           if( oldPart === null ){
             const newPart = createAndInsertPart( containerPart, oldParts[ oldHead ] );
@@ -160,7 +160,7 @@ function removePart( part ){
 
 function createAndInsertPart( containerPart, beforePart ){
   const container = containerPart.startNode.parentNode;
-  const beforeNode = beforePart === undefined ? containerPart.endNode : beforePart.startNode;
+  const beforeNode = beforePart === void 0 ? containerPart.endNode : beforePart.startNode;
   const startNode = container.insertBefore( createMarker(), beforeNode );
   container.insertBefore( createMarker(), beforeNode );
   const newPart = new NodePart();

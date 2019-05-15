@@ -11,7 +11,7 @@ export default function initOther( isCustomElement, userOptions, options, mixins
 
   if( inBrowser && !isCustomElement ){
     // 挂载目标
-    options.el = userOptions.el || undefined;
+    options.el = userOptions.el || void 0;
   }
 
 }
