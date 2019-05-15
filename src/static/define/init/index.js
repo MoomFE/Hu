@@ -7,6 +7,7 @@ import initWatch from "./initWatch";
 import initOptions from "./initOptions";
 import { observeMap } from "../../observable/observe";
 import callLifecycle from "../util/callLifecycle";
+import { activeCustomElement } from "../const";
 
 
 /**
@@ -28,6 +29,9 @@ export default function init( isCustomElement, root, name, options, userOptions 
   if( isCustomElement ){
     target.$el = root.attachShadow({ mode: 'open' });
     target.$customElement = root;
+
+    // 标识当前自定义元素实例已激活, 保存自定义元素和实例的引用
+    activeCustomElement.set( root, targetProxy );
   }
 
   initOptions( isCustomElement, name, target, userOptions );

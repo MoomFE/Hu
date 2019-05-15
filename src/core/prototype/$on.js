@@ -3,6 +3,7 @@ import { create } from "../../shared/global/Object/index";
 import { apply } from "../../shared/global/Reflect/index";
 import { slice } from "../../shared/global/Array/prototype";
 import HuConstructor from "../hu";
+import { activeCustomElement } from "../../static/define/const";
 
 
 const eventMap = new WeakMap();
@@ -12,7 +13,7 @@ function processing( handler ){
   return function(){
     let hu;
 
-    if( ( hu = this ) instanceof HuConstructor || ( hu = hu.$hu ) instanceof HuConstructor ){
+    if( ( hu = this ) instanceof HuConstructor || ( hu = activeCustomElement.get( hu ) ) instanceof HuConstructor ){
       apply( handler, hu, arguments );
     }
 

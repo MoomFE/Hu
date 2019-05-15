@@ -1377,6 +1377,12 @@
    */
   const definedCustomElement = new Set();
 
+  /**
+   * 当前正在运行的自定义元素和对应实例的引用
+   *  - 使用自定义元素获取对应实例时使用, 避免有可能 root.$hu 被删除的问题
+   */
+  const activeCustomElement = new WeakMap();
+
   class BasicEventDirective{
 
     constructor( element, type, modifierKeys ){
@@ -3183,7 +3189,7 @@
     return function(){
       let hu;
 
-      if( ( hu = this ) instanceof HuConstructor || ( hu = hu.$hu ) instanceof HuConstructor ){
+      if( ( hu = this ) instanceof HuConstructor || ( hu = activeCustomElement.get( hu ) ) instanceof HuConstructor ){
         apply( handler, hu, arguments );
       }
 
@@ -3614,6 +3620,9 @@
     if( isCustomElement ){
       target.$el = root.attachShadow({ mode: 'open' });
       target.$customElement = root;
+
+      // 标识当前自定义元素实例已激活, 保存自定义元素和实例的引用
+      activeCustomElement.set( root, targetProxy );
     }
 
     initOptions$1( isCustomElement, name, target, userOptions );
@@ -3654,7 +3663,7 @@
   var initAttributeChangedCallback = propsMap => function( name, oldValue, value ){
     if( value === oldValue ) return;
 
-    const { $props: propsTargetProxy } = this.$hu;
+    const { $props: propsTargetProxy } = activeCustomElement.get( this );
     const { target: propsTarget } = observeProxyMap.get( propsTargetProxy );
     const props = propsMap[ name ];
 
@@ -3668,7 +3677,7 @@
   };
 
   var initDisconnectedCallback = options => function(){
-    const $hu = this.$hu;
+    const $hu = activeCustomElement.get( this );
     const infoTarget = observeProxyMap.get( $hu.$info ).target;
 
     infoTarget.isConnected = false;
@@ -3680,13 +3689,13 @@
   };
 
   var initAdoptedCallback = options => function( oldDocument, newDocument ){
-    callLifecycle( this.$hu, 'adopted', options, [
+    callLifecycle( activeCustomElement.get( this ), 'adopted', options, [
       newDocument, oldDocument
     ]);
   };
 
   var initConnectedCallback = options => function(){
-    const $hu = this.$hu;
+    const $hu = activeCustomElement.get( this );
     const $info = $hu.$info;
     const isMounted = $info.isMounted;
     const infoTarget = observeProxyMap.get( $info ).target;

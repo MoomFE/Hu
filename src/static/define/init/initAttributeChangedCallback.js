@@ -1,11 +1,12 @@
 import isEqual from "../../../shared/util/isEqual";
 import { observeProxyMap } from "../../observable/observe";
+import { activeCustomElement } from "../const";
 
 
 export default propsMap => function( name, oldValue, value ){
   if( value === oldValue ) return;
 
-  const { $props: propsTargetProxy } = this.$hu;
+  const { $props: propsTargetProxy } = activeCustomElement.get( this );
   const { target: propsTarget } = observeProxyMap.get( propsTargetProxy );
   const props = propsMap[ name ];
 

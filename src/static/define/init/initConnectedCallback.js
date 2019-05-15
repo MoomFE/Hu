@@ -1,10 +1,11 @@
 import callLifecycle from "../util/callLifecycle";
 import { observeProxyMap } from "../../observable/observe";
 import each from "../../../shared/util/each";
+import { activeCustomElement } from "../const";
 
 
 export default options => function(){
-  const $hu = this.$hu;
+  const $hu = activeCustomElement.get( this );
   const $info = $hu.$info;
   const isMounted = $info.isMounted;
   const infoTarget = observeProxyMap.get( $info ).target;
