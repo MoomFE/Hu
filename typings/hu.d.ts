@@ -57,7 +57,13 @@ interface $hu {
    */
   readonly $info: {
     /**
-     * 当前自定义元素的名称 | 当前实例的名称
+     * 当前实例的 UID
+     *  - 在由 new 创建的实例中, uid 和 name 是相同的
+     */
+    uid: String
+    /**
+     * 当前自定义元素的名称
+     *  - 在由 new 创建的实例中, name 是自动生成的名称
      */
     name: String;
     /**
