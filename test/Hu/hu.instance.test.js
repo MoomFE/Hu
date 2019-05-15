@@ -196,6 +196,7 @@ describe( 'Hu.instance', () => {
     const custom = div.firstElementChild;
     const { $info } = custom.$hu;
 
+    expect( $info.uid ).is.includes( customName );
     expect( $info.name ).is.equals( customName );
     expect( $info.isMounted ).is.false;
     expect( $info.isConnected ).is.false;
@@ -203,6 +204,7 @@ describe( 'Hu.instance', () => {
 
     div.$appendTo( document.body );
 
+    expect( $info.uid ).is.includes( customName );
     expect( $info.name ).is.equals( customName );
     expect( $info.isMounted ).is.true;
     expect( $info.isConnected ).is.true;
@@ -210,6 +212,7 @@ describe( 'Hu.instance', () => {
 
     div.$remove();
 
+    expect( $info.uid ).is.includes( customName );
     expect( $info.name ).is.equals( customName );
     expect( $info.isMounted ).is.true;
     expect( $info.isConnected ).is.false;
@@ -220,6 +223,7 @@ describe( 'Hu.instance', () => {
     const hu = new Hu();
     const $info = hu.$info;
 
+    expect( $info.uid ).is.includes( $info.name );
     expect( /anonymous-/.test( $info.name ) ).is.true;
     expect( $info.isMounted ).is.false;
     expect( $info.isConnected ).is.false;
@@ -229,6 +233,7 @@ describe( 'Hu.instance', () => {
       document.createElement('div')
     );
 
+    expect( $info.uid ).is.includes( $info.name );
     expect( /anonymous-/.test( $info.name ) ).is.true;
     expect( $info.isMounted ).is.true;
     expect( $info.isConnected ).is.true;
