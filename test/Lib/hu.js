@@ -723,7 +723,7 @@
     }
   }
 
-  const inBrowser = typeof window !== 'void 0';
+  const inBrowser = typeof window !== 'undefined';
   const UA = inBrowser && window.navigator.userAgent.toLowerCase();
   const isIOS = UA && /iphone|ipad|ipod|ios/.test( UA );
 
