@@ -12,11 +12,12 @@ export default ( isCustomElement, target, targetProxy ) => {
 
     for( let index = length - 1; index >= 0; index-- ){
       const el = renderStack[ index ];
-      const targetProxy = activeHu.get( el ); 
+      const parentTargetProxy = activeHu.get( el ); 
 
-      if( targetProxy ){
-        $parent = targetProxy;
+      if( parentTargetProxy ){
+        $parent = parentTargetProxy;
         $root = $parent.$root;
+        $parent.$children.push( targetProxy );
         break;
       }
     }
@@ -24,6 +25,7 @@ export default ( isCustomElement, target, targetProxy ) => {
 
   assign( target, {
     $root,
-    $parent
+    $parent,
+    $children: []
   });
 }
