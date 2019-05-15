@@ -1,5 +1,6 @@
   - 💄 :text 功能指令由操作 innerText 改为 textContent
   - 🌟 实例 $info 选项新增 uid 字段, 为当前实例的 UID 且始终是唯一的
+  - 🌟 实例新增 $parent 选项, 为当前实例的父实例
 
 # 1.0.0-bata.8
   - 📅 2019-5-14

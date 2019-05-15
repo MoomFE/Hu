@@ -1383,6 +1383,11 @@
    */
   const activeCustomElement = new WeakMap();
 
+  /**
+   * 当前正在运行的实例的 $el 选项与实例本身的引用
+   */
+  const activeHu = new WeakMap();
+
   class BasicEventDirective{
 
     constructor( element, type, modifierKeys ){
@@ -3158,7 +3163,10 @@
       if( !el || el === document.body || el === document.documentElement ){
         return this;
       }else{
+        // 将挂载对象保存到实例
         observeProxyMap.get( this ).target.$el = el;
+        // 标识 $el 选项与实例的引用
+        activeHu.set( el, this );
       }
 
       /** 当前实例的实例配置 */
@@ -3601,6 +3609,28 @@
 
   }
 
+  var initParent = ( isCustomElement, target, targetProxy ) => {
+    let $parent;
+
+    if( isCustomElement ){
+      const length = renderStack.length;
+
+      for( let index = length - 1; index >= 0; index-- ){
+        const el = renderStack[ index ];
+        const targetProxy = activeHu.get( el ); 
+
+        if( targetProxy ){
+          $parent = targetProxy;
+          break;
+        }
+      }
+    }
+
+    assign( target, {
+      $parent
+    });
+  };
+
   /**
    * 初始化当前组件属性
    * @param {boolean} isCustomElement 是否是初始化自定义元素
@@ -3623,8 +3653,11 @@
 
       // 标识当前自定义元素实例已激活, 保存自定义元素和实例的引用
       activeCustomElement.set( root, targetProxy );
+      // 标识 $el 选项与实例的引用
+      activeHu.set( target.$el, targetProxy );
     }
 
+    initParent( isCustomElement, target, targetProxy );
     initOptions$1( isCustomElement, name, target, userOptions );
     initProps$1( isCustomElement, root, options, target, targetProxy );
     initMethods$1( isCustomElement, root, options, target, targetProxy );

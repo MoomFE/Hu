@@ -2,6 +2,7 @@ import isString from "../../shared/util/isString";
 import { observeProxyMap } from "../../static/observable/observe";
 import { optionsMap } from "../../static/define/initOptions/index";
 import callLifecycle from "../../static/define/util/callLifecycle";
+import { activeHu } from "../../static/define/const";
 
 
 /**
@@ -25,7 +26,10 @@ export default function( selectors ){
     if( !el || el === document.body || el === document.documentElement ){
       return this;
     }else{
+      // 将挂载对象保存到实例
       observeProxyMap.get( this ).target.$el = el;
+      // 标识 $el 选项与实例的引用
+      activeHu.set( el, this );
     }
 
     /** 当前实例的实例配置 */

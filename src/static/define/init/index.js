@@ -5,9 +5,10 @@ import initData from "./initData";
 import initComputed from "./initComputed";
 import initWatch from "./initWatch";
 import initOptions from "./initOptions";
+import initParent from "./initParent";
 import { observeMap } from "../../observable/observe";
 import callLifecycle from "../util/callLifecycle";
-import { activeCustomElement } from "../const";
+import { activeCustomElement, activeHu } from "../const";
 
 
 /**
@@ -32,8 +33,11 @@ export default function init( isCustomElement, root, name, options, userOptions 
 
     // 标识当前自定义元素实例已激活, 保存自定义元素和实例的引用
     activeCustomElement.set( root, targetProxy );
+    // 标识 $el 选项与实例的引用
+    activeHu.set( target.$el, targetProxy );
   }
 
+  initParent( isCustomElement, target, targetProxy );
   initOptions( isCustomElement, name, target, userOptions );
   initProps( isCustomElement, root, options, target, targetProxy );
   initMethods( isCustomElement, root, options, target, targetProxy );
