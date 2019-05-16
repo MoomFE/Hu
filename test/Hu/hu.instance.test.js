@@ -1289,6 +1289,8 @@ describe( 'Hu.instance', () => {
     expect( hu.$children ).is.deep.equals(
       hu.$refs.custom.map( custom => custom.$hu )
     );
+
+    hu.$el.$remove();
   });
 
   it( '实例上的 $children 选项会包含当前实例下渲染的所有自定义元素 ( 二 )', () => {
@@ -1329,6 +1331,8 @@ describe( 'Hu.instance', () => {
     expect( child.$children ).is.deep.equals(
       child.$refs.custom.map( custom => custom.$hu )
     );
+
+    hu.$el.$remove();
   });
 
 });
