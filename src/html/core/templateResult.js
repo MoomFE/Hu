@@ -1,4 +1,4 @@
-import { lastAttributeNameRegex, boundAttributeSuffix, marker, nodeMarker } from "../const/index";
+import { lastAttributeNameRegex, boundAttributeSuffix, marker, nodeMarker, commentMarker } from "../const/index";
 import moveChildNodes from "../../shared/util/moveChildNodes";
 
 
@@ -42,7 +42,7 @@ export default class TemplateResult{
 
       // 将文本绑定和元素属性绑定转为指定格式
       if( attributeMatch === null ){
-        html += string + ( isCommentBinding ? marker : nodeMarker );
+        html += string + ( isCommentBinding ? commentMarker : nodeMarker );
       }else{
         html += string.substr( 0, attributeMatch.index )
               + attributeMatch[ 1 ]

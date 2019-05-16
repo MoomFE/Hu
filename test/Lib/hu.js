@@ -1162,6 +1162,8 @@
 
   const marker = `{{hu-${ String( random() ).slice(2) }}}`;
 
+  const commentMarker = ` ${ marker } `;
+
   const nodeMarker = `<!--${ marker }-->`;
 
   const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
@@ -1248,7 +1250,7 @@
 
         // 将文本绑定和元素属性绑定转为指定格式
         if( attributeMatch === null ){
-          html += string + ( isCommentBinding ? marker : nodeMarker );
+          html += string + ( isCommentBinding ? commentMarker : nodeMarker );
         }else{
           html += string.substr( 0, attributeMatch.index )
                 + attributeMatch[ 1 ]
