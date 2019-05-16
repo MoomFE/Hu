@@ -5,9 +5,9 @@ import createMarker from "../util/createMarker";
 export default class Template{
 
   constructor( result, element ){
-    this.parts = [];
     this.element = element;
 
+    const parts = this.parts = [];
     const nodesToRemove = [];
     const stack = [];
     const walker = document.createTreeWalker( element.content, 133, null, false );
@@ -50,7 +50,7 @@ export default class Template{
 
             node.removeAttribute( attributeLookupName );
             partIndex += statics.length - 1;
-            this.parts.push({
+            parts.push({
               type: 'attribute',
               index,
               name,
@@ -94,7 +94,7 @@ export default class Template{
             }
 
             parent.insertBefore( insert, node );
-            this.parts.push({
+            parts.push({
               type: 'node',
               index: ++index
             });
@@ -123,7 +123,7 @@ export default class Template{
           }
 
           lastPartIndex = index;
-          this.parts.push({
+          parts.push({
             type: 'node',
             index
           });
@@ -141,7 +141,7 @@ export default class Template{
 
           while( ( i = node.data.indexOf( marker, i + 1 ) ) !== -1 ){
             partIndex++;
-            this.parts.push({
+            parts.push({
               type: 'node',
               index: -1
             });

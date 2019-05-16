@@ -2398,9 +2398,9 @@
   class Template{
 
     constructor( result, element ){
-      this.parts = [];
       this.element = element;
 
+      const parts = this.parts = [];
       const nodesToRemove = [];
       const stack = [];
       const walker = document.createTreeWalker( element.content, 133, null, false );
@@ -2443,7 +2443,7 @@
 
               node.removeAttribute( attributeLookupName );
               partIndex += statics.length - 1;
-              this.parts.push({
+              parts.push({
                 type: 'attribute',
                 index,
                 name,
@@ -2487,7 +2487,7 @@
               }
 
               parent.insertBefore( insert, node );
-              this.parts.push({
+              parts.push({
                 type: 'node',
                 index: ++index
               });
@@ -2516,7 +2516,7 @@
             }
 
             lastPartIndex = index;
-            this.parts.push({
+            parts.push({
               type: 'node',
               index
             });
@@ -2534,7 +2534,7 @@
 
             while( ( i = node.data.indexOf( marker, i + 1 ) ) !== -1 ){
               partIndex++;
-              this.parts.push({
+              parts.push({
                 type: 'node',
                 index: -1
               });
