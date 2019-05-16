@@ -191,6 +191,18 @@ describe( 'Hu.html', () => {
     `);
   });
 
+  it( '使用 Hu.html 渲染模板中的注释中的绑定', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <!--${ 1 }-->2<!--${ 3 }-->
+    `;
+
+    expect( div.textContent ).is.equals(`
+      2
+    `);
+  });
+
   it( '使用 Hu.html 同时渲染模板中的元素和注释', () => {
     const div = document.createElement('div');
 
