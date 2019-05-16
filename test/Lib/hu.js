@@ -1229,7 +1229,7 @@
         const string = strings[ index ];
         /** 是否在当前解析的片段中查找到了新的文档注释开始标记 */
         const commentOpen = string.lastIndexOf('<!--');
-        /** 是否在当前解析的片段中车罩到了元素属性绑定 */
+        /** 是否在当前解析的片段中查找到了元素属性绑定 */
         const attributeMatch = lastAttributeNameRegex.exec( string );
 
         // 当前解析的片段是否正处在文档注释中
