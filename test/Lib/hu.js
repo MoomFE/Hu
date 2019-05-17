@@ -2492,7 +2492,7 @@
               if( string === '' ){
                 insert = createMarker();
               }else{
-                const match = lastAttributeNameRegex.exec( s );
+                const match = lastAttributeNameRegex.exec( string );
 
                 if( match !== null && endsWith( match[2], boundAttributeSuffix ) ){
                   string = string.slice( 0, match.index )
