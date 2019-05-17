@@ -2539,7 +2539,7 @@
         else if( nodeType === 8 ){
           // 当前注释是插值绑定生成的注释标记
           if( node.data === marker ){
-            if( node.previousSibling === null || index == lastPartIndex ){
+            if( node.previousSibling === null || index === lastPartIndex ){
               index++;
               node.parentNode.insertBefore(
                 createMarker(),
