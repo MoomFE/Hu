@@ -292,18 +292,22 @@ describe( 'Hu.html', () => {
     Hu.render( div )`
       <div>A<!-- <div class=${ 'B' }></div> -->C</div>
     `;
-
     expect( div.querySelector('div').innerText ).is.equals('AC');
-  });
-
-  it( '使用 Hu.html 渲染模板中类似属性绑定的注释 ( 二 )', () => {
-    const div = document.createElement('div');
 
     Hu.render( div )`
       <div>A<!-- class=${ 'B' } -->C</div>
     `;
-
     expect( div.querySelector('div').innerText ).is.equals('AC');
+
+    Hu.render( div )`
+      class=${ 'B' }
+    `;
+    expect( div.innerText ).is.equals(`
+      class=B
+    `);
+
+    Hu.render( div )`class=${ 'B' }`;
+    expect( div.innerText ).is.equals(`class=B`);
   });
 
   it( '使用 Hu.html 渲染模板中类似值绑定和属性绑定的注释', () => {
