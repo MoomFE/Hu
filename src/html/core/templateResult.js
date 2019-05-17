@@ -52,7 +52,7 @@ export default class TemplateResult{
       // 3. 元素属性绑定
       //    示　例: html`<div class=${ something }></div>`
       //    转换后: `<div class$hu$={{hu-666}}></div>`
-      // 3. 类元素属性绑定的绑定
+      // 3. 类似元素属性绑定的绑定
       //    示　例: html`<div> class=${ something } </div>`
       //　　　      html`<!-- class=${ something } -->`
       //    转换后: `<div> class$hu$={{hu-666}} </div>`
