@@ -1260,7 +1260,7 @@
         // 3. 元素属性绑定
         //    示　例: html`<div class=${ something }></div>`
         //    转换后: `<div class$hu$={{hu-666}}></div>`
-        // 3. 类元素属性绑定的绑定
+        // 3. 类似元素属性绑定的绑定
         //    示　例: html`<div> class=${ something } </div>`
         //　　　      html`<!-- class=${ something } -->`
         //    转换后: `<div> class$hu$={{hu-666}} </div>`
@@ -2417,41 +2417,53 @@
 
     constructor( result, element ){
       this.element = element;
+      this.parts = [];
 
-      const parts = this.parts = [];
+      if( result.values.length ){
+        // 最后一个参数那样传值没有别的原因, 就是满足下自己的强迫症而已
+        // 啥强迫症 ?
+        // 看 init 方法接收值的地方
+        this.init( result, element, this );
+      }
+    }
+
+    init(
+      { strings, values: { length } },
+      { content },
+      { parts }
+    ){
+      const walker = document.createTreeWalker( content, 133, null, false );
       const nodesToRemove = [];
       const stack = [];
-      const walker = document.createTreeWalker( element.content, 133, null, false );
-      const { strings, values: { length } } = result;
+      let partIndex = 0;
       let lastPartIndex = 0;
       let index = -1;
-      let partIndex = 0;
 
       while( partIndex < length ){
         const node = walker.nextNode();
+        const nodeType = node.nodeType;
 
         if( node === null ){
           walker.currentNode = stack.pop();
           continue;
         }
 
+        // 暂时还不知道有什么用
         index++;
 
-        /**
-         * ElementNode
-         */
-        if( node.nodeType === 1 ){
+        // ElementNode
+        if( nodeType === 1 ){
           if( node.hasAttributes() ){
             const attributes = node.attributes;
-            const { length } = attributes;
-        
+            const length = attributes.length;
+
             let count = 0;
-            for( let i = 0; i < length; i++ ){
-              if( endsWith( attributes[ i ].name, boundAttributeSuffix ) ){
-                count++;
-              }
+            for( let index = 0; index < length; index++ ){
+              endsWith( attributes[ index ].name, boundAttributeSuffix ) && (
+                count++
+              );
             }
-        
+
             while( count-- > 0 ){
               const stringForPart = strings[ partIndex ];
               const name = lastAttributeNameRegex.exec( stringForPart )[2];
@@ -2474,12 +2486,11 @@
             walker.currentNode = node.content;
           }
         }
-        /**
-         * TextNode
-         */
-        else if( node.nodeType === 3 ){
+        // TextNode
+        else if( nodeType === 3 ){
           const data = node.data;
 
+          // 类似元素属性绑定的绑定
           if( data.indexOf( marker ) >= 0 ){
             const parent = node.parentNode;
             const strings = data.split( markerRegex );
@@ -2488,7 +2499,7 @@
             for( let i = 0; i < lastIndex; i++ ){
               let insert;
               let string = strings[ i ];
-              
+
               if( string === '' ){
                 insert = createMarker();
               }else{
@@ -2512,25 +2523,28 @@
             }
 
             if( strings[ lastIndex ] === '' ){
-              parent.insertBefore( createMarker(), node );
               nodesToRemove.push( node );
+              parent.insertBefore(
+                createMarker(),
+                node
+              );
             }else{
               node.data = strings[ lastIndex ];
             }
 
             partIndex += lastIndex;
           }
-        }
-        /**
-         * CommentNode
-         */
-        else if( node.nodeType === 8 ){
+        } 
+        // CommentNode
+        else if( nodeType === 8 ){
+          // 当前注释是插值绑定生成的注释标记
           if( node.data === marker ){
-            const parent = node.parentNode;
-
-            if( node.previousSibling === null || index === lastPartIndex ){
+            if( node.previousSibling === null || index == lastPartIndex ){
               index++;
-              parent.insertBefore( createMarker(), node );
+              node.parentNode.insertBefore(
+                createMarker(),
+                node
+              );
             }
 
             lastPartIndex = index;
@@ -2547,10 +2561,12 @@
             }
 
             partIndex++;
-          }else{
-            let i = -1;
+          }
+          // 正常注释
+          else {
+            let markerIndex = -1;
 
-            while( ( i = node.data.indexOf( marker, i + 1 ) ) !== -1 ){
+            while( ( markerIndex = node.data.indexOf( marker, markerIndex + 1 ) ) !== -1 ){
               partIndex++;
               parts.push({
                 type: 'node',
@@ -2564,8 +2580,8 @@
       for( let node of nodesToRemove ){
         node.parentNode.removeChild( node );
       }
-    }
 
+    }
   }
 
 
