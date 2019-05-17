@@ -42,20 +42,20 @@ export default class TemplateResult{
 
       // 将文本绑定和元素属性绑定转为指定格式
       // 1. 普通内容绑定
-      //    例　如: html`123${ something }456`
+      //    示　例: html`123${ something }456`
       //    转换后: `123<!--{{hu-666}}-->456`
       // 2. 注释中的内容绑定
-      //    例　如: html`<!--${ something }-->`
+      //    示　例: html`<!--${ something }-->`
       //    转换后: `<!-- {{hu-666}} -->`
       //    提　示: 注释中的内容绑定会在标记左右各加一个空格,
       //　　        防止注释中的绑定在转换完后变成 `<!--{{hu-666}}-->`, 在最终解析的时候就会被解析成普通内容绑定
       // 3. 元素属性绑定
-      //    例　如: html`<div class=${ something }></div>`
+      //    示　例: html`<div class=${ something }></div>`
       //    转换后: `<div class$hu$={{hu-666}}></div>`
       // 3. 类元素属性绑定的绑定
-      //    例　如: html`<div>class=${ something }</div>`
+      //    示　例: html`<div> class=${ something } </div>`
       //　　　      html`<!-- class=${ something } -->`
-      //    转换后: `<div>class$hu$={{hu-666}}</div>`
+      //    转换后: `<div> class$hu$={{hu-666}} </div>`
       //　　　      `<!-- class$hu$={{hu-666}} -->`
       //    提　示: 文本节点中的类元素属性绑定最终会被解析为普通内容绑定
       //　　        注释节点中的类元素属性绑定最终不会被解析
