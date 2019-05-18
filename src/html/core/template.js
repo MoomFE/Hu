@@ -23,7 +23,7 @@ export default class Template{
   ){
     const walker = document.createTreeWalker( content, 133, null, false );
     const nodesToRemove = [];
-    const stack = [];
+    const templateStack = [];
     let partIndex = 0;
     let lastPartIndex = 0;
     let index = -1;
@@ -31,8 +31,10 @@ export default class Template{
     while( partIndex < length ){
       const node = walker.nextNode();
 
+      // 当前解析的节点是 template 元素的子节点
+      // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
       if( node === null ){
-        walker.currentNode = stack.pop();
+        walker.currentNode = templateStack.pop();
         continue;
       }
 
@@ -71,8 +73,13 @@ export default class Template{
               });
             }
           }
+          // 当前解析的节点是 template 元素
+          // 因为 TreeWalker 不会主动解析 template 元素的子节点
+          // 所以将当前节点保存到堆栈, 然后手动将当前节点重定向至 template 的内容根节点, 开始解析 template 元素的子节点
+          // 如果在当前 template 元素的子节点中又遇到了新的 template 元素, 那么重复上述两个操作
+          // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
           if( node.tagName === 'TEMPLATE' ){
-            stack.push( node );
+            templateStack.push( node );
             walker.currentNode = node.content;
           }
           break;
