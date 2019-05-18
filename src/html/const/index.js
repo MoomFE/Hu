@@ -38,9 +38,8 @@ export const boundAttributeSuffix = '$hu$';
 export const boundAttributeSuffixLength = boundAttributeSuffix.length;
 
 export const marker = `{{hu-${ String( random() ).slice(2) }}}`;
+export const nodeMarker = `<!--${ marker }-->`;
+export const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
 
 export const commentMarker = ` ${ marker } `;
-
-export const nodeMarker = `<!--${ marker }-->`;
-
-export const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
+export const commentMarkerRegex = new RegExp( commentMarker, 'g' );

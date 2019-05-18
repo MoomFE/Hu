@@ -1162,12 +1162,11 @@
   const boundAttributeSuffixLength = boundAttributeSuffix.length;
 
   const marker = `{{hu-${ String( random() ).slice(2) }}}`;
+  const nodeMarker = `<!--${ marker }-->`;
+  const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
 
   const commentMarker = ` ${ marker } `;
-
-  const nodeMarker = `<!--${ marker }-->`;
-
-  const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
+  const commentMarkerRegex = new RegExp( commentMarker, 'g' );
 
   /**
    * 判断传入参数是否是指令方法
@@ -2583,7 +2582,7 @@
             }
             // 正常注释
             else {
-              const data = node.data;
+              const data = node.data = node.data.replace( commentMarkerRegex, marker );
               let markerIndex = -1;
 
               // 查找注释中所有插值绑定
