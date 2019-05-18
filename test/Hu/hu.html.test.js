@@ -285,7 +285,7 @@ describe( 'Hu.html', () => {
 
     expect( div.querySelector('div').innerText ).is.equals('AD');
   });
-  
+
   it( '使用 Hu.html 渲染模板中类似属性绑定的注释', () => {
     const div = document.createElement('div');
 
@@ -318,6 +318,38 @@ describe( 'Hu.html', () => {
     `;
 
     expect( div.querySelector('div').innerText ).is.equals('AD');
+  });
+
+  it( '使用 Hu.html 渲染 template 内的内容', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div>'123'</div>
+      <template>
+        <div>${ 123 }-${ 456 }-${ 789 }</div>
+      </template>
+      <div>'123'</div>
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>'123'</div>
+      <template>
+        <div>123-456-789</div>
+      </template>
+      <div>'123'</div>
+    `);
+  });
+
+  it( '使用 Hu.html 渲染文本节点中的连续的插值绑定', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      A${ 123 }B${ 456 }C${ 789 }D
+      <!--class=${ 123 }${ 789 }${ 10 }-->
+      <!--${ 123 } ${ 456 }-->
+    `;
+
+    expect( div.textContent ).is.equals(`\n      A123B456C789D\n      \n      \n    `);
   });
 
 });
