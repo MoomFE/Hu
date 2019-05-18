@@ -1,4 +1,4 @@
-import { marker, markerRegex, lastAttributeNameRegex, boundAttributeSuffix } from "../const/index";
+import { marker, markerRegex, lastAttributeNameRegex, boundAttributeSuffix, boundAttributeSuffixLength } from "../const/index";
 import createMarker from "../util/createMarker";
 
 
@@ -107,7 +107,7 @@ export default class Template{
                 if( match !== null && endsWith( match[2], boundAttributeSuffix ) ){
                   string = string.slice( 0, match.index )
                         + match[ 1 ]
-                        + match[ 2 ].slice( 0, -boundAttributeSuffix.length )
+                        + match[ 2 ].slice( 0, -boundAttributeSuffixLength )
                         + match[ 3 ];
                 }
 
@@ -136,11 +136,13 @@ export default class Template{
           break;
         };
 
-
         // CommentNode
         case 8: {
           // 当前注释是插值绑定生成的注释标记
           if( node.data === marker ){
+            // 如果没有可以作为开始标记的节点
+            // 或者上一个节点已经被上一个插值绑定作为开始节点了
+            // 那么需要添加一个空注释节点作为开始标记
             if( node.previousSibling === null || index === lastPartIndex ){
               index++;
               node.parentNode.insertBefore(
@@ -155,9 +157,12 @@ export default class Template{
               index
             });
 
-            if( node.nextSibling === null ){
-              node.data = '';
-            }else{
+            // 如果没有可以作为结束标记的节点
+            // 那么将当前注释本身清空作为结束标记
+            if( node.nextSibling === null ) node.data = '';
+            // 如果有可以作为结束标记的节点
+            // 那么可以删除掉当前注释节点
+            else{
               nodesToRemove.push( node );
               index--;
             }
@@ -166,9 +171,11 @@ export default class Template{
           }
           // 正常注释
           else {
+            const data = node.data;
             let markerIndex = -1;
 
-            while( ( markerIndex = node.data.indexOf( marker, markerIndex + 1 ) ) !== -1 ){
+            // 查找注释中所有插值绑定
+            while( ( markerIndex = data.indexOf( marker, markerIndex + 1 ) ) !== -1 ){
               partIndex++;
               parts.push({
                 type: 'node',
@@ -179,14 +186,12 @@ export default class Template{
           break;
         };
 
-
       }
     }
 
     for( const node of nodesToRemove ){
       node.parentNode.removeChild( node );
     }
-
   }
 }
 

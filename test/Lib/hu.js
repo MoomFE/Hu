@@ -1159,6 +1159,7 @@
   const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
 
   const boundAttributeSuffix = '$hu$';
+  const boundAttributeSuffixLength = boundAttributeSuffix.length;
 
   const marker = `{{hu-${ String( random() ).slice(2) }}}`;
 
@@ -2518,7 +2519,7 @@
                   if( match !== null && endsWith( match[2], boundAttributeSuffix ) ){
                     string = string.slice( 0, match.index )
                           + match[ 1 ]
-                          + match[ 2 ].slice( 0, -boundAttributeSuffix.length )
+                          + match[ 2 ].slice( 0, -boundAttributeSuffixLength )
                           + match[ 3 ];
                   }
 
@@ -2547,11 +2548,13 @@
             break;
           }
 
-
           // CommentNode
           case 8: {
             // 当前注释是插值绑定生成的注释标记
             if( node.data === marker ){
+              // 如果没有可以作为开始标记的节点
+              // 或者上一个节点已经被上一个插值绑定作为开始节点了
+              // 那么需要添加一个空注释节点作为开始标记
               if( node.previousSibling === null || index === lastPartIndex ){
                 index++;
                 node.parentNode.insertBefore(
@@ -2566,9 +2569,12 @@
                 index
               });
 
-              if( node.nextSibling === null ){
-                node.data = '';
-              }else{
+              // 如果没有可以作为结束标记的节点
+              // 那么将当前注释本身清空作为结束标记
+              if( node.nextSibling === null ) node.data = '';
+              // 如果有可以作为结束标记的节点
+              // 那么可以删除掉当前注释节点
+              else{
                 nodesToRemove.push( node );
                 index--;
               }
@@ -2577,9 +2583,11 @@
             }
             // 正常注释
             else {
+              const data = node.data;
               let markerIndex = -1;
 
-              while( ( markerIndex = node.data.indexOf( marker, markerIndex + 1 ) ) !== -1 ){
+              // 查找注释中所有插值绑定
+              while( ( markerIndex = data.indexOf( marker, markerIndex + 1 ) ) !== -1 ){
                 partIndex++;
                 parts.push({
                   type: 'node',
@@ -2590,14 +2598,12 @@
             break;
           }
 
-
         }
       }
 
       for( let node of nodesToRemove ){
         node.parentNode.removeChild( node );
       }
-
     }
   }
 
