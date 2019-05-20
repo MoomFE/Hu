@@ -1,5 +1,6 @@
 import { marker, markerRegex, lastAttributeNameRegex, boundAttributeSuffix, boundAttributeSuffixLength, commentMarkerRegex } from "../const/index";
 import createMarker from "../util/createMarker";
+import getAttribute from "../../shared/util/getAttribute";
 
 
 export default class Template{
@@ -38,7 +39,6 @@ export default class Template{
         continue;
       }
 
-      // 暂时还不知道有什么用
       index++;
 
       switch( node.nodeType ){
@@ -49,20 +49,28 @@ export default class Template{
             const attributes = node.attributes;
             const length = attributes.length;
   
+            // 遍历当前元素节点的所有属性 ( attribute )
+            // 得到当前元素节点的所有属性绑定总和
             let count = 0;
             for( let index = 0; index < length; index++ ){
               endsWith( attributes[ index ].name, boundAttributeSuffix ) && (
                 count++
               );
             }
-  
+
+            // 将当前元素节点上所有以插值绑定写入的属性按照顺序取出
             while( count-- > 0 ){
+              /** 当前属性插值绑定片段 */
               const stringForPart = strings[ partIndex ];
+              /** 属性名称 */
               const name = lastAttributeNameRegex.exec( stringForPart )[2];
+              /** 实际属性名称 */
               const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
-              const attributeValue = node.getAttribute( attributeLookupName );
+              /** 属性值 */
+              const attributeValue = getAttribute( node, attributeLookupName );
+              /** 属性值的静态内容合集 */
               const statics = attributeValue.split( markerRegex );
-  
+
               node.removeAttribute( attributeLookupName );
               partIndex += statics.length - 1;
               parts.push({
@@ -89,46 +97,46 @@ export default class Template{
         case 3: {
           const data = node.data;
 
-          // 类似元素属性绑定的绑定
+          // 解析类似元素属性绑定的绑定
           if( data.indexOf( marker ) >= 0 ){
             const parent = node.parentNode;
             const strings = data.split( markerRegex );
             const lastIndex = strings.length - 1;
 
+            // 解析当前文本节点中所有的类似元素属性绑定的绑定
+            // 将单个文本节点根据插值绑定分割成多个文本节点
             for( let i = 0; i < lastIndex; i++ ){
-              let insert;
               let string = strings[ i ];
+              const match = lastAttributeNameRegex.exec( string );
 
-              if( string === '' ){
-                insert = createMarker();
-              }else{
-                const match = lastAttributeNameRegex.exec( string );
-
-                if( match !== null && endsWith( match[2], boundAttributeSuffix ) ){
-                  string = string.slice( 0, match.index )
-                        + match[ 1 ]
-                        + match[ 2 ].slice( 0, -boundAttributeSuffixLength )
-                        + match[ 3 ];
-                }
-
-                insert = document.createTextNode( string );
+              if( match !== null && endsWith( match[2], boundAttributeSuffix ) ){
+                string = string.slice( 0, match.index )
+                       + match[ 1 ]
+                       + match[ 2 ].slice( 0, -boundAttributeSuffixLength )
+                       + match[ 3 ];
               }
 
-              parent.insertBefore( insert, node );
+              parent.insertBefore(
+                document.createTextNode( string ),
+                node
+              );
               parts.push({
                 type: 'node',
                 index: ++index
               });
             }
 
-            if( strings[ lastIndex ] === '' ){
+            // 如果当前节点末尾除了插值绑定还有其他内容
+            // 那么可以将当前文本节点作为结束标记
+            if( strings[ lastIndex ] !== '' ) node.data = strings[ lastIndex ];
+            // 如果当前节点不可作为结束标记
+            // 那么需要添加一个空注释节点作为结束标记
+            else{
               nodesToRemove.push( node );
               parent.insertBefore(
                 createMarker(),
                 node
               );
-            }else{
-              node.data = strings[ lastIndex ];
             }
 
             partIndex += lastIndex;
@@ -170,7 +178,7 @@ export default class Template{
             partIndex++;
           }
           // 正常注释
-          else {
+          else{
             const data = node.data = node.data.replace( commentMarkerRegex, marker );
             let markerIndex = -1;
 
@@ -189,6 +197,7 @@ export default class Template{
       }
     }
 
+    // 将收集到的可移除的节点进行删除
     for( const node of nodesToRemove ){
       node.parentNode.removeChild( node );
     }

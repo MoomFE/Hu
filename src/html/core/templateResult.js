@@ -48,17 +48,17 @@ export default class TemplateResult{
       //    示　例: html`<!--${ something }-->`
       //    转换后: `<!-- {{hu-666}} -->`
       //    提　示: 注释中的内容绑定会在标记左右各加一个空格,
-      //　　        防止注释中的绑定在转换完后变成 `<!--{{hu-666}}-->`, 在最终解析的时候就会被解析成普通内容绑定
+      // 　　       防止注释中的绑定在转换完后变成 `<!--{{hu-666}}-->`, 在最终解析的时候就会被解析成普通内容绑定
       // 3. 元素属性绑定
       //    示　例: html`<div class=${ something }></div>`
       //    转换后: `<div class$hu$={{hu-666}}></div>`
       // 3. 类似元素属性绑定的绑定
       //    示　例: html`<div> class=${ something } </div>`
-      //　　　      html`<!-- class=${ something } -->`
+      // 　　　     html`<!-- class=${ something } -->`
       //    转换后: `<div> class$hu$={{hu-666}} </div>`
-      //　　　      `<!-- class$hu$={{hu-666}} -->`
+      // 　　　     `<!-- class$hu$={{hu-666}} -->`
       //    提　示: 文本节点中的类元素属性绑定最终会被解析为普通内容绑定
-      //　　        注释节点中的类元素属性绑定最终不会被解析
+      // 　　       注释节点中的类元素属性绑定最终不会被解析
       if( attributeMatch === null ){
         html += string + ( isCommentBinding ? commentMarker : nodeMarker );
       }else{

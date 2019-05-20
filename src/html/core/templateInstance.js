@@ -10,6 +10,9 @@ export default class TemplateInstance{
     this.template = template;
   }
 
+  /**
+   * 更新模板片段中插值绑定中的值
+   */
   update( values ){
     const parts = this.parts;
     let index = 0;
@@ -23,9 +26,11 @@ export default class TemplateInstance{
     }
   }
 
-  clone(){
-    const { template } = this;
-    const { parts, element: { content }, parts: { length: partsLength } } = template;
+  /**
+   * 初始化模板片段
+   */
+  init(){
+    const { parts, element: { content }, parts: { length: partsLength } } = this.template;
     const fragment = isCEPolyfill ? content.cloneNode( true ) : document.importNode( content, true );
     const stack = [];
     const walker = document.createTreeWalker( fragment, 133, null, false );

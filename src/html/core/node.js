@@ -127,7 +127,7 @@ function commitTemplateResult( nodePart, value ){
     oldValue.update( value.values );
   }else{
     const instance = nodePart.value = new TemplateInstance( template );
-    const fragment = instance.clone();
+    const fragment = instance.init();
 
     instance.update( value.values );
     commitNode( nodePart, fragment );
