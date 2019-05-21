@@ -36,6 +36,66 @@ describe( 'Hu.html', () => {
     `);
   });
 
+  it( '渲染文本节点 - 使用插值绑定', () => {
+    Hu.render( div )`${ '测试' }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试`);
+
+    Hu.render( div )`
+    ${ '测试' }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+    测试`);
+
+    Hu.render( div )`${ '测试' }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试
+    `);
+
+    Hu.render( div )`测试${ '测试' }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试`);
+
+    Hu.render( div )`
+    测试${ '测试' }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+    测试测试`);
+
+    Hu.render( div )`测试${ '测试' }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试
+    `);
+
+    Hu.render( div )`测试${ '测试' }测试`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试测试`);
+
+    Hu.render( div )`
+    测试${ '测试' }测试`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+    测试测试测试`);
+
+    Hu.render( div )`测试${ '测试' }测试
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试测试
+    `);
+  });
+
+  it( '渲染文本节点 - 多个插值绑定', () => {
+    Hu.render( div )`
+      ${ 1 } ${ 2 } ${ 3 } ${ 4 }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1 2 3 4
+    `);
+  });
+
+  it( '渲染文本节点 - 类似属性绑定的文本节点', () => {
+    Hu.render( div )`
+      attr1=${ 1 } attr2=${ 2 } attr3=${ 3 }
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      attr1=1 attr2=2 attr3=3
+    `);
+  });
+
   it( '渲染元素节点', () => {
     Hu.render( div )`
       <div></div>
@@ -77,6 +137,42 @@ describe( 'Hu.html', () => {
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
       1<div class="asd">2</div>3
+    `);
+  });
+
+  it( '渲染元素节点 - 使用插值绑定', () => {
+    Hu.render( div )`<div>${ 1 }</div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1</div>`);
+
+    Hu.render( div )`
+    <div>${ 1 }</div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+    <div>1</div>`);
+
+    Hu.render( div )`<div>${ 1 }</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1</div>
+    `);
+
+    Hu.render( div )`
+      <div>${ 1 }</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>1</div>
+    `);
+
+    Hu.render( div )`
+      <div class=${ 'static' }>${ 1 }</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div class="static">1</div>
+    `);
+
+    Hu.render( div )`
+      <div class=${ 'static' } name="1${ 2 }3${ 4 }5">${ 1 }</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div class="static" name="12345">1</div>
     `);
   });
 
@@ -124,83 +220,6 @@ describe( 'Hu.html', () => {
     `);
   });
 
-  it( '渲染文本节点 - 使用插值绑定', () => {
-    Hu.render( div )`${ '测试' }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试`);
-
-    Hu.render( div )`
-    ${ '测试' }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-    测试`);
-
-    Hu.render( div )`${ '测试' }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试
-    `);
-
-    Hu.render( div )`测试${ '测试' }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试`);
-
-    Hu.render( div )`
-    测试${ '测试' }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-    测试测试`);
-
-    Hu.render( div )`测试${ '测试' }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试
-    `);
-
-    Hu.render( div )`测试${ '测试' }测试`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试测试`);
-
-    Hu.render( div )`
-    测试${ '测试' }测试`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-    测试测试测试`);
-
-    Hu.render( div )`测试${ '测试' }测试
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试测试测试
-    `);
-  });
-
-  it( '渲染元素节点 - 使用插值绑定', () => {
-    Hu.render( div )`<div>${ 1 }</div>`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1</div>`);
-
-    Hu.render( div )`
-    <div>${ 1 }</div>`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-    <div>1</div>`);
-
-    Hu.render( div )`<div>${ 1 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1</div>
-    `);
-
-    Hu.render( div )`
-      <div>${ 1 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>1</div>
-    `);
-
-    Hu.render( div )`
-      <div class=${ 'static' }>${ 1 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="static">1</div>
-    `);
-
-    Hu.render( div )`
-      <div class=${ 'static' } name="1${ 2 }3${ 4 }5">${ 1 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="static" name="12345">1</div>
-    `);
-  });
-
   it( '渲染注释节点 - 使用插值绑定', () => {
     Hu.render( div )`<!--${ 123 }-->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->`);
@@ -221,22 +240,52 @@ describe( 'Hu.html', () => {
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
       <!--${ marker }-->
     `);
+
+    Hu.render( div )`
+      <!-- ${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker }-->
+    `);
+
+    Hu.render( div )`
+      <!--${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker } -->
+    `);
+
+    Hu.render( div )`
+      <!-- ${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker } -->
+    `);
+
+    Hu.render( div )`
+      <!-- 1${ 2 }3 -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- 1${ marker }3 -->
+    `);
+
+    Hu.render( div )`
+      <!-- 1<div>2${ 3 }4</div>5 -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- 1<div>2${ marker }4</div>5 -->
+    `);
+
+    Hu.render( div )`
+      <!-- 1<div class=${ 'static' }>2${ 3 }4</div>5 -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- 1<div class$hu$=${ marker }>2${ marker }4</div>5 -->
+    `);
   });
 
 });
 
-
-// it( '使用 Hu.html 渲染模板中的注释', () => {
-//   const div = document.createElement('div');
-
-//   Hu.render( div )`
-//     <!-- comment -->
-//   `;
-
-//   expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-//     <!-- comment -->
-//   `);
-// });
 
 // it( '使用 Hu.html 渲染模板中的注释中的绑定', () => {
 //   const div = document.createElement('div');
