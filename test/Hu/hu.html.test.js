@@ -204,6 +204,23 @@ describe( 'Hu.html', () => {
   it( '渲染注释节点 - 使用插值绑定', () => {
     Hu.render( div )`<!--${ 123 }-->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->`);
+
+    Hu.render( div )`
+    <!--${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+    <!--${ marker }-->`);
+
+    Hu.render( div )`<!--${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->
+    `);
+
+    Hu.render( div )`
+      <!--${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }-->
+    `);
   });
 
 });
