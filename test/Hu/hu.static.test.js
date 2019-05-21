@@ -123,4 +123,29 @@ describe( 'Hu.static', () => {
     window.Hu = Hu;
   });
 
+  it( 'Hu.render 首选使用方式', () => {
+    const div = document.createElement('div');
+
+    Hu.render(
+      Hu.html`<span>123</span>`,
+      div
+    );
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(
+      `<span>123</span>`
+    );
+  });
+
+  it( 'Hu.render 另一种方式', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <span>123</span>
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <span>123</span>
+    `);
+  });
+
 });
