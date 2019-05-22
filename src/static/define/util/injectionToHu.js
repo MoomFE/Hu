@@ -10,10 +10,10 @@ export default
  * @param {{}} huTarget $hu 实例
  * @param {string} key 对象名称
  * @param {any} value 对象值
- * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
- * @param {function} get 属性的 setter 方法
+ * @param {function} get 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
+ * @param {function} set 属性的 setter 方法
  */
-( huTarget, key, value, set, get ) => {
+( huTarget, key, value, get, set ) => {
 
   // 首字母为 $ 则不允许映射到 $hu 实例中去
   if( !isSymbolOrNotReserved( key ) ) return;
@@ -22,8 +22,8 @@ export default
   has( huTarget, key ) && delete huTarget[ key ];
 
   // 使用 Object.defineProperty 对值进行定义
-  if( set ){
-    defineProperty( huTarget, key, set, get )
+  if( get ){
+    defineProperty( huTarget, key, get, set );
   }
   // 直接写入到 $hu 上
   else{
