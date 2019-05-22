@@ -3396,10 +3396,10 @@
    * @param {{}} huTarget $hu 实例
    * @param {string} key 对象名称
    * @param {any} value 对象值
-   * @param {function} set 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
-   * @param {function} get 属性的 setter 方法
+   * @param {function} get 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
+   * @param {function} set 属性的 setter 方法
    */
-  ( huTarget, key, value, set, get ) => {
+  ( huTarget, key, value, get, set ) => {
 
     // 首字母为 $ 则不允许映射到 $hu 实例中去
     if( !isSymbolOrNotReserved( key ) ) return;
@@ -3408,8 +3408,8 @@
     has( huTarget, key ) && delete huTarget[ key ];
 
     // 使用 Object.defineProperty 对值进行定义
-    if( set ){
-      defineProperty$1( huTarget, key, set, get );
+    if( get ){
+      defineProperty$1( huTarget, key, get, set );
     }
     // 直接写入到 $hu 上
     else{
@@ -3612,14 +3612,37 @@
     target,
     targetProxy
   ){
+    /**
+     * $methods 实例属性
+     *  - 非响应式
+     *  - 会在实例上添加方法的副本 ( 单独修改删除时, 另一个不受影响 )
+     */
     const methodsTarget = target.$methods = create( null );
-    const globalMethodsTarget = target.$globalMethods = create( null );
 
+    // 添加方法到对象中和实例中
     injectionMethods( methodsTarget, methods, target, targetProxy );
-    injectionMethods( globalMethodsTarget, globalMethods, target, targetProxy, ( name, method ) => {
-      isCustomElement && isSymbolOrNotReserved( name ) && (
-        root[ name ] = method
+
+
+    /**
+     * $globalMethods 实例属性
+     *  - 响应式
+     *  - 会在实例上和自定义元素上添加方法的映射
+     */
+    const globalMethodsTarget = create( null );
+    const globalMethodsTargetProxy = target.$globalMethods = observe( globalMethodsTarget );
+
+    // 添加方法到对象中
+    // 实例和自定义元素上的映射通过回调方法手动添加
+    injectionMethods( globalMethodsTarget, globalMethods, target, targetProxy, name => {
+      const get = () => globalMethodsTargetProxy[ name ];
+      const set = method => isFunction( method ) && (
+        globalMethodsTargetProxy[ name ] = method
       );
+
+      // 添加映射到实例中
+      injectionToHu( target, name, 0, get, set );
+      // 添加映射到自定义元素中
+      isCustomElement && injectionToHu( root, name, 0, get, set );
     });
   }
 
@@ -3627,8 +3650,11 @@
     each( methods, ( name, value ) => {
       const method = methodsTarget[ name ] = value.bind( targetProxy );
 
-      injectionToHu( target, name, method );
-      callback && callback( name, method );
+      if( callback ){
+        callback( name );
+      }else{
+        injectionToHu( target, name, method );
+      }
     });
   }
 
