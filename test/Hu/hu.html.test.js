@@ -195,9 +195,10 @@ describe( 'Hu.html', () => {
     Hu.render( div )`
       <div class=${ 'static' } name="1${ 2 }3${ 4 }5">${ 1 }</div>
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="static" name="12345">1</div>
-    `);
+    expect(
+      stripExpressionMarkers( div.innerHTML ) === `\n      <div class="static" name="12345">1</div>\n    ` ||
+      stripExpressionMarkers( div.innerHTML ) === `\n      <div name="12345" class="static">1</div>\n    `
+    ).is.true;
   });
 
   it( '渲染注释节点 - 使用插值绑定', () => {
