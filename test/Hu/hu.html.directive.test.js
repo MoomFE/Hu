@@ -1460,8 +1460,12 @@ describe( 'Hu.html.directive', () => {
     Hu.render( div )`
       <div :zhang-wei=${ 666 }></div>
     `;
-
     expect( div.firstElementChild.getAttribute(':zhang-wei') ).equals('666');
+
+    Hu.render( div )`
+      <div :toString=${ 666 }></div>
+    `;
+    expect( div.firstElementChild.getAttribute(':tostring') ).equals('666');
   });
 
 });
