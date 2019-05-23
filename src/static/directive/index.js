@@ -1,8 +1,7 @@
-import Hu from "../../core/index";
 import { userDirectives } from "../../html/core/templateProcessor";
 
 
-Hu.directive = ( id, directiveClass ) => {
+export default ( id, directiveClass ) => {
   
   // 获取已注册的指令
   if( !directiveClass ){

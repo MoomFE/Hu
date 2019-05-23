@@ -8,6 +8,7 @@ import nextTick from '../static/nextTick/index';
 import { observable } from '../static/observable/observe';
 import util from '../static/util/index';
 import html from '../html/html';
+import directive from '../static/directive/index';
 import '../static/noConflict/index';
 
 
@@ -17,7 +18,8 @@ assign( Hu, {
   html,
   nextTick,
   observable,
-  util
+  util,
+  directive
 });
 
 
