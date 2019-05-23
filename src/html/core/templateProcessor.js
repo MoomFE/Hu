@@ -1,4 +1,3 @@
-import { has } from '../../shared/global/Reflect/index';
 import AttributeCommitter from '../directiveBasic/attribute';
 import BasicEventDirective from '../directiveBasic/event';
 import BasicBooleanDirective from '../directiveBasic/boolean';
@@ -47,10 +46,11 @@ export default {
     // 功能指令
     else if( prefix === ':' ){
       const [ attr ] = name.slice(1).split('.');
+      const directive = directives[ attr ] || userDirectives[ attr ];
 
-      if( has( attrHandler, attr ) ){
+      if( directive ){
         return [
-          new attrHandler[ attr ]( element, attr )
+          new directives[ attr ]( element, attr )
         ];
       }
     }
@@ -63,13 +63,20 @@ export default {
 
 
 /**
- * 存放指定属性的特殊处理
+ * 内置指令
  */
-const attrHandler = create({
+const directives = create({
   class: ClassDirective,
   style: StyleDirective,
   model: ModelDirective,
   text: TextDirective,
   html: HtmlDirective,
   show: ShowDirective
+});
+
+/**
+ * 用户定义指令
+ */
+export const userDirectives = create({
+
 });

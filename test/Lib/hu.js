@@ -2299,10 +2299,11 @@
       // 功能指令
       else if( prefix === ':' ){
         const [ attr ] = name.slice(1).split('.');
+        const directive = directives$1[ attr ] || userDirectives[ attr ];
 
-        if( has( attrHandler, attr ) ){
+        if( directive ){
           return [
-            new attrHandler[ attr ]( element, attr )
+            new directives$1[ attr ]( element, attr )
           ];
         }
       }
@@ -2315,15 +2316,22 @@
 
 
   /**
-   * 存放指定属性的特殊处理
+   * 内置指令
    */
-  const attrHandler = create$1({
+  const directives$1 = create$1({
     class: ClassDirective,
     style: StyleDirective,
     model: ModelDirective,
     text: TextDirective,
     html: HtmlDirective,
     show: ShowDirective
+  });
+
+  /**
+   * 用户定义指令
+   */
+  const userDirectives = create$1({
+
   });
 
   class TemplateInstance{
