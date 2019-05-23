@@ -9,6 +9,7 @@ import ModelDirective from '../directive/model';
 import TextDirective from '../directive/text';
 import HtmlDirective from '../directive/html';
 import ShowDirective from '../directive/show';
+import create from '../../shared/util/create';
 
 
 export default {
@@ -64,11 +65,11 @@ export default {
 /**
  * 存放指定属性的特殊处理
  */
-const attrHandler = {
+const attrHandler = create({
   class: ClassDirective,
   style: StyleDirective,
   model: ModelDirective,
   text: TextDirective,
   html: HtmlDirective,
   show: ShowDirective
-};
+});

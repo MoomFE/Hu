@@ -2254,6 +2254,16 @@
 
   }
 
+  /**
+   * 创建一个干净的目标对象
+   * 并把传入方法的对象全部浅拷贝到目标对象并返回目标对象
+   */
+  var create$1 = ( ...args ) => {
+    return apply( assign, null, [
+      create( null ), ...args
+    ]);
+  };
+
   var templateProcessor = {
 
     attr( element, name, strings ){
@@ -2307,14 +2317,14 @@
   /**
    * 存放指定属性的特殊处理
    */
-  const attrHandler = {
+  const attrHandler = create$1({
     class: ClassDirective,
     style: StyleDirective,
     model: ModelDirective,
     text: TextDirective,
     html: HtmlDirective,
     show: ShowDirective
-  };
+  });
 
   class TemplateInstance{
 
