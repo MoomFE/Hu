@@ -104,4 +104,8 @@ export default class TemplateInstance{
     return fragment;
   }
 
+  destroy(){
+    
+  }
+
 }

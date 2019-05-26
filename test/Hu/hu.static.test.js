@@ -148,4 +148,9 @@ describe( 'Hu.static', () => {
     `);
   });
 
+  it( 'Hu.directive 可以用于注册自定义组件', () => {
+
+    // Hu.directive( )
+  });
+
 });
