@@ -1,4 +1,4 @@
-import { directives } from "../const/index";
+import { directiveFns } from "../const/index";
 
 
 /**
@@ -6,6 +6,6 @@ import { directives } from "../const/index";
  */
 export default ( directiveFn ) => ( ...args ) => {
   const directive = directiveFn( ...args );
-  directives.add( directive );
+  directiveFns.add( directive );
   return directive;
 }

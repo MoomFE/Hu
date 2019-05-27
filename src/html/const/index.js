@@ -4,7 +4,7 @@ import { random } from "../../shared/global/Math/index";
 /**
  * 指令方法合集
  */
-export const directives = new WeakSet();
+export const directiveFns = new WeakSet();
 
 /**
  * This regex extracts the attribute name preceding an attribute-position
