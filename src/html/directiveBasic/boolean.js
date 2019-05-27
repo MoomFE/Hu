@@ -1,31 +1,31 @@
-import isDirectiveFn from "../util/isDirectiveFn";
+import isSingleBind from "../util/isSingleBind";
+import isNotEqual from "../../shared/util/isNotEqual";
 
 
 export default class BasicBooleanDirective{
 
-  constructor( element, attr ){
-    this.elem = element;
-    this.attr = attr;
-  }
-
-  setValue( value ){
-    if( isDirectiveFn( value ) ){
-      return value( this );
+  constructor( element, name, strings, modifiers ){
+    if( !isSingleBind( strings ) ){
+      throw new Error('?attr 指令的传值只允许包含单个表达式 !');
     }
 
-    this.oldValue = this.value;
-    this.value = value;
+    this.elem = element;
+    this.name = name;
   }
 
-  commit(){
-    const value = this.value = !!this.value;
-    const oldValue = this.oldValue;
-
-    if( value !== oldValue ){
+  commit( value, isDirectiveFn ){
+    // 用户传递的是指令方法
+    // 交给指令方法处理
+    if( isDirectiveFn ) return value( this );
+    // 两次传入的值不同
+    if( isNotEqual( value, this.value ) ){
+      // 存储当前值
+      [ this.value, this.oldValue ] = [ value, this.value ];
+      // 更新属性值
       if( value ){
-        this.elem.setAttribute( this.attr , '' );
+        this.elem.setAttribute( this.name, '' );
       }else{
-        this.elem.removeAttribute( this.attr );
+        this.elem.removeAttribute( this.name );
       }
     }
   }
