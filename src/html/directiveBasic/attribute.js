@@ -1,4 +1,4 @@
-import isDirective from "../util/isDirective";
+import isDirectiveFn from "../util/isDirectiveFn";
 import isEqual from "../../shared/util/isEqual";
 import { isArray } from '../../shared/global/Array/index';
 import isString from '../../shared/util/isString';
@@ -64,7 +64,7 @@ class AttributePart{
   }
 
   setValue( value ){
-    if( isDirective( value ) ){
+    if( isDirectiveFn( value ) ){
       return value( this );
     }
 

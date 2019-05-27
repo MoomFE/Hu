@@ -1,4 +1,4 @@
-import isDirective from "../util/isDirective";
+import isDirectiveFn from "../util/isDirectiveFn";
 import rWhitespace from "../../shared/const/rWhitespace";
 import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
@@ -18,7 +18,7 @@ export default class ClassDirective{
   }
 
   setValue( value ){
-    if( isDirective( value ) ){
+    if( isDirectiveFn( value ) ){
       return value( this, true );
     }
 

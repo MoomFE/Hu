@@ -1,4 +1,4 @@
-import isDirective from "../util/isDirective";
+import isDirectiveFn from "../util/isDirectiveFn";
 import isEqual from "../../shared/util/isEqual";
 import isPrimitive from "../../shared/util/isPrimitive";
 import isString from "../../shared/util/isString";
@@ -14,7 +14,7 @@ import createMarker from "../util/createMarker";
 export default class NodePart{
 
   setValue( value ){
-    if( isDirective( value ) ){
+    if( isDirectiveFn( value ) ){
       return value( this );
     }
 

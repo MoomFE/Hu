@@ -1,4 +1,4 @@
-import isDirective from "../util/isDirective";
+import isDirectiveFn from "../util/isDirectiveFn";
 import isFunction from "../../shared/util/isFunction";
 import { has, apply } from "../../shared/global/Reflect/index";
 import { supportsPassive } from "../../shared/const/env";
@@ -19,7 +19,7 @@ export default class BasicEventDirective{
   }
 
   setValue( listener ){
-    if( isDirective( listener ) ){
+    if( isDirectiveFn( listener ) ){
       throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
     }
 

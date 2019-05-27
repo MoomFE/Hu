@@ -1,5 +1,4 @@
 import { userDirectives, directives } from "../../html/const/index";
-import isDirective from "../../html/util/isDirective";
 
 
 export default ( id, directiveClass ) => {

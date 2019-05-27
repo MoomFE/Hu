@@ -1,4 +1,4 @@
-import isDirective from "../util/isDirective";
+import isDirectiveFn from "../util/isDirectiveFn";
 
 
 export default class BasicBooleanDirective{
@@ -9,7 +9,7 @@ export default class BasicBooleanDirective{
   }
 
   setValue( value ){
-    if( isDirective( value ) ){
+    if( isDirectiveFn( value ) ){
       return value( this );
     }
 

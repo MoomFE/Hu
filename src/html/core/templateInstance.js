@@ -1,7 +1,7 @@
 import { isCEPolyfill } from "../../shared/const/env";
 import templateProcessor from "./templateProcessor";
 import NodePart from "./node";
-import isDirective from "../util/isDirective";
+import isDirectiveFn from "../util/isDirectiveFn";
 
 
 export default class TemplateInstance{
@@ -22,7 +22,7 @@ export default class TemplateInstance{
 
       part.commit(
         value,
-        isDirective( value )
+        isDirectiveFn( value )
       );
     }
   }

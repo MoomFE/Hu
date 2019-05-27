@@ -1,4 +1,4 @@
-import isDirective from '../util/isDirective';
+import isDirectiveFn from '../util/isDirectiveFn';
 import isEqual from '../../shared/util/isEqual';
 
 
@@ -9,7 +9,7 @@ export default class TextDirective{
   }
 
   setValue( value ){
-    if( isDirective( value ) ){
+    if( isDirectiveFn( value ) ){
       return value( this, true );
     }
 
