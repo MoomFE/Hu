@@ -1,6 +1,7 @@
 import { isCEPolyfill } from "../../shared/const/env";
 import templateProcessor from "./templateProcessor";
 import NodePart from "./node";
+import isDirective from "../util/isDirective";
 
 
 export default class TemplateInstance{
@@ -14,15 +15,15 @@ export default class TemplateInstance{
    * 更新模板片段中插值绑定中的值
    */
   update( values ){
-    const parts = this.parts;
-    let index = 0;
+    let index;
 
-    for( const part of parts ){
-      if( part !== void 0 ) part.setValue( values[ index ] );
-      index++;
-    }
-    for( const part of parts ){
-      if( part !== void 0 ) part.commit();
+    for( const part of this.parts ){
+      const value = values[ index++ ];
+
+      part.commit(
+        value,
+        isDirective( value )
+      );
     }
   }
 
