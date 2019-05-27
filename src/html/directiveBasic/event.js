@@ -1,100 +1,93 @@
-import isDirectiveFn from "../util/isDirectiveFn";
-import isFunction from "../../shared/util/isFunction";
-import { has, apply } from "../../shared/global/Reflect/index";
+import isSingleBind from "../util/isSingleBind";
+import { definedCustomElement } from "../../static/define/const";
+import { keys } from "../../shared/global/Object/index";
 import { supportsPassive } from "../../shared/const/env";
-import removeEventListener from '../../shared/util/removeEventListener';
-import addEventListener from '../../shared/util/addEventListener';
-import { definedCustomElement } from '../../static/define/const';
+import isFunction from "../../shared/util/isFunction";
+import { apply, has } from "../../shared/global/Reflect/index";
+import addEventListener from "../../shared/util/addEventListener";
+import removeEventListener from "../../shared/util/removeEventListener";
 
 
 export default class BasicEventDirective{
 
-  constructor( element, type, modifierKeys ){
-    this.elem = element;
-    this.type = type;
-    this.opts = initEventOptions( modifierKeys );
-    this.isCE = definedCustomElement.has(
+  constructor( element, type, strings, modifiers ){
+    if( !isSingleBind( strings ) ){
+      throw new Error('@event 指令的传值只允许包含单个表达式 !');
+    }
+
+    const options = this.opts = initEventOptions( modifiers );
+    const isCE = this.isCE = definedCustomElement.has(
       element.nodeName.toLowerCase()
     );
+
+    this.elem = element;
+    this.type = type;
+
+    this.addEvent( element, type, options, isCE, this );
   }
 
-  setValue( listener ){
-    if( isDirectiveFn( listener ) ){
-      throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
+  addEvent( element, type, { once, native, options, modifiers }, isCE, self ){
+    // 绑定的对象是通过 Hu 注册的自定义元素
+    if( isCE && !native ){
+      element[ once ? '$once' : '$on' ]( type, this.listener = function( ...args ){
+        isFunction( self.value ) && apply( self.value, this, args );
+      });
     }
-
-    this.oldListener = this.listener;
-    this.listener = isFunction( listener ) ? listener : null;
+    // 绑定事件在正常元素上
+    else{
+      addEventListener(
+        element, type,
+        this.listener = function listener( ...args ){
+          // 修饰符检测
+          for( const modifier of modifiers ){
+            if( modifier( element, event, modifiers ) === false ) return;
+          }
+          // 只执行一次
+          if( once ){
+            removeEventListener( element, type, listener, options );
+          }
+          // 修饰符全部检测通过, 执行用户传入方法
+          isFunction( self.value ) && apply( self.value, this, args );
+        },
+        options
+      );
+    }
   }
 
-  commit(){
-    const { listener, oldListener } = this;
-
-    // 新的事件绑定与旧的事件绑定不一致
-    if( listener !== oldListener ){
-      const { elem, type, opts, isCE } = this;
-      const { options, modifiers, once, native, add = true } = opts;
-
-      // 移除旧的事件绑定
-      // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
-      if( oldListener && !once ){
-        if( isCE && !native ){
-          elem.$off( type, listener );
-        }else{
-          removeEventListener( elem, type, this.value, options );
-        }
-      }
-      // 添加新的事件绑定
-      if( listener && add ){
-        // once 修饰符绑定的事件不允许修改
-        if( once ) opts.add = false;
-
-        // 绑定的对象是通过 Hu 注册的自定义元素
-        if( isCE && !native ){
-          elem[ once ? '$once' : '$on' ]( type, listener );
-        }else{
-          // 生成绑定的方法
-          const value = this.value = function callback( event ){
-            // 修饰符检测
-            for( let modifier of modifiers ){
-              if( modifier( elem, event, modifiers ) === false ) return;
-            }
-            // 只执行一次
-            if( once ){
-              removeEventListener( elem, type, callback, options );
-            }
-            // 修饰符全部检测通过, 执行用户传入方法
-            apply( listener, this, arguments );
-          };
-          // 注册事件
-          addEventListener( elem, type, value, options );
-        }
-      }
-    }
+  commit( value, isDirectiveFn ){
+    // 用户传递的是指令方法
+    // 交给指令方法处理
+    if( isDirectiveFn ) return value( this );
+    // 保存传入的事件
+    this.value = value;
   }
 
 }
 
-function initEventOptions( modifierKeys ){
-  const options = {};
-  const modifiers = [];
+
+/**
+ * 处理事件相关参数
+ */
+function initEventOptions( modifiers ){
+  const usingEventOptions = {};
+  const usingEventModifiers = [];
+  const modifierKeys = usingEventModifiers.keys = keys( modifiers );
 
   for( let name of modifierKeys ){
-    if( eventOptions[ name ] ) options[ name ] = true;
-    else if( eventModifiers[ name ] ) modifiers.push( eventModifiers[ name ] );
+    if( eventOptions[ name ] ) usingEventOptions[ name ] = true;
+    else if( eventModifiers[ name ] ) usingEventModifiers.push( eventModifiers[ name ] );
   }
 
-  modifiers.keys = modifierKeys;
-
-  const { once, passive, capture, native } = options;
+  const { once, passive, capture, native } = usingEventOptions;
 
   return {
     once,
     native,
     options: passive ? { passive, capture } : capture,
-    modifiers
+    modifiers: usingEventModifiers
   };
 }
+
 
 /**
  * 事件可选参数
@@ -105,6 +98,7 @@ const eventOptions = {
   passive: supportsPassive,
   native: true
 };
+
 
 /**
  * 功能性事件修饰符
