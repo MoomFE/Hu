@@ -27,11 +27,11 @@ class directiveClass{
    * @param {string[]} strings 有时同一个指令可能是允许使用多个插值绑定的, 该变量就包含了内容中除了插值绑定的部分
    *  - 例如: `:name=${ 'Hu.js' }` 是单个插值绑定的写法, 此时 `string` 将会是 `[ '', '' ]`
    *  - 例如: `:name="${ 'My' } name is ${ 'Hu' }.js"` 是多个插值绑定的写法, 此时 `string` 将会是 `[ '', ' name is ', '.js' ]`
-   * @param {{}} modifier 一个包含修饰符的对象
+   * @param {{}} modifiers 一个包含修饰符的对象
    *  - 例如: `:name` 中, 修饰符对象为: `{}`
    *  - 例如: `:name.foo.bar` 中, 修饰符对象为: `{ foo: true, bar: true }`
    */
-  constructor( element, name, strings, modifier ){
+  constructor( element, name, strings, modifiers ){
 
     /**
      * 在使用多个插值绑定的情况下
@@ -50,10 +50,11 @@ class directiveClass{
    *  2. 传递指令方法的调用
    *     - 传递指令方法时, 需要将当前指令类传递给指令方法, 然后退出当前方法,
    *       指令方法会将用户的输入处理, 然后使用正常传值调用的方式再次调用当前方法
-   * @param {any} value 
+   * @param {any} value 用户传入值
+   * @param {boolean} isDirectiveFn 用户传入值是否是指令方法
    */
-  commit( value ){
-    if( isDirective( value ) ) return value( this );
+  commit( value, isDirectiveFn ){
+    if( isDirectiveFn ) return value( this );
   }
 
   /**
