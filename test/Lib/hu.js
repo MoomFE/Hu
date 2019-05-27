@@ -1121,513 +1121,6 @@
     }
   }
 
-  const {
-    random
-  } = Math;
-
-  /**
-   * 指令方法合集
-   */
-  const directives = new WeakSet();
-
-  /**
-   * This regex extracts the attribute name preceding an attribute-position
-   * expression. It does this by matching the syntax allowed for attributes
-   * against the string literal directly preceding the expression, assuming that
-   * the expression is in an attribute-value position.
-   *
-   * See attributes in the HTML spec:
-   * https://www.w3.org/TR/html5/syntax.html#elements-attributes
-   *
-   * " \x09\x0a\x0c\x0d" are HTML space characters:
-   * https://www.w3.org/TR/html5/infrastructure.html#space-characters
-   *
-   * "\0-\x1F\x7F-\x9F" are Unicode control characters, which includes every
-   * space character except " ".
-   *
-   * So an attribute is:
-   *  * The name: any character except a control character, space character, ('),
-   *    ("), ">", "=", or "/"
-   *  * Followed by zero or more space characters
-   *  * Followed by "="
-   *  * Followed by zero or more space characters
-   *  * Followed by:
-   *    * Any character except space, ('), ("), "<", ">", "=", (`), or
-   *    * (") then any non-("), or
-   *    * (') then any non-(')
-   */
-  const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-
-  const boundAttributeSuffix = '$hu$';
-  const boundAttributeSuffixLength = boundAttributeSuffix.length;
-
-  const marker = `{{hu-${ String( random() ).slice(2) }}}`;
-  const nodeMarker = `<!--${ marker }-->`;
-  const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
-
-  const commentMarker = ` ${ marker } `;
-  const commentMarkerRegex = new RegExp( commentMarker, 'g' );
-
-  /**
-   * 判断传入参数是否是指令方法
-   */
-  var isDirective = obj => {
-    return isFunction( obj ) && directives.has( obj );
-  };
-
-  /**
-   * 判断传入对象是否是原始对象
-   */
-  var isPrimitive = value => {
-    return value === null || !(
-      isObject( value ) || isFunction( value )
-    );
-  };
-
-  var removeNodes = /**
-   * 移除某个元素下的所有子元素
-   * @param {Element} container
-   * @param {Node} startNode
-   * @param {Node} endNode
-   */
-  ( container, startNode, endNode = null ) => {
-    let node = startNode;
-
-    while( node != endNode ){
-      const next = node.nextSibling;
-
-      container.removeChild( node );
-      node = next;
-    }
-  };
-
-  var moveChildNodes = ( container, start, end = null, before = null ) => {
-    while( start !== end ){
-      const node = start.nextSibling;
-
-      container.insertBefore( start, before );
-      start = node;
-    }
-  };
-
-  class TemplateResult{
-
-    constructor( strings, values, type ){
-      this.strings = strings;
-      this.values = values;
-      this.type = type;
-    }
-
-    getHTML(){
-      const strings = this.strings;
-      const length = strings.length - 1;
-      let html = '';
-      let isCommentBinding;
-
-      for( let index = 0; index < length; index++ ){
-        /** 当前解析的片段 */
-        const string = strings[ index ];
-        /** 是否在当前解析的片段中查找到了新的文档注释开始标记 */
-        const commentOpen = string.lastIndexOf('<!--');
-        /** 是否在当前解析的片段中查找到了元素属性绑定 */
-        const attributeMatch = lastAttributeNameRegex.exec( string );
-
-        // 当前解析的片段是否正处在文档注释中
-        // 1. commentOpen > -1 && string.indexOf( '-->', commentOpen + 1 ) === -1
-        //    从当前解析的片段末尾开始查找到了文档注释开始标记,
-        //    从这个位置开始, 若找到了文档注释结束标记, 那么就算文档注释结束了,
-        //    当前解析的片段就不是文档注释中的绑定了
-        // 2. isCommentBinding && string.indexOf( '-->', commentOpen + 1 ) === -1
-        //    如果之前解析的片段没有查找到文档注释结束标记, 那么现在就是处于文档注释中
-        //    如果这时候在当前解析的片段中查找到了文档注释结束标记, 那么就算文档注释结束了,
-        //    当前解析的片段就不是文档注释中的绑定了
-        // 3. ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
-        //    如果之前解析的片段没有查找到文档注释结束标记, 又从当前解析的片段末尾开始又查找到了文档注释开始标记,
-        //    相当于是这样的结构: html`<!-- ${ something } <!-- -->`,
-        //    那么之前解析的片段中的注释开始标记, 就会和现在的片段中的文档注释结束标记结合成为一个完整的文档注释,
-        //    那么依旧算文档注释结束了, 当前解析的片段就不是文档注释中的绑定了
-        isCommentBinding = ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
-
-        // 将文本绑定和元素属性绑定转为指定格式
-        // 1. 普通内容绑定
-        //    示　例: html`123${ something }456`
-        //    转换后: `123<!--{{hu-666}}-->456`
-        // 2. 注释中的内容绑定
-        //    示　例: html`<!--${ something }-->`
-        //    转换后: `<!-- {{hu-666}} -->`
-        //    提　示: 注释中的内容绑定会在标记左右各加一个空格,
-        // 　　       防止注释中的绑定在转换完后变成 `<!--{{hu-666}}-->`, 在最终解析的时候就会被解析成普通内容绑定
-        // 3. 元素属性绑定
-        //    示　例: html`<div class=${ something }></div>`
-        //    转换后: `<div class$hu$={{hu-666}}></div>`
-        // 3. 类似元素属性绑定的绑定
-        //    示　例: html`<div> class=${ something } </div>`
-        // 　　　     html`<!-- class=${ something } -->`
-        //    转换后: `<div> class$hu$={{hu-666}} </div>`
-        // 　　　     `<!-- class$hu$={{hu-666}} -->`
-        //    提　示: 文本节点中的类元素属性绑定最终会被解析为普通内容绑定
-        // 　　       注释节点中的类元素属性绑定最终不会被解析
-        if( attributeMatch === null ){
-          html += string + ( isCommentBinding ? commentMarker : nodeMarker );
-        }else{
-          html += string.substr( 0, attributeMatch.index )
-                + attributeMatch[ 1 ]
-                + attributeMatch[ 2 ]
-                + boundAttributeSuffix
-                + attributeMatch[ 3 ]
-                + marker;
-        }
-      }
-
-      return html + strings[ length ];
-    }
-
-    getTemplateElement(){
-      const template = document.createElement('template');
-            template.innerHTML = this.getHTML();
-
-      return template;
-    }
-
-  }
-
-  class SVGTemplateResult extends TemplateResult{
-
-    getHTML(){
-      return `<svg>${ super.getHTML() }</svg>`;
-    }
-
-    getTemplateElement(){
-      const template = super.getTemplateElement();
-      const content = template.content;
-      const elem = content.firstChild;
-
-      content.removeChild( elem );
-      moveChildNodes( content, elem.firstChild );
-
-      return template;
-    }
-
-  }
-
-  class AttributeCommitter{
-
-    constructor(){
-      [
-        this.elem,
-        this.attr,
-        this.strings
-      ] = arguments;
-      this.parts = this.createParts();
-    }
-
-    createParts(){
-      return Array.apply( null, { length: this.strings.length - 1 } ).map(() => {
-        return new AttributePart( this );
-      });
-    }
-
-    getValue(){
-      const { strings, parts } = this;
-      const length = strings.length - 1;
-      let result = '';
-
-      for( let index = 0, part; index < length; index++ ){
-        result += strings[ index ];
-
-        if( part = parts[ index ] ){
-          const value = part.value;
-
-          if( value != null ){
-            if( isArray( value ) || !isString( value ) && value[ Symbol.iterator ] ){
-              for( let item of value ){
-                result += isString( item ) ? item : String( item );
-              }
-              continue;
-            }
-          }
-          result += isString( value ) ? value : String( value );
-        }
-      }
-
-      return result + strings[ length ];
-    }
-
-    commit(){
-      this.elem.setAttribute(
-        this.attr,
-        this.getValue()
-      );
-    }
-
-  }
-
-
-  class AttributePart{
-
-    constructor( committer ){
-      this.committer = committer;
-    }
-
-    setValue( value ){
-      if( isDirective( value ) ){
-        return value( this );
-      }
-
-      this.oldValue = this.value;
-      this.value = value;
-    }
-
-    commit(){
-      const { value, oldValue } = this;
-
-      isEqual( value, oldValue ) || (
-        this.committer.commit( this.value = value )
-      );
-    }
-
-  }
-
-  var removeEventListener = /**
-   * 移除事件
-   * @param {Element} elem
-   * @param {string} type
-   * @param {function} listener
-   * @param {boolean|{}} options
-   */
-  ( elem, type, listener, options ) => {
-    elem.removeEventListener( type, listener, options );
-  };
-
-  var addEventListener = /**
-   * 绑定事件
-   * @param {Element} elem
-   * @param {string} type
-   * @param {function} listener
-   * @param {boolean|{}} options
-   */
-  ( elem, type, listener, options ) => {
-    elem.addEventListener( type, listener, options );
-  };
-
-  /**
-   * 包含了使用 Hu 注册的组件合集
-   */
-  const definedCustomElement = new Set();
-
-  /**
-   * 当前正在运行的自定义元素和对应实例的引用
-   *  - 使用自定义元素获取对应实例时使用, 避免有可能 root.$hu 被删除的问题
-   */
-  const activeCustomElement = new WeakMap();
-
-  /**
-   * 当前正在运行的实例的 $el 选项与实例本身的引用
-   */
-  const activeHu = new WeakMap();
-
-  class BasicEventDirective{
-
-    constructor( element, type, modifierKeys ){
-      this.elem = element;
-      this.type = type;
-      this.opts = initEventOptions( modifierKeys );
-      this.isCE = definedCustomElement.has(
-        element.nodeName.toLowerCase()
-      );
-    }
-
-    setValue( listener ){
-      if( isDirective( listener ) ){
-        throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
-      }
-
-      this.oldListener = this.listener;
-      this.listener = isFunction( listener ) ? listener : null;
-    }
-
-    commit(){
-      const { listener, oldListener } = this;
-
-      // 新的事件绑定与旧的事件绑定不一致
-      if( listener !== oldListener ){
-        const { elem, type, opts, isCE } = this;
-        const { options, modifiers, once, native, add = true } = opts;
-
-        // 移除旧的事件绑定
-        // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
-        if( oldListener && !once ){
-          if( isCE && !native ){
-            elem.$off( type, listener );
-          }else{
-            removeEventListener( elem, type, this.value, options );
-          }
-        }
-        // 添加新的事件绑定
-        if( listener && add ){
-          // once 修饰符绑定的事件不允许修改
-          if( once ) opts.add = false;
-
-          // 绑定的对象是通过 Hu 注册的自定义元素
-          if( isCE && !native ){
-            elem[ once ? '$once' : '$on' ]( type, listener );
-          }else{
-            // 生成绑定的方法
-            const value = this.value = function callback( event ){
-              // 修饰符检测
-              for( let modifier of modifiers ){
-                if( modifier( elem, event, modifiers ) === false ) return;
-              }
-              // 只执行一次
-              if( once ){
-                removeEventListener( elem, type, callback, options );
-              }
-              // 修饰符全部检测通过, 执行用户传入方法
-              apply( listener, this, arguments );
-            };
-            // 注册事件
-            addEventListener( elem, type, value, options );
-          }
-        }
-      }
-    }
-
-  }
-
-  function initEventOptions( modifierKeys ){
-    const options = {};
-    const modifiers = [];
-
-    for( let name of modifierKeys ){
-      if( eventOptions[ name ] ) options[ name ] = true;
-      else if( eventModifiers[ name ] ) modifiers.push( eventModifiers[ name ] );
-    }
-
-    modifiers.keys = modifierKeys;
-
-    const { once, passive, capture, native } = options;
-
-    return {
-      once,
-      native,
-      options: passive ? { passive, capture } : capture,
-      modifiers
-    };
-  }
-
-  /**
-   * 事件可选参数
-   */
-  const eventOptions = {
-    once: true,
-    capture: true,
-    passive: supportsPassive,
-    native: true
-  };
-
-  /**
-   * 功能性事件修饰符
-   */
-  const eventModifiers = {
-
-    /**
-     * 阻止事件冒泡
-     */
-    stop( elem, event ){
-      event.stopPropagation();
-    },
-
-    /**
-     * 阻止浏览器默认事件
-     */
-    prevent( elem, event ){
-      event.preventDefault();
-    },
-
-    /**
-     * 只在当前元素自身时触发事件时
-     */
-    self( elem, event ){
-      return event.target === elem;
-    },
-
-    /**
-     * 系统修饰键限定符
-     */
-    exact( elem, event, { keys } ){
-      const modifierKey = [ 'ctrl', 'alt', 'shift', 'meta' ].filter( key => {
-        return keys.indexOf( key ) < 0;
-      });
-
-      for( let key of modifierKey ){
-        if( event[ key + 'Key' ] ) return false;
-      }
-      return true;
-    }
-
-  };
-
-  /**
-   * 鼠标按钮
-   */
-  [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
-    eventModifiers[ button ] = ( elem, event ) => {
-      return has( event, 'button' ) && event.button === index;
-    };
-  });
-
-  /**
-   * 系统修饰键
-   */
-  [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
-    eventModifiers[ key ] = ( elem, event ) => {
-      return !!event[ key + 'Key' ];
-    };
-  });
-
-  class BasicBooleanDirective{
-
-    constructor( element, attr ){
-      this.elem = element;
-      this.attr = attr;
-    }
-
-    setValue( value ){
-      if( isDirective( value ) ){
-        return value( this );
-      }
-
-      this.oldValue = this.value;
-      this.value = value;
-    }
-
-    commit(){
-      const value = this.value = !!this.value;
-      const oldValue = this.oldValue;
-
-      if( value !== oldValue ){
-        if( value ){
-          this.elem.setAttribute( this.attr , '' );
-        }else{
-          this.elem.removeAttribute( this.attr );
-        }
-      }
-    }
-
-  }
-
-  class BasicPropertyDirective extends BasicBooleanDirective{
-
-    commit(){
-      const { value, oldValue } = this;
-
-      isEqual( value, oldValue ) || (
-        this.elem[ this.attr ] = value
-      );
-    }
-
-  }
-
   var rWhitespace = /\s+/;
 
   /**
@@ -1786,6 +1279,17 @@
     filter,
     slice
   } = prototype$1;
+
+  var addEventListener = /**
+   * 绑定事件
+   * @param {Element} elem
+   * @param {string} type
+   * @param {function} listener
+   * @param {boolean|{}} options
+   */
+  ( elem, type, listener, options ) => {
+    elem.addEventListener( type, listener, options );
+  };
 
   /**
    * unicode letters used for parsing html tags, component names and property paths.
@@ -2258,11 +1762,526 @@
    * 创建一个干净的目标对象
    * 并把传入方法的对象全部浅拷贝到目标对象并返回目标对象
    */
-  var createAssign = ( ...args ) => {
+  var create$1 = ( ...args ) => {
     return apply( assign, null, [
       create( null ), ...args
     ]);
   };
+
+  const {
+    random
+  } = Math;
+
+  /**
+   * 内置指令
+   */
+  const directives = create$1({
+    class: ClassDirective,
+    style: StyleDirective,
+    model: ModelDirective,
+    text: TextDirective,
+    html: HtmlDirective,
+    show: ShowDirective
+  });
+
+  /**
+   * 用户定义指令
+   */
+  const userDirectives = create$1({
+
+  });
+
+  /**
+   * 指令方法合集
+   */
+  const directiveFns = new WeakSet();
+
+  /**
+   * This regex extracts the attribute name preceding an attribute-position
+   * expression. It does this by matching the syntax allowed for attributes
+   * against the string literal directly preceding the expression, assuming that
+   * the expression is in an attribute-value position.
+   *
+   * See attributes in the HTML spec:
+   * https://www.w3.org/TR/html5/syntax.html#elements-attributes
+   *
+   * " \x09\x0a\x0c\x0d" are HTML space characters:
+   * https://www.w3.org/TR/html5/infrastructure.html#space-characters
+   *
+   * "\0-\x1F\x7F-\x9F" are Unicode control characters, which includes every
+   * space character except " ".
+   *
+   * So an attribute is:
+   *  * The name: any character except a control character, space character, ('),
+   *    ("), ">", "=", or "/"
+   *  * Followed by zero or more space characters
+   *  * Followed by "="
+   *  * Followed by zero or more space characters
+   *  * Followed by:
+   *    * Any character except space, ('), ("), "<", ">", "=", (`), or
+   *    * (") then any non-("), or
+   *    * (') then any non-(')
+   */
+  const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+
+  const boundAttributeSuffix = '$hu$';
+  const boundAttributeSuffixLength = boundAttributeSuffix.length;
+
+  const marker = `{{hu-${ String( random() ).slice(2) }}}`;
+  const nodeMarker = `<!--${ marker }-->`;
+  const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
+
+  const commentMarker = ` ${ marker } `;
+  const commentMarkerRegex = new RegExp( commentMarker, 'g' );
+
+  /**
+   * 判断传入参数是否是指令方法
+   */
+  var isDirective = obj => {
+    return isFunction( obj ) && directiveFns.has( obj );
+  };
+
+  /**
+   * 判断传入对象是否是原始对象
+   */
+  var isPrimitive = value => {
+    return value === null || !(
+      isObject( value ) || isFunction( value )
+    );
+  };
+
+  var removeNodes = /**
+   * 移除某个元素下的所有子元素
+   * @param {Element} container
+   * @param {Node} startNode
+   * @param {Node} endNode
+   */
+  ( container, startNode, endNode = null ) => {
+    let node = startNode;
+
+    while( node != endNode ){
+      const next = node.nextSibling;
+
+      container.removeChild( node );
+      node = next;
+    }
+  };
+
+  var moveChildNodes = ( container, start, end = null, before = null ) => {
+    while( start !== end ){
+      const node = start.nextSibling;
+
+      container.insertBefore( start, before );
+      start = node;
+    }
+  };
+
+  class TemplateResult{
+
+    constructor( strings, values, type ){
+      this.strings = strings;
+      this.values = values;
+      this.type = type;
+    }
+
+    getHTML(){
+      const strings = this.strings;
+      const length = strings.length - 1;
+      let html = '';
+      let isCommentBinding;
+
+      for( let index = 0; index < length; index++ ){
+        /** 当前解析的片段 */
+        const string = strings[ index ];
+        /** 是否在当前解析的片段中查找到了新的文档注释开始标记 */
+        const commentOpen = string.lastIndexOf('<!--');
+        /** 是否在当前解析的片段中查找到了元素属性绑定 */
+        const attributeMatch = lastAttributeNameRegex.exec( string );
+
+        // 当前解析的片段是否正处在文档注释中
+        // 1. commentOpen > -1 && string.indexOf( '-->', commentOpen + 1 ) === -1
+        //    从当前解析的片段末尾开始查找到了文档注释开始标记,
+        //    从这个位置开始, 若找到了文档注释结束标记, 那么就算文档注释结束了,
+        //    当前解析的片段就不是文档注释中的绑定了
+        // 2. isCommentBinding && string.indexOf( '-->', commentOpen + 1 ) === -1
+        //    如果之前解析的片段没有查找到文档注释结束标记, 那么现在就是处于文档注释中
+        //    如果这时候在当前解析的片段中查找到了文档注释结束标记, 那么就算文档注释结束了,
+        //    当前解析的片段就不是文档注释中的绑定了
+        // 3. ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
+        //    如果之前解析的片段没有查找到文档注释结束标记, 又从当前解析的片段末尾开始又查找到了文档注释开始标记,
+        //    相当于是这样的结构: html`<!-- ${ something } <!-- -->`,
+        //    那么之前解析的片段中的注释开始标记, 就会和现在的片段中的文档注释结束标记结合成为一个完整的文档注释,
+        //    那么依旧算文档注释结束了, 当前解析的片段就不是文档注释中的绑定了
+        isCommentBinding = ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
+
+        // 将文本绑定和元素属性绑定转为指定格式
+        // 1. 普通内容绑定
+        //    示　例: html`123${ something }456`
+        //    转换后: `123<!--{{hu-666}}-->456`
+        // 2. 注释中的内容绑定
+        //    示　例: html`<!--${ something }-->`
+        //    转换后: `<!-- {{hu-666}} -->`
+        //    提　示: 注释中的内容绑定会在标记左右各加一个空格,
+        // 　　       防止注释中的绑定在转换完后变成 `<!--{{hu-666}}-->`, 在最终解析的时候就会被解析成普通内容绑定
+        // 3. 元素属性绑定
+        //    示　例: html`<div class=${ something }></div>`
+        //    转换后: `<div class$hu$={{hu-666}}></div>`
+        // 3. 类似元素属性绑定的绑定
+        //    示　例: html`<div> class=${ something } </div>`
+        // 　　　     html`<!-- class=${ something } -->`
+        //    转换后: `<div> class$hu$={{hu-666}} </div>`
+        // 　　　     `<!-- class$hu$={{hu-666}} -->`
+        //    提　示: 文本节点中的类元素属性绑定最终会被解析为普通内容绑定
+        // 　　       注释节点中的类元素属性绑定最终不会被解析
+        if( attributeMatch === null ){
+          html += string + ( isCommentBinding ? commentMarker : nodeMarker );
+        }else{
+          html += string.substr( 0, attributeMatch.index )
+                + attributeMatch[ 1 ]
+                + attributeMatch[ 2 ]
+                + boundAttributeSuffix
+                + attributeMatch[ 3 ]
+                + marker;
+        }
+      }
+
+      return html + strings[ length ];
+    }
+
+    getTemplateElement(){
+      const template = document.createElement('template');
+            template.innerHTML = this.getHTML();
+
+      return template;
+    }
+
+  }
+
+  class SVGTemplateResult extends TemplateResult{
+
+    getHTML(){
+      return `<svg>${ super.getHTML() }</svg>`;
+    }
+
+    getTemplateElement(){
+      const template = super.getTemplateElement();
+      const content = template.content;
+      const elem = content.firstChild;
+
+      content.removeChild( elem );
+      moveChildNodes( content, elem.firstChild );
+
+      return template;
+    }
+
+  }
+
+  class AttributeCommitter{
+
+    constructor(){
+      [
+        this.elem,
+        this.attr,
+        this.strings
+      ] = arguments;
+      this.parts = this.createParts();
+    }
+
+    createParts(){
+      return Array.apply( null, { length: this.strings.length - 1 } ).map(() => {
+        return new AttributePart( this );
+      });
+    }
+
+    getValue(){
+      const { strings, parts } = this;
+      const length = strings.length - 1;
+      let result = '';
+
+      for( let index = 0, part; index < length; index++ ){
+        result += strings[ index ];
+
+        if( part = parts[ index ] ){
+          const value = part.value;
+
+          if( value != null ){
+            if( isArray( value ) || !isString( value ) && value[ Symbol.iterator ] ){
+              for( let item of value ){
+                result += isString( item ) ? item : String( item );
+              }
+              continue;
+            }
+          }
+          result += isString( value ) ? value : String( value );
+        }
+      }
+
+      return result + strings[ length ];
+    }
+
+    commit(){
+      this.elem.setAttribute(
+        this.attr,
+        this.getValue()
+      );
+    }
+
+  }
+
+
+  class AttributePart{
+
+    constructor( committer ){
+      this.committer = committer;
+    }
+
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
+    }
+
+    commit(){
+      const { value, oldValue } = this;
+
+      isEqual( value, oldValue ) || (
+        this.committer.commit( this.value = value )
+      );
+    }
+
+  }
+
+  var removeEventListener = /**
+   * 移除事件
+   * @param {Element} elem
+   * @param {string} type
+   * @param {function} listener
+   * @param {boolean|{}} options
+   */
+  ( elem, type, listener, options ) => {
+    elem.removeEventListener( type, listener, options );
+  };
+
+  /**
+   * 包含了使用 Hu 注册的组件合集
+   */
+  const definedCustomElement = new Set();
+
+  /**
+   * 当前正在运行的自定义元素和对应实例的引用
+   *  - 使用自定义元素获取对应实例时使用, 避免有可能 root.$hu 被删除的问题
+   */
+  const activeCustomElement = new WeakMap();
+
+  /**
+   * 当前正在运行的实例的 $el 选项与实例本身的引用
+   */
+  const activeHu = new WeakMap();
+
+  class BasicEventDirective{
+
+    constructor( element, type, modifierKeys ){
+      this.elem = element;
+      this.type = type;
+      this.opts = initEventOptions( modifierKeys );
+      this.isCE = definedCustomElement.has(
+        element.nodeName.toLowerCase()
+      );
+    }
+
+    setValue( listener ){
+      if( isDirective( listener ) ){
+        throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
+      }
+
+      this.oldListener = this.listener;
+      this.listener = isFunction( listener ) ? listener : null;
+    }
+
+    commit(){
+      const { listener, oldListener } = this;
+
+      // 新的事件绑定与旧的事件绑定不一致
+      if( listener !== oldListener ){
+        const { elem, type, opts, isCE } = this;
+        const { options, modifiers, once, native, add = true } = opts;
+
+        // 移除旧的事件绑定
+        // once 修饰符绑定的事件只允许在首次运行回调后自行解绑
+        if( oldListener && !once ){
+          if( isCE && !native ){
+            elem.$off( type, listener );
+          }else{
+            removeEventListener( elem, type, this.value, options );
+          }
+        }
+        // 添加新的事件绑定
+        if( listener && add ){
+          // once 修饰符绑定的事件不允许修改
+          if( once ) opts.add = false;
+
+          // 绑定的对象是通过 Hu 注册的自定义元素
+          if( isCE && !native ){
+            elem[ once ? '$once' : '$on' ]( type, listener );
+          }else{
+            // 生成绑定的方法
+            const value = this.value = function callback( event ){
+              // 修饰符检测
+              for( let modifier of modifiers ){
+                if( modifier( elem, event, modifiers ) === false ) return;
+              }
+              // 只执行一次
+              if( once ){
+                removeEventListener( elem, type, callback, options );
+              }
+              // 修饰符全部检测通过, 执行用户传入方法
+              apply( listener, this, arguments );
+            };
+            // 注册事件
+            addEventListener( elem, type, value, options );
+          }
+        }
+      }
+    }
+
+  }
+
+  function initEventOptions( modifierKeys ){
+    const options = {};
+    const modifiers = [];
+
+    for( let name of modifierKeys ){
+      if( eventOptions[ name ] ) options[ name ] = true;
+      else if( eventModifiers[ name ] ) modifiers.push( eventModifiers[ name ] );
+    }
+
+    modifiers.keys = modifierKeys;
+
+    const { once, passive, capture, native } = options;
+
+    return {
+      once,
+      native,
+      options: passive ? { passive, capture } : capture,
+      modifiers
+    };
+  }
+
+  /**
+   * 事件可选参数
+   */
+  const eventOptions = {
+    once: true,
+    capture: true,
+    passive: supportsPassive,
+    native: true
+  };
+
+  /**
+   * 功能性事件修饰符
+   */
+  const eventModifiers = {
+
+    /**
+     * 阻止事件冒泡
+     */
+    stop( elem, event ){
+      event.stopPropagation();
+    },
+
+    /**
+     * 阻止浏览器默认事件
+     */
+    prevent( elem, event ){
+      event.preventDefault();
+    },
+
+    /**
+     * 只在当前元素自身时触发事件时
+     */
+    self( elem, event ){
+      return event.target === elem;
+    },
+
+    /**
+     * 系统修饰键限定符
+     */
+    exact( elem, event, { keys } ){
+      const modifierKey = [ 'ctrl', 'alt', 'shift', 'meta' ].filter( key => {
+        return keys.indexOf( key ) < 0;
+      });
+
+      for( let key of modifierKey ){
+        if( event[ key + 'Key' ] ) return false;
+      }
+      return true;
+    }
+
+  };
+
+  /**
+   * 鼠标按钮
+   */
+  [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
+    eventModifiers[ button ] = ( elem, event ) => {
+      return has( event, 'button' ) && event.button === index;
+    };
+  });
+
+  /**
+   * 系统修饰键
+   */
+  [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
+    eventModifiers[ key ] = ( elem, event ) => {
+      return !!event[ key + 'Key' ];
+    };
+  });
+
+  class BasicBooleanDirective{
+
+    constructor( element, attr ){
+      this.elem = element;
+      this.attr = attr;
+    }
+
+    setValue( value ){
+      if( isDirective( value ) ){
+        return value( this );
+      }
+
+      this.oldValue = this.value;
+      this.value = value;
+    }
+
+    commit(){
+      const value = this.value = !!this.value;
+      const oldValue = this.oldValue;
+
+      if( value !== oldValue ){
+        if( value ){
+          this.elem.setAttribute( this.attr , '' );
+        }else{
+          this.elem.removeAttribute( this.attr );
+        }
+      }
+    }
+
+  }
+
+  class BasicPropertyDirective extends BasicBooleanDirective{
+
+    commit(){
+      const { value, oldValue } = this;
+
+      isEqual( value, oldValue ) || (
+        this.elem[ this.attr ] = value
+      );
+    }
+
+  }
 
   var templateProcessor = {
 
@@ -2291,7 +2310,7 @@
         // 功能指令
         case ':': {
           [ name, ...modifierKeys ] = name.slice(1).split('.');
-          directive = userDirectives[ name ] || directives$1[ name ];
+          directive = userDirectives[ name ] || directives[ name ];
         }
       }
 
@@ -2315,25 +2334,6 @@
     }
 
   };
-
-  /**
-   * 内置指令
-   */
-  const directives$1 = createAssign({
-    class: ClassDirective,
-    style: StyleDirective,
-    model: ModelDirective,
-    text: TextDirective,
-    html: HtmlDirective,
-    show: ShowDirective
-  });
-
-  /**
-   * 用户定义指令
-   */
-  const userDirectives = createAssign({
-
-  });
 
   class TemplateInstance{
 
@@ -2914,7 +2914,7 @@
    */
   var directive = ( directiveFn ) => ( ...args ) => {
     const directive = directiveFn( ...args );
-    directives.add( directive );
+    directiveFns.add( directive );
     return directive;
   };
 
@@ -3994,7 +3994,7 @@
     
     // 获取已注册的指令
     if( !directiveClass ){
-      return userDirectives[ id ];
+      return userDirectives[ id ] || directives[ id ];
     }
 
     // 注册指令

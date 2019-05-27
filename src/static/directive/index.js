@@ -1,4 +1,4 @@
-import { userDirectives } from "../../html/const/index";
+import { userDirectives, directives } from "../../html/const/index";
 import isDirective from "../../html/util/isDirective";
 
 
@@ -6,7 +6,7 @@ export default ( id, directiveClass ) => {
   
   // 获取已注册的指令
   if( !directiveClass ){
-    return userDirectives[ id ];
+    return userDirectives[ id ] || directives[ id ];
   }
 
   // 注册指令
