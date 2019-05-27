@@ -1,47 +1,35 @@
-import isDirectiveFn from "../util/isDirectiveFn";
-import isEqual from "../../shared/util/isEqual";
-import { isArray } from '../../shared/global/Array/index';
-import isString from '../../shared/util/isString';
+import isNotEqual from "../../shared/util/isNotEqual";
+import isIterable from "../../shared/util/isIterable";
+import isString from "../../shared/util/isString";
 
 
 export default class AttributeCommitter{
 
-  constructor(){
-    [
-      this.elem,
-      this.attr,
-      this.strings
-    ] = arguments;
-    this.parts = this.createParts();
-  }
-
-  createParts(){
-    return Array.apply( null, { length: this.strings.length - 1 } ).map(() => {
+  constructor( element, name, strings, modifiers ){
+    this.elem = element;
+    this.name = name;
+    this.strings = strings;
+    this.parts = Array.apply( null, { length: this.length = this.strings.length - 1 } ).map(() => {
       return new AttributePart( this );
     });
   }
 
   getValue(){
-    const { strings, parts } = this;
-    const length = strings.length - 1;
+    const { strings, parts, length } = this;
+    let index = 0;
     let result = '';
 
-    for( let index = 0, part; index < length; index++ ){
-      result += strings[ index ];
+    for( const { value } of parts ){
+      result += strings[ index++ ];
 
-      if( part = parts[ index ] ){
-        const value = part.value;
-
-        if( value != null ){
-          if( isArray( value ) || !isString( value ) && value[ Symbol.iterator ] ){
-            for( let item of value ){
-              result += isString( item ) ? item : String( item );
-            }
-            continue;
-          }
+      if( value != null && isIterable( value ) && !isString( value ) ){
+        for( const item of value ){
+          result += isString( item ) ? item : String( item );
         }
-        result += isString( value ) ? value : String( value );
+        continue;
       }
+
+      result += isString( value ) ? value : String( value );
     }
 
     return result + strings[ length ];
@@ -49,13 +37,12 @@ export default class AttributeCommitter{
 
   commit(){
     this.elem.setAttribute(
-      this.attr,
+      this.name,
       this.getValue()
     );
   }
 
 }
-
 
 class AttributePart{
 
@@ -63,21 +50,17 @@ class AttributePart{
     this.committer = committer;
   }
 
-  setValue( value ){
-    if( isDirectiveFn( value ) ){
-      return value( this );
+  commit( value, isDirectiveFn ){
+    // 用户传递的是指令方法
+    // 交给指令方法处理
+    if( isDirectiveFn ) return value( this );
+    // 两次传入的值不同
+    if( isNotEqual( value, this.value ) ){
+      // 存储当前值
+      [ this.value, this.oldValue ] = [ value, this.value ];
+      // 更新属性值
+      this.committer.commit( value );
     }
-
-    this.oldValue = this.value;
-    this.value = value;
-  }
-
-  commit(){
-    const { value, oldValue } = this;
-
-    isEqual( value, oldValue ) || (
-      this.committer.commit( this.value = value )
-    );
   }
 
 }

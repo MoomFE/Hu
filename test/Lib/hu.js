@@ -38,13 +38,22 @@
     targetStack.target = targetStack[ targetStack.length - 1 ];
   }
 
+  var isNotEqual = /**
+   * 判断传入的两个值是否不相等
+   * @param {any} value 需要判断的对象
+   * @param {any} value2 需要判断的对象
+   */
+  ( value, value2 ) => {
+    return value2 !== value && ( value2 === value2 || value === value );
+  };
+
   var isEqual = /**
    * 判断传入的两个值是否相等
    * @param {any} value 需要判断的对象
    * @param {any} value2 需要判断的对象
    */
   ( value, value2 ) => {
-    return !( value2 !== value && ( value2 === value2 || value === value ) );
+    return !isNotEqual( value, value2 );
   };
 
   const {
@@ -1136,7 +1145,7 @@
     }
 
     setValue( value ){
-      if( isDirective( value ) ){
+      if( isDirectiveFn( value ) ){
         return value( this, true );
       }
 
@@ -1720,7 +1729,7 @@
     }
 
     setValue( value ){
-      if( isDirective( value ) ){
+      if( isDirectiveFn( value ) ){
         return value( this, true );
       }
 
@@ -1837,7 +1846,7 @@
   /**
    * 判断传入参数是否是指令方法
    */
-  var isDirective = obj => {
+  var isDirectiveFn = obj => {
     return isFunction( obj ) && directiveFns.has( obj );
   };
 
@@ -1976,44 +1985,42 @@
 
   }
 
+  /**
+   * 判断传入对象是否可迭代
+   */
+  var isIterable = value => {
+    return isArray( value ) || !!(
+      value && value[ Symbol.iterator ]
+    );
+  };
+
   class AttributeCommitter{
 
-    constructor(){
-      [
-        this.elem,
-        this.attr,
-        this.strings
-      ] = arguments;
-      this.parts = this.createParts();
-    }
-
-    createParts(){
-      return Array.apply( null, { length: this.strings.length - 1 } ).map(() => {
+    constructor( element, name, strings, modifiers ){
+      this.elem = element;
+      this.name = name;
+      this.strings = strings;
+      this.parts = Array.apply( null, { length: this.length = this.strings.length - 1 } ).map(() => {
         return new AttributePart( this );
       });
     }
 
     getValue(){
-      const { strings, parts } = this;
-      const length = strings.length - 1;
+      const { strings, parts, length } = this;
+      let index = 0;
       let result = '';
 
-      for( let index = 0, part; index < length; index++ ){
-        result += strings[ index ];
+      for( const { value } of parts ){
+        result += strings[ index++ ];
 
-        if( part = parts[ index ] ){
-          const value = part.value;
-
-          if( value != null ){
-            if( isArray( value ) || !isString( value ) && value[ Symbol.iterator ] ){
-              for( let item of value ){
-                result += isString( item ) ? item : String( item );
-              }
-              continue;
-            }
+        if( value != null && isIterable( value ) && !isString( value ) ){
+          for( let item of value ){
+            result += isString( item ) ? item : String( item );
           }
-          result += isString( value ) ? value : String( value );
+          continue;
         }
+
+        result += isString( value ) ? value : String( value );
       }
 
       return result + strings[ length ];
@@ -2021,13 +2028,12 @@
 
     commit(){
       this.elem.setAttribute(
-        this.attr,
+        this.name,
         this.getValue()
       );
     }
 
   }
-
 
   class AttributePart{
 
@@ -2035,21 +2041,17 @@
       this.committer = committer;
     }
 
-    setValue( value ){
-      if( isDirective( value ) ){
-        return value( this );
+    commit( value, isDirectiveFn ){
+      // 用户传递的是指令方法
+      // 交给指令方法处理
+      if( isDirectiveFn ) return value( this );
+      // 两次传入的值不同
+      if( isNotEqual( value, this.value ) ){
+        // 存储当前值
+        [ this.value, this.oldValue ] = [ value, this.value ];
+        // 更新属性值
+        this.committer.commit( value );
       }
-
-      this.oldValue = this.value;
-      this.value = value;
-    }
-
-    commit(){
-      const { value, oldValue } = this;
-
-      isEqual( value, oldValue ) || (
-        this.committer.commit( this.value = value )
-      );
     }
 
   }
@@ -2093,7 +2095,7 @@
     }
 
     setValue( listener ){
-      if( isDirective( listener ) ){
+      if( isDirectiveFn( listener ) ){
         throw new Error(`@${ this.type } 指令不支持传入指令方法进行使用 !`);
       }
 
@@ -2248,7 +2250,7 @@
     }
 
     setValue( value ){
-      if( isDirective( value ) ){
+      if( isDirectiveFn( value ) ){
         return value( this );
       }
 
@@ -2346,15 +2348,15 @@
      * 更新模板片段中插值绑定中的值
      */
     update( values ){
-      const parts = this.parts;
-      let index = 0;
+      let index;
 
-      for( let part of parts ){
-        if( part !== void 0 ) part.setValue( values[ index ] );
-        index++;
-      }
-      for( let part of parts ){
-        if( part !== void 0 ) part.commit();
+      for( let part of this.parts ){
+        const value = values[ index++ ];
+
+        part.commit(
+          value,
+          isDirectiveFn( value )
+        );
       }
     }
 
@@ -2441,15 +2443,6 @@
     }
 
   }
-
-  /**
-   * 判断传入对象是否可迭代
-   */
-  var isIterable = value => {
-    return isArray( value ) || !!(
-      value && value[ Symbol.iterator ]
-    );
-  };
 
   var createMarker = () => {
     return document.createComment('');
@@ -2721,7 +2714,7 @@
   class NodePart{
 
     setValue( value ){
-      if( isDirective( value ) ){
+      if( isDirectiveFn( value ) ){
         return value( this );
       }
 
