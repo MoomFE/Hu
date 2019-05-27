@@ -15,7 +15,7 @@ export default class TemplateInstance{
    * 更新模板片段中插值绑定中的值
    */
   update( values ){
-    let index;
+    let index = 0;
 
     for( const part of this.parts ){
       const value = values[ index++ ];

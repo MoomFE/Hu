@@ -2000,7 +2000,7 @@
       this.elem = element;
       this.name = name;
       this.strings = strings;
-      this.parts = Array.apply( null, { length: this.length = this.strings.length - 1 } ).map(() => {
+      this.parts = Array.apply( null, { length: this.length = strings.length - 1 } ).map(() => {
         return new AttributePart( this );
       });
     }
@@ -2330,7 +2330,7 @@
 
       // 单个属性使用了多个插值绑定的情况下
       // 需要返回多个指令类
-      return strings.length > 2 ? directiveInstance.parts : [
+      return directiveInstance.parts || [
         directiveInstance
       ];
     }
@@ -2348,7 +2348,7 @@
      * 更新模板片段中插值绑定中的值
      */
     update( values ){
-      let index;
+      let index = 0;
 
       for( let part of this.parts ){
         const value = values[ index++ ];

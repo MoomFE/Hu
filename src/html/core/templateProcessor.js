@@ -51,7 +51,7 @@ export default {
 
     // 单个属性使用了多个插值绑定的情况下
     // 需要返回多个指令类
-    return strings.length > 2 ? directiveInstance.parts : [
+    return directiveInstance.parts || [
       directiveInstance
     ];
   }

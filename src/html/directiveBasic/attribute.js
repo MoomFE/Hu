@@ -9,7 +9,7 @@ export default class AttributeCommitter{
     this.elem = element;
     this.name = name;
     this.strings = strings;
-    this.parts = Array.apply( null, { length: this.length = this.strings.length - 1 } ).map(() => {
+    this.parts = Array.apply( null, { length: this.length = strings.length - 1 } ).map(() => {
       return new AttributePart( this );
     });
   }
