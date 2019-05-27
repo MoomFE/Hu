@@ -1,4 +1,4 @@
-import { userDirectives } from "../../html/core/templateProcessor";
+import { userDirectives } from "../../html/const/index";
 import isDirective from "../../html/util/isDirective";
 
 

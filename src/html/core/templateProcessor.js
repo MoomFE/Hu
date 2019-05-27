@@ -2,14 +2,8 @@ import AttributeCommitter from '../directiveBasic/attribute';
 import BasicEventDirective from '../directiveBasic/event';
 import BasicBooleanDirective from '../directiveBasic/boolean';
 import BasicPropertyDirective from '../directiveBasic/property';
-import ClassDirective from '../directive/class';
-import StyleDirective from '../directive/style';
-import ModelDirective from '../directive/model';
-import TextDirective from '../directive/text';
-import HtmlDirective from '../directive/html';
-import ShowDirective from '../directive/show';
-import createAssign from '../../shared/util/create';
 import { create } from '../../shared/global/Object/index';
+import { userDirectives, directives } from '../const/index';
 
 
 export default {
@@ -63,22 +57,3 @@ export default {
   }
 
 };
-
-/**
- * 内置指令
- */
-export const directives = createAssign({
-  class: ClassDirective,
-  style: StyleDirective,
-  model: ModelDirective,
-  text: TextDirective,
-  html: HtmlDirective,
-  show: ShowDirective
-});
-
-/**
- * 用户定义指令
- */
-export const userDirectives = createAssign({
-
-});

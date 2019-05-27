@@ -1,5 +1,31 @@
+import ClassDirective from '../directive/class';
+import StyleDirective from '../directive/style';
+import ModelDirective from '../directive/model';
+import TextDirective from '../directive/text';
+import HtmlDirective from '../directive/html';
+import ShowDirective from '../directive/show';
+import create from '../../shared/util/create';
 import { random } from "../../shared/global/Math/index";
 
+
+/**
+ * 内置指令
+ */
+export const directives = create({
+  class: ClassDirective,
+  style: StyleDirective,
+  model: ModelDirective,
+  text: TextDirective,
+  html: HtmlDirective,
+  show: ShowDirective
+});
+
+/**
+ * 用户定义指令
+ */
+export const userDirectives = create({
+
+});
 
 /**
  * 指令方法合集
