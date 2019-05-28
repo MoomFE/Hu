@@ -57,7 +57,7 @@ class AttributePart{
     // 两次传入的值不同
     if( isNotEqual( value, this.value ) ){
       // 存储当前值
-      [ this.value, this.oldValue ] = [ value, this.value ];
+      this.value = value;
       // 更新属性值
       this.committer.commit( value );
     }
