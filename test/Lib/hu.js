@@ -1130,6 +1130,52 @@
     }
   }
 
+  /**
+   * 判断传入对象是否是原始对象
+   */
+  var isPrimitive = value => {
+    return value === null || !(
+      isObject( value ) || isFunction( value )
+    );
+  };
+
+  /**
+   * 判断传入对象是否可迭代
+   */
+  var isIterable = value => {
+    return isArray( value ) || !!(
+      value && value[ Symbol.iterator ]
+    );
+  };
+
+  var removeNodes = /**
+   * 移除某个元素下的所有子元素
+   * @param {Element} container
+   * @param {Node} startNode
+   * @param {Node} endNode
+   */
+  ( container, startNode, endNode = null ) => {
+    let node = startNode;
+
+    while( node != endNode ){
+      const next = node.nextSibling;
+
+      container.removeChild( node );
+      node = next;
+    }
+  };
+
+  var createMarker = () => {
+    return document.createComment('');
+  };
+
+  /**
+   * 判断传入参数是否是指令方法
+   */
+  var isDirectiveFn = obj => {
+    return isFunction( obj ) && directiveFns.has( obj );
+  };
+
   var rWhitespace = /\s+/;
 
   /**
@@ -1843,625 +1889,6 @@
   const commentMarker = ` ${ marker } `;
   const commentMarkerRegex = new RegExp( commentMarker, 'g' );
 
-  /**
-   * 判断传入参数是否是指令方法
-   */
-  var isDirectiveFn = obj => {
-    return isFunction( obj ) && directiveFns.has( obj );
-  };
-
-  /**
-   * 判断传入对象是否是原始对象
-   */
-  var isPrimitive = value => {
-    return value === null || !(
-      isObject( value ) || isFunction( value )
-    );
-  };
-
-  var removeNodes = /**
-   * 移除某个元素下的所有子元素
-   * @param {Element} container
-   * @param {Node} startNode
-   * @param {Node} endNode
-   */
-  ( container, startNode, endNode = null ) => {
-    let node = startNode;
-
-    while( node != endNode ){
-      const next = node.nextSibling;
-
-      container.removeChild( node );
-      node = next;
-    }
-  };
-
-  var moveChildNodes = ( container, start, end = null, before = null ) => {
-    while( start !== end ){
-      const node = start.nextSibling;
-
-      container.insertBefore( start, before );
-      start = node;
-    }
-  };
-
-  class TemplateResult{
-
-    constructor( strings, values, type ){
-      this.strings = strings;
-      this.values = values;
-      this.type = type;
-    }
-
-    getHTML(){
-      const strings = this.strings;
-      const length = strings.length - 1;
-      let html = '';
-      let isCommentBinding;
-
-      for( let index = 0; index < length; index++ ){
-        /** 当前解析的片段 */
-        const string = strings[ index ];
-        /** 是否在当前解析的片段中查找到了新的文档注释开始标记 */
-        const commentOpen = string.lastIndexOf('<!--');
-        /** 是否在当前解析的片段中查找到了元素属性绑定 */
-        const attributeMatch = lastAttributeNameRegex.exec( string );
-
-        // 当前解析的片段是否正处在文档注释中
-        // 1. commentOpen > -1 && string.indexOf( '-->', commentOpen + 1 ) === -1
-        //    从当前解析的片段末尾开始查找到了文档注释开始标记,
-        //    从这个位置开始, 若找到了文档注释结束标记, 那么就算文档注释结束了,
-        //    当前解析的片段就不是文档注释中的绑定了
-        // 2. isCommentBinding && string.indexOf( '-->', commentOpen + 1 ) === -1
-        //    如果之前解析的片段没有查找到文档注释结束标记, 那么现在就是处于文档注释中
-        //    如果这时候在当前解析的片段中查找到了文档注释结束标记, 那么就算文档注释结束了,
-        //    当前解析的片段就不是文档注释中的绑定了
-        // 3. ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
-        //    如果之前解析的片段没有查找到文档注释结束标记, 又从当前解析的片段末尾开始又查找到了文档注释开始标记,
-        //    相当于是这样的结构: html`<!-- ${ something } <!-- -->`,
-        //    那么之前解析的片段中的注释开始标记, 就会和现在的片段中的文档注释结束标记结合成为一个完整的文档注释,
-        //    那么依旧算文档注释结束了, 当前解析的片段就不是文档注释中的绑定了
-        isCommentBinding = ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
-
-        // 将文本绑定和元素属性绑定转为指定格式
-        // 1. 普通内容绑定
-        //    示　例: html`123${ something }456`
-        //    转换后: `123<!--{{hu-666}}-->456`
-        // 2. 注释中的内容绑定
-        //    示　例: html`<!--${ something }-->`
-        //    转换后: `<!-- {{hu-666}} -->`
-        //    提　示: 注释中的内容绑定会在标记左右各加一个空格,
-        // 　　       防止注释中的绑定在转换完后变成 `<!--{{hu-666}}-->`, 在最终解析的时候就会被解析成普通内容绑定
-        // 3. 元素属性绑定
-        //    示　例: html`<div class=${ something }></div>`
-        //    转换后: `<div class$hu$={{hu-666}}></div>`
-        // 3. 类似元素属性绑定的绑定
-        //    示　例: html`<div> class=${ something } </div>`
-        // 　　　     html`<!-- class=${ something } -->`
-        //    转换后: `<div> class$hu$={{hu-666}} </div>`
-        // 　　　     `<!-- class$hu$={{hu-666}} -->`
-        //    提　示: 文本节点中的类元素属性绑定最终会被解析为普通内容绑定
-        // 　　       注释节点中的类元素属性绑定最终不会被解析
-        if( attributeMatch === null ){
-          html += string + ( isCommentBinding ? commentMarker : nodeMarker );
-        }else{
-          html += string.substr( 0, attributeMatch.index )
-                + attributeMatch[ 1 ]
-                + attributeMatch[ 2 ]
-                + boundAttributeSuffix
-                + attributeMatch[ 3 ]
-                + marker;
-        }
-      }
-
-      return html + strings[ length ];
-    }
-
-    getTemplateElement(){
-      const template = document.createElement('template');
-            template.innerHTML = this.getHTML();
-
-      return template;
-    }
-
-  }
-
-  class SVGTemplateResult extends TemplateResult{
-
-    getHTML(){
-      return `<svg>${ super.getHTML() }</svg>`;
-    }
-
-    getTemplateElement(){
-      const template = super.getTemplateElement();
-      const content = template.content;
-      const elem = content.firstChild;
-
-      content.removeChild( elem );
-      moveChildNodes( content, elem.firstChild );
-
-      return template;
-    }
-
-  }
-
-  /**
-   * 判断传入对象是否可迭代
-   */
-  var isIterable = value => {
-    return isArray( value ) || !!(
-      value && value[ Symbol.iterator ]
-    );
-  };
-
-  class AttributeCommitter{
-
-    constructor( element, name, strings, modifiers ){
-      this.elem = element;
-      this.name = name;
-      this.strings = strings;
-      this.parts = Array.apply( null, { length: this.length = strings.length - 1 } ).map(() => {
-        return new AttributePart( this );
-      });
-    }
-
-    getValue(){
-      const { strings, parts, length } = this;
-      let index = 0;
-      let result = '';
-
-      for( const { value } of parts ){
-        result += strings[ index++ ];
-
-        if( value != null && isIterable( value ) && !isString( value ) ){
-          for( let item of value ){
-            result += isString( item ) ? item : String( item );
-          }
-          continue;
-        }
-
-        result += isString( value ) ? value : String( value );
-      }
-
-      return result + strings[ length ];
-    }
-
-    commit(){
-      this.elem.setAttribute(
-        this.name,
-        this.getValue()
-      );
-    }
-
-  }
-
-  class AttributePart{
-
-    constructor( committer ){
-      this.committer = committer;
-    }
-
-    commit( value, isDirectiveFn ){
-      // 用户传递的是指令方法
-      // 交给指令方法处理
-      if( isDirectiveFn ) return value( this );
-      // 两次传入的值不同
-      if( isNotEqual( value, this.value ) ){
-        // 存储当前值
-        [ this.value, this.oldValue ] = [ value, this.value ];
-        // 更新属性值
-        this.committer.commit( value );
-      }
-    }
-
-  }
-
-  var isSingleBind = /**
-   * 判断是否使用的是单插值绑定
-   * @param {stirngs[]} strings
-   */
-  strings => {
-    return strings.length === 2 && strings[0] === '' && strings[1] === '';
-  };
-
-  /**
-   * 包含了使用 Hu 注册的组件合集
-   */
-  const definedCustomElement = new Set();
-
-  /**
-   * 当前正在运行的自定义元素和对应实例的引用
-   *  - 使用自定义元素获取对应实例时使用, 避免有可能 root.$hu 被删除的问题
-   */
-  const activeCustomElement = new WeakMap();
-
-  /**
-   * 当前正在运行的实例的 $el 选项与实例本身的引用
-   */
-  const activeHu = new WeakMap();
-
-  var removeEventListener = /**
-   * 移除事件
-   * @param {Element} elem
-   * @param {string} type
-   * @param {function} listener
-   * @param {boolean|{}} options
-   */
-  ( elem, type, listener, options ) => {
-    elem.removeEventListener( type, listener, options );
-  };
-
-  class BasicEventDirective{
-
-    constructor( element, type, strings, modifiers ){
-      if( !isSingleBind( strings ) ){
-        throw new Error('@event 指令的传值只允许包含单个表达式 !');
-      }
-
-      const options = this.opts = initEventOptions( modifiers );
-      const isCE = this.isCE = definedCustomElement.has(
-        element.nodeName.toLowerCase()
-      );
-
-      this.elem = element;
-      this.type = type;
-
-      this.addEvent( element, type, options, isCE, this );
-    }
-
-    addEvent( element, type, { once, native, options, modifiers }, isCE, self ){
-      // 绑定的对象是通过 Hu 注册的自定义元素
-      if( isCE && !native ){
-        element[ once ? '$once' : '$on' ]( type, this.listener = function( ...args ){
-          isFunction( self.value ) && apply( self.value, this, args );
-        });
-      }
-      // 绑定事件在正常元素上
-      else{
-        addEventListener(
-          element, type,
-          this.listener = function listener( ...args ){
-            // 修饰符检测
-            for( let modifier of modifiers ){
-              if( modifier( element, event, modifiers ) === false ) return;
-            }
-            // 只执行一次
-            if( once ){
-              removeEventListener( element, type, listener, options );
-            }
-            // 修饰符全部检测通过, 执行用户传入方法
-            isFunction( self.value ) && apply( self.value, this, args );
-          },
-          options
-        );
-      }
-    }
-
-    commit( value, isDirectiveFn ){
-      // 用户传递的是指令方法
-      // 交给指令方法处理
-      if( isDirectiveFn ) return value( this );
-      // 保存传入的事件
-      this.value = value;
-    }
-
-  }
-
-
-  /**
-   * 处理事件相关参数
-   */
-  function initEventOptions( modifiers ){
-    const usingEventOptions = {};
-    const usingEventModifiers = [];
-    const modifierKeys = usingEventModifiers.keys = keys( modifiers );
-
-    for( let name of modifierKeys ){
-      if( eventOptions[ name ] ) usingEventOptions[ name ] = true;
-      else if( eventModifiers[ name ] ) usingEventModifiers.push( eventModifiers[ name ] );
-    }
-
-    const { once, passive, capture, native } = usingEventOptions;
-
-    return {
-      once,
-      native,
-      options: passive ? { passive, capture } : capture,
-      modifiers: usingEventModifiers
-    };
-  }
-
-
-  /**
-   * 事件可选参数
-   */
-  const eventOptions = {
-    once: true,
-    capture: true,
-    passive: supportsPassive,
-    native: true
-  };
-
-
-  /**
-   * 功能性事件修饰符
-   */
-  const eventModifiers = {
-
-    /**
-     * 阻止事件冒泡
-     */
-    stop( elem, event ){
-      event.stopPropagation();
-    },
-
-    /**
-     * 阻止浏览器默认事件
-     */
-    prevent( elem, event ){
-      event.preventDefault();
-    },
-
-    /**
-     * 只在当前元素自身时触发事件时
-     */
-    self( elem, event ){
-      return event.target === elem;
-    },
-
-    /**
-     * 系统修饰键限定符
-     */
-    exact( elem, event, { keys } ){
-      const modifierKey = [ 'ctrl', 'alt', 'shift', 'meta' ].filter( key => {
-        return keys.indexOf( key ) < 0;
-      });
-
-      for( let key of modifierKey ){
-        if( event[ key + 'Key' ] ) return false;
-      }
-      return true;
-    }
-
-  };
-
-  /**
-   * 鼠标按钮
-   */
-  [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
-    eventModifiers[ button ] = ( elem, event ) => {
-      return has( event, 'button' ) && event.button === index;
-    };
-  });
-
-  /**
-   * 系统修饰键
-   */
-  [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
-    eventModifiers[ key ] = ( elem, event ) => {
-      return !!event[ key + 'Key' ];
-    };
-  });
-
-  class BasicBooleanDirective{
-
-    constructor( element, name, strings, modifiers ){
-      if( !isSingleBind( strings ) ){
-        throw new Error('?attr 指令的传值只允许包含单个表达式 !');
-      }
-
-      this.elem = element;
-      this.name = name;
-    }
-
-    commit( value, isDirectiveFn ){
-      // 用户传递的是指令方法
-      // 交给指令方法处理
-      if( isDirectiveFn ) return value( this );
-      // 两次传入的值不同
-      if( isNotEqual( value, this.value ) ){
-        // 存储当前值
-        [ this.value, this.oldValue ] = [ value, this.value ];
-        // 更新属性值
-        if( value ){
-          this.elem.setAttribute( this.name, '' );
-        }else{
-          this.elem.removeAttribute( this.name );
-        }
-      }
-    }
-
-  }
-
-  class BasicPropertyDirective{
-
-    constructor( element, name, strings, modifiers ){
-      if( !isSingleBind( strings ) ){
-        throw new Error('.prop 指令的传值只允许包含单个表达式 !');
-      }
-
-      this.elem = element;
-      this.name = name;
-    }
-
-    commit( value, isDirectiveFn ){
-      // 用户传递的是指令方法
-      // 交给指令方法处理
-      if( isDirectiveFn ) return value( this );
-      // 两次传入的值不同
-      if( isNotEqual( value, this.value ) ){
-        // 存储当前值
-        [ this.value, this.oldValue ] = [ value, this.value ];
-        // 更新属性值
-        this.elem[ this.name ] = value;
-      }
-    }
-
-  }
-
-  var templateProcessor = {
-
-    attr( element, name, strings ){
-      /** 修饰符对象 */
-      const modifiers = create( null );
-      /** 修饰符键集合 */
-      let modifierKeys;
-      /** 属性名称起始分隔位置 */
-      let sliceNum = 0;
-      /** 属性对应的处理指令 */
-      let directive;
-      /** 属性对应的处理指令实例 */
-      let directiveInstance;
-
-      // 处理基础指令
-      switch( name[ 0 ] ){
-        // 用于绑定 DOM 属性 ( property )
-        case '.': directive = BasicPropertyDirective; sliceNum = 1; break;
-        // 事件绑定
-        case '@': directive = BasicEventDirective; sliceNum = 1; break;
-        // 若属性值为 Truthy 则保留 DOM 属性
-        // 否则移除 DOM 属性
-        // - Truthy: https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy
-        case '?': directive = BasicBooleanDirective; sliceNum = 1; break;
-        // 功能指令
-        case ':': {
-          [ name, ...modifierKeys ] = name.slice(1).split('.');
-          directive = userDirectives[ name ] || directives[ name ];
-        }
-      }
-
-      // 属性名称可能是包含修饰符的, 所以需要对属性名称进行分隔
-      if( !modifierKeys ){
-        [ name, ...modifierKeys ] = name.slice( sliceNum ).split('.');
-      }
-      // 将数组格式的指令名称转为对象格式
-      for( let modifier of modifierKeys ){
-        modifiers[ modifier ] = true;
-      }
-
-      // 实例化指令
-      directiveInstance = new ( directive || AttributeCommitter )( element, name, strings, modifiers );
-
-      // 单个属性使用了多个插值绑定的情况下
-      // 需要返回多个指令类
-      return directiveInstance.parts || [
-        directiveInstance
-      ];
-    }
-
-  };
-
-  class TemplateInstance{
-
-    constructor( template ){
-      this.parts = [];
-      this.template = template;
-    }
-
-    /**
-     * 更新模板片段中插值绑定中的值
-     */
-    update( values ){
-      let index = 0;
-
-      for( let part of this.parts ){
-        const value = values[ index++ ];
-
-        part.commit(
-          value,
-          isDirectiveFn( value )
-        );
-      }
-    }
-
-    /**
-     * 初始化模板片段
-     */
-    init(){
-      const template = this.template;
-      const templateParts = template.parts;
-      const templatePartsLength = templateParts.length;
-      const templateContent = template.element.content;
-      const fragment = isCEPolyfill ? templateContent.cloneNode( true ) : document.importNode( templateContent, true );
-      const walker = document.createTreeWalker( fragment, 133, null, false );
-      const templateStack = [];
-      let partIndex = 0;
-      let nodeIndex = 0;
-      let node = walker.nextNode();
-
-      // 遍历模板上的所有插值绑定
-      while( partIndex < templatePartsLength ){
-        /** 插值绑定参数 */
-        let part = templateParts[ partIndex ];
-
-        // 注释节点中的插值绑定将被忽略
-        if( part.index === -1 ){
-          this.parts.push( void 0 );
-          partIndex++;
-          continue;
-        }
-
-        // 如果插值绑定的目标节点 index 小于当前节点 index
-        // 那么使用循环快速定位到目标节点
-        while( nodeIndex < part.index ){
-          nodeIndex++;
-
-          // 当前解析的节点是 template 元素
-          // 因为 TreeWalker 不会主动解析 template 元素的子节点
-          // 所以将当前节点保存到堆栈, 然后手动将当前节点重定向至 template 的内容根节点, 开始解析 template 元素的子节点
-          // 如果在当前 template 元素的子节点中又遇到了新的 template 元素, 那么重复上述两个操作
-          // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
-          if( node.nodeName === 'TEMPLATE' ){
-            templateStack.push( node );
-            walker.currentNode = node.content;
-          }
-
-          node = walker.nextNode();
-
-          // 当前解析的节点是 template 元素的子节点
-          // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
-          if( node === null ){
-            walker.currentNode = templateStack.pop();
-            node = walker.nextNode();
-          }
-        }
-
-        // 如果是文本区域的插值绑定
-        // 创建 NodePart 对当前插值绑定进行管理
-        if( part.type === 'node' ){
-          const part = new NodePart();
-                part.insertAfterNode( node.previousSibling );
-          this.parts.push( part );
-        }
-        // 如果不是文本区域的插值绑定, 那么就是元素属性的插值绑定
-        // 使用元素属性处理方法判断该如何处理当前插值绑定
-        else{
-          this.parts.push(
-            ...templateProcessor.attr( node, part.name, part.strings )
-          );
-        }
-
-        partIndex++;
-      }
-
-      if( isCEPolyfill ){
-        document.adoptNode( fragment );
-        customElements.upgrade( fragment );
-      }
-
-      return fragment;
-    }
-
-    destroy(){
-      
-    }
-
-  }
-
-  var createMarker = () => {
-    return document.createComment('');
-  };
-
   class Template{
 
     constructor( result, element ){
@@ -2725,37 +2152,604 @@
     return template;
   };
 
-  class NodePart{
+  class AttributeCommitter{
 
-    setValue( value ){
-      if( isDirectiveFn( value ) ){
-        return value( this );
+    constructor( element, name, strings, modifiers ){
+      this.elem = element;
+      this.name = name;
+      this.strings = strings;
+      this.parts = Array.apply( null, { length: this.length = strings.length - 1 } ).map(() => {
+        return new AttributePart( this );
+      });
+    }
+
+    getValue(){
+      const { strings, parts, length } = this;
+      let index = 0;
+      let result = '';
+
+      for( const { value } of parts ){
+        result += strings[ index++ ];
+
+        if( value != null && isIterable( value ) && !isString( value ) ){
+          for( let item of value ){
+            result += isString( item ) ? item : String( item );
+          }
+          continue;
+        }
+
+        result += isString( value ) ? value : String( value );
       }
 
-      this.oldValue = this.value;
-      this.value = value;
+      return result + strings[ length ];
     }
 
     commit(){
-      const { value, oldValue } = this;
+      this.elem.setAttribute(
+        this.name,
+        this.getValue()
+      );
+    }
 
-      if( isEqual( value, oldValue ) ){
-        return;
+  }
+
+  class AttributePart{
+
+    constructor( committer ){
+      this.committer = committer;
+    }
+
+    commit( value, isDirectiveFn ){
+      // 用户传递的是指令方法
+      // 交给指令方法处理
+      if( isDirectiveFn ) return value( this );
+      // 两次传入的值不同
+      if( isNotEqual( value, this.value ) ){
+        // 存储当前值
+        this.value = value;
+        // 更新属性值
+        this.committer.commit( value );
+      }
+    }
+
+  }
+
+  var isSingleBind = /**
+   * 判断是否使用的是单插值绑定
+   * @param {stirngs[]} strings
+   */
+  strings => {
+    return strings.length === 2 && strings[0] === '' && strings[1] === '';
+  };
+
+  /**
+   * 包含了使用 Hu 注册的组件合集
+   */
+  const definedCustomElement = new Set();
+
+  /**
+   * 当前正在运行的自定义元素和对应实例的引用
+   *  - 使用自定义元素获取对应实例时使用, 避免有可能 root.$hu 被删除的问题
+   */
+  const activeCustomElement = new WeakMap();
+
+  /**
+   * 当前正在运行的实例的 $el 选项与实例本身的引用
+   */
+  const activeHu = new WeakMap();
+
+  var removeEventListener = /**
+   * 移除事件
+   * @param {Element} elem
+   * @param {string} type
+   * @param {function} listener
+   * @param {boolean|{}} options
+   */
+  ( elem, type, listener, options ) => {
+    elem.removeEventListener( type, listener, options );
+  };
+
+  class BasicEventDirective{
+
+    constructor( element, type, strings, modifiers ){
+      if( !isSingleBind( strings ) ){
+        throw new Error('@event 指令的传值只允许包含单个表达式 !');
       }
 
-      if( isPrimitive( value ) ){
-        commitText( this, value );
+      const options = this.opts = initEventOptions( modifiers );
+      const isCE = this.isCE = definedCustomElement.has(
+        element.nodeName.toLowerCase()
+      );
+
+      this.elem = element;
+      this.type = type;
+
+      this.addEvent( element, type, options, isCE, this );
+    }
+
+    addEvent( element, type, { once, native, options, modifiers }, isCE, self ){
+      // 绑定的对象是通过 Hu 注册的自定义元素
+      if( isCE && !native ){
+        element[ once ? '$once' : '$on' ]( type, this.listener = function( ...args ){
+          isFunction( self.value ) && apply( self.value, this, args );
+        });
       }
-      else if( value instanceof TemplateResult ){
-        commitTemplateResult( this, value );
+      // 绑定事件在正常元素上
+      else{
+        addEventListener(
+          element, type,
+          this.listener = function listener( ...args ){
+            // 修饰符检测
+            for( let modifier of modifiers ){
+              if( modifier( element, event, modifiers ) === false ) return;
+            }
+            // 只执行一次
+            if( once ){
+              removeEventListener( element, type, listener, options );
+            }
+            // 修饰符全部检测通过, 执行用户传入方法
+            isFunction( self.value ) && apply( self.value, this, args );
+          },
+          options
+        );
       }
-      else if( value instanceof Node ){
-        commitNode( this, value );
+    }
+
+    commit( value, isDirectiveFn ){
+      // 用户传递的是指令方法
+      // 交给指令方法处理
+      if( isDirectiveFn ) return value( this );
+      // 保存传入的事件
+      this.value = value;
+    }
+
+  }
+
+
+  /**
+   * 处理事件相关参数
+   */
+  function initEventOptions( modifiers ){
+    const usingEventOptions = {};
+    const usingEventModifiers = [];
+    const modifierKeys = usingEventModifiers.keys = keys( modifiers );
+
+    for( let name of modifierKeys ){
+      if( eventOptions[ name ] ) usingEventOptions[ name ] = true;
+      else if( eventModifiers[ name ] ) usingEventModifiers.push( eventModifiers[ name ] );
+    }
+
+    const { once, passive, capture, native } = usingEventOptions;
+
+    return {
+      once,
+      native,
+      options: passive ? { passive, capture } : capture,
+      modifiers: usingEventModifiers
+    };
+  }
+
+
+  /**
+   * 事件可选参数
+   */
+  const eventOptions = {
+    once: true,
+    capture: true,
+    passive: supportsPassive,
+    native: true
+  };
+
+
+  /**
+   * 功能性事件修饰符
+   */
+  const eventModifiers = {
+
+    /**
+     * 阻止事件冒泡
+     */
+    stop( elem, event ){
+      event.stopPropagation();
+    },
+
+    /**
+     * 阻止浏览器默认事件
+     */
+    prevent( elem, event ){
+      event.preventDefault();
+    },
+
+    /**
+     * 只在当前元素自身时触发事件时
+     */
+    self( elem, event ){
+      return event.target === elem;
+    },
+
+    /**
+     * 系统修饰键限定符
+     */
+    exact( elem, event, { keys } ){
+      const modifierKey = [ 'ctrl', 'alt', 'shift', 'meta' ].filter( key => {
+        return keys.indexOf( key ) < 0;
+      });
+
+      for( let key of modifierKey ){
+        if( event[ key + 'Key' ] ) return false;
       }
-      else if( isIterable( value ) ){
-        commitIterable( this, value );
-      }else{
-        commitText( this, value );
+      return true;
+    }
+
+  };
+
+  /**
+   * 鼠标按钮
+   */
+  [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
+    eventModifiers[ button ] = ( elem, event ) => {
+      return has( event, 'button' ) && event.button === index;
+    };
+  });
+
+  /**
+   * 系统修饰键
+   */
+  [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
+    eventModifiers[ key ] = ( elem, event ) => {
+      return !!event[ key + 'Key' ];
+    };
+  });
+
+  class BasicBooleanDirective{
+
+    constructor( element, name, strings, modifiers ){
+      if( !isSingleBind( strings ) ){
+        throw new Error('?attr 指令的传值只允许包含单个表达式 !');
+      }
+
+      this.elem = element;
+      this.name = name;
+    }
+
+    commit( value, isDirectiveFn ){
+      // 用户传递的是指令方法
+      // 交给指令方法处理
+      if( isDirectiveFn ) return value( this );
+      // 两次传入的值不同
+      if( isNotEqual( value, this.value ) ){
+        // 存储当前值
+        this.value = value;
+        // 更新属性值
+        if( value ){
+          this.elem.setAttribute( this.name, '' );
+        }else{
+          this.elem.removeAttribute( this.name );
+        }
+      }
+    }
+
+  }
+
+  class BasicPropertyDirective{
+
+    constructor( element, name, strings, modifiers ){
+      if( !isSingleBind( strings ) ){
+        throw new Error('.prop 指令的传值只允许包含单个表达式 !');
+      }
+
+      this.elem = element;
+      this.name = name;
+    }
+
+    commit( value, isDirectiveFn ){
+      // 用户传递的是指令方法
+      // 交给指令方法处理
+      if( isDirectiveFn ) return value( this );
+      // 两次传入的值不同
+      if( isNotEqual( value, this.value ) ){
+        // 存储当前值
+        this.value = value;
+        // 更新属性值
+        this.elem[ this.name ] = value;
+      }
+    }
+
+  }
+
+  var templateProcessor = {
+
+    attr( element, name, strings ){
+      /** 修饰符对象 */
+      const modifiers = create( null );
+      /** 修饰符键集合 */
+      let modifierKeys;
+      /** 属性名称起始分隔位置 */
+      let sliceNum = 0;
+      /** 属性对应的处理指令 */
+      let directive;
+      /** 属性对应的处理指令实例 */
+      let directiveInstance;
+
+      // 处理基础指令
+      switch( name[ 0 ] ){
+        // 用于绑定 DOM 属性 ( property )
+        case '.': directive = BasicPropertyDirective; sliceNum = 1; break;
+        // 事件绑定
+        case '@': directive = BasicEventDirective; sliceNum = 1; break;
+        // 若属性值为 Truthy 则保留 DOM 属性
+        // 否则移除 DOM 属性
+        // - Truthy: https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy
+        case '?': directive = BasicBooleanDirective; sliceNum = 1; break;
+        // 功能指令
+        case ':': {
+          [ name, ...modifierKeys ] = name.slice(1).split('.');
+          directive = userDirectives[ name ] || directives[ name ];
+        }
+      }
+
+      // 属性名称可能是包含修饰符的, 所以需要对属性名称进行分隔
+      if( !modifierKeys ){
+        [ name, ...modifierKeys ] = name.slice( sliceNum ).split('.');
+      }
+      // 将数组格式的指令名称转为对象格式
+      for( let modifier of modifierKeys ){
+        modifiers[ modifier ] = true;
+      }
+
+      // 实例化指令
+      directiveInstance = new ( directive || AttributeCommitter )( element, name, strings, modifiers );
+
+      // 单个属性使用了多个插值绑定的情况下
+      // 需要返回多个指令类
+      return directiveInstance.parts || [
+        directiveInstance
+      ];
+    }
+
+  };
+
+  class TemplateInstance{
+
+    constructor( template ){
+      this.parts = [];
+      this.template = template;
+    }
+
+    /**
+     * 更新模板片段中插值绑定中的值
+     */
+    update( values ){
+      let index = 0;
+
+      for( let part of this.parts ){
+        const value = values[ index++ ];
+
+        part.commit(
+          value,
+          isDirectiveFn( value )
+        );
+      }
+    }
+
+    /**
+     * 初始化模板片段
+     */
+    init(){
+      const template = this.template;
+      const templateParts = template.parts;
+      const templatePartsLength = templateParts.length;
+      const templateContent = template.element.content;
+      const fragment = isCEPolyfill ? templateContent.cloneNode( true ) : document.importNode( templateContent, true );
+      const walker = document.createTreeWalker( fragment, 133, null, false );
+      const templateStack = [];
+      let partIndex = 0;
+      let nodeIndex = 0;
+      let node = walker.nextNode();
+
+      // 遍历模板上的所有插值绑定
+      while( partIndex < templatePartsLength ){
+        /** 插值绑定参数 */
+        let part = templateParts[ partIndex ];
+
+        // 注释节点中的插值绑定将被忽略
+        if( part.index === -1 ){
+          this.parts.push( void 0 );
+          partIndex++;
+          continue;
+        }
+
+        // 如果插值绑定的目标节点 index 小于当前节点 index
+        // 那么使用循环快速定位到目标节点
+        while( nodeIndex < part.index ){
+          nodeIndex++;
+
+          // 当前解析的节点是 template 元素
+          // 因为 TreeWalker 不会主动解析 template 元素的子节点
+          // 所以将当前节点保存到堆栈, 然后手动将当前节点重定向至 template 的内容根节点, 开始解析 template 元素的子节点
+          // 如果在当前 template 元素的子节点中又遇到了新的 template 元素, 那么重复上述两个操作
+          // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
+          if( node.nodeName === 'TEMPLATE' ){
+            templateStack.push( node );
+            walker.currentNode = node.content;
+          }
+
+          node = walker.nextNode();
+
+          // 当前解析的节点是 template 元素的子节点
+          // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
+          if( node === null ){
+            walker.currentNode = templateStack.pop();
+            node = walker.nextNode();
+          }
+        }
+
+        // 如果是文本区域的插值绑定
+        // 创建 NodePart 对当前插值绑定进行管理
+        if( part.type === 'node' ){
+          const part = new NodePart();
+                part.insertAfterNode( node.previousSibling );
+          this.parts.push( part );
+        }
+        // 如果不是文本区域的插值绑定, 那么就是元素属性的插值绑定
+        // 使用元素属性处理方法判断该如何处理当前插值绑定
+        else{
+          this.parts.push(
+            ...templateProcessor.attr( node, part.name, part.strings )
+          );
+        }
+
+        partIndex++;
+      }
+
+      if( isCEPolyfill ){
+        document.adoptNode( fragment );
+        customElements.upgrade( fragment );
+      }
+
+      return fragment;
+    }
+
+    destroy(){
+      
+    }
+
+  }
+
+  var moveChildNodes = ( container, start, end = null, before = null ) => {
+    while( start !== end ){
+      const node = start.nextSibling;
+
+      container.insertBefore( start, before );
+      start = node;
+    }
+  };
+
+  class TemplateResult{
+
+    constructor( strings, values, type ){
+      this.strings = strings;
+      this.values = values;
+      this.type = type;
+    }
+
+    getHTML(){
+      const strings = this.strings;
+      const length = strings.length - 1;
+      let html = '';
+      let isCommentBinding;
+
+      for( let index = 0; index < length; index++ ){
+        /** 当前解析的片段 */
+        const string = strings[ index ];
+        /** 是否在当前解析的片段中查找到了新的文档注释开始标记 */
+        const commentOpen = string.lastIndexOf('<!--');
+        /** 是否在当前解析的片段中查找到了元素属性绑定 */
+        const attributeMatch = lastAttributeNameRegex.exec( string );
+
+        // 当前解析的片段是否正处在文档注释中
+        // 1. commentOpen > -1 && string.indexOf( '-->', commentOpen + 1 ) === -1
+        //    从当前解析的片段末尾开始查找到了文档注释开始标记,
+        //    从这个位置开始, 若找到了文档注释结束标记, 那么就算文档注释结束了,
+        //    当前解析的片段就不是文档注释中的绑定了
+        // 2. isCommentBinding && string.indexOf( '-->', commentOpen + 1 ) === -1
+        //    如果之前解析的片段没有查找到文档注释结束标记, 那么现在就是处于文档注释中
+        //    如果这时候在当前解析的片段中查找到了文档注释结束标记, 那么就算文档注释结束了,
+        //    当前解析的片段就不是文档注释中的绑定了
+        // 3. ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
+        //    如果之前解析的片段没有查找到文档注释结束标记, 又从当前解析的片段末尾开始又查找到了文档注释开始标记,
+        //    相当于是这样的结构: html`<!-- ${ something } <!-- -->`,
+        //    那么之前解析的片段中的注释开始标记, 就会和现在的片段中的文档注释结束标记结合成为一个完整的文档注释,
+        //    那么依旧算文档注释结束了, 当前解析的片段就不是文档注释中的绑定了
+        isCommentBinding = ( commentOpen > -1 || isCommentBinding ) && string.indexOf( '-->', commentOpen + 1 ) === -1;
+
+        // 将文本绑定和元素属性绑定转为指定格式
+        // 1. 普通内容绑定
+        //    示　例: html`123${ something }456`
+        //    转换后: `123<!--{{hu-666}}-->456`
+        // 2. 注释中的内容绑定
+        //    示　例: html`<!--${ something }-->`
+        //    转换后: `<!-- {{hu-666}} -->`
+        //    提　示: 注释中的内容绑定会在标记左右各加一个空格,
+        // 　　       防止注释中的绑定在转换完后变成 `<!--{{hu-666}}-->`, 在最终解析的时候就会被解析成普通内容绑定
+        // 3. 元素属性绑定
+        //    示　例: html`<div class=${ something }></div>`
+        //    转换后: `<div class$hu$={{hu-666}}></div>`
+        // 3. 类似元素属性绑定的绑定
+        //    示　例: html`<div> class=${ something } </div>`
+        // 　　　     html`<!-- class=${ something } -->`
+        //    转换后: `<div> class$hu$={{hu-666}} </div>`
+        // 　　　     `<!-- class$hu$={{hu-666}} -->`
+        //    提　示: 文本节点中的类元素属性绑定最终会被解析为普通内容绑定
+        // 　　       注释节点中的类元素属性绑定最终不会被解析
+        if( attributeMatch === null ){
+          html += string + ( isCommentBinding ? commentMarker : nodeMarker );
+        }else{
+          html += string.substr( 0, attributeMatch.index )
+                + attributeMatch[ 1 ]
+                + attributeMatch[ 2 ]
+                + boundAttributeSuffix
+                + attributeMatch[ 3 ]
+                + marker;
+        }
+      }
+
+      return html + strings[ length ];
+    }
+
+    getTemplateElement(){
+      const template = document.createElement('template');
+            template.innerHTML = this.getHTML();
+
+      return template;
+    }
+
+  }
+
+  class SVGTemplateResult extends TemplateResult{
+
+    getHTML(){
+      return `<svg>${ super.getHTML() }</svg>`;
+    }
+
+    getTemplateElement(){
+      const template = super.getTemplateElement();
+      const content = template.content;
+      const elem = content.firstChild;
+
+      content.removeChild( elem );
+      moveChildNodes( content, elem.firstChild );
+
+      return template;
+    }
+
+  }
+
+  class NodePart{
+
+    commit( value, isDirectiveFn ){
+      let oldValue;
+
+      // 用户传递的是指令方法
+      // 交给指令方法处理
+      if( isDirectiveFn ) return value( this );
+
+      // 两次传入的值不同
+      if( isNotEqual( value, oldValue = this.value ) ){
+        // 存储当前值
+        this.value = value;
+        // 更新节点内容
+        if( isPrimitive( value ) ){
+          commitText( this, value );
+        }else if( value instanceof TemplateResult ){
+          commitTemplateResult( this, value );
+        }else if( value instanceof Node ){
+          commitNode( this, value );
+        }else if( isIterable( value ) ){
+          commitIterable( this, value, oldValue );
+        }else{
+          commitText( this, value );
+        }
       }
     }
 
@@ -2810,6 +2804,11 @@
 
   }
 
+
+  /**
+   * @param {NodePart} nodePart 
+   * @param {any} value 
+   */
   function commitText( nodePart, value ){
     if( value == null ) value = '';
 
@@ -2826,20 +2825,28 @@
     }
   }
 
+  /**
+   * @param {NodePart} nodePart 
+   * @param {any} value 
+   */
   function commitNode( nodePart, value ){
     nodePart.clear();
     nodePart.insert( value );
   }
 
+  /**
+   * @param {NodePart} nodePart 
+   * @param {any} value 
+   */
   function commitTemplateResult( nodePart, value ){
-    const oldValue = nodePart.oldValue;
     const template = templateFactory( value );
+    const instance = nodePart.instance;
 
-    if( oldValue instanceof TemplateInstance && oldValue.template === template ){
-      nodePart.value = oldValue;
-      oldValue.update( value.values );
+    // 可以复用之前的模板
+    if( instance instanceof TemplateInstance && instance.template === template ){
+      instance.update( value.values );
     }else{
-      const instance = nodePart.value = new TemplateInstance( template );
+      const instance = nodePart.instance = new TemplateInstance( template );
       const fragment = instance.init();
 
       instance.update( value.values );
@@ -2847,41 +2854,45 @@
     }
   }
 
-  function commitIterable( nodePart, value ){
-    if( !isArray( nodePart.oldValue ) ){
-      nodePart.oldValue = [];
+  /**
+   * @param {NodePart} nodePart 
+   * @param {any} value 
+   * @param {any} oldValue 
+   */
+  function commitIterable( nodePart, value, oldValue ){
+    if( !isArray( oldValue ) ){
+      oldValue = [];
       nodePart.clear();
     }
 
-    const itemParts = nodePart.oldValue;
+    const parts = oldValue;
     let partIndex = 0;
-    let itemPart;
+    let part;
 
     for( let item of value ){
-      itemPart = itemParts[ partIndex ];
+      part = parts[ partIndex ];
 
-      if( itemPart === void 0 ){
-        itemPart = new NodePart( nodePart.options );
-        itemParts.push( itemPart );
+      if( part === void 0 ){
+        part = new NodePart();
+        parts.push( part );
 
         if( partIndex === 0 ){
-          itemPart.appendIntoPart( nodePart );
+          part.appendIntoPart( nodePart );
         }else{
-          itemPart.insertAfterPart( itemParts[ partIndex - 1 ] );
+          part.insertAfterPart( parts[ partIndex - 1 ] );
         }
       }
 
-      itemPart.setValue( item );
-      itemPart.commit();
+      part.commit( item );
       partIndex++;
     }
 
-    if( partIndex < itemParts.length ){
-      itemParts.length = partIndex;
-      nodePart.clear( itemPart && itemPart.endNode );
+    if( partIndex < parts.length ){
+      parts.length = partIndex;
+      nodePart.clear( part && part.endNode );
     }
 
-    nodePart.value = itemParts;
+    nodePart.value = parts;
   }
 
   const parts = new WeakMap();
@@ -2904,8 +2915,7 @@
       part.appendInto( container );
     }
 
-    part.setValue( result );
-    part.commit();
+    part.commit( result );
   }
 
 

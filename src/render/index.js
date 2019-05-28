@@ -24,8 +24,7 @@ function basicRender( result, container ){
     part.appendInto( container );
   }
 
-  part.setValue( result );
-  part.commit();
+  part.commit( result );
 }
 
 

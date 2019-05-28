@@ -1,47 +1,40 @@
-import isDirectiveFn from "../util/isDirectiveFn";
-import isEqual from "../../shared/util/isEqual";
+import isNotEqual from "../../shared/util/isNotEqual";
 import isPrimitive from "../../shared/util/isPrimitive";
+import isIterable from "../../shared/util/isIterable";
 import isString from "../../shared/util/isString";
 import removeNodes from "../../shared/util/removeNodes";
-import TemplateResult from "./templateResult";
-import TemplateInstance from "./templateInstance";
-import isIterable from "../../shared/util/isIterable";
 import { isArray } from "../../shared/global/Array/index";
-import templateFactory from "./templateFactory";
 import createMarker from "../util/createMarker";
+import templateFactory from "./templateFactory";
+import TemplateInstance from "./templateInstance";
+import TemplateResult from "./templateResult";
 
 
 export default class NodePart{
 
-  setValue( value ){
-    if( isDirectiveFn( value ) ){
-      return value( this );
-    }
+  commit( value, isDirectiveFn ){
+    let oldValue;
 
-    this.oldValue = this.value;
-    this.value = value;
-  }
+    // 用户传递的是指令方法
+    // 交给指令方法处理
+    if( isDirectiveFn ) return value( this );
 
-  commit(){
-    const { value, oldValue } = this;
-
-    if( isEqual( value, oldValue ) ){
-      return;
-    }
-
-    if( isPrimitive( value ) ){
-      commitText( this, value );
-    }
-    else if( value instanceof TemplateResult ){
-      commitTemplateResult( this, value );
-    }
-    else if( value instanceof Node ){
-      commitNode( this, value );
-    }
-    else if( isIterable( value ) ){
-      commitIterable( this, value );
-    }else{
-      commitText( this, value );
+    // 两次传入的值不同
+    if( isNotEqual( value, oldValue = this.value ) ){
+      // 存储当前值
+      this.value = value;
+      // 更新节点内容
+      if( isPrimitive( value ) ){
+        commitText( this, value );
+      }else if( value instanceof TemplateResult ){
+        commitTemplateResult( this, value );
+      }else if( value instanceof Node ){
+        commitNode( this, value );
+      }else if( isIterable( value ) ){
+        commitIterable( this, value, oldValue );
+      }else{
+        commitText( this, value );
+      }
     }
   }
 
@@ -94,9 +87,13 @@ export default class NodePart{
     removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
   }
 
-};
+}
 
 
+/**
+ * @param {NodePart} nodePart 
+ * @param {any} value 
+ */
 function commitText( nodePart, value ){
   if( value == null ) value = '';
 
@@ -113,20 +110,28 @@ function commitText( nodePart, value ){
   }
 }
 
+/**
+ * @param {NodePart} nodePart 
+ * @param {any} value 
+ */
 function commitNode( nodePart, value ){
   nodePart.clear();
   nodePart.insert( value );
 }
 
+/**
+ * @param {NodePart} nodePart 
+ * @param {any} value 
+ */
 function commitTemplateResult( nodePart, value ){
-  const oldValue = nodePart.oldValue;
   const template = templateFactory( value );
+  const instance = nodePart.instance;
 
-  if( oldValue instanceof TemplateInstance && oldValue.template === template ){
-    nodePart.value = oldValue;
-    oldValue.update( value.values );
+  // 可以复用之前的模板
+  if( instance instanceof TemplateInstance && instance.template === template ){
+    instance.update( value.values );
   }else{
-    const instance = nodePart.value = new TemplateInstance( template );
+    const instance = nodePart.instance = new TemplateInstance( template );
     const fragment = instance.init();
 
     instance.update( value.values );
@@ -134,39 +139,43 @@ function commitTemplateResult( nodePart, value ){
   }
 }
 
-function commitIterable( nodePart, value ){
-  if( !isArray( nodePart.oldValue ) ){
-    nodePart.oldValue = [];
+/**
+ * @param {NodePart} nodePart 
+ * @param {any} value 
+ * @param {any} oldValue 
+ */
+function commitIterable( nodePart, value, oldValue ){
+  if( !isArray( oldValue ) ){
+    oldValue = [];
     nodePart.clear();
   }
 
-  const itemParts = nodePart.oldValue;
+  const parts = oldValue;
   let partIndex = 0;
-  let itemPart;
+  let part;
 
   for( const item of value ){
-    itemPart = itemParts[ partIndex ];
+    part = parts[ partIndex ];
 
-    if( itemPart === void 0 ){
-      itemPart = new NodePart( nodePart.options );
-      itemParts.push( itemPart );
+    if( part === void 0 ){
+      part = new NodePart();
+      parts.push( part );
 
       if( partIndex === 0 ){
-        itemPart.appendIntoPart( nodePart );
+        part.appendIntoPart( nodePart );
       }else{
-        itemPart.insertAfterPart( itemParts[ partIndex - 1 ] );
+        part.insertAfterPart( parts[ partIndex - 1 ] );
       }
     }
 
-    itemPart.setValue( item );
-    itemPart.commit();
+    part.commit( item );
     partIndex++;
   }
 
-  if( partIndex < itemParts.length ){
-    itemParts.length = partIndex;
-    nodePart.clear( itemPart && itemPart.endNode );
+  if( partIndex < parts.length ){
+    parts.length = partIndex;
+    nodePart.clear( part && part.endNode );
   }
 
-  nodePart.value = itemParts;
+  nodePart.value = parts;
 }
