@@ -1396,7 +1396,7 @@ describe( 'Hu.html.directive', () => {
   });
 
 
-  it( '使用 :text 指令的方式, 对元素内容进行插入 ( innerText )', () => {
+  it( '使用 :text 指令的方式, 对元素内容进行插入 ( textContent )', () => {
     const div = document.createElement('div');
     let text = '<span>123</span>'
 
