@@ -1,159 +1,295 @@
+import isSingleBind from "../util/isSingleBind";
 import { isArray } from "../../shared/global/Array/index";
-import { filter } from "../../shared/global/Array/prototype";
-import addEventListener from "../../shared/util/addEventListener";
-import $watch from "../../core/prototype/$watch";
-import { observe } from "../../static/observable/observe";
-import getAttribute from "../../shared/util/getAttribute";
-import isFunction from "../../shared/util/isFunction";
-import triggerEvent from "../../shared/util/triggerEvent";
-import { renderStack, modelDirectiveCacheMap } from "../../render/const/index";
-import { apply } from "../../shared/global/Reflect/index";
-import emptyObject from "../../shared/const/emptyObject";
-import { popTarget, pushTarget } from "../../static/observable/const";
 
 
 export default class ModelDirective{
 
-  constructor( element ){
+  constructor( element, name, strings, modifiers ){
+    if( !isSingleBind( strings ) ){
+      throw new Error(':model 指令的传值只允许包含单个表达式 !');
+    }
+
     const tag = element.nodeName.toLowerCase();
     const type = element.type;
     let handler;
 
+    // 选择框
     if( tag === 'select' ){
-      handler = handlerSelect;
-    }else if( tag === 'input' && type === 'checkbox' ){
-      handler = handlerCheckbox;
-    }else if( tag === 'input' && type === 'radio' ){
-      handler = handlerRadio;
-    }else if( tag === 'input' || tag === 'textarea' ){
-      handler = handlerDefault;
+      // handler = handlerSelect;
+    }
+    // 复选框
+    else if( tag === 'input' && type === 'checkbox' ){
+      // handler = handlerCheckbox;
+    }
+    // 单选框
+    else if( tag === 'input' && type === 'radio' ){
+      // handler = handlerRadio;
+    }
+    // 普通文本框
+    else if( tag === 'input' || tag === 'textarea' ){
+      // handler = handlerDefault;
     }
 
     this.elem = element;
     this.handler = handler;
   }
 
-  setValue( options ){
-    if( !( isArray( options ) && options.length > 1 ) ){
-      throw new Error(':model 指令的参数出错, :model 指令不支持此种传参 !');
+  commit( options, isDirectiveFn ){
+    if( isDirectiveFn || !( isArray( options ) && options.length > 1 ) ){
+      throw new Error(':model 指令的参数出错, 不支持此种传参 !');
     }
 
-    pushTarget();
 
-    const optionsProxy = this.options || (
-      this.options = observe([])
-    );
-
-    optionsProxy.splice( 0, 2, ...options );
-
-    popTarget();
-
-    // 当前渲染元素
-    const rendering = renderStack[ renderStack.length - 1 ];
-    // 当前渲染元素使用的双向数据绑定信息
-    let modelParts = modelDirectiveCacheMap.get( rendering );
-
-    if( !modelParts ){
-      modelParts = [];
-      modelDirectiveCacheMap.set( rendering, modelParts );
-    }
-
-    modelParts.push( this );
-  }
-
-  commit(){
-    let init = this.init,
-        options,
-        set;
-
-    if( init && ( options = this.options ).length && ( set = this.set ) ){
-      pushTarget();
-      set( options[0][ options[1] ] );
-      popTarget();
-    }
-    if( init || !this.handler ) return;
-
-    this.init = true;
-    this.handler( this.elem, this.options );
   }
 
 }
 
-function watch( part, options, elem, prop ){
-  const set = part.set = isFunction( prop ) ? prop : ( value ) => elem[ prop ] = value;
 
-  apply( $watch, this, [
-    () => {
-      return options.length ? options[0][ options[1] ]
-                            : emptyObject;
-    },
-    function( value ){
-      value !== emptyObject && apply( set, this, arguments );
-    },
-    {
-      immediate: true
-    }
-  ]);
-}
 
-function handlerSelect( elem, options ){
-  // 监听绑定值改变
-  watch( this, options, elem, 'value' );
-  // 监听控件值改变
-  addEventListener( elem, 'change', event => {
-    if( options.length ){
-      const [ proxy, name ] = options;
-      const value = filter.call( elem.options, option => option.selected )
-                          .map( option => option.value );
 
-      proxy[ name ] = elem.multiple ? value : value[0];
-    }
-  });
-}
 
-function handlerCheckbox( elem, options ){
-  // 监听绑定值改变
-  watch( this, options, elem, 'checked' );
-  // 监听控件值改变
-  addEventListener( elem, 'change', event => {
-    if( options.length ){
-      const [ proxy, name ] = options;
-      proxy[ name ] = elem.checked;
-    }
-  });
-}
 
-function handlerRadio( elem, options ){
-  // 监听绑定值改变
-  watch( this, options, elem, value => {
-    elem.checked = value == ( getAttribute( elem, 'value' ) || null );
-  });
-  // 监听控件值改变
-  addEventListener( elem, 'change', event => {
-    if( options.length ){
-      const [ proxy, name ] = this.options;
-      proxy[ name ] = getAttribute( elem, 'value' ) || null;
-    }
-  });
-}
 
-function handlerDefault( elem, options ){
-  // 监听绑定值改变
-  watch( this, options, elem, 'value' );
-  // 监听控件值改变
-  addEventListener( elem, 'compositionstart', event => {
-    elem.composing = true;
-  });
-  addEventListener( elem, 'compositionend', event => {
-    if( !elem.composing ) return;
 
-    elem.composing = false;
-    triggerEvent( elem, 'input' );
-  });
-  addEventListener( elem, 'input', event => {
-    if( elem.composing || !options.length ) return;
 
-    const [ proxy, name ] = this.options;
-    proxy[ name ] = elem.value;
-  });
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { isArray } from "../../shared/global/Array/index";
+// import { filter } from "../../shared/global/Array/prototype";
+// import addEventListener from "../../shared/util/addEventListener";
+// import $watch from "../../core/prototype/$watch";
+// import { observe } from "../../static/observable/observe";
+// import getAttribute from "../../shared/util/getAttribute";
+// import isFunction from "../../shared/util/isFunction";
+// import triggerEvent from "../../shared/util/triggerEvent";
+// import { renderStack, modelDirectiveCacheMap } from "../../render/const/index";
+// import { apply } from "../../shared/global/Reflect/index";
+// import emptyObject from "../../shared/const/emptyObject";
+// import { popTarget, pushTarget } from "../../static/observable/const";
+
+
+// export default class ModelDirective{
+
+
+//   setValue( options ){
+//     if( !( isArray( options ) && options.length > 1 ) ){
+//       throw new Error(':model 指令的参数出错, :model 指令不支持此种传参 !');
+//     }
+
+//     pushTarget();
+
+//     const optionsProxy = this.options || (
+//       this.options = observe([])
+//     );
+
+//     optionsProxy.splice( 0, 2, ...options );
+
+//     popTarget();
+
+//     // 当前渲染元素
+//     const rendering = renderStack[ renderStack.length - 1 ];
+//     // 当前渲染元素使用的双向数据绑定信息
+//     let modelParts = modelDirectiveCacheMap.get( rendering );
+
+//     if( !modelParts ){
+//       modelParts = [];
+//       modelDirectiveCacheMap.set( rendering, modelParts );
+//     }
+
+//     modelParts.push( this );
+//   }
+
+//   commit(){
+//     let init = this.init,
+//         options,
+//         set;
+
+//     if( init && ( options = this.options ).length && ( set = this.set ) ){
+//       pushTarget();
+//       set( options[0][ options[1] ] );
+//       popTarget();
+//     }
+//     if( init || !this.handler ) return;
+
+//     this.init = true;
+//     this.handler( this.elem, this.options );
+//   }
+
+// }
+
+// function watch( part, options, elem, prop ){
+//   const set = part.set = isFunction( prop ) ? prop : ( value ) => elem[ prop ] = value;
+
+//   apply( $watch, this, [
+//     () => {
+//       return options.length ? options[0][ options[1] ]
+//                             : emptyObject;
+//     },
+//     function( value ){
+//       value !== emptyObject && apply( set, this, arguments );
+//     },
+//     {
+//       immediate: true
+//     }
+//   ]);
+// }
+
+// function handlerSelect( elem, options ){
+//   // 监听绑定值改变
+//   watch( this, options, elem, 'value' );
+//   // 监听控件值改变
+//   addEventListener( elem, 'change', event => {
+//     if( options.length ){
+//       const [ proxy, name ] = options;
+//       const value = filter.call( elem.options, option => option.selected )
+//                           .map( option => option.value );
+
+//       proxy[ name ] = elem.multiple ? value : value[0];
+//     }
+//   });
+// }
+
+// function handlerCheckbox( elem, options ){
+//   // 监听绑定值改变
+//   watch( this, options, elem, 'checked' );
+//   // 监听控件值改变
+//   addEventListener( elem, 'change', event => {
+//     if( options.length ){
+//       const [ proxy, name ] = options;
+//       proxy[ name ] = elem.checked;
+//     }
+//   });
+// }
+
+// function handlerRadio( elem, options ){
+//   // 监听绑定值改变
+//   watch( this, options, elem, value => {
+//     elem.checked = value == ( getAttribute( elem, 'value' ) || null );
+//   });
+//   // 监听控件值改变
+//   addEventListener( elem, 'change', event => {
+//     if( options.length ){
+//       const [ proxy, name ] = this.options;
+//       proxy[ name ] = getAttribute( elem, 'value' ) || null;
+//     }
+//   });
+// }
+
+// function handlerDefault( elem, options ){
+//   // 监听绑定值改变
+//   watch( this, options, elem, 'value' );
+//   // 监听控件值改变
+//   addEventListener( elem, 'compositionstart', event => {
+//     elem.composing = true;
+//   });
+//   addEventListener( elem, 'compositionend', event => {
+//     if( !elem.composing ) return;
+
+//     elem.composing = false;
+//     triggerEvent( elem, 'input' );
+//   });
+//   addEventListener( elem, 'input', event => {
+//     if( elem.composing || !options.length ) return;
+
+//     const [ proxy, name ] = this.options;
+//     proxy[ name ] = elem.value;
+//   });
+// }
