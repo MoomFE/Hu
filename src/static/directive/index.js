@@ -1,15 +1,15 @@
 import { userDirectives, directives } from "../../html/const/index";
 
 
-export default ( id, directiveClass ) => {
+export default ( name, directive ) => {
   
   // 获取已注册的指令
-  if( !directiveClass ){
-    return userDirectives[ id ] || directives[ id ];
+  if( !directive ){
+    return userDirectives[ name ] || directives[ name ];
   }
 
   // 注册指令
-  userDirectives[ id ] = directiveClass;
+  userDirectives[ name ] = directive;
 
 }
 
@@ -17,7 +17,7 @@ export default ( id, directiveClass ) => {
 /**
  * 指令范例
  */
-class directiveClass{
+class directive{
 
   /**
    * 指令初始化时调用
