@@ -222,6 +222,43 @@ interface Element {
 /* ------------------ Hu 静态对象定义 ------------------ */
 
 /**
+ * 指令类
+ */
+class DirectiveClass {
+
+  /**
+   * 指令初始化时调用
+   * @param element 指令所绑定的元素, 可以用来直接操作 DOM
+   * @param name 指令名, 不包括 `:` 前缀
+   * @param strings 有时同一个指令可能是允许使用多个插值绑定的, 该变量就包含了内容中除了插值绑定的部分
+   *  - 例如: `:name=${ 'Hu.js' }` 是单个插值绑定的写法, 此时 `string` 将会是 `[ '', '' ]`
+   *  - 例如: `:name="${ 'My' } name is ${ 'Hu' }.js"` 是多个插值绑定的写法, 此时 `string` 将会是 `[ '', ' name is ', '.js' ]`
+   * @param modifiers 一个包含修饰符的对象
+   *  - 例如: `:name` 中, 修饰符对象为: `{}`
+   *  - 例如: `:name.foo.bar` 中, 修饰符对象为: `{ foo: true, bar: true }`
+   */
+  constructor( element: Element, name: string, strings: string[], modifiers: {} ): void;
+
+  /**
+   * 指令被设置值时调用, 有以下情况
+   *  1. 正常传值调用
+   *  2. 传递指令方法的调用
+   *     - 传递指令方法时, 需要将当前指令类传递给指令方法, 然后退出当前方法,
+   *       指令方法会将用户的输入处理, 然后使用正常传值调用的方式再次调用当前方法
+   * @param value 用户传入值
+   * @param isDirectiveFn 用户传入值是否是指令方法
+   */
+  commit( value: any, isDirectiveFn: boolean ): void;
+
+  /**
+   * 当前指令被释放时调用
+   */
+  destroy(): void;
+
+}
+
+
+/**
  * Hu 静态对象
  */
 interface Hu{
@@ -267,6 +304,20 @@ interface Hu{
    * @param options.eventContext
    */
   render( result: TemplateResult, container: Element | DocumentFragment, options?: { templateFactory?: TemplateFactory, eventContext?: EventTarget }): void;
+
+  /**
+   * 注册全局指令
+   * @param name 指令名称
+   * @param directive 指令类
+   */
+  directive( name: string, directive: DirectiveClass ): void;
+
+  /**
+   * 获取已注册的全局指令
+   * @param name 指令名称
+   * @param directive 指令类
+   */
+  directive( name: string ): DirectiveClass | undefined;
 
   /**
    * 字符串形式的 Hu 安装版本号
