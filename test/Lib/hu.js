@@ -1193,7 +1193,6 @@
       }
 
       this.elem = element;
-      this.name = name;
     }
 
     commit( value, isDirectiveFn ){
@@ -1292,17 +1291,33 @@
   const styleMap = new WeakMap();
 
 
-  class StyleDirective extends ClassDirective{
+  class StyleDirective{
 
-    commit(){
-      const { value: styles, elem: { style } } = this;
+    constructor( element, name, strings, modifiers ){
+      if( !isSingleBind( strings ) ){
+        throw new Error(':style 指令的传值只允许包含单个表达式 !');
+      }
+
+      this.elem = element;
+    }
+
+    commit( value, isDirectiveFn ){
+      // 用户传递的是指令方法
+      // 交给指令方法处理
+      if( isDirectiveFn ) return value( this );
+
+      /** 转为对象形式的 styles */
+      const styles = this.parse( value );
+      /** 当前元素的 style 对象 */
+      const style = this.elem.style;
+      /** 上次设置的 styles */
       const oldStyles = styleMap.get( this );
 
       // 移除旧 style
+      //  - 如果没有上次设置的 styles, each 方法内回调是不会被执行的
       each( oldStyles, ( name, value ) => {
         has( styles, name ) || style.removeProperty( name );
       });
-
       // 添加 style
       each( styles, ( name, value ) => {
         style.setProperty( name, value );
@@ -1315,18 +1330,18 @@
     /**
      * 格式化用户传入的 style 内容
      */
-    parse( styles, value ){
+    parse( value, styles = {} ){
+
+      // 处理不同类型的 styles 内容
       switch( typeof value ){
-        case 'string': {
-          return this.parse(
-            styles,
-            parseStyleText( value )
-          );
-        }
+        case 'string': return this.parse(
+          parseStyleText( value ),
+          styles
+        );
         case 'object': {
-          if( isArray( value ) ){
+          if( isArray( value  ) ){
             value.forEach( value => {
-              return this.parse( styles, value );
+              return this.parse( value, styles );
             });
           }else{
             each( value, ( name, value ) => {
@@ -1335,6 +1350,8 @@
           }
         }
       }
+
+      return styles;
     }
 
   }
