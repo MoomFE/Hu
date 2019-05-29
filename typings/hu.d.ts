@@ -26,6 +26,7 @@ interface $hu {
   /**
    * Hu 实例方法对象
    * - 包含了声明实例时的 methods 属性上定义的所有方法
+   * - 非响应式对象
    */
   readonly $methods: Record< KEYTYPE, any >;
   /**
@@ -82,6 +83,7 @@ interface $hu {
   };
   /**
    * 一个持有注册过 ref 引用特性的所有 DOM 元素的对象
+   * - 非响应式对象
    */
   readonly $refs: {
     [ key: string ]: Element | Element[]
@@ -482,7 +484,8 @@ interface ComponentOptions{
 
   /**
    * 定义一系列的方法以在 Hu 实例中使用
-   *  - 和 methods 选项不同的是, 由自定义元素创建的实例会将方法混入到自定义元素本身, 可以直接调用
+   *  - 和 methods 选项不同的是, 由自定义元素创建的实例会将方法的映射添加到自定义元素本身, 可以直接调用
+   *  - 和 methods 选项不同的是, 选项内的方法会添加映射而不是副本到实例本身中
    */
   globalMethods?: {
     [ key: string ]: ( this: $hu, ...args: any[] ) => any;
