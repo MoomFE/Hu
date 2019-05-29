@@ -19,7 +19,6 @@ export default class ClassDirective{
     }
 
     this.elem = element;
-    this.name = name;
   }
 
   commit( value, isDirectiveFn ){
