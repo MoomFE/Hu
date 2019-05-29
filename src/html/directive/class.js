@@ -1,4 +1,4 @@
-import isDirectiveFn from "../util/isDirectiveFn";
+import isSingleBind from "../util/isSingleBind";
 import rWhitespace from "../../shared/const/rWhitespace";
 import { isArray } from "../../shared/global/Array/index";
 import each from "../../shared/util/each";
@@ -13,20 +13,24 @@ const classesMap = new WeakMap();
 
 export default class ClassDirective{
 
-  constructor( element ){
-    this.elem = element;
-  }
-
-  setValue( value ){
-    if( isDirectiveFn( value ) ){
-      return value( this, true );
+  constructor( element, name, strings, modifiers ){
+    if( !isSingleBind( strings ) ){
+      throw new Error(':class 指令的传值只允许包含单个表达式 !');
     }
 
-    this.parse( this.value = {}, value );
+    this.elem = element;
+    this.name = name;
   }
 
-  commit(){
-    const { value: classes, elem: { classList } } = this;
+  commit( value, isDirectiveFn ){
+    // 用户传递的是指令方法
+    // 交给指令方法处理
+    if( isDirectiveFn ) return value( this );
+
+    /** 转为对象形式的 class */
+    const classes = this.parse( value );
+    /** 当前元素的 classList 对象 */
+    const classList = this.elem.classList;
 
     // 非首次运行
     if( classesMap.has( this ) ){
@@ -45,7 +49,7 @@ export default class ClassDirective{
     else{
       each( classes, name => {
         return classList.add( name );
-      })
+      });
     }
 
     // 保存最新的 classes
@@ -55,7 +59,9 @@ export default class ClassDirective{
   /**
    * 格式化用户传入的 class 内容
    */
-  parse( classes, value ){
+  parse( value, classes = {} ){
+  
+    // 处理不同类型的 class 内容
     switch( typeof value ){
       case 'string': {
         value.split( rWhitespace ).forEach( name => {
@@ -66,16 +72,18 @@ export default class ClassDirective{
       case 'object': {
         if( isArray( value ) ){
           value.forEach( name => {
-            return this.parse( classes, name );
+            return this.parse( name, classes );
           });
         }else{
           each( value, ( name, truthy ) => {
-            return truthy ? this.parse( classes, name )
+            return truthy ? this.parse( name, classes )
                           : delete classes[ name ];
           });
         }
-      }
+      };
     }
+
+    return classes;
   }
 
 }
