@@ -1669,7 +1669,7 @@
       // 交给指令方法处理
       if( isDirectiveFn ) return value( this );
       // 两次传入的值不同
-      if( isNotEqual( value, this.value ) ){
+      if( !has( this, 'value' ) || isNotEqual( value, this.value ) ){
         this.elem.textContent = toString$1( this.value = value );
       }
     }
@@ -1691,7 +1691,7 @@
       // 交给指令方法处理
       if( isDirectiveFn ) return value( this );
       // 两次传入的值不同
-      if( isNotEqual( value, this.value ) ){
+      if( !has( this, 'value' ) || isNotEqual( value, this.value ) ){
         this.elem.innerHTML = toString$1( this.value = value );
       }
     }

@@ -1,6 +1,7 @@
 import isSingleBind from "../util/isSingleBind";
 import isNotEqual from "../../shared/util/isNotEqual";
 import toString from "../../shared/util/toString";
+import { has } from "../../shared/global/Reflect/index";
 
 
 export default class HtmlDirective{
@@ -18,7 +19,7 @@ export default class HtmlDirective{
     // 交给指令方法处理
     if( isDirectiveFn ) return value( this );
     // 两次传入的值不同
-    if( isNotEqual( value, this.value ) ){
+    if( !has( this, 'value' ) || isNotEqual( value, this.value ) ){
       this.elem.innerHTML = toString( this.value = value );
     }
   }
