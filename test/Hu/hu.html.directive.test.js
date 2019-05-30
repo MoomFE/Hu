@@ -1410,6 +1410,66 @@ describe( 'Hu.html.directive', () => {
     );
   });
 
+  it( '使用 :text 指令插入 null 或 undefined 将会转为空字符串', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`<div :text=${ null }></div>`;
+    expect( div.innerHTML ).is.equals(`<!----><div></div><!---->`);
+
+    Hu.render( div )`<div :text=${ undefined }></div>`;
+    expect( div.innerHTML ).is.equals(`<!----><div></div><!---->`);
+  });
+
+  it( '使用 :text 指令插入 JSON 将会使用 JSON.stringify 进行格式化输出', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div :text=${{ }}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{}</div>
+    `);
+
+    Hu.render( div )`
+      <div :text=${{ asd: 123 }}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": 123\n}</div>
+    `);
+
+    Hu.render( div )`
+      <div :text=${{ asd: [ 123 ] }}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": [\n    123\n  ]\n}</div>
+    `);
+  });
+
+  it( '使用 :text 指令插入数组将会使用 JSON.stringify 进行格式化输出', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div :text=${[ ]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[]</div>
+    `);
+
+    Hu.render( div )`
+      <div :text=${[ 1, 2, 3 ]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  2,\n  3\n]</div>
+    `);
+
+    Hu.render( div )`
+      <div :text=${[ 1, { asd: 123 }, 3 ]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  {\n    "asd": 123\n  },\n  3\n]</div>
+    `);
+  });
+
 
   it( '使用 :html 指令的方式, 对元素内容进行插入 ( innerHTML )', () => {
     const div = document.createElement('div');
