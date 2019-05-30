@@ -2515,7 +2515,9 @@
     }
 
     destroy(){
-      
+      for( let part of this.parts ){
+        part.destroy && part.destroy();
+      }
     }
 
   }
@@ -2657,6 +2659,13 @@
       }
     }
 
+    destroy(){
+      const instance = this.instance;
+
+      // 注销之前的模板
+      if( instance ) instance.destroy();
+    }
+
     /**
      * 添加当前节点到父节点中
      * @param {NodePart} part 
@@ -2750,10 +2759,13 @@
     if( instance instanceof TemplateInstance && instance.template === template ){
       instance.update( value.values );
     }else{
-      const instance = nodePart.instance = new TemplateInstance( template );
-      const fragment = instance.init();
+      // 注销之前的模板
+      if( instance ) instance.destroy();
 
-      instance.update( value.values );
+      const newInstance = nodePart.instance = new TemplateInstance( template );
+      const fragment = newInstance.init();
+
+      newInstance.update( value.values );
       commitNode( nodePart, fragment );
     }
   }
@@ -2792,7 +2804,11 @@
     }
 
     if( partIndex < parts.length ){
-      parts.length = partIndex;
+      // 弃用无用组件
+      while( partIndex < parts.length ){
+        const part = parts.splice( partIndex, 1 )[0];
+        part.destroy && part.destroy();
+      }
       nodePart.clear( part && part.endNode );
     }
 
@@ -2964,8 +2980,7 @@
 
 
   function updatePart( part, value ){
-    part.setValue( value );
-    part.commit();
+    part.commit( value );
     return part;
   }
 
@@ -2973,7 +2988,7 @@
     const container = containerPart.startNode.parentNode;
     const beforeNode = ref ? ref.startNode : containerPart.endNode;
     const endNode = part.endNode.nextSibling;
-    
+
     if( endNode !== beforeNode ){
       moveChildNodes( container, part.startNode, endNode, beforeNode );
     }

@@ -106,7 +106,9 @@ export default class TemplateInstance{
   }
 
   destroy(){
-    
+    for( const part of this.parts ){
+      part.destroy && part.destroy();
+    }
   }
 
 }
