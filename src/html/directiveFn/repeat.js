@@ -131,8 +131,7 @@ export default directive(( items, key, template ) => {
 
 
 function updatePart( part, value ){
-  part.setValue( value );
-  part.commit();
+  part.commit( value );
   return part;
 }
 
@@ -140,7 +139,7 @@ function insertPartBefore( containerPart, part, ref ){
   const container = containerPart.startNode.parentNode;
   const beforeNode = ref ? ref.startNode : containerPart.endNode;
   const endNode = part.endNode.nextSibling;
-  
+
   if( endNode !== beforeNode ){
     moveChildNodes( container, part.startNode, endNode, beforeNode );
   }
