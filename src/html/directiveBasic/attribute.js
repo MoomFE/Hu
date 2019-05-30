@@ -1,6 +1,7 @@
 import isNotEqual from "../../shared/util/isNotEqual";
 import isIterable from "../../shared/util/isIterable";
 import isString from "../../shared/util/isString";
+import toString from "../../shared/util/toString";
 
 
 export default class AttributeCommitter{
@@ -24,12 +25,12 @@ export default class AttributeCommitter{
 
       if( value != null && isIterable( value ) && !isString( value ) ){
         for( const item of value ){
-          result += isString( item ) ? item : String( item );
+          result += toString( item );
         }
         continue;
       }
 
-      result += isString( value ) ? value : String( value );
+      result += toString( value );
     }
 
     return result + strings[ length ];

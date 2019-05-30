@@ -1,13 +1,13 @@
 import isNotEqual from "../../shared/util/isNotEqual";
 import isPrimitive from "../../shared/util/isPrimitive";
 import isIterable from "../../shared/util/isIterable";
-import isString from "../../shared/util/isString";
 import removeNodes from "../../shared/util/removeNodes";
 import { isArray } from "../../shared/global/Array/index";
 import createMarker from "../util/createMarker";
 import templateFactory from "./templateFactory";
 import TemplateInstance from "./templateInstance";
 import TemplateResult from "./templateResult";
+import toString from "../../shared/util/toString";
 
 
 export default class NodePart{
@@ -102,10 +102,8 @@ export default class NodePart{
  * @param {any} value 
  */
 function commitText( nodePart, value ){
-  if( value == null ) value = '';
-
   const node = nodePart.startNode.nextSibling;
-  const valueAsString = isString( value ) ? value : String( value );
+  const valueAsString = toString( value );
 
   if( node === nodePart.endNode.previousSibling && node.nodeType === 3 ){
     node.data = valueAsString;

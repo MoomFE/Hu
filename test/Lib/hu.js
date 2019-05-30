@@ -82,14 +82,15 @@
   value => typeof value === 'function';
 
   const {
-    hasOwnProperty
+    hasOwnProperty,
+    toString
   } = prototype;
 
   var isPlainObject = /**
    * 判断传入对象是否是纯粹的对象
    * @param {any} value 需要判断的对象
    */
-  value => Object.prototype.toString.call( value ) === '[object Object]';
+  value => toString.call( value ) === '[object Object]';
 
   const {
     isArray,
@@ -2046,6 +2047,28 @@
     return template;
   };
 
+  var toString$1 = /**
+   * 将值转为字符串形式
+   * @param {any} value
+   */
+  value => {
+    // null -> ''
+    // undefined -> ''
+    if( value == null ) return '';
+    // '' -> ''
+    if( isString( value ) ) return value;
+    // [] -> '[]'
+    // {} -> '{}'
+    if( isArray( value ) || ( isPlainObject( value ) && value.toString === toString ) ){
+      return JSON.stringify( value, null, 2 );
+    }
+    // true -> 'true'
+    // false -> 'false'
+    // 123 -> '123'
+    // ...
+    return String( value );
+  };
+
   class AttributeCommitter{
 
     constructor( element, name, strings, modifiers ){
@@ -2067,12 +2090,12 @@
 
         if( value != null && isIterable( value ) && !isString( value ) ){
           for( let item of value ){
-            result += isString( item ) ? item : String( item );
+            result += toString$1( item );
           }
           continue;
         }
 
-        result += isString( value ) ? value : String( value );
+        result += toString$1( value );
       }
 
       return result + strings[ length ];
@@ -2723,10 +2746,8 @@
    * @param {any} value 
    */
   function commitText( nodePart, value ){
-    if( value == null ) value = '';
-
     const node = nodePart.startNode.nextSibling;
-    const valueAsString = isString( value ) ? value : String( value );
+    const valueAsString = toString$1( value );
 
     if( node === nodePart.endNode.previousSibling && node.nodeType === 3 ){
       node.data = valueAsString;

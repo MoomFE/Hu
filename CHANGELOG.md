@@ -1,4 +1,6 @@
   - 🐞 修复使用某些不存在的指令时会报错的问题
+  - 💄 在插值绑定内传入 null 和 undefined 不再渲染为字符串的 'null' 和 'undefined', 而是渲染为空字符串
+  - 💄 在插值绑定内传入 JSON 时, 不再渲染为 '[object Object]', 而是使用 JSON.stringify 处理后的字符串
 
 # 1.0.0-bata.11
   - 📅 2019-5-23
