@@ -462,4 +462,60 @@ describe( 'Hu.html', () => {
     `);
   });
 
+  it( '在插值绑定中使用 null 和 undefined 将会渲染为空字符串', () => {
+    Hu.render( div )`${ null }`
+    expect( div.innerHTML ).is.equals(`<!----><!----><!----><!---->`);
+
+    Hu.render( div )`${ undefined }`
+    expect( div.innerHTML ).is.equals(`<!----><!----><!----><!---->`);
+
+    Hu.render( div )`
+      <div class=${ null }></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div class=""></div>
+    `);
+
+    Hu.render( div )`
+      <div class=${ undefined }></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div class=""></div>
+    `);
+  });
+
+  it( '在插值绑定中使用 JSON 将会使用 JSON.stringify 进行格式化输出', () => {
+    Hu.render( div )`${
+      {}
+    }`
+    expect( div.innerHTML ).is.equals(`<!----><!---->{}<!----><!---->`);
+
+    Hu.render( div )`${
+      { asd: 123 }
+    }`
+    expect( div.innerHTML ).is.equals(`<!----><!---->{\n  "asd": 123\n}<!----><!---->`);
+
+    Hu.render( div )`${
+      { asd: [ 123 ] }
+    }`
+    expect( div.innerHTML ).is.equals(`<!----><!---->{\n  "asd": [\n    123\n  ]\n}<!----><!---->`);
+  });
+
+  // it( '在插值绑定中使用数组将会使用 JSON.stringify 进行格式化输出', () => {
+  //   Hu.render( div )`${
+  //     []
+  //   }`
+  //   expect( div.innerHTML ).is.equals(`<!----><!---->[]<!----><!---->`);
+
+  //   Hu.render( div )`${
+  //     [ 123 ]
+  //   }`
+  //   expect( div.innerHTML ).is.equals(`<!----><!---->[\n  123\n]<!----><!---->`);
+
+  //   Hu.render( div )`${
+  //     { asd: [ 123 ] }
+  //   }`
+  //   expect( div.innerHTML ).is.equals(`<!----><!---->{\n  "asd": [\n    123\n  ]\n}<!----><!---->`);
+  // });
+
 });
