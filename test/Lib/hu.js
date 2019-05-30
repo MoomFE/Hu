@@ -2403,8 +2403,14 @@
         case '?': directive = BasicBooleanDirective; sliceNum = 1; break;
         // 功能指令
         case ':': {
-          [ name, ...modifierKeys ] = name.slice(1).split('.');
-          directive = userDirectives[ name ] || directives[ name ];
+          const [ attr, ...keys ] = name.slice(1).split('.');
+          
+          // 指令存在则使用截取出的名称及修饰符
+          // 指令不存在则不做任何更改视为普通属性
+          if( directive = userDirectives[ attr ] || directives[ attr ] ){
+            name = attr;
+            modifierKeys = keys;
+          }
         }
       }
 
