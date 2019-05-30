@@ -2,5 +2,6 @@ import { prototype } from "./index";
 
 
 export const {
-  hasOwnProperty
+  hasOwnProperty,
+  toString
 } = prototype;
