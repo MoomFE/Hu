@@ -1632,6 +1632,28 @@
   //   });
   // }
 
+  var toString$1 = /**
+   * 将值转为字符串形式
+   * @param {any} value
+   */
+  value => {
+    // null -> ''
+    // undefined -> ''
+    if( value == null ) return '';
+    // '' -> ''
+    if( isString( value ) ) return value;
+    // [] -> '[]'
+    // {} -> '{}'
+    if( isArray( value ) || ( isPlainObject( value ) && value.toString === toString ) ){
+      return JSON.stringify( value, null, 2 );
+    }
+    // true -> 'true'
+    // false -> 'false'
+    // 123 -> '123'
+    // ...
+    return String( value );
+  };
+
   class TextDirective{
 
     constructor( element, name, strings, modifiers ){
@@ -1648,7 +1670,7 @@
       if( isDirectiveFn ) return value( this );
       // 两次传入的值不同
       if( isNotEqual( value, this.value ) ){
-        this.elem.textContent = this.value = value;
+        this.elem.textContent = toString$1( this.value = value );
       }
     }
 
@@ -2045,28 +2067,6 @@
 
     // 返回对应模板
     return template;
-  };
-
-  var toString$1 = /**
-   * 将值转为字符串形式
-   * @param {any} value
-   */
-  value => {
-    // null -> ''
-    // undefined -> ''
-    if( value == null ) return '';
-    // '' -> ''
-    if( isString( value ) ) return value;
-    // [] -> '[]'
-    // {} -> '{}'
-    if( isArray( value ) || ( isPlainObject( value ) && value.toString === toString ) ){
-      return JSON.stringify( value, null, 2 );
-    }
-    // true -> 'true'
-    // false -> 'false'
-    // 123 -> '123'
-    // ...
-    return String( value );
   };
 
   class AttributeCommitter{

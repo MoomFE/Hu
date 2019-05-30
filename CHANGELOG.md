@@ -1,6 +1,7 @@
   - 🐞 修复使用某些不存在的指令时会报错的问题
-  - 💄 在插值绑定内传入 null 和 undefined 不再渲染为字符串的 'null' 和 'undefined', 而是渲染为空字符串
-  - 💄 在插值绑定内传入 JSON 时, 不再渲染为 '[object Object]', 而是使用 JSON.stringify 处理后的字符串
+  - 💄 文本节点使用插值绑定时传入 null 或 undefined 将会输出空字符串, 而不是 'null' 或 'undefined'
+  - 💄 文本节点使用插值绑定时传入 JSON 时将会输出使用 JSON.stringify 处理后的字符串, 而不是 '[object Object]'
+  - 💄 使用 :text 指令时传入 JSON 或数组时将会输出使用 JSON.stringify 处理后的字符串, 而不是 '[object Object]'
 
 # 1.0.0-bata.11
   - 📅 2019-5-23

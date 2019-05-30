@@ -1,5 +1,6 @@
 import isSingleBind from "../util/isSingleBind";
 import isNotEqual from "../../shared/util/isNotEqual";
+import toString from "../../shared/util/toString";
 
 
 export default class TextDirective{
@@ -18,7 +19,7 @@ export default class TextDirective{
     if( isDirectiveFn ) return value( this );
     // 两次传入的值不同
     if( isNotEqual( value, this.value ) ){
-      this.elem.textContent = this.value = value;
+      this.elem.textContent = toString( this.value = value );
     }
   }
 
