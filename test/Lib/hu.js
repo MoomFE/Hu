@@ -1692,7 +1692,7 @@
       if( isDirectiveFn ) return value( this );
       // 两次传入的值不同
       if( isNotEqual( value, this.value ) ){
-        this.elem.innerHTML = this.value = value;
+        this.elem.innerHTML = toString$1( this.value = value );
       }
     }
 

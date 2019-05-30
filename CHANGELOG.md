@@ -2,6 +2,8 @@
   - 💄 文本节点使用插值绑定时传入 null 或 undefined 将会输出空字符串, 而不是 'null' 或 'undefined'
   - 💄 文本节点使用插值绑定时传入 JSON 时将会输出使用 JSON.stringify 处理后的字符串, 而不是 '[object Object]'
   - 💄 使用 :text 指令时传入 JSON 或数组时将会输出使用 JSON.stringify 处理后的字符串, 而不是 '[object Object]'
+  - 💄 使用 :html 指令时传入 null 或 undefined 将会输出空字符串, 而不是 'null' 或 'undefined'
+  - 💄 使用 :html 指令时传入 JSON 或数组时将会输出使用 JSON.stringify 处理后的字符串, 而不是 '[object Object]'
 
 # 1.0.0-bata.11
   - 📅 2019-5-23
