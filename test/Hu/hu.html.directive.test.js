@@ -1470,6 +1470,17 @@ describe( 'Hu.html.directive', () => {
     `);
   });
 
+  it( '使用 :text 指令时, 首次传入的是 undefined, 元素的内容应该被清空', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div :text=${ undefined }>123</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+  });
+
 
   it( '使用 :html 指令的方式, 对元素内容进行插入 ( innerHTML )', () => {
     const div = document.createElement('div');
@@ -1544,6 +1555,17 @@ describe( 'Hu.html.directive', () => {
     `);
   });
 
+  it( '使用 :html 指令时, 首次传入的是 undefined, 元素的内容应该被清空', () => {
+    const div = document.createElement('div');
+
+    Hu.render( div )`
+      <div :html=${ undefined }>123</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+  });
+
 
   it( '使用 :show 指令对元素进行显示和隐藏', () => {
     const div = document.createElement('div');
@@ -1564,7 +1586,7 @@ describe( 'Hu.html.directive', () => {
     expect( div.firstElementChild.style.display ).is.equals('none');
   });
 
-  it( '使用 :show 指令对元素进行显示和隐藏, 即使首次传入的是 undefined, 元素的状态也应该是隐藏的', () => {
+  it( '使用 :show 指时, 首次传入的是 undefined, 元素的状态应该是隐藏的', () => {
     const div = document.createElement('div');
 
     Hu.render( div )`
