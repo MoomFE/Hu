@@ -2660,6 +2660,9 @@
 
   }
 
+  /**
+   * 文本区域的插值绑定节点管理对象
+   */
   class NodePart{
 
     commit( value, isDirectiveFn ){
@@ -2670,33 +2673,70 @@
       if( isDirectiveFn ) return value( this );
 
       // 两次传入的值不同
+      // 更新节点内容
       if( isNotEqual( value, oldValue = this.value ) ){
-        // 存储当前值
-        this.value = value;
-        // 更新节点内容
+        // 传入的是原始类型
         if( isPrimitive( value ) ){
           commitText( this, value );
-        }else if( value instanceof TemplateResult ){
+        }
+        // 传入的是新的模板
+        else if( value instanceof TemplateResult ){
+          // console.log( value.strings, value.values )
           commitTemplateResult( this, value );
-        }else if( value instanceof Node ){
+        }
+        // 传入的是元素节点
+        else if( value instanceof Node ){
           commitNode( this, value );
-        }else if( isIterable( value ) ){
+          // 存储新值
+          this.value = value;
+        }
+        // 传入的是类数组对象
+        else if( isIterable( value ) ){
           commitIterable( this, value, oldValue );
-        }else{
+        }
+        // 其它类型
+        else{
           commitText( this, value );
         }
       }
     }
 
+    /** 清空当前插值绑定内的所有内容 */
     destroy(){
-      const instance = this.instance;
+      this.clear();
+    }
+    /**
+     * 清空当前插值绑定内的所有内容
+     * @param {Node} startNode 
+     */
+    clear( ...args ){
+      const hasStartNode = args.length > 0;
+      const startNode = hasStartNode ? args[0] : this.startNode;
 
-      // 注销之前的模板
-      if( instance ) instance.destroy();
+      // 若未指定起始位置, 那么需要清除 parts 指令片段
+      // 若制定了起始位置, 那么 parts 的回收必须手动完成
+      if( !hasStartNode ){
+        const { instance, value } = this;
+
+        // 注销模板片段对象 ( 如果有 )
+        if( instance ){
+          instance.destroy();
+          this.instance = void 0;
+        }
+        // 注销数组类型的写入值
+        else if( isArray( value ) ){
+          for( let part of value ){
+            part.destroy && part.destroy();
+          }
+        }
+      }
+
+      // 清除节点
+      removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
     }
 
     /**
-     * 添加当前节点到父节点中
+     * 将当前插值绑定节点添加开始结尾标记并且将开始结尾标记添加到父节点
      * @param {NodePart} part 
      */
     appendIntoPart( part ){
@@ -2704,7 +2744,7 @@
       part.insert( this.endNode = createMarker() );
     }
     /**
-     * 添加当前节点到指定节点后
+     * 将当前插值绑定节点添加到另一个插值绑定节点后
      * @param {NodePart} part 
      */
     insertAfterPart( part ){
@@ -2713,7 +2753,7 @@
       part.endNode = this.startNode;
     }
     /**
-     * 将当前节点到指定 DOM 节点中
+     * 将当前插值绑定节点添加到指定节点中
      * @param {Element} container 
      */
     appendInto( container ){
@@ -2721,7 +2761,7 @@
       this.endNode = container.appendChild( createMarker() );
     }
     /**
-     * 添加当前节点到指定节点后
+     * 将当前插值绑定节点添加到指定节点后
      * @param {NodePart} part 
      */
     insertAfterNode( part ){
@@ -2729,25 +2769,18 @@
       this.endNode = part.nextSibling;
     }
     /**
-     * 插入 DOM 节点到当前节点中
+     * 插入节点到当前插值绑定节点末尾
      * @param {Node} node 
      */
     insert( node ){
       const endNode = this.endNode;
       endNode.parentNode.insertBefore( node, endNode );
     }
-    /**
-     * 清空当前节点的所有内容
-     * @param {Node} startNode 
-     */
-    clear( startNode = this.startNode ){
-      removeNodes( this.startNode.parentNode, startNode.nextSibling, this.endNode );
-    }
 
   }
 
-
   /**
+   * 向插值绑定的位置插入文本节点
    * @param {NodePart} nodePart 
    * @param {any} value 
    */
@@ -2755,26 +2788,38 @@
     const node = nodePart.startNode.nextSibling;
     const valueAsString = toString$1( value );
 
+    // 如果当前插值绑定内仅有一个节点并且是文本节点
+    // 那么直接写入值到文本节点中
     if( node === nodePart.endNode.previousSibling && node.nodeType === 3 ){
       node.data = valueAsString;
-    }else{
+    }
+    // 否则需要将原插值绑定内的所有东西进行清除
+    // 插入创建的文本节点
+    else{
       commitNode(
         nodePart,
         document.createTextNode( valueAsString )
       );
     }
+
+    // 存储新值
+    nodePart.value = value;
   }
 
   /**
+   * 向插值绑定的位置插入元素节点
    * @param {NodePart} nodePart 
    * @param {any} value 
    */
   function commitNode( nodePart, value ){
+    // 清除原插值绑定中的内容
     nodePart.clear();
+    // 插入元素节点到插值绑定中
     nodePart.insert( value );
   }
 
   /**
+   * 向插值绑定的位置插入模板片段对象
    * @param {NodePart} nodePart 
    * @param {any} value 
    */
@@ -2782,27 +2827,37 @@
     const template = templateFactory( value );
     const instance = nodePart.instance;
 
-    // 可以复用之前的模板
+    // 新模板和旧模板一致, 可以复用之前的模板
     if( instance instanceof TemplateInstance && instance.template === template ){
       instance.update( value.values );
-    }else{
-      // 注销之前的模板
-      if( instance ) instance.destroy();
+    }
+    // 新模板和旧模板不一致
+    else{
+      // 删除插值绑定之前的内容
+      nodePart.clear();
 
+      // 创建新的模板实例
       const newInstance = nodePart.instance = new TemplateInstance( template );
+      // 初始化元素节点
       const fragment = newInstance.init();
 
+      // 给模板片段写入值
       newInstance.update( value.values );
-      commitNode( nodePart, fragment );
+      // 插入元素节点到插值绑定中
+      nodePart.insert( fragment );
+      // 存储新值
+      nodePart.value = value;
     }
   }
 
   /**
+   * 向插值绑定的位置插入数组对象
    * @param {NodePart} nodePart 
    * @param {any} value 
    * @param {any} oldValue 
    */
   function commitIterable( nodePart, value, oldValue ){
+    // 旧值不是数组类型, 需要清除原插值绑定中的内容
     if( !isArray( oldValue ) ){
       oldValue = [];
       nodePart.clear();
@@ -2812,13 +2867,20 @@
     let partIndex = 0;
     let part;
 
+    // 遍历数组内容
+    // 数组的每个元素都使用一个新的 NodePart 管理起来
     for( let item of value ){
+      // 获取到旧的 NodePart
       part = parts[ partIndex ];
 
+      // 旧的当前元素位置没有创建 NodePart
       if( part === void 0 ){
-        part = new NodePart();
-        parts.push( part );
+        // 创建新的 NodePart 管理当前元素
+        parts.push(
+          part = new NodePart()
+        );
 
+        // 将新创建的 NodePart 添加到父级去
         if( partIndex === 0 ){
           part.appendIntoPart( nodePart );
         }else{
@@ -2826,16 +2888,19 @@
         }
       }
 
+      // 给 NodePart 设置值
       part.commit( item );
       partIndex++;
     }
 
+    // 如果旧数组的的组件数量大于当前数组的组件数量
     if( partIndex < parts.length ){
-      // 弃用无用组件
+      // 弃用旧数组多余出来的部分
       while( partIndex < parts.length ){
         const part = parts.splice( partIndex, 1 )[0];
         part.destroy && part.destroy();
       }
+      // 弃用无用节点
       nodePart.clear( part && part.endNode );
     }
 
