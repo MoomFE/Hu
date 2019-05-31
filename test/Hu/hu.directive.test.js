@@ -281,4 +281,232 @@ describe( 'Hu.directive', () => {
     expect( destroyIndex ).is.equals( 8 );
   });
 
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 模板切换为原始对象 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`
+      <div>
+        ${ Hu.html`<div :asd=${ null }></div>` }
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`
+      <div>
+        ${ 123 }
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 1 );
+  });
+
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 模板切换为数组对象 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`
+      <div>
+        ${ Hu.html`<div :asd=${ null }></div>` }
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`
+      <div>
+        ${[ ]}
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 1 );
+  });
+
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 模板切换为 JSON 对象 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`
+      <div>
+        ${ Hu.html`<div :asd=${ null }></div>` }
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`
+      <div>
+        ${{ }}
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 1 );
+  });
+
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 模板切换为元素节点 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`
+      <div>
+        ${ Hu.html`<div :asd=${ null }></div>` }
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`
+      <div>
+        ${ document.createElement('div') }
+      </div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 1 );
+  });
+
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 数组切换为原始对象 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`${
+      [ 1, 2, 3 ].map(( num, index ) => {
+        return Hu.html`<div :asd=${ null }></div>`;
+      })
+    }`;
+    expect( constructorIndex ).is.equals( 3 );
+    expect( commitIndex ).is.equals( 3 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`${ 123 }`;
+    expect( constructorIndex ).is.equals( 3 );
+    expect( commitIndex ).is.equals( 3 );
+    expect( destroyIndex ).is.equals( 3 );
+  });
+
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 数组切换为 JSON 对象 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`${
+      [ 1, 2, 3 ].map(( num, index ) => {
+        return Hu.html`<div :asd=${ null }></div>`;
+      })
+    }`;
+    expect( constructorIndex ).is.equals( 3 );
+    expect( commitIndex ).is.equals( 3 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`${{ }}`;
+    expect( constructorIndex ).is.equals( 3 );
+    expect( commitIndex ).is.equals( 3 );
+    expect( destroyIndex ).is.equals( 3 );
+  });
+
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 数组切换为元素节点 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`${
+      [ 1, 2, 3 ].map(( num, index ) => {
+        return Hu.html`<div :asd=${ null }></div>`;
+      })
+    }`;
+    expect( constructorIndex ).is.equals( 3 );
+    expect( commitIndex ).is.equals( 3 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`${
+      document.createElement('div')
+    }`;
+    expect( constructorIndex ).is.equals( 3 );
+    expect( commitIndex ).is.equals( 3 );
+    expect( destroyIndex ).is.equals( 3 );
+  });
+
+  it( '注册的指令在被弃用时会触发 destroy 方法 ( 数组切换为模板 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+
+    Hu.directive( 'asd', class {
+      constructor(){ constructorIndex++ }
+      commit(){ commitIndex++ }
+      destroy(){ destroyIndex++ }
+    });
+
+    Hu.render( div )`${
+      [ 1, 2, 3 ].map(( num, index ) => {
+        return Hu.html`<div :asd=${ null }></div>`;
+      })
+    }`;
+    expect( constructorIndex ).is.equals( 3 );
+    expect( commitIndex ).is.equals( 3 );
+    expect( destroyIndex ).is.equals( 0 );
+
+    Hu.render( div )`${
+      Hu.html`<div :asd=${ null }></div>`
+    }`;
+    expect( constructorIndex ).is.equals( 4 );
+    expect( commitIndex ).is.equals( 4 );
+    expect( destroyIndex ).is.equals( 3 );
+  });
+
 });
