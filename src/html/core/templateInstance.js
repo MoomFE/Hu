@@ -17,7 +17,7 @@ export default class TemplateInstance{
   update( values ){
     let index = 0;
 
-    for( const part of this.parts ){
+    for( const part of this.parts ) if( part ){
       const value = values[ index++ ];
 
       part.commit(
@@ -107,7 +107,7 @@ export default class TemplateInstance{
 
   destroy(){
     for( const part of this.parts ){
-      part.destroy && part.destroy();
+      part && part.destroy && part.destroy();
     }
   }
 

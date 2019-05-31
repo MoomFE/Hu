@@ -2455,7 +2455,7 @@
     update( values ){
       let index = 0;
 
-      for( let part of this.parts ){
+      for( let part of this.parts ) if( part ){
         const value = values[ index++ ];
 
         part.commit(
@@ -2545,7 +2545,7 @@
 
     destroy(){
       for( let part of this.parts ){
-        part.destroy && part.destroy();
+        part && part.destroy && part.destroy();
       }
     }
 
