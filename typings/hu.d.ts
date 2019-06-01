@@ -312,7 +312,7 @@ interface Hu{
    * @param name 指令名称
    * @param directive 指令类
    */
-  directive( name: string, directive: DirectiveClass ): void;
+  directive( name: string, DirectiveClass: DirectiveClass ): void;
 
   /**
    * 获取已注册的全局指令
