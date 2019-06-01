@@ -1102,21 +1102,12 @@
   const bindDirectiveCacheMap = new WeakMap();
 
   /**
-   * 存放渲染时收集到的双向数据绑定信息
-   */
-  const modelDirectiveCacheMap = new WeakMap();
-
-  /**
    * 解绑上次渲染时收集到的属性监听和双向数据绑定信息
    */
   function unWatchAllDirectiveCache( container ){
     // 解绑上次渲染时收集到的属性监听
     unWatchDirectiveCache( bindDirectiveCacheMap, container, unWatch => {
       return unWatch();
-    });
-    // 解绑上次渲染时收集到的双向数据绑定信息
-    unWatchDirectiveCache( modelDirectiveCacheMap, container, modelPart => {
-      return modelPart.options.length = 0;
     });
   }
 
@@ -1357,6 +1348,298 @@
 
   }
 
+  var addEventListener = /**
+   * 绑定事件
+   * @param {Element} elem
+   * @param {string} type
+   * @param {function} listener
+   * @param {boolean|{}} options
+   */
+  ( elem, type, listener, options ) => {
+    elem.addEventListener( type, listener, options );
+  };
+
+  const {
+    filter,
+    slice
+  } = prototype$1;
+
+  /**
+   * unicode letters used for parsing html tags, component names and property paths.
+   * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
+   * skipping \u10000-\uEFFFF due to it freezing up PhantomJS
+   */
+  const unicodeLetters = 'a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
+  const bail = new RegExp(`[^${ unicodeLetters }.$_\\d]`);
+
+  /**
+   * Transplant from Vue
+   */
+  function parsePath( path ){
+    if( bail.test( path ) ){
+      return;
+    }
+
+    var segments = path.split('.');
+
+    return function(){
+      let obj = this;
+
+      for( let segment of segments ){
+        if( !obj ) return;
+        obj = obj[ segment ];
+      }
+      return obj;
+    }
+  }
+
+  var returnFalse = /**
+   * 返回 false
+   */
+  () => false;
+
+  /**
+   * @param {any} self 计算属性的 this 指向
+   * @param {boolean} isWatch 当前是否用于创建监听
+   */
+  var createComputed = ( self, isWatch ) => {
+
+    /** 当前计算属性容器的子级的一些参数 */
+    const computedOptionsMap = new Map();
+    /** 当前计算属性容器对象 */
+    const computedTarget = create( null );
+    /** 当前计算属性容器的观察者对象 */
+    const computedTargetProxy = observe( computedTarget );
+    /** 当前计算属性容器的获取与修改拦截器 */
+    const computedTargetProxyInterceptor = new Proxy( computedTargetProxy, {
+      get: computedTargetProxyInterceptorGet( computedOptionsMap ),
+      set: computedTargetProxyInterceptorSet( computedOptionsMap ),
+      deleteProperty: returnFalse
+    });
+
+    /** 给当前计算属性添加子级的方法 */
+    const appendComputed = createAppendComputed.call( self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch );
+    /** 给当前计算属性移除子级的方法 */
+    let removeComputed = createRemoveComputed.call( self, computedOptionsMap );
+
+    return [
+      computedOptionsMap,
+      removeComputed,
+      appendComputed,
+      computedTarget,
+      computedTargetProxyInterceptor
+    ];
+  };
+
+
+  /**
+   * 返回添加单个计算属性的方法
+   */
+  function createAppendComputed( computedTarget, computedTargetProxy, computedOptionsMap, isWatch ){
+
+    const isComputed = !isWatch;
+    const observeOptions = isComputed && observeMap.get( computedTarget );
+
+    /**
+     * @param {string} name 计算属性存储的名称
+     * @param {{}} computed 计算属性 getter / setter 对象
+     * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
+     */
+    return ( name, computed, isWatchDeep ) => {
+      /** 计算属性的 setter */
+      const set = ( computed.set || noop ).bind( this );
+      /** 计算属性的 getter */
+      const get = computed.get.bind( this );
+      /** 计算属性的 watcher */
+      const watcher = new Watcher(
+        () => {
+          if( isWatch ) return computedTarget[ name ] = get();
+          return computedTargetProxy[ name ] = get( this );
+        },
+        isComputed, isWatchDeep,
+        observeOptions, name
+      );
+
+      // 添加占位符
+      computedTarget[ name ] = void 0;
+      // 存储计算属性参数
+      computedOptionsMap.set( name, {
+        watcher,
+        set
+      });
+    };
+  }
+
+  /**
+   * 返回移除单个计算属性的方法
+   */
+  function createRemoveComputed( computedOptionsMap ){
+    /**
+     * @param name 需要移除的计算属性
+     */
+    return name => {
+      // 获取计算属性的参数
+      const computedOptions = computedOptionsMap.get( name );
+
+      // 有这个计算属性
+      if( computedOptions ){
+        const watcher = computedOptions.watcher;
+
+        // 清空依赖
+        watcher.clean();
+        // 删除计算属性
+        computedOptionsMap.delete( name );
+        // 如果当前 ( 计算属性 / watch ) 在异步更新队列中, 则进行删除
+        if( queueMap.has( watcher ) ){
+          // 从异步更新队列标记中删除
+          queueMap.delete( watcher );
+          // 从异步更新队列中删除
+          for( let i = index + 1, len = queue.length; i < len; i++ ){
+            if( queue[ i ] === watcher ){
+              queue.splice( i, 1 );
+              break;
+            }
+          }
+        }
+      }
+    };
+  }
+
+  /**
+   * 返回计算属性的获取拦截器
+   */
+  const computedTargetProxyInterceptorGet = computedOptionsMap => ( target, name ) => {
+    // 获取计算属性的参数
+    const computedOptions = computedOptionsMap.get( name );
+
+    // 防止用户通过 $computed 获取不存在的计算属性
+    if( computedOptions ){
+      const watcher = computedOptions.watcher;
+
+      // 计算属性未初始化或需要更新
+      if( !watcher.isInit || watcher.shouldUpdate ){
+        watcher.get();
+      }
+    }
+
+    return target[ name ];
+  };
+
+  /**
+   * 返回计算属性的设置拦截器
+   */
+  const computedTargetProxyInterceptorSet = computedOptionsMap => ( target, name, value ) => {
+    const computedOptions = computedOptionsMap.get( name );
+
+    // 防止用户通过 $computed 设置不存在的计算属性
+    if( computedOptions ){
+      return computedOptions.set( value ), true;
+    }
+    return false;
+  };
+
+  /**
+   * 存放每个实例的 watch 数据
+   */
+  const watcherMap = new WeakMap();
+
+  /**
+   * 监听 Hu 实例对象
+   */
+  function $watch( expOrFn, callback, options ){
+    // 另一种写法
+    if( isPlainObject( callback ) ){
+      return this.$watch( expOrFn, callback.handler, callback );
+    }
+
+    const self = this || emptyObject;
+    let watchFn;
+
+    // 使用键路径表达式
+    if( isString( expOrFn ) ){
+      watchFn = parsePath( expOrFn ).bind( self );
+    }
+    // 使用计算属性函数
+    else if( isFunction( expOrFn ) ){
+      watchFn = expOrFn.bind( self );
+    }
+    // 不支持其他写法
+    else return;
+
+    let removeWatch, appendWatch, watchTarget, watchTargetProxyInterceptor;
+    let watchOptions;
+
+    if( watcherMap.has( self ) ){
+      watchOptions = watcherMap.get( self );
+    }else{
+      watchOptions = createComputed( null, true );
+      // 存储当前实例 watch 相关数据
+      watcherMap.set( self, watchOptions );
+    }
+
+    [ , removeWatch, appendWatch, watchTarget, watchTargetProxyInterceptor ] = watchOptions;
+
+    // 初始化选项参数
+    options = options || {};
+
+    /** 当前 watch 的存储名称 */
+    const name = uid$1();
+    /** 当前 watch 的回调函数 */
+    const watchCallback = callback.bind( self );
+    /** 监听对象内部值的变化 */
+    const isWatchDeep = !!options.deep;
+    /** 值改变是否运行回调 */
+    let immediate, runCallback = immediate = !!options.immediate;
+
+    // 添加监听
+    appendWatch( name, {
+      get: () => {
+        const oldValue = watchTarget[ name ];
+        const value = watchFn();
+
+        if( runCallback ){
+          //   首次运行             值不一样        值一样的话, 判断是否是深度监听
+          if( immediate || !isEqual( value, oldValue ) || isWatchDeep ){
+            watchCallback( value, oldValue );
+          }
+        }
+
+        return value;
+      }
+    }, isWatchDeep );
+
+    // 首次运行, 以收集依赖
+    watchTargetProxyInterceptor[ name ];
+    // 下次值改变时运行回调
+    runCallback = true;
+    immediate = false;
+
+    // 返回取消监听的方法
+    return () => {
+      removeWatch( name );
+    }
+  }
+
+  var getAttribute = /**
+   * 获取元素属性
+   * @param {Element} elem
+   * @param {string} attr
+   */
+  ( elem, attr ) => {
+    return elem.getAttribute( attr );
+  };
+
+  var triggerEvent = /**
+   * 触发事件
+   * @param {Element} elem
+   * @param {string} type
+   */
+  ( target, type ) => {
+    const event = document.createEvent('HTMLEvents');
+    event.initEvent( type, true, true );
+    target.dispatchEvent( event );
+  };
+
   class ModelDirective{
 
     constructor( element, name, strings, modifiers ){
@@ -1368,269 +1651,167 @@
       const type = element.type;
       let handler;
 
+      // 选择框
+      if( tag === 'select' ){
+        handler = handlerSelect;
+      }
+      // 复选框
+      else if( tag === 'input' && type === 'checkbox' ){
+        handler = handlerCheckbox;
+      }
+      // 单选框
+      else if( tag === 'input' && type === 'radio' ){
+        handler = handlerRadio;
+      }
+      // 普通文本框
+      else if( tag === 'input' || tag === 'textarea' ){
+        handler = handlerDefault;
+      }
+
       this.elem = element;
       this.handler = handler;
     }
 
-    commit( options, isDirectiveFn ){
-      if( isDirectiveFn || !( isArray( options ) && options.length > 1 ) ){
+    commit( value, isDirectiveFn ){
+      if( isDirectiveFn || !( isArray( value ) && value.length > 1 ) ){
         throw new Error(':model 指令的参数出错, 不支持此种传参 !');
       }
 
+      let init;
+      let handler;
+      let options;
 
+      // 有双向绑定处理函数
+      // 说明在可处理的元素范围内
+      if( handler = this.handler ){
+
+        // 需要处理观察者对象, 为了避免被 render 函数捕获
+        // 需要添加一个空的占位符到调用堆栈中
+        pushTarget();
+
+        options = this.options || (
+          this.options = observe([])
+        );
+
+        options.splice( 0, 2, ...value );
+
+        if( init = this.init ){
+          this.set( value[ 0 ][ value[ 1 ] ] );
+        }
+
+        // 处理观察者对象完成
+        // 移除占位符
+        popTarget();
+
+        // 若未初始化过监听, 则进行初始化
+        if( !init ){
+          this.init = true;
+          handler( this, this.elem, options );
+        }
+      }
+    }
+
+    destroy(){
+      // 解绑值监听绑定值
+      if( this.init ) this.unWatch();
     }
 
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // import { isArray } from "../../shared/global/Array/index";
-  // import { filter } from "../../shared/global/Array/prototype";
-  // import addEventListener from "../../shared/util/addEventListener";
-  // import $watch from "../../core/prototype/$watch";
-  // import { observe } from "../../static/observable/observe";
-  // import getAttribute from "../../shared/util/getAttribute";
-  // import isFunction from "../../shared/util/isFunction";
-  // import triggerEvent from "../../shared/util/triggerEvent";
-  // import { renderStack, modelDirectiveCacheMap } from "../../render/const/index";
-  // import { apply } from "../../shared/global/Reflect/index";
-  // import emptyObject from "../../shared/const/emptyObject";
-  // import { popTarget, pushTarget } from "../../static/observable/const";
-
-
-  // export default class ModelDirective{
-
-
-  //   setValue( options ){
-  //     if( !( isArray( options ) && options.length > 1 ) ){
-  //       throw new Error(':model 指令的参数出错, :model 指令不支持此种传参 !');
-  //     }
-
-  //     pushTarget();
-
-  //     const optionsProxy = this.options || (
-  //       this.options = observe([])
-  //     );
-
-  //     optionsProxy.splice( 0, 2, ...options );
-
-  //     popTarget();
-
-  //     // 当前渲染元素
-  //     const rendering = renderStack[ renderStack.length - 1 ];
-  //     // 当前渲染元素使用的双向数据绑定信息
-  //     let modelParts = modelDirectiveCacheMap.get( rendering );
-
-  //     if( !modelParts ){
-  //       modelParts = [];
-  //       modelDirectiveCacheMap.set( rendering, modelParts );
-  //     }
-
-  //     modelParts.push( this );
-  //   }
-
-  //   commit(){
-  //     let init = this.init,
-  //         options,
-  //         set;
-
-  //     if( init && ( options = this.options ).length && ( set = this.set ) ){
-  //       pushTarget();
-  //       set( options[0][ options[1] ] );
-  //       popTarget();
-  //     }
-  //     if( init || !this.handler ) return;
-
-  //     this.init = true;
-  //     this.handler( this.elem, this.options );
-  //   }
-
-  // }
-
-  // function watch( part, options, elem, prop ){
-  //   const set = part.set = isFunction( prop ) ? prop : ( value ) => elem[ prop ] = value;
-
-  //   apply( $watch, this, [
-  //     () => {
-  //       return options.length ? options[0][ options[1] ]
-  //                             : emptyObject;
-  //     },
-  //     function( value ){
-  //       value !== emptyObject && apply( set, this, arguments );
-  //     },
-  //     {
-  //       immediate: true
-  //     }
-  //   ]);
-  // }
-
-  // function handlerSelect( elem, options ){
-  //   // 监听绑定值改变
-  //   watch( this, options, elem, 'value' );
-  //   // 监听控件值改变
-  //   addEventListener( elem, 'change', event => {
-  //     if( options.length ){
-  //       const [ proxy, name ] = options;
-  //       const value = filter.call( elem.options, option => option.selected )
-  //                           .map( option => option.value );
-
-  //       proxy[ name ] = elem.multiple ? value : value[0];
-  //     }
-  //   });
-  // }
-
-  // function handlerCheckbox( elem, options ){
-  //   // 监听绑定值改变
-  //   watch( this, options, elem, 'checked' );
-  //   // 监听控件值改变
-  //   addEventListener( elem, 'change', event => {
-  //     if( options.length ){
-  //       const [ proxy, name ] = options;
-  //       proxy[ name ] = elem.checked;
-  //     }
-  //   });
-  // }
-
-  // function handlerRadio( elem, options ){
-  //   // 监听绑定值改变
-  //   watch( this, options, elem, value => {
-  //     elem.checked = value == ( getAttribute( elem, 'value' ) || null );
-  //   });
-  //   // 监听控件值改变
-  //   addEventListener( elem, 'change', event => {
-  //     if( options.length ){
-  //       const [ proxy, name ] = this.options;
-  //       proxy[ name ] = getAttribute( elem, 'value' ) || null;
-  //     }
-  //   });
-  // }
-
-  // function handlerDefault( elem, options ){
-  //   // 监听绑定值改变
-  //   watch( this, options, elem, 'value' );
-  //   // 监听控件值改变
-  //   addEventListener( elem, 'compositionstart', event => {
-  //     elem.composing = true;
-  //   });
-  //   addEventListener( elem, 'compositionend', event => {
-  //     if( !elem.composing ) return;
-
-  //     elem.composing = false;
-  //     triggerEvent( elem, 'input' );
-  //   });
-  //   addEventListener( elem, 'input', event => {
-  //     if( elem.composing || !options.length ) return;
-
-  //     const [ proxy, name ] = this.options;
-  //     proxy[ name ] = elem.value;
-  //   });
-  // }
+  function watch( model, options, element, prop ){
+    /**
+     * 监听到绑定的值被更改后
+     * 给绑定的对象赋值的方法
+     */
+    const set = isFunction( prop ) ? prop : value => element[ prop ] = value;
+
+    // 若后续绑定对象发生更改, 需要调用方法立即更新
+    model.set = set;
+    // 监听绑定的值
+    model.unWatch = apply( $watch, model, [
+      // 监听绑定的值
+      () => options[ 0 ][ options[ 1 ] ],
+      // 响应绑定值更改
+      value => set( value ),
+      // 立即响应
+      { immediate: true }
+    ]);
+  }
+
+  /**
+   * 对 select 元素进行双向绑定
+   * @param {ModelDirective} model 
+   * @param {Element} element 
+   * @param {[ {}, string ]} options 
+   */
+  function handlerSelect( model, element, options ){
+    // 监听绑定值改变
+    watch( model, options, element, 'value' );
+    // 监听控件值改变
+    addEventListener( element, 'change', event => {
+      const value = filter.call( element.options, option => option.selected ).map( option => option.value );
+      options[ 0 ][ options[ 1 ] ] = element.multiple ? value : value[0];
+    });
+  }
+
+  /**
+   * 对 input[ type = "checkbox" ] 元素进行双向绑定
+   * @param {ModelDirective} model 
+   * @param {Element} element 
+   * @param {[ {}, string ]} options 
+   */
+  function handlerCheckbox( model, element, options ){
+    // 监听绑定值改变
+    watch( model, options, element, 'checked' );
+    // 监听控件值改变
+    addEventListener( element, 'change', event => {
+      options[ 0 ][ options[ 1 ] ] = element.checked;
+    });
+  }
+
+  /**
+   * 对 input[ type = "radio" ] 元素进行双向绑定
+   * @param {ModelDirective} model 
+   * @param {Element} element 
+   * @param {[ {}, string ]} options 
+   */
+  function handlerRadio( model, element, options ){
+    // 监听绑定值改变
+    watch( model, options, element, value => {
+      element.checked = value === ( getAttribute( element, 'value' ) || null );
+    });
+    // 监听控件值改变
+    addEventListener( element, 'change', event => {
+      options[ 0 ][ options[ 1 ] ] = getAttribute( element, 'value' ) || null;
+    });
+  }
+
+  /**
+   * 对 input, textarea 元素进行双向绑定
+   * @param {ModelDirective} model 
+   * @param {Element} element 
+   * @param {[ {}, string ]} options 
+   */
+  function handlerDefault( model, element, options ){
+    // 监听绑定值改变
+    watch( model, options, element, 'value' );
+    // 监听控件值改变
+    addEventListener( element, 'compositionstart', event => {
+      element.composing = true;
+    });
+    addEventListener( element, 'compositionend', event => {
+      if( !element.composing ) return;
+
+      element.composing = false;
+      triggerEvent( element, 'input' );
+    });
+    addEventListener( element, 'input', event => {
+      if( element.composing || !options.length ) return;
+
+      options[ 0 ][ options[ 1 ] ] = element.value;
+    });
+  }
 
   var toString$1 = /**
    * 将值转为字符串形式
@@ -1796,15 +1977,6 @@
 
   const commentMarker = ` ${ marker } `;
   const commentMarkerRegex = new RegExp( commentMarker, 'g' );
-
-  var getAttribute = /**
-   * 获取元素属性
-   * @param {Element} elem
-   * @param {string} attr
-   */
-  ( elem, attr ) => {
-    return elem.getAttribute( attr );
-  };
 
   class Template{
 
@@ -2146,17 +2318,6 @@
    * 当前正在运行的实例的 $el 选项与实例本身的引用
    */
   const activeHu = new WeakMap();
-
-  var addEventListener = /**
-   * 绑定事件
-   * @param {Element} elem
-   * @param {string} type
-   * @param {function} listener
-   * @param {boolean|{}} options
-   */
-  ( elem, type, listener, options ) => {
-    elem.addEventListener( type, listener, options );
-  };
 
   var removeEventListener = /**
    * 移除事件
@@ -3158,262 +3319,6 @@
     });
   });
 
-  /**
-   * unicode letters used for parsing html tags, component names and property paths.
-   * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
-   * skipping \u10000-\uEFFFF due to it freezing up PhantomJS
-   */
-  const unicodeLetters = 'a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
-  const bail = new RegExp(`[^${ unicodeLetters }.$_\\d]`);
-
-  /**
-   * Transplant from Vue
-   */
-  function parsePath( path ){
-    if( bail.test( path ) ){
-      return;
-    }
-
-    var segments = path.split('.');
-
-    return function(){
-      let obj = this;
-
-      for( let segment of segments ){
-        if( !obj ) return;
-        obj = obj[ segment ];
-      }
-      return obj;
-    }
-  }
-
-  var returnFalse = /**
-   * 返回 false
-   */
-  () => false;
-
-  /**
-   * @param {any} self 计算属性的 this 指向
-   * @param {boolean} isWatch 当前是否用于创建监听
-   */
-  var createComputed = ( self, isWatch ) => {
-
-    /** 当前计算属性容器的子级的一些参数 */
-    const computedOptionsMap = new Map();
-    /** 当前计算属性容器对象 */
-    const computedTarget = create( null );
-    /** 当前计算属性容器的观察者对象 */
-    const computedTargetProxy = observe( computedTarget );
-    /** 当前计算属性容器的获取与修改拦截器 */
-    const computedTargetProxyInterceptor = new Proxy( computedTargetProxy, {
-      get: computedTargetProxyInterceptorGet( computedOptionsMap ),
-      set: computedTargetProxyInterceptorSet( computedOptionsMap ),
-      deleteProperty: returnFalse
-    });
-
-    /** 给当前计算属性添加子级的方法 */
-    const appendComputed = createAppendComputed.call( self, computedTarget, computedTargetProxy, computedOptionsMap, isWatch );
-    /** 给当前计算属性移除子级的方法 */
-    let removeComputed = createRemoveComputed.call( self, computedOptionsMap );
-
-    return [
-      computedOptionsMap,
-      removeComputed,
-      appendComputed,
-      computedTarget,
-      computedTargetProxyInterceptor
-    ];
-  };
-
-
-  /**
-   * 返回添加单个计算属性的方法
-   */
-  function createAppendComputed( computedTarget, computedTargetProxy, computedOptionsMap, isWatch ){
-
-    const isComputed = !isWatch;
-    const observeOptions = isComputed && observeMap.get( computedTarget );
-
-    /**
-     * @param {string} name 计算属性存储的名称
-     * @param {{}} computed 计算属性 getter / setter 对象
-     * @param {boolean} isWatchDeep 当前计算属性是否是用于创建深度监听
-     */
-    return ( name, computed, isWatchDeep ) => {
-      /** 计算属性的 setter */
-      const set = ( computed.set || noop ).bind( this );
-      /** 计算属性的 getter */
-      const get = computed.get.bind( this );
-      /** 计算属性的 watcher */
-      const watcher = new Watcher(
-        () => {
-          if( isWatch ) return computedTarget[ name ] = get();
-          return computedTargetProxy[ name ] = get( this );
-        },
-        isComputed, isWatchDeep,
-        observeOptions, name
-      );
-
-      // 添加占位符
-      computedTarget[ name ] = void 0;
-      // 存储计算属性参数
-      computedOptionsMap.set( name, {
-        watcher,
-        set
-      });
-    };
-  }
-
-  /**
-   * 返回移除单个计算属性的方法
-   */
-  function createRemoveComputed( computedOptionsMap ){
-    /**
-     * @param name 需要移除的计算属性
-     */
-    return name => {
-      // 获取计算属性的参数
-      const computedOptions = computedOptionsMap.get( name );
-
-      // 有这个计算属性
-      if( computedOptions ){
-        const watcher = computedOptions.watcher;
-
-        // 清空依赖
-        watcher.clean();
-        // 删除计算属性
-        computedOptionsMap.delete( name );
-        // 如果当前 ( 计算属性 / watch ) 在异步更新队列中, 则进行删除
-        if( queueMap.has( watcher ) ){
-          // 从异步更新队列标记中删除
-          queueMap.delete( watcher );
-          // 从异步更新队列中删除
-          for( let i = index + 1, len = queue.length; i < len; i++ ){
-            if( queue[ i ] === watcher ){
-              queue.splice( i, 1 );
-              break;
-            }
-          }
-        }
-      }
-    };
-  }
-
-  /**
-   * 返回计算属性的获取拦截器
-   */
-  const computedTargetProxyInterceptorGet = computedOptionsMap => ( target, name ) => {
-    // 获取计算属性的参数
-    const computedOptions = computedOptionsMap.get( name );
-
-    // 防止用户通过 $computed 获取不存在的计算属性
-    if( computedOptions ){
-      const watcher = computedOptions.watcher;
-
-      // 计算属性未初始化或需要更新
-      if( !watcher.isInit || watcher.shouldUpdate ){
-        watcher.get();
-      }
-    }
-
-    return target[ name ];
-  };
-
-  /**
-   * 返回计算属性的设置拦截器
-   */
-  const computedTargetProxyInterceptorSet = computedOptionsMap => ( target, name, value ) => {
-    const computedOptions = computedOptionsMap.get( name );
-
-    // 防止用户通过 $computed 设置不存在的计算属性
-    if( computedOptions ){
-      return computedOptions.set( value ), true;
-    }
-    return false;
-  };
-
-  /**
-   * 存放每个实例的 watch 数据
-   */
-  const watcherMap = new WeakMap();
-
-  /**
-   * 监听 Hu 实例对象
-   */
-  function $watch( expOrFn, callback, options ){
-    // 另一种写法
-    if( isPlainObject( callback ) ){
-      return this.$watch( expOrFn, callback.handler, callback );
-    }
-
-    const self = this || emptyObject;
-    let watchFn;
-
-    // 使用键路径表达式
-    if( isString( expOrFn ) ){
-      watchFn = parsePath( expOrFn ).bind( self );
-    }
-    // 使用计算属性函数
-    else if( isFunction( expOrFn ) ){
-      watchFn = expOrFn.bind( self );
-    }
-    // 不支持其他写法
-    else return;
-
-    let removeWatch, appendWatch, watchTarget, watchTargetProxyInterceptor;
-    let watchOptions;
-
-    if( watcherMap.has( self ) ){
-      watchOptions = watcherMap.get( self );
-    }else{
-      watchOptions = createComputed( null, true );
-      // 存储当前实例 watch 相关数据
-      watcherMap.set( self, watchOptions );
-    }
-
-    [ , removeWatch, appendWatch, watchTarget, watchTargetProxyInterceptor ] = watchOptions;
-
-    // 初始化选项参数
-    options = options || {};
-
-    /** 当前 watch 的存储名称 */
-    const name = uid$1();
-    /** 当前 watch 的回调函数 */
-    const watchCallback = callback.bind( self );
-    /** 监听对象内部值的变化 */
-    const isWatchDeep = !!options.deep;
-    /** 值改变是否运行回调 */
-    let immediate, runCallback = immediate = !!options.immediate;
-
-    // 添加监听
-    appendWatch( name, {
-      get: () => {
-        const oldValue = watchTarget[ name ];
-        const value = watchFn();
-
-        if( runCallback ){
-          //   首次运行             值不一样        值一样的话, 判断是否是深度监听
-          if( immediate || !isEqual( value, oldValue ) || isWatchDeep ){
-            watchCallback( value, oldValue );
-          }
-        }
-
-        return value;
-      }
-    }, isWatchDeep );
-
-    // 首次运行, 以收集依赖
-    watchTargetProxyInterceptor[ name ];
-    // 下次值改变时运行回调
-    runCallback = true;
-    immediate = false;
-
-    // 返回取消监听的方法
-    return () => {
-      removeWatch( name );
-    }
-  }
-
   var bind = directive(( proxy, name ) => {
 
     /**
@@ -3466,11 +3371,6 @@
     bind,
     svg
   });
-
-  const {
-    filter,
-    slice
-  } = prototype$1;
 
   var getRefs = root => {
     const refs = {};
@@ -4271,17 +4171,6 @@
       return render( result, container );
     }
   }
-
-  var triggerEvent = /**
-   * 触发事件
-   * @param {Element} elem
-   * @param {string} type
-   */
-  ( target, type ) => {
-    const event = document.createEvent('HTMLEvents');
-    event.initEvent( type, true, true );
-    target.dispatchEvent( event );
-  };
 
   const util = create( null );
 

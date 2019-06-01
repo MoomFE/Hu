@@ -1,5 +1,14 @@
 import isSingleBind from "../util/isSingleBind";
 import { isArray } from "../../shared/global/Array/index";
+import { pushTarget, popTarget } from "../../static/observable/const";
+import { observe } from "../../static/observable/observe";
+import addEventListener from "../../shared/util/addEventListener";
+import { filter } from "../../shared/global/Array/prototype";
+import isFunction from "../../shared/util/isFunction";
+import { apply } from "../../shared/global/Reflect/index";
+import $watch from "../../core/prototype/$watch";
+import getAttribute from "../../shared/util/getAttribute";
+import triggerEvent from "../../shared/util/triggerEvent";
 
 
 export default class ModelDirective{
@@ -15,281 +24,162 @@ export default class ModelDirective{
 
     // 选择框
     if( tag === 'select' ){
-      // handler = handlerSelect;
+      handler = handlerSelect;
     }
     // 复选框
     else if( tag === 'input' && type === 'checkbox' ){
-      // handler = handlerCheckbox;
+      handler = handlerCheckbox;
     }
     // 单选框
     else if( tag === 'input' && type === 'radio' ){
-      // handler = handlerRadio;
+      handler = handlerRadio;
     }
     // 普通文本框
     else if( tag === 'input' || tag === 'textarea' ){
-      // handler = handlerDefault;
+      handler = handlerDefault;
     }
 
     this.elem = element;
     this.handler = handler;
   }
 
-  commit( options, isDirectiveFn ){
-    if( isDirectiveFn || !( isArray( options ) && options.length > 1 ) ){
+  commit( value, isDirectiveFn ){
+    if( isDirectiveFn || !( isArray( value ) && value.length > 1 ) ){
       throw new Error(':model 指令的参数出错, 不支持此种传参 !');
     }
 
+    let init;
+    let handler;
+    let options;
 
+    // 有双向绑定处理函数
+    // 说明在可处理的元素范围内
+    if( handler = this.handler ){
+
+      // 需要处理观察者对象, 为了避免被 render 函数捕获
+      // 需要添加一个空的占位符到调用堆栈中
+      pushTarget();
+
+      options = this.options || (
+        this.options = observe([])
+      );
+
+      options.splice( 0, 2, ...value );
+
+      if( init = this.init ){
+        this.set( value[ 0 ][ value[ 1 ] ] );
+      }
+
+      // 处理观察者对象完成
+      // 移除占位符
+      popTarget();
+
+      // 若未初始化过监听, 则进行初始化
+      if( !init ){
+        this.init = true;
+        handler( this, this.elem, options );
+      }
+    }
+  }
+
+  destroy(){
+    // 解绑值监听绑定值
+    if( this.init ) this.unWatch();
   }
 
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { isArray } from "../../shared/global/Array/index";
-// import { filter } from "../../shared/global/Array/prototype";
-// import addEventListener from "../../shared/util/addEventListener";
-// import $watch from "../../core/prototype/$watch";
-// import { observe } from "../../static/observable/observe";
-// import getAttribute from "../../shared/util/getAttribute";
-// import isFunction from "../../shared/util/isFunction";
-// import triggerEvent from "../../shared/util/triggerEvent";
-// import { renderStack, modelDirectiveCacheMap } from "../../render/const/index";
-// import { apply } from "../../shared/global/Reflect/index";
-// import emptyObject from "../../shared/const/emptyObject";
-// import { popTarget, pushTarget } from "../../static/observable/const";
-
-
-// export default class ModelDirective{
-
-
-//   setValue( options ){
-//     if( !( isArray( options ) && options.length > 1 ) ){
-//       throw new Error(':model 指令的参数出错, :model 指令不支持此种传参 !');
-//     }
-
-//     pushTarget();
-
-//     const optionsProxy = this.options || (
-//       this.options = observe([])
-//     );
-
-//     optionsProxy.splice( 0, 2, ...options );
-
-//     popTarget();
-
-//     // 当前渲染元素
-//     const rendering = renderStack[ renderStack.length - 1 ];
-//     // 当前渲染元素使用的双向数据绑定信息
-//     let modelParts = modelDirectiveCacheMap.get( rendering );
-
-//     if( !modelParts ){
-//       modelParts = [];
-//       modelDirectiveCacheMap.set( rendering, modelParts );
-//     }
-
-//     modelParts.push( this );
-//   }
-
-//   commit(){
-//     let init = this.init,
-//         options,
-//         set;
-
-//     if( init && ( options = this.options ).length && ( set = this.set ) ){
-//       pushTarget();
-//       set( options[0][ options[1] ] );
-//       popTarget();
-//     }
-//     if( init || !this.handler ) return;
-
-//     this.init = true;
-//     this.handler( this.elem, this.options );
-//   }
-
-// }
-
-// function watch( part, options, elem, prop ){
-//   const set = part.set = isFunction( prop ) ? prop : ( value ) => elem[ prop ] = value;
-
-//   apply( $watch, this, [
-//     () => {
-//       return options.length ? options[0][ options[1] ]
-//                             : emptyObject;
-//     },
-//     function( value ){
-//       value !== emptyObject && apply( set, this, arguments );
-//     },
-//     {
-//       immediate: true
-//     }
-//   ]);
-// }
-
-// function handlerSelect( elem, options ){
-//   // 监听绑定值改变
-//   watch( this, options, elem, 'value' );
-//   // 监听控件值改变
-//   addEventListener( elem, 'change', event => {
-//     if( options.length ){
-//       const [ proxy, name ] = options;
-//       const value = filter.call( elem.options, option => option.selected )
-//                           .map( option => option.value );
-
-//       proxy[ name ] = elem.multiple ? value : value[0];
-//     }
-//   });
-// }
-
-// function handlerCheckbox( elem, options ){
-//   // 监听绑定值改变
-//   watch( this, options, elem, 'checked' );
-//   // 监听控件值改变
-//   addEventListener( elem, 'change', event => {
-//     if( options.length ){
-//       const [ proxy, name ] = options;
-//       proxy[ name ] = elem.checked;
-//     }
-//   });
-// }
-
-// function handlerRadio( elem, options ){
-//   // 监听绑定值改变
-//   watch( this, options, elem, value => {
-//     elem.checked = value == ( getAttribute( elem, 'value' ) || null );
-//   });
-//   // 监听控件值改变
-//   addEventListener( elem, 'change', event => {
-//     if( options.length ){
-//       const [ proxy, name ] = this.options;
-//       proxy[ name ] = getAttribute( elem, 'value' ) || null;
-//     }
-//   });
-// }
-
-// function handlerDefault( elem, options ){
-//   // 监听绑定值改变
-//   watch( this, options, elem, 'value' );
-//   // 监听控件值改变
-//   addEventListener( elem, 'compositionstart', event => {
-//     elem.composing = true;
-//   });
-//   addEventListener( elem, 'compositionend', event => {
-//     if( !elem.composing ) return;
-
-//     elem.composing = false;
-//     triggerEvent( elem, 'input' );
-//   });
-//   addEventListener( elem, 'input', event => {
-//     if( elem.composing || !options.length ) return;
-
-//     const [ proxy, name ] = this.options;
-//     proxy[ name ] = elem.value;
-//   });
-// }
+function watch( model, options, element, prop ){
+  /**
+   * 监听到绑定的值被更改后
+   * 给绑定的对象赋值的方法
+   */
+  const set = isFunction( prop ) ? prop : value => element[ prop ] = value;
+
+  // 若后续绑定对象发生更改, 需要调用方法立即更新
+  model.set = set;
+  // 监听绑定的值
+  model.unWatch = apply( $watch, model, [
+    // 监听绑定的值
+    () => options[ 0 ][ options[ 1 ] ],
+    // 响应绑定值更改
+    value => set( value ),
+    // 立即响应
+    { immediate: true }
+  ]);
+}
+
+/**
+ * 对 select 元素进行双向绑定
+ * @param {ModelDirective} model 
+ * @param {Element} element 
+ * @param {[ {}, string ]} options 
+ */
+function handlerSelect( model, element, options ){
+  // 监听绑定值改变
+  watch( model, options, element, 'value' );
+  // 监听控件值改变
+  addEventListener( element, 'change', event => {
+    const value = filter.call( element.options, option => option.selected ).map( option => option.value );
+    options[ 0 ][ options[ 1 ] ] = element.multiple ? value : value[0];
+  });
+}
+
+/**
+ * 对 input[ type = "checkbox" ] 元素进行双向绑定
+ * @param {ModelDirective} model 
+ * @param {Element} element 
+ * @param {[ {}, string ]} options 
+ */
+function handlerCheckbox( model, element, options ){
+  // 监听绑定值改变
+  watch( model, options, element, 'checked' );
+  // 监听控件值改变
+  addEventListener( element, 'change', event => {
+    options[ 0 ][ options[ 1 ] ] = element.checked;
+  });
+}
+
+/**
+ * 对 input[ type = "radio" ] 元素进行双向绑定
+ * @param {ModelDirective} model 
+ * @param {Element} element 
+ * @param {[ {}, string ]} options 
+ */
+function handlerRadio( model, element, options ){
+  // 监听绑定值改变
+  watch( model, options, element, value => {
+    element.checked = value === ( getAttribute( element, 'value' ) || null );
+  });
+  // 监听控件值改变
+  addEventListener( element, 'change', event => {
+    options[ 0 ][ options[ 1 ] ] = getAttribute( element, 'value' ) || null;
+  });
+}
+
+/**
+ * 对 input, textarea 元素进行双向绑定
+ * @param {ModelDirective} model 
+ * @param {Element} element 
+ * @param {[ {}, string ]} options 
+ */
+function handlerDefault( model, element, options ){
+  // 监听绑定值改变
+  watch( model, options, element, 'value' );
+  // 监听控件值改变
+  addEventListener( element, 'compositionstart', event => {
+    element.composing = true;
+  });
+  addEventListener( element, 'compositionend', event => {
+    if( !element.composing ) return;
+
+    element.composing = false;
+    triggerEvent( element, 'input' );
+  });
+  addEventListener( element, 'input', event => {
+    if( element.composing || !options.length ) return;
+
+    options[ 0 ][ options[ 1 ] ] = element.value;
+  });
+}
