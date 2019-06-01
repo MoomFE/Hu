@@ -1,7 +1,8 @@
 import { isCEPolyfill } from "../../shared/const/env";
 import templateProcessor from "./templateProcessor";
 import NodePart from "./node";
-import isDirectiveFn from "../util/isDirectiveFn";
+import isDirectiveFn from "../../static/directiveFn/util/isDirectiveFn";
+import { activeDirectiveFns } from "../../static/directiveFn/const/index";
 
 
 export default class TemplateInstance{
@@ -19,10 +20,17 @@ export default class TemplateInstance{
 
     for( const part of this.parts ) if( part ){
       const value = values[ index++ ];
+      const valueIsDirectiveFn = isDirectiveFn( value );
+
+      // 如果值是指令方法, 那么需要将他们存起来
+      // 指令注销时, 同时也要注销指令方法
+      activeDirectiveFns[ valueIsDirectiveFn ? 'set' : 'delete' ](
+        part, value
+      );
 
       part.commit(
         value,
-        isDirectiveFn( value )
+        valueIsDirectiveFn
       );
     }
   }
@@ -106,8 +114,11 @@ export default class TemplateInstance{
   }
 
   destroy(){
-    for( const part of this.parts ){
-      part && part.destroy && part.destroy();
+    for( const part of this.parts ) if( part ){
+      const directiveFn = activeDirectiveFns.get( part );
+
+      if( directiveFn && directiveFn.destroy ) directiveFn.destroy();
+      if( part.destroy ) part.destroy();
     }
   }
 

@@ -28,11 +28,6 @@ export const userDirectives = create({
 });
 
 /**
- * 指令方法合集
- */
-export const directiveFns = new WeakSet();
-
-/**
  * This regex extracts the attribute name preceding an attribute-position
  * expression. It does this by matching the syntax allowed for attributes
  * against the string literal directly preceding the expression, assuming that

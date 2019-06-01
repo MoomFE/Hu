@@ -1,5 +1,5 @@
 import NodePart from '../core/node';
-import directive from '../util/directive';
+import directiveFn from '../../static/directiveFn/index';
 import isFunction from '../../shared/util/isFunction';
 import removeNodes from '../../shared/util/removeNodes';
 import moveChildNodes from '../../shared/util/moveChildNodes';
@@ -18,7 +18,7 @@ import createMarker from '../util/createMarker';
 const partListCache = new WeakMap();
 const keyListCache = new WeakMap();
 
-export default directive(( items, key, template ) => {
+export default directiveFn(( items, key, template ) => {
   const keyFn = isFunction( key ) ? key : item => item[ key ];
 
   return containerPart => {

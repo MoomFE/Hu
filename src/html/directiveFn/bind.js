@@ -1,10 +1,10 @@
-import directive from '../util/directive';
+import directiveFn from '../../static/directiveFn/index';
 import { observeProxyMap } from '../../static/observable/observe';
 import { bindDirectiveCacheMap, renderStack } from '../../render/const/index';
 import $watch from '../../core/prototype/$watch';
 
 
-export default directive(( proxy, name ) => {
+export default directiveFn(( proxy, name ) => {
 
   /**
    * 传入对象是否是观察者对象

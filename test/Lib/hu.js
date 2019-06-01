@@ -1936,11 +1936,6 @@
   });
 
   /**
-   * 指令方法合集
-   */
-  const directiveFns = new WeakSet();
-
-  /**
    * This regex extracts the attribute name preceding an attribute-position
    * expression. It does this by matching the syntax allowed for attributes
    * against the string literal directly preceding the expression, assuming that
@@ -2597,6 +2592,16 @@
   };
 
   /**
+   * 指令方法合集
+   */
+  const directiveFns = new WeakSet();
+
+  /**
+   * 当前已经被指令激活的指令方法
+   */
+  const activeDirectiveFns = new WeakMap();
+
+  /**
    * 判断传入参数是否是指令方法
    */
   var isDirectiveFn = obj => {
@@ -2618,10 +2623,17 @@
 
       for( let part of this.parts ) if( part ){
         const value = values[ index++ ];
+        const valueIsDirectiveFn = isDirectiveFn( value );
+
+        // 如果值是指令方法, 那么需要将他们存起来
+        // 指令注销时, 同时也要注销指令方法
+        activeDirectiveFns[ valueIsDirectiveFn ? 'set' : 'delete' ](
+          part, value
+        );
 
         part.commit(
           value,
-          isDirectiveFn( value )
+          valueIsDirectiveFn
         );
       }
     }
@@ -2705,8 +2717,11 @@
     }
 
     destroy(){
-      for( let part of this.parts ){
-        part && part.destroy && part.destroy();
+      for( let part of this.parts ) if( part ){
+        const directiveFn = activeDirectiveFns.get( part );
+
+        if( directiveFn && directiveFn.destroy ) directiveFn.destroy();
+        if( part.destroy ) part.destroy();
       }
     }
 
@@ -3102,10 +3117,33 @@
   /**
    * 注册指令方法
    */
-  var directive = ( directiveFn ) => ( ...args ) => {
-    const directive = directiveFn( ...args );
-    directiveFns.add( directive );
-    return directive;
+  var directiveFn = ( directiveFn ) => {
+    // 注册指令方法后
+    // 生成等待用户调用的方法
+    return ( ...args ) => {
+      // 将用户传入的参数传递给注册的指令方法
+      // 生成等待模板解析的方法
+      let directive = directiveFn( ...args );
+      let directiveDestroy;
+
+      // 指令方法返回的是数组
+      // 可能同时注册了指令方法的注销方法
+      if( isArray( directive ) ){
+        [ directive, directiveDestroy ] = directive;
+      }
+
+      // 将指令方法的注销方法存起来
+      if( isFunction( directiveDestroy ) ){
+        directive.destroy = directiveDestroy;
+      }
+
+      // 标记生成的方法为指令方法
+      directiveFns.add( directive );
+
+      // 返回方法
+      // 等待下一步调用
+      return directive;
+    };
   };
 
   /**
@@ -3120,7 +3158,7 @@
   const partListCache = new WeakMap();
   const keyListCache = new WeakMap();
 
-  var repeat = directive(( items, key, template ) => {
+  var repeat = directiveFn(( items, key, template ) => {
     const keyFn = isFunction( key ) ? key : item => item[ key ];
 
     return containerPart => {
@@ -3284,7 +3322,7 @@
   const optionsMap$1 = new WeakMap();
 
 
-  var unsafeHTML = directive( value => part => {
+  var unsafeHTML = directiveFn( value => part => {
     if( !( part instanceof NodePart ) ){
       throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
     }
@@ -3319,7 +3357,7 @@
     });
   });
 
-  var bind = directive(( proxy, name ) => {
+  var bind = directiveFn(( proxy, name ) => {
 
     /**
      * 传入对象是否是观察者对象
@@ -4191,7 +4229,7 @@
     cached
   });
 
-  var directive$1 = ( name, directive ) => {
+  var directive = ( name, directive ) => {
     
     // 获取已注册的指令
     if( !directive ){
@@ -4222,7 +4260,8 @@
     nextTick,
     observable,
     util,
-    directive: directive$1
+    directive,
+    directiveFn
   });
 
   return Hu;
