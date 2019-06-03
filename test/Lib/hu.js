@@ -2594,19 +2594,12 @@
   /**
    * 指令方法合集
    */
-  const directiveFns = new WeakSet();
+  const directiveFns = new WeakMap();
 
   /**
    * 当前已经被指令激活的指令方法
    */
   const activeDirectiveFns = new WeakMap();
-
-  /**
-   * 判断传入参数是否是指令方法
-   */
-  var isDirectiveFn = obj => {
-    return isFunction( obj ) && directiveFns.has( obj );
-  };
 
   var commitPart = /**
    * 给指令提交更改所用方法
@@ -2614,22 +2607,47 @@
    * @param {any} value 提交更改的值
    */
   ( part, value ) => {
-    /** 提交的值是否是指令方法 */
-    const valueIsDirectiveFn = isDirectiveFn( value );
+    /**
+     * 尝试在指令方法合集中获取指令方法的信息
+     * 如果可以获取到信息
+     * 那么提交的值就是指令方法
+     */
+    const directiveFnOptions = directiveFns.get( value );
+    /**
+     * 尝试在已激活的指令方法合集中获取指令方法的信息
+     * 如果可以获取到信息
+     * 那么说明上次提交值时也是指令方法
+     */
+    const oldDirectiveFnOptions = activeDirectiveFns.get( part );
 
-    // 如果值是指令方法, 那么需要将他们存起来
-    // 指令注销时, 同时也要注销指令方法
-    if( valueIsDirectiveFn ){
-      activeDirectiveFns.set( part, value );
-    }else{
-      activeDirectiveFns.delete( part );
+    // 如果上次提交的也是指令方法, 那么需要做一些处理
+    if( oldDirectiveFnOptions ){
+      // 如果这次提交的值同样是指令方法, 那么需要判断是否是同一种指令方法
+      // 如果不是同一种指令方法, 需要将之前的指令方法销毁
+      if( directiveFnOptions ){
+        // 两个指令方法的 ID 不同, 说明不是同一个指令方法
+        if( directiveFnOptions[0] !== oldDirectiveFnOptions[0] ){
+          // 将之前的指令方法销毁
+          oldDirectiveFnOptions[ 1 ]( part );
+        }
+      }
+      // 如果这次提交的值不是指令方法, 那么需要将上次的指令方法销毁
+      else{
+        // 将之前的指令方法销毁
+        oldDirectiveFnOptions[ 1 ]( part );
+        // 删除缓存信息
+        activeDirectiveFns.delete( part );
+      }
+    }
+
+    // 如果值是指令方法, 那么需要存储相关信息
+    // 相关指令注销时, 同时也要注销指令方法
+    if( directiveFnOptions ){
+      activeDirectiveFns.set( part, directiveFnOptions );
     }
 
     // 提交更改
-    part.commit(
-      value,
-      valueIsDirectiveFn
-    );
+    part.commit( value, !!directiveFnOptions );
   };
 
   var destroyPart = /**
@@ -2637,15 +2655,21 @@
    * @param {{}} part 需要注销的指令
    */
   part => {
-    /** 当前指令使用的指令方法 */
-    const directiveFn = activeDirectiveFns.get( part );
+    /**
+     * 尝试在已激活的指令方法合集中获取指令方法的信息
+     * 如果可以获取到信息
+     * 说明该指令是使用了指令方法的
+     */
+    const directiveFnOptions = activeDirectiveFns.get( part );
 
-    // 如果有使用指令方法
-    // 那么先注销指令方法
-    if( directiveFn && directiveFn.destroy ){
-      directiveFn.destroy( part );
+    // 需要将指令方法销毁
+    if( directiveFnOptions ){
+      // 将指令方法销毁
+      directiveFnOptions[ 1 ]( part );
+      // 删除缓存信息
       activeDirectiveFns.delete( part );
     }
+
     // 指令有 destroy 方法
     // 也进行调用
     if( part.destroy ){
@@ -3151,6 +3175,10 @@
    * 注册指令方法
    */
   var directiveFn = ( directiveFn ) => {
+
+    /** 当前指令方法的 ID */
+    const id = uid$1();
+
     // 注册指令方法后
     // 生成等待用户调用的方法
     return ( ...args ) => {
@@ -3159,19 +3187,24 @@
       let directive = directiveFn( ...args );
       let directiveDestroy;
 
+
       // 指令方法返回的是数组
       // 可能同时注册了指令方法的注销方法
       if( isArray( directive ) ){
         [ directive, directiveDestroy ] = directive;
       }
 
-      // 将指令方法的注销方法存起来
-      if( isFunction( directiveDestroy ) ){
-        directive.destroy = directiveDestroy;
+      // 如果没有指令方法的注销方法, 则将注销方法指向到空方法
+      if( !isFunction( directiveDestroy ) ){
+        directiveDestroy = noop;
       }
 
-      // 标记生成的方法为指令方法
-      directiveFns.add( directive );
+      // 将指令方法相关的信息存储起来
+      // 
+      directiveFns.set( directive, [
+        id,
+        directiveDestroy
+      ]);
 
       // 返回方法
       // 等待下一步调用
@@ -3297,8 +3330,8 @@
         }
       }
 
-      partListCache.set(containerPart, newParts);
-      keyListCache.set(containerPart, newKeys);
+      partListCache.set( containerPart, newParts );
+      keyListCache.set( containerPart, newKeys );
     };
   });
 

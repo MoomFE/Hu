@@ -1,8 +1,6 @@
 import { isCEPolyfill } from "../../shared/const/env";
 import templateProcessor from "./templateProcessor";
 import NodePart from "./node";
-import isDirectiveFn from "../../static/directiveFn/util/isDirectiveFn";
-import { activeDirectiveFns } from "../../static/directiveFn/const/index";
 import commitPart from "../util/commitPart";
 import destroyPart from "../util/destroyPart";
 

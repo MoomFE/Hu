@@ -125,8 +125,8 @@ export default directiveFn(( items, key, template ) => {
       }
     }
 
-    partListCache.set(containerPart, newParts);
-    keyListCache.set(containerPart, newKeys);
+    partListCache.set( containerPart, newParts );
+    keyListCache.set( containerPart, newKeys );
   };
 });
 
