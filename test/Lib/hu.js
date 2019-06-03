@@ -2720,7 +2720,7 @@
       for( let part of this.parts ) if( part ){
         const directiveFn = activeDirectiveFns.get( part );
 
-        if( directiveFn && directiveFn.destroy ) directiveFn.destroy();
+        if( directiveFn && directiveFn.destroy ) directiveFn.destroy( part );
         if( part.destroy ) part.destroy();
       }
     }
