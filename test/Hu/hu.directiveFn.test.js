@@ -185,9 +185,94 @@ describe( 'Hu.directiveFn', () => {
     expect( commitPart ).is.equals( destroyPart );
   });
 
-  // 以下情况需要确认
-  // 1. 先传入指令方法, 再传入其它值
-  // 2. 先传入其它值, 再传入指令方法
-  // 3. 两次传入的不是同一个指令方法
+  it( '在同一插值绑定内首次传入的是指令方法, 第二次传入的并非指令方法, 首次传入的指令方法会被注销', () => {
+    let commitPart;
+    let destroyPart;
+    const fn = Hu.directiveFn(( value ) => [
+      part => commitPart = part,
+      part => destroyPart = part
+    ]);
+
+    Hu.render( div )`
+      <div>${ fn( 123 ) }</div>
+    `;
+    expect( commitPart ).is.not.undefined;
+    expect( destroyPart ).is.undefined;
+
+    Hu.render( div )`
+      <div>${ 123 }</div>
+    `;
+    expect( commitPart ).is.not.undefined;
+    expect( destroyPart ).is.not.undefined;
+    expect( commitPart ).is.equals( destroyPart );
+  });
+
+  it( '在同一插值绑定内首次使用的并非指令方法, 第二次传入的是指令方法, 指令方法可以正常使用', () => {
+    let commitPart;
+    let destroyPart;
+    const fn = Hu.directiveFn(( value ) => [
+      part => commitPart = part,
+      part => destroyPart = part
+    ]);
+
+    Hu.render( div )`
+      <div>${ 123 }</div>
+    `;
+    expect( commitPart ).is.undefined;
+    expect( destroyPart ).is.undefined;
+
+    Hu.render( div )`
+      <div>${ fn( 123 ) }</div>
+    `;
+    expect( commitPart ).is.not.undefined;
+    expect( destroyPart ).is.undefined;
+
+    Hu.render( div )`
+      <div>${ 123 }</div>
+    `;
+    expect( commitPart ).is.not.undefined;
+    expect( destroyPart ).is.not.undefined;
+    expect( commitPart ).is.equals( destroyPart );
+  });
+
+  it( '在同一插值绑定内两次传入的不是同一个指令方法时, 首次传入的指令方法会被注销', () => {
+    let commitPart1, destroyPart1;
+    let commitPart2, destroyPart2;
+    const fn1 = Hu.directiveFn(( value ) => [
+      part => commitPart1 = part,
+      part => destroyPart1 = part
+    ]);
+    const fn2 = Hu.directiveFn(( value ) => [
+      part => commitPart2 = part,
+      part => destroyPart2 = part
+    ]);
+
+    Hu.render( div )`
+      <div>${ fn1( 123 ) }</div>
+    `;
+    expect( commitPart1 ).is.not.undefined;
+    expect( destroyPart1 ).is.undefined;
+    expect( commitPart2 ).is.undefined;
+    expect( destroyPart2 ).is.undefined;
+
+    Hu.render( div )`
+      <div>${ fn2( 123 ) }</div>
+    `;
+    expect( commitPart1 ).is.not.undefined;
+    expect( destroyPart1 ).is.not.undefined;
+    expect( commitPart2 ).is.not.undefined;
+    expect( destroyPart2 ).is.undefined;
+    expect( commitPart1 ).is.equals( destroyPart1 );
+
+    Hu.render( div )`
+      <div>${ '' }</div>
+    `;
+    expect( commitPart1 ).is.not.undefined;
+    expect( destroyPart1 ).is.not.undefined;
+    expect( commitPart2 ).is.not.undefined;
+    expect( destroyPart2 ).is.not.undefined;
+    expect( commitPart1 ).is.equals( destroyPart1 );
+    expect( commitPart2 ).is.equals( destroyPart2 );
+  });
 
 });
