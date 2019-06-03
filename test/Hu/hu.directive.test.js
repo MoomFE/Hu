@@ -29,6 +29,23 @@ describe( 'Hu.directive', () => {
     ]);
   });
 
+  it( '注册的指令只在元素上使用时会生效', () => {
+    const result = [];
+
+    Hu.directive( 'asd', class {
+      commit( value ){
+        result.push( value );
+      }
+    });
+
+    Hu.render( div )`
+      <div :asd=${ 1 }>:asd=${ 2 }</div>
+      <div :asd=${ 3 }>:asd=${ 4 }</div>
+    `;
+
+    expect( result ).is.deep.equals([ 1, 3 ]);
+  });
+
   it( '注册的指令使用 commit 接收用户传递的值', () => {
     const result = [];
 
@@ -54,21 +71,31 @@ describe( 'Hu.directive', () => {
     ]);
   });
 
-  it( '注册的指令只在元素上使用时会生效', () => {
+  it( '注册的指令使用 commit 接收用户传递的值, 第二个参数用于判断用户传递的值是否是指令方法', () => {
     const result = [];
+    let directiveFn;
+    let fn;
 
     Hu.directive( 'asd', class {
-      commit( value ){
-        result.push( value );
+      commit( value, isDirectiveFn ){
+        result.splice( 0, 2, value, isDirectiveFn );
       }
     });
 
     Hu.render( div )`
-      <div :asd=${ 1 }>:asd=${ 2 }</div>
-      <div :asd=${ 3 }>:asd=${ 4 }</div>
+      <div :asd=${ 123 }></div>
     `;
+    expect( result ).is.deep.equals([ 123, false ]);
 
-    expect( result ).is.deep.equals([ 1, 3 ]);
+    Hu.render( div )`
+      <div :asd=${ directiveFn = Hu.html.unsafe('') }></div>
+    `;
+    expect( result ).is.deep.equals([ directiveFn, true ]);
+
+    Hu.render( div )`
+      <div :asd=${ fn = () => {} }></div>
+    `;
+    expect( result ).is.deep.equals([ fn, false ]);
   });
 
   it( '注册的指令在被弃用时会触发 destroy 方法 ( 切换模板 )', () => {
