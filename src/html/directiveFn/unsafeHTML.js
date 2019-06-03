@@ -45,7 +45,7 @@ export default directiveFn( value => part => {
   const fragment = document.importNode( template.content, true );
 
   // 设置节点内容
-  commitPart( part, fragment, true );
+  commitPart( part, fragment );
 
   // 保存本次设置的值及其选项
   optionsMap.set( part, {

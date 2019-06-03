@@ -2612,12 +2612,10 @@
    * 给指令提交更改所用方法
    * @param {{}} part 需要提交更改的指令
    * @param {any} value 提交更改的值
-   * @param {boolean} valueIsNotDirectiveFn 提交更改的值是否是
    */
-  ( part, value, isNotDirectiveFn ) => {
+  ( part, value ) => {
     /** 提交的值是否是指令方法 */
-    const valueIsDirectiveFn = isNotDirectiveFn !== void 0 ? isNotDirectiveFn
-                                                           : isDirectiveFn( value );
+    const valueIsDirectiveFn = isDirectiveFn( value );
 
     // 如果值是指令方法, 那么需要将他们存起来
     // 指令注销时, 同时也要注销指令方法
@@ -3383,7 +3381,7 @@
     const fragment = document.importNode( template.content, true );
 
     // 设置节点内容
-    commitPart( part, fragment, true );
+    commitPart( part, fragment );
 
     // 保存本次设置的值及其选项
     optionsMap$1.set( part, {
