@@ -3404,13 +3404,12 @@
       // 若传入对象不是观察者对象
       // 那么只设置一次值
       if( !isObserve ){
-        const value = proxy[ name ];
-        return commitPart( part, value );
+        return part.commit( proxy[ name ] );
       }
 
       const unWatch = $watch(
         () => proxy[ name ],
-        value => commitPart( part, value ),
+        value => part.commit( value ),
         {
           immediate: true,
           deep: true
@@ -3426,7 +3425,7 @@
         bindWatches = [];
         bindDirectiveCacheMap.set( rendering, bindWatches );
       }
-    
+
       bindWatches.push( unWatch );
     };
   });

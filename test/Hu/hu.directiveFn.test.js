@@ -72,23 +72,6 @@ describe( 'Hu.directiveFn', () => {
     expect( result ).is.equals( 123 );
   });
 
-  it( '注册的指令方法可以被正确调用 ( 在 bind 指令方法中使用 - 这是不正确的使用方式, 应该被移除 )', () => {
-    let result;
-    const fn = Hu.directiveFn(( value ) => part => {
-      result = value;
-    });
-    const data = {
-      value: fn( 123 )
-    }
-    
-    Hu.render( div )`
-      <div>${
-        Hu.html.bind( data, 'value' )
-      }</div>
-    `;
-    expect( result ).is.equals( 123 );
-  });
-
   it( '注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在 render 方法中使用 )', () => {
     let commitPart;
     let destroyPart;
@@ -189,33 +172,6 @@ describe( 'Hu.directiveFn', () => {
         Hu.html.repeat( [ 123 ], val => val, val => {
           return fn( val );
         })
-      }</div>
-    `;
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
-
-    Hu.render( div )`
-      <div></div>
-    `;
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.not.undefined;
-    expect( commitPart ).is.equals( destroyPart );
-  });
-
-  it( '注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在 bind 指令方法中使用 - 这是不正确的使用方式, 应该被移除 )', () => {
-    let commitPart;
-    let destroyPart;
-    const fn = Hu.directiveFn(( value ) => [
-      part => commitPart = part,
-      part => destroyPart = part
-    ]);
-    const data = {
-      value: fn( 123 )
-    };
-
-    Hu.render( div )`
-      <div>${
-        Hu.html.bind( data, 'value' )
       }</div>
     `;
     expect( commitPart ).is.not.undefined;

@@ -2,7 +2,6 @@ import directiveFn from '../../static/directiveFn/index';
 import { observeProxyMap } from '../../static/observable/observe';
 import { bindDirectiveCacheMap, renderStack } from '../../render/const/index';
 import $watch from '../../core/prototype/$watch';
-import commitPart from '../util/commitPart';
 
 
 export default directiveFn(( proxy, name ) => {
@@ -17,13 +16,12 @@ export default directiveFn(( proxy, name ) => {
     // 若传入对象不是观察者对象
     // 那么只设置一次值
     if( !isObserve ){
-      const value = proxy[ name ];
-      return commitPart( part, value );
+      return part.commit( proxy[ name ] );
     }
 
     const unWatch = $watch(
       () => proxy[ name ],
-      value => commitPart( part, value ),
+      value => part.commit( value ),
       {
         immediate: true,
         deep: true
@@ -39,7 +37,7 @@ export default directiveFn(( proxy, name ) => {
       bindWatches = [];
       bindDirectiveCacheMap.set( rendering, bindWatches );
     }
-  
+
     bindWatches.push( unWatch );
   };
 });
