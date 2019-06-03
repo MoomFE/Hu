@@ -2634,6 +2634,27 @@
     );
   };
 
+  var destroyPart = /**
+   * 注销指令调用的方法
+   * @param {{}} part 需要注销的指令
+   */
+  part => {
+    /** 当前指令使用的指令方法 */
+    const directiveFn = activeDirectiveFns.get( part );
+
+    // 如果有使用指令方法
+    // 那么先注销指令方法
+    if( directiveFn && directiveFn.destroy ){
+      directiveFn.destroy( part );
+      activeDirectiveFns.delete( part );
+    }
+    // 指令有 destroy 方法
+    // 也进行调用
+    if( part.destroy ){
+      part.destroy();
+    }
+  };
+
   class TemplateInstance{
 
     constructor( template ){
@@ -2734,11 +2755,8 @@
     }
 
     destroy(){
-      for( let part of this.parts ) if( part ){
-        const directiveFn = activeDirectiveFns.get( part );
-
-        if( directiveFn && directiveFn.destroy ) directiveFn.destroy( part );
-        if( part.destroy ) part.destroy();
+      for( let part of this.parts ){
+        part && destroyPart( part );
       }
     }
 
@@ -2919,7 +2937,7 @@
         // 注销数组类型的写入值
         else if( isArray( value ) ){
           for( let part of value ){
-            part.destroy && part.destroy();
+            part && destroyPart( part );
           }
         }
       }

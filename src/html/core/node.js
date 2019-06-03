@@ -9,6 +9,7 @@ import TemplateInstance from "./templateInstance";
 import TemplateResult from "./templateResult";
 import toString from "../../shared/util/toString";
 import commitPart from "../util/commitPart";
+import destroyPart from "../util/destroyPart";
 
 
 /**
@@ -77,7 +78,7 @@ export default class NodePart{
       // 注销数组类型的写入值
       else if( isArray( value ) ){
         for( const part of value ){
-          part.destroy && part.destroy();
+          part && destroyPart( part );
         }
       }
     }

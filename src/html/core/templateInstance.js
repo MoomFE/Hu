@@ -4,6 +4,7 @@ import NodePart from "./node";
 import isDirectiveFn from "../../static/directiveFn/util/isDirectiveFn";
 import { activeDirectiveFns } from "../../static/directiveFn/const/index";
 import commitPart from "../util/commitPart";
+import destroyPart from "../util/destroyPart";
 
 
 export default class TemplateInstance{
@@ -106,11 +107,8 @@ export default class TemplateInstance{
   }
 
   destroy(){
-    for( const part of this.parts ) if( part ){
-      const directiveFn = activeDirectiveFns.get( part );
-
-      if( directiveFn && directiveFn.destroy ) directiveFn.destroy( part );
-      if( part.destroy ) part.destroy();
+    for( const part of this.parts ){
+      part && destroyPart( part );
     }
   }
 
