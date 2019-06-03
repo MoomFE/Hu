@@ -3,6 +3,7 @@ import templateProcessor from "./templateProcessor";
 import NodePart from "./node";
 import isDirectiveFn from "../../static/directiveFn/util/isDirectiveFn";
 import { activeDirectiveFns } from "../../static/directiveFn/const/index";
+import commitPart from "../util/commitPart";
 
 
 export default class TemplateInstance{
@@ -18,19 +19,10 @@ export default class TemplateInstance{
   update( values ){
     let index = 0;
 
-    for( const part of this.parts ) if( part ){
-      const value = values[ index++ ];
-      const valueIsDirectiveFn = isDirectiveFn( value );
-
-      // 如果值是指令方法, 那么需要将他们存起来
-      // 指令注销时, 同时也要注销指令方法
-      activeDirectiveFns[ valueIsDirectiveFn ? 'set' : 'delete' ](
-        part, value
-      );
-
-      part.commit(
-        value,
-        valueIsDirectiveFn
+    for( const part of this.parts ){
+      part && commitPart(
+        part,
+        values[ index++ ]
       );
     }
   }

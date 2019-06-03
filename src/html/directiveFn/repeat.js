@@ -4,6 +4,7 @@ import isFunction from '../../shared/util/isFunction';
 import removeNodes from '../../shared/util/removeNodes';
 import moveChildNodes from '../../shared/util/moveChildNodes';
 import createMarker from '../util/createMarker';
+import commitPart from '../util/commitPart';
 
 
 /**
@@ -131,7 +132,7 @@ export default directiveFn(( items, key, template ) => {
 
 
 function updatePart( part, value ){
-  part.commit( value );
+  commitPart( part, value );
   return part;
 }
 

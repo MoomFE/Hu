@@ -2608,6 +2608,32 @@
     return isFunction( obj ) && directiveFns.has( obj );
   };
 
+  var commitPart = /**
+   * 给指令提交更改所用方法
+   * @param {{}} part 需要提交更改的指令
+   * @param {any} value 提交更改的值
+   * @param {boolean} valueIsNotDirectiveFn 提交更改的值是否是
+   */
+  ( part, value, isNotDirectiveFn ) => {
+    /** 提交的值是否是指令方法 */
+    const valueIsDirectiveFn = isNotDirectiveFn !== void 0 ? isNotDirectiveFn
+                                                           : isDirectiveFn( value );
+
+    // 如果值是指令方法, 那么需要将他们存起来
+    // 指令注销时, 同时也要注销指令方法
+    if( valueIsDirectiveFn ){
+      activeDirectiveFns.set( part, value );
+    }else{
+      activeDirectiveFns.delete( part );
+    }
+
+    // 提交更改
+    part.commit(
+      value,
+      valueIsDirectiveFn
+    );
+  };
+
   class TemplateInstance{
 
     constructor( template ){
@@ -2621,19 +2647,10 @@
     update( values ){
       let index = 0;
 
-      for( let part of this.parts ) if( part ){
-        const value = values[ index++ ];
-        const valueIsDirectiveFn = isDirectiveFn( value );
-
-        // 如果值是指令方法, 那么需要将他们存起来
-        // 指令注销时, 同时也要注销指令方法
-        activeDirectiveFns[ valueIsDirectiveFn ? 'set' : 'delete' ](
-          part, value
-        );
-
-        part.commit(
-          value,
-          valueIsDirectiveFn
+      for( let part of this.parts ){
+        part && commitPart(
+          part,
+          values[ index++ ]
         );
       }
     }
@@ -3065,7 +3082,7 @@
       }
 
       // 给 NodePart 设置值
-      part.commit( item );
+      commitPart( part, item );
       partIndex++;
     }
 
@@ -3103,7 +3120,7 @@
       part.appendInto( container );
     }
 
-    part.commit( result );
+    commitPart( part, result );
   }
 
 
@@ -3271,7 +3288,7 @@
 
 
   function updatePart( part, value ){
-    part.commit( value );
+    commitPart( part, value );
     return part;
   }
 
@@ -3348,7 +3365,7 @@
     const fragment = document.importNode( template.content, true );
 
     // 设置节点内容
-    part.commit( fragment );
+    commitPart( part, fragment, true );
 
     // 保存本次设置的值及其选项
     optionsMap$1.set( part, {
@@ -3369,12 +3386,13 @@
       // 若传入对象不是观察者对象
       // 那么只设置一次值
       if( !isObserve ){
-        return part.commit( proxy[ name ] );
+        const value = proxy[ name ];
+        return commitPart( part, value );
       }
 
       const unWatch = $watch(
         () => proxy[ name ],
-        value => part.commit( value ),
+        value => commitPart( part, value ),
         {
           immediate: true,
           deep: true

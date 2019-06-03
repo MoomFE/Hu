@@ -1,6 +1,7 @@
 import directiveFn from "../../static/directiveFn/index";
 import NodePart from "../core/node";
 import isPrimitive from "../../shared/util/isPrimitive";
+import commitPart from "../util/commitPart";
 
 
 /**
@@ -44,7 +45,7 @@ export default directiveFn( value => part => {
   const fragment = document.importNode( template.content, true );
 
   // 设置节点内容
-  part.commit( fragment );
+  commitPart( part, fragment, true );
 
   // 保存本次设置的值及其选项
   optionsMap.set( part, {

@@ -2,6 +2,7 @@ import { renderStack } from './const/index';
 import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
 import NodePart from '../html/core/node';
 import removeNodes from '../shared/util/removeNodes';
+import commitPart from '../html/util/commitPart';
 
 
 const parts = new WeakMap();
@@ -24,7 +25,7 @@ function basicRender( result, container ){
     part.appendInto( container );
   }
 
-  part.commit( result );
+  commitPart( part, result );
 }
 
 

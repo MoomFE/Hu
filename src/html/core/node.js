@@ -8,6 +8,7 @@ import templateFactory from "./templateFactory";
 import TemplateInstance from "./templateInstance";
 import TemplateResult from "./templateResult";
 import toString from "../../shared/util/toString";
+import commitPart from "../util/commitPart";
 
 
 /**
@@ -239,7 +240,7 @@ function commitIterable( nodePart, value, oldValue ){
     }
 
     // 给 NodePart 设置值
-    part.commit( item );
+    commitPart( part, item );
     partIndex++;
   }
 
