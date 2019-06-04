@@ -31,6 +31,8 @@ describe( 'Hu.html.directiveFn', () => {
     // 保存最新的元素内容顺序
     const newChildrenText = newChildren.map( elem => elem.innerHTML );
 
+    // 元素个数是对的
+    expect( children.length ).is.equals( 6 );
     // 元素的位置跟着数组一起交换了
     expect( children ).is.deep.equals( newChildren.reverse() );
     // 内容的位置跟着数组一起交换了
@@ -68,6 +70,8 @@ describe( 'Hu.html.directiveFn', () => {
     // 保存最新的元素内容顺序
     const newChildrenText = newChildren.map( elem => elem.innerHTML );
 
+    // 元素个数是对的
+    expect( children.length ).is.equals( 6 );
     // 元素的位置未着数组一起交换
     expect( children ).is.deep.equals( newChildren );
     // 内容的位置跟着数组一起交换了
