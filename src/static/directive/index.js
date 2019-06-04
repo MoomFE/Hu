@@ -1,7 +1,9 @@
 import { userDirectives, directives } from "../../html/const/index";
+import commitPart from "../../html/util/commitPart";
+import destroyPart from "../../html/util/destroyPart";
 
 
-export default ( name, directive ) => {
+export default function directive( name, directive ){
   
   // 获取已注册的指令
   if( !directive ){
@@ -12,3 +14,8 @@ export default ( name, directive ) => {
   userDirectives[ name ] = directive;
 
 }
+
+// 指令提交更改方法
+directive.commit = commitPart;
+// 指令注销方法
+directive.destroy = destroyPart;

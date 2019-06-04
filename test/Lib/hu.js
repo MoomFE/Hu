@@ -4374,7 +4374,7 @@
     cached
   });
 
-  var directive = ( name, directive ) => {
+  function directive( name, directive ){
     
     // 获取已注册的指令
     if( !directive ){
@@ -4384,7 +4384,12 @@
     // 注册指令
     userDirectives[ name ] = directive;
 
-  };
+  }
+
+  // 指令提交更改方法
+  directive.commit = commitPart;
+  // 指令注销方法
+  directive.destroy = destroyPart;
 
   const otherHu = inBrowser ? window.Hu
                             : void 0;
