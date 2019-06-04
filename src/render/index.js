@@ -1,5 +1,4 @@
 import { renderStack } from './const/index';
-import { unWatchAllDirectiveCache } from './util/unWatchAllDirectiveCache';
 import NodePart from '../html/core/node';
 import removeNodes from '../shared/util/removeNodes';
 import commitPart from '../html/util/commitPart';
@@ -30,7 +29,6 @@ function basicRender( result, container ){
 
 
 export default ( result, container ) => {
-  unWatchAllDirectiveCache( container );
   renderStack.push( container );
   basicRender( result, container );
   renderStack.pop();

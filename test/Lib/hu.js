@@ -1096,33 +1096,6 @@
   const renderStack = [];
 
   /**
-   * 存放渲染时收集到的属性监听的解绑方法
-   * 用于下次渲染时的解绑
-   */
-  const bindDirectiveCacheMap = new WeakMap();
-
-  /**
-   * 解绑上次渲染时收集到的属性监听和双向数据绑定信息
-   */
-  function unWatchAllDirectiveCache( container ){
-    // 解绑上次渲染时收集到的属性监听
-    unWatchDirectiveCache( bindDirectiveCacheMap, container, unWatch => {
-      return unWatch();
-    });
-  }
-
-  function unWatchDirectiveCache( cache, container, fn ){
-    const options = cache.get( container );
-
-    if( options ){
-      for( let option of options ){
-        fn( option );
-      }
-      options.length = 0;
-    }
-  }
-
-  /**
    * 判断传入对象是否是原始对象
    */
   var isPrimitive = value => {
@@ -3165,7 +3138,6 @@
 
 
   var render = ( result, container ) => {
-    unWatchAllDirectiveCache( container );
     renderStack.push( container );
     basicRender( result, container );
     renderStack.pop();
@@ -3423,6 +3395,12 @@
     });
   });
 
+  /**
+   * 绑定信息合集
+   */
+  const bindMap = new WeakMap();
+
+
   var bind = directiveFn(( proxy, name ) => {
 
     /**
@@ -3430,35 +3408,67 @@
      */
     const isObserve = observeProxyMap.has( proxy );
 
-    return part => {
-
-      // 若传入对象不是观察者对象
-      // 那么只设置一次值
-      if( !isObserve ){
-        return part.commit( proxy[ name ] );
-      }
-
-      const unWatch = $watch(
-        () => proxy[ name ],
-        value => part.commit( value ),
-        {
-          immediate: true,
-          deep: true
+    return [
+      /**
+       * commit
+       */
+      part => {
+        // 若传入对象不是观察者对象
+        // 那么只设置一次值
+        if( !isObserve ){
+          return part.commit( proxy[ name ] );
         }
-      );
 
-      // 当前渲染元素
-      const rendering = renderStack[ renderStack.length - 1 ];
-      // 当前渲染元素属性监听解绑方法集
-      let bindWatches = bindDirectiveCacheMap.get( rendering );
+        /**
+         * 尝试在绑定信息合集中查找上次的绑定信息
+         * 如果可以获取到信息
+         * 说明上次已经初始过一个绑定了
+         */
+        const bindOptions = bindMap.get( part );
 
-      if( !bindWatches ){
-        bindWatches = [];
-        bindDirectiveCacheMap.set( rendering, bindWatches );
+        // 如果有上次绑定的信息, 那么需要做一些处理
+        if( bindOptions ){
+          // 如果这次的绑定信息和上次的一模一样
+          // 那么直接复用上次的就好了
+          if( bindOptions[0] === proxy && bindOptions[1] === proxy ) return;
+          // 如果上次绑定的对象或者变量名和这次不一样
+          // 那么取消上次的绑定
+          // 程序继续往下执行, 运行新的绑定
+          else bindOptions[2]();
+        }
+    
+        // 绑定
+        const unWatch = $watch(
+          () => proxy[ name ],
+          value => part.commit( value ),
+          {
+            immediate: true,
+            deep: true
+          }
+        );
+
+        // 存储当前绑定信息
+        bindMap.set( part, [
+          proxy, name, unWatch
+        ]);
+      },
+      /**
+       * destroy
+       */
+      part => {
+        /**
+         * 尝试在绑定信息合集中查找上次的绑定信息
+         * 如果可以获取到信息
+         * 说明上次已经初始过一个绑定了
+         */
+        const bindOptions = bindMap.get( part );
+
+        // 取消绑定
+        bindOptions[2]();
+        // 删除相关信息
+        bindMap.delete( part );
       }
-
-      bindWatches.push( unWatch );
-    };
+    ];
   });
 
   function html( strings, ...values ){
@@ -3829,9 +3839,6 @@
     removeComputed( computedMap, this );
     removeComputed( watcherMap, this );
 
-    // 解绑上次渲染时收集到的属性监听和双向数据绑定信息
-    unWatchAllDirectiveCache( this.$el );
-
     // 清空 render 方法收集到的依赖
     removeRenderDeps( this );
 
@@ -4177,7 +4184,6 @@
 
     infoTarget.isConnected = false;
 
-    unWatchAllDirectiveCache( $hu.$el );
     removeRenderDeps( $hu );
 
     callLifecycle( $hu, 'disconnected', options );
