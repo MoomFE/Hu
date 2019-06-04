@@ -3463,10 +3463,12 @@
          */
         const bindOptions = bindMap.get( part );
 
-        // 取消绑定
-        bindOptions[2]();
-        // 删除相关信息
-        bindMap.delete( part );
+        if( bindOptions ){
+          // 取消绑定
+          bindOptions[2]();
+          // 删除相关信息
+          bindMap.delete( part );
+        }
       }
     ];
   });
