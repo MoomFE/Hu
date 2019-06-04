@@ -1506,4 +1506,29 @@ describe( 'Hu.define - watch', () => {
     });
   });
 
+  it( '使用 $watch 监听值后, 在 $watch 的回调中注销掉自己的监听时, 其它监听不会受到影响', () => {
+    let result1, result2, result3;
+    const hu = new Hu({
+      data: { a: 1 }
+    });
+
+    const unWatch1 = hu.$watch( 'a', value => {
+      unWatch1();
+      result1 = value;
+    });
+    const unWatch2 = hu.$watch( 'a', value => {
+      result2 = value;
+    });
+    const unWatch3 = hu.$watch( 'a', value => {
+      result3 = value;
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( result1 ).is.equals( 2 );
+      expect( result2 ).is.equals( 2 );
+      expect( result3 ).is.equals( 2 );
+    });
+  });
+
 });
