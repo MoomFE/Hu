@@ -5,10 +5,11 @@ import { observe } from "../../static/observable/observe";
 import addEventListener from "../../shared/util/addEventListener";
 import { filter } from "../../shared/global/Array/prototype";
 import isFunction from "../../shared/util/isFunction";
-import { apply } from "../../shared/global/Reflect/index";
 import $watch from "../../core/prototype/$watch";
 import getAttribute from "../../shared/util/getAttribute";
 import triggerEvent from "../../shared/util/triggerEvent";
+import { apply } from "../../shared/global/Reflect/index";
+import removeEventListener from "../../shared/util/removeEventListener";
 
 
 export default class ModelDirective{
@@ -41,6 +42,7 @@ export default class ModelDirective{
 
     this.elem = element;
     this.handler = handler;
+    this.events = [];
   }
 
   commit( value, isDirectiveFn ){
@@ -84,7 +86,14 @@ export default class ModelDirective{
 
   destroy(){
     // 解绑值监听绑定值
-    if( this.init ) this.unWatch();
+    if( this.init ){
+      // 清除值绑定
+      this.unWatch();
+      // 清除事件绑定
+      this.events.forEach( args => {
+        apply( removeEventListener, null, args );
+      });
+    }
   }
 
 }
@@ -100,15 +109,25 @@ function watch( model, options, element, prop ){
   // 若后续绑定对象发生更改, 需要调用方法立即更新
   model.set = set;
   // 监听绑定的值
-  model.unWatch = apply( $watch, model, [
+  model.unWatch = $watch(
     // 监听绑定的值
     () => options[ 0 ][ options[ 1 ] ],
     // 响应绑定值更改
     value => set( value ),
     // 立即响应
     { immediate: true }
-  ]);
+  );
 }
+
+function addEvent( model, ...args ){
+  // 存储事件
+  model.events.push( args );
+  // 绑定事件
+  apply( addEventListener, null, args )
+}
+
+
+
 
 /**
  * 对 select 元素进行双向绑定
@@ -120,7 +139,7 @@ function handlerSelect( model, element, options ){
   // 监听绑定值改变
   watch( model, options, element, 'value' );
   // 监听控件值改变
-  addEventListener( element, 'change', event => {
+  addEvent( model, element, 'change', event => {
     const value = filter.call( element.options, option => option.selected ).map( option => option.value );
     options[ 0 ][ options[ 1 ] ] = element.multiple ? value : value[0];
   });
@@ -136,7 +155,7 @@ function handlerCheckbox( model, element, options ){
   // 监听绑定值改变
   watch( model, options, element, 'checked' );
   // 监听控件值改变
-  addEventListener( element, 'change', event => {
+  addEvent( model, element, 'change', event => {
     options[ 0 ][ options[ 1 ] ] = element.checked;
   });
 }
@@ -153,7 +172,7 @@ function handlerRadio( model, element, options ){
     element.checked = value === ( getAttribute( element, 'value' ) || null );
   });
   // 监听控件值改变
-  addEventListener( element, 'change', event => {
+  addEvent( model, element, 'change', event => {
     options[ 0 ][ options[ 1 ] ] = getAttribute( element, 'value' ) || null;
   });
 }
@@ -168,16 +187,16 @@ function handlerDefault( model, element, options ){
   // 监听绑定值改变
   watch( model, options, element, 'value' );
   // 监听控件值改变
-  addEventListener( element, 'compositionstart', event => {
+  addEvent( model, element, 'compositionstart', event => {
     element.composing = true;
   });
-  addEventListener( element, 'compositionend', event => {
+  addEvent( model, element, 'compositionend', event => {
     if( !element.composing ) return;
 
     element.composing = false;
     triggerEvent( element, 'input' );
   });
-  addEventListener( element, 'input', event => {
+  addEvent( model, element, 'input', event => {
     if( element.composing || !options.length ) return;
 
     options[ 0 ][ options[ 1 ] ] = element.value;

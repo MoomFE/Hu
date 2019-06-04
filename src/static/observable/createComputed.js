@@ -102,7 +102,7 @@ function createRemoveComputed( computedOptionsMap ){
         // 从异步更新队列标记中删除
         queueMap.delete( watcher );
         // 从异步更新队列中删除
-        for( let i = index + 1, len = queue.length; i < len; i++ ){
+        for( let i = index, len = queue.length; i < len; i++ ){
           if( queue[ i ] === watcher ){
             queue.splice( i, 1 );
             break;

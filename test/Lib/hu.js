@@ -1096,6 +1096,11 @@
   const renderStack = [];
 
   /**
+   * Render 渲染方法的 NodePart 缓存
+   */
+  const renderParts = new WeakMap();
+
+  /**
    * 判断传入对象是否是原始对象
    */
   var isPrimitive = value => {
@@ -1467,7 +1472,7 @@
           // 从异步更新队列标记中删除
           queueMap.delete( watcher );
           // 从异步更新队列中删除
-          for( let i = index + 1, len = queue.length; i < len; i++ ){
+          for( let i = index, len = queue.length; i < len; i++ ){
             if( queue[ i ] === watcher ){
               queue.splice( i, 1 );
               break;
@@ -1613,6 +1618,17 @@
     target.dispatchEvent( event );
   };
 
+  var removeEventListener = /**
+   * 移除事件
+   * @param {Element} elem
+   * @param {string} type
+   * @param {function} listener
+   * @param {boolean|{}} options
+   */
+  ( elem, type, listener, options ) => {
+    elem.removeEventListener( type, listener, options );
+  };
+
   class ModelDirective{
 
     constructor( element, name, strings, modifiers ){
@@ -1643,6 +1659,7 @@
 
       this.elem = element;
       this.handler = handler;
+      this.events = [];
     }
 
     commit( value, isDirectiveFn ){
@@ -1686,7 +1703,14 @@
 
     destroy(){
       // 解绑值监听绑定值
-      if( this.init ) this.unWatch();
+      if( this.init ){
+        // 清除值绑定
+        this.unWatch();
+        // 清除事件绑定
+        this.events.forEach( args => {
+          apply( removeEventListener, null, args );
+        });
+      }
     }
 
   }
@@ -1702,15 +1726,25 @@
     // 若后续绑定对象发生更改, 需要调用方法立即更新
     model.set = set;
     // 监听绑定的值
-    model.unWatch = apply( $watch, model, [
+    model.unWatch = $watch(
       // 监听绑定的值
       () => options[ 0 ][ options[ 1 ] ],
       // 响应绑定值更改
       value => set( value ),
       // 立即响应
       { immediate: true }
-    ]);
+    );
   }
+
+  function addEvent( model, ...args ){
+    // 存储事件
+    model.events.push( args );
+    // 绑定事件
+    apply( addEventListener, null, args );
+  }
+
+
+
 
   /**
    * 对 select 元素进行双向绑定
@@ -1722,7 +1756,7 @@
     // 监听绑定值改变
     watch( model, options, element, 'value' );
     // 监听控件值改变
-    addEventListener( element, 'change', event => {
+    addEvent( model, element, 'change', event => {
       const value = filter.call( element.options, option => option.selected ).map( option => option.value );
       options[ 0 ][ options[ 1 ] ] = element.multiple ? value : value[0];
     });
@@ -1738,7 +1772,7 @@
     // 监听绑定值改变
     watch( model, options, element, 'checked' );
     // 监听控件值改变
-    addEventListener( element, 'change', event => {
+    addEvent( model, element, 'change', event => {
       options[ 0 ][ options[ 1 ] ] = element.checked;
     });
   }
@@ -1755,7 +1789,7 @@
       element.checked = value === ( getAttribute( element, 'value' ) || null );
     });
     // 监听控件值改变
-    addEventListener( element, 'change', event => {
+    addEvent( model, element, 'change', event => {
       options[ 0 ][ options[ 1 ] ] = getAttribute( element, 'value' ) || null;
     });
   }
@@ -1770,16 +1804,16 @@
     // 监听绑定值改变
     watch( model, options, element, 'value' );
     // 监听控件值改变
-    addEventListener( element, 'compositionstart', event => {
+    addEvent( model, element, 'compositionstart', event => {
       element.composing = true;
     });
-    addEventListener( element, 'compositionend', event => {
+    addEvent( model, element, 'compositionend', event => {
       if( !element.composing ) return;
 
       element.composing = false;
       triggerEvent( element, 'input' );
     });
-    addEventListener( element, 'input', event => {
+    addEvent( model, element, 'input', event => {
       if( element.composing || !options.length ) return;
 
       options[ 0 ][ options[ 1 ] ] = element.value;
@@ -2287,17 +2321,6 @@
    */
   const activeHu = new WeakMap();
 
-  var removeEventListener = /**
-   * 移除事件
-   * @param {Element} elem
-   * @param {string} type
-   * @param {function} listener
-   * @param {boolean|{}} options
-   */
-  ( elem, type, listener, options ) => {
-    elem.removeEventListener( type, listener, options );
-  };
-
   class BasicEventDirective{
 
     constructor( element, type, strings, modifiers ){
@@ -2749,9 +2772,14 @@
       return fragment;
     }
 
-    destroy(){
-      for( let part of this.parts ){
-        part && destroyPart( part );
+    /**
+     * 
+     * @param {boolean} onlyDestroyDirective 是否只注销指令
+     */
+    destroy( onlyDestroyDirective ){
+      for( let part of this.parts ) if( part ){
+        if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
+        else destroyPart( part );
       }
     }
 
@@ -2907,9 +2935,27 @@
       }
     }
 
-    /** 清空当前插值绑定内的所有内容 */
+    /** 销毁当前插值绑定内的所有内容 */
     destroy(){
       this.clear();
+    }
+    /**
+     * 销毁当前插值绑定内的所有指令及 NodePart
+     * @param {boolean} onlyDestroyDirective 是否只注销指令
+     */
+    destroyPart( onlyDestroyDirective ){
+      // 注销模板片段对象 ( 如果有 )
+      if( this.instance ){
+        this.instance.destroy( onlyDestroyDirective );
+        this.instance = void 0;
+      }
+      // 注销数组类型的写入值
+      else if( isArray( this.value ) ){
+        for( let part of this.value ) if( part ){
+          if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
+          else destroyPart( part );
+        }
+      }
     }
     /**
      * 清空当前插值绑定内的所有内容
@@ -2922,19 +2968,7 @@
       // 若未指定起始位置, 那么需要清除 parts 指令片段
       // 若制定了起始位置, 那么 parts 的回收必须手动完成
       if( !hasStartNode ){
-        const { instance, value } = this;
-
-        // 注销模板片段对象 ( 如果有 )
-        if( instance ){
-          instance.destroy();
-          this.instance = void 0;
-        }
-        // 注销数组类型的写入值
-        else if( isArray( value ) ){
-          for( let part of value ){
-            part && destroyPart( part );
-          }
-        }
+        this.destroyPart();
       }
 
       // 清除节点
@@ -3113,11 +3147,9 @@
     nodePart.value = parts;
   }
 
-  const parts = new WeakMap();
-
   function basicRender( result, container ){
     // 尝试获取上次创建的节点对象
-    let part = parts.get( container );
+    let part = renderParts.get( container );
 
     // 首次在该目标对象下进行渲染, 对节点对象进行创建
     if( !part ){
@@ -3125,7 +3157,7 @@
       removeNodes( container, container.firstChild );
 
       // 创建节点对象
-      parts.set(
+      renderParts.set(
         container,
         part = new NodePart()
       );
@@ -3137,11 +3169,14 @@
   }
 
 
-  var render = ( result, container ) => {
+  /**
+   * 对外渲染方法
+   */
+  function render( result, container ){
     renderStack.push( container );
     basicRender( result, container );
     renderStack.pop();
-  };
+  }
 
   /**
    * 注册指令方法
@@ -3833,6 +3868,22 @@
     }
   };
 
+  var destroyDirective = /**
+   * 注销某个已渲染的节点中所有的指令及指令方法
+   * 但是不影响已渲染的 DOM
+   * @param {Element} container 上次渲染的根节点
+   * @param {boolean} destroyAll 是否移除已渲染的 DOM
+   */
+  ( container, destroyAll ) => {
+    /** 获取在传入节点渲染时使用的 NodePart */
+    const nodePart = renderParts.get( container );
+
+    if( nodePart ){
+      nodePart.destroyPart( true );
+      renderParts.delete( container );
+    }
+  };
+
   function $destroy(){
 
     callLifecycle( this, 'beforeDestroy' );
@@ -3840,6 +3891,9 @@
     // 注销实例所有计算属性和 watch 数据
     removeComputed( computedMap, this );
     removeComputed( watcherMap, this );
+
+    // 注销
+    destroyDirective( this.$el );
 
     // 清空 render 方法收集到的依赖
     removeRenderDeps( this );
@@ -4186,6 +4240,7 @@
 
     infoTarget.isConnected = false;
 
+    destroyDirective( $hu.$el );
     removeRenderDeps( $hu );
 
     callLifecycle( $hu, 'disconnected', options );
