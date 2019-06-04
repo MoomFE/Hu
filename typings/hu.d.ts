@@ -322,6 +322,16 @@ interface Hu{
   directive( name: string ): DirectiveClass | undefined;
 
   /**
+   * 注册指令方法
+   */
+  directiveFn( fn: ( ...args: anyp[] ) => ( part ) => void ): T;
+
+  /**
+   * 注册指令方法 ( 同时注册注销方法 )
+   */
+  directiveFn( fn: ( ...args: anyp[] ) => (( part ) => void)[] ): T;
+
+  /**
    * 字符串形式的 Hu 安装版本号
    */
   version: string;
