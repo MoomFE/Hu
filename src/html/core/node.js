@@ -53,9 +53,27 @@ export default class NodePart{
     }
   }
 
-  /** 清空当前插值绑定内的所有内容 */
+  /** 销毁当前插值绑定内的所有内容 */
   destroy(){
     this.clear();
+  }
+  /**
+   * 销毁当前插值绑定内的所有指令及 NodePart
+   * @param {boolean} onlyDestroyDirective 是否只注销指令
+   */
+  destroyPart( onlyDestroyDirective ){
+    // 注销模板片段对象 ( 如果有 )
+    if( this.instance ){
+      this.instance.destroy( onlyDestroyDirective );
+      this.instance = void 0;
+    }
+    // 注销数组类型的写入值
+    else if( isArray( this.value ) ){
+      for( const part of this.value ) if( part ){
+        if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
+        else destroyPart( part );
+      }
+    }
   }
   /**
    * 清空当前插值绑定内的所有内容
@@ -68,19 +86,7 @@ export default class NodePart{
     // 若未指定起始位置, 那么需要清除 parts 指令片段
     // 若制定了起始位置, 那么 parts 的回收必须手动完成
     if( !hasStartNode ){
-      const { instance, value } = this;
-
-      // 注销模板片段对象 ( 如果有 )
-      if( instance ){
-        instance.destroy();
-        this.instance = void 0;
-      }
-      // 注销数组类型的写入值
-      else if( isArray( value ) ){
-        for( const part of value ){
-          part && destroyPart( part );
-        }
-      }
+      this.destroyPart();
     }
 
     // 清除节点

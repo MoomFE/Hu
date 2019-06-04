@@ -1,14 +1,12 @@
-import { renderStack } from './const/index';
+import { renderStack, renderParts } from './const/index';
 import NodePart from '../html/core/node';
 import removeNodes from '../shared/util/removeNodes';
 import commitPart from '../html/util/commitPart';
 
 
-const parts = new WeakMap();
-
 function basicRender( result, container ){
   // 尝试获取上次创建的节点对象
-  let part = parts.get( container );
+  let part = renderParts.get( container );
 
   // 首次在该目标对象下进行渲染, 对节点对象进行创建
   if( !part ){
@@ -16,7 +14,7 @@ function basicRender( result, container ){
     removeNodes( container, container.firstChild );
 
     // 创建节点对象
-    parts.set(
+    renderParts.set(
       container,
       part = new NodePart()
     );
@@ -28,7 +26,10 @@ function basicRender( result, container ){
 }
 
 
-export default ( result, container ) => {
+/**
+ * 对外渲染方法
+ */
+export default function render( result, container ){
   renderStack.push( container );
   basicRender( result, container );
   renderStack.pop();

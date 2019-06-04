@@ -104,9 +104,14 @@ export default class TemplateInstance{
     return fragment;
   }
 
-  destroy(){
-    for( const part of this.parts ){
-      part && destroyPart( part );
+  /**
+   * 
+   * @param {boolean} onlyDestroyDirective 是否只注销指令
+   */
+  destroy( onlyDestroyDirective ){
+    for( const part of this.parts ) if( part ){
+      if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
+      else destroyPart( part );
     }
   }
 
