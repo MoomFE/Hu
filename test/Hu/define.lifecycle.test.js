@@ -145,7 +145,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( isWatchRun ).is.true;
   });
 
-  it( 'beforeMount 声明周期回调: 首次挂载开始之前被调用', () => {
+  it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用', () => {
     let isBeforeMountRun = false;
     let isRenderRun = false;
     let index = 0;
@@ -185,7 +185,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( isBeforeMountRun ).is.true;
   });
 
-  it( 'beforeMount 声明周期回调: 首次挂载开始之前被调用 ( 二 )', () => {
+  it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用 ( 二 )', () => {
     let isBeforeMountRun = false;
     let isRenderRun = false;
 
@@ -207,7 +207,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( isBeforeMountRun ).is.true;
   });
 
-  it( 'beforeMount 声明周期回调: 首次挂载开始之前被调用 ( 二 ) ( Vue )', () => {
+  it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用 ( 二 ) ( Vue )', () => {
     let isBeforeMountRun = false;
     let isRenderRun = false;
 
@@ -229,7 +229,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( isBeforeMountRun ).is.true;
   });
 
-  it( 'beforeMount 声明周期回调: 首次挂载开始之前被调用 ( 自定义元素 )', () => {
+  it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用 ( 自定义元素 )', () => {
     const customName = window.customName;
     let isBeforeMountRun = false;
     let isRenderRun = false;
@@ -280,7 +280,7 @@ describe( 'Hu.define - lifecycle', () => {
     custom.$remove();
   });
 
-  it( 'mounted 声明周期回调: 首次挂载之后被调用', () => {
+  it( 'mounted 生命周期回调: 首次挂载之后被调用', () => {
     let isMountedRun = false;
     let isRenderRun = false;
     let index = 0;
@@ -320,7 +320,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( isMountedRun ).is.true;
   });
 
-  it( 'mounted 声明周期回调: 首次挂载之后被调用 ( 二 )', () => {
+  it( 'mounted 生命周期回调: 首次挂载之后被调用 ( 二 )', () => {
     let isMountedRun = false;
     let isRenderRun = false;
     let index = 0;
@@ -345,7 +345,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( isMountedRun ).is.true;
   });
 
-  it( 'mounted 声明周期回调: 首次挂载之后被调用 ( 自定义元素 )', () => {
+  it( 'mounted 生命周期回调: 首次挂载之后被调用 ( 自定义元素 )', () => {
     const customName = window.customName;
     let isMountedRun = false;
     let isRenderRun = false;
@@ -396,7 +396,7 @@ describe( 'Hu.define - lifecycle', () => {
     custom.$remove();
   });
 
-  it( 'beforeDestroy 声明周期回调: 实例销毁之前调用, 在这一步, 实例仍然完全可用', () => {
+  it( 'beforeDestroy 生命周期回调: 实例销毁之前调用, 在这一步, 实例仍然完全可用', () => {
     let index = 0;
     const hu = new Hu({
       data: {
@@ -420,7 +420,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( index ).is.equals( 1 );
   });
 
-  it( 'beforeDestroy 声明周期回调: 实例销毁之前调用, 在这一步, 实例仍然完全可用 ( 自定义元素 )', () => {
+  it( 'beforeDestroy 生命周期回调: 实例销毁之前调用, 在这一步, 实例仍然完全可用 ( 自定义元素 )', () => {
     const customName = window.customName;
     let index = 0;
 
@@ -449,7 +449,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( index ).is.equals( 1 );
   });
 
-  it( 'beforeDestroy 声明周期回调: 实例销毁后调用', () => {
+  it( 'beforeDestroy 生命周期回调: 实例销毁后调用', () => {
     let index = 0;
     const hu = new Hu({
       data: {
@@ -473,7 +473,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( index ).is.equals( 1 );
   });
 
-  it( 'beforeDestroy 声明周期回调: 实例销毁后调用 ( 自定义元素 )', () => {
+  it( 'beforeDestroy 生命周期回调: 实例销毁后调用 ( 自定义元素 )', () => {
     const customName = window.customName;
     let index = 0;
 
@@ -502,7 +502,7 @@ describe( 'Hu.define - lifecycle', () => {
     expect( index ).is.equals( 1 );
   });
 
-  it( 'connected 声明周期回调: 自定义元素被添加到文档流', () => {
+  it( 'connected 生命周期回调: 自定义元素被添加到文档流', () => {
     const customName = window.customName;
     let index = 0;
 
@@ -544,7 +544,7 @@ describe( 'Hu.define - lifecycle', () => {
 
   if( customElements.polyfillWrapFlushCallback === undefined ){
 
-    it( 'adopted 声明周期回调: 自定义元素被移动到新文档时调用', () => {
+    it( 'adopted 生命周期回调: 自定义元素被移动到新文档时调用', () => {
       const customName = window.customName;
       let index = 0;
       let result;
@@ -589,7 +589,7 @@ describe( 'Hu.define - lifecycle', () => {
 
   }
 
-  it( 'disconnected 声明周期回调: 自定义元素被从文档流移除', () => {
+  it( 'disconnected 生命周期回调: 自定义元素被从文档流移除', () => {
     const customName = window.customName;
     let index = 0;
 
@@ -621,6 +621,110 @@ describe( 'Hu.define - lifecycle', () => {
 
     expect( index ).is.equals( 2 );
   });
+
+  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 正常渲染 )', () => {
+  //   const customName = window.customName;
+  //   let index = 0;
+
+  //   Hu.define( customName, {
+  //     render( html ){
+  //       return html`<div>123</div>`
+  //     },
+  //     disconnected(){
+  //       index++;
+  //     }
+  //   });
+
+  //   const custom = document.createElement( customName ).$appendTo( document.body );
+  //   const hu = custom.$hu;
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
+  //   expect( index ).is.equals( 0 );
+
+  //   custom.$remove();
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
+  //   expect( index ).is.equals( 1 );
+  // });
+
+  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 使用插值渲染 )', () => {
+  //   const customName = window.customName;
+  //   let index = 0;
+
+  //   Hu.define( customName, {
+  //     render( html ){
+  //       return html`<div>${ 123 }</div>`
+  //     },
+  //     disconnected(){
+  //       index++;
+  //     }
+  //   });
+
+  //   const custom = document.createElement( customName ).$appendTo( document.body );
+  //   const hu = custom.$hu;
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
+  //   expect( index ).is.equals( 0 );
+
+  //   custom.$remove();
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
+  //   expect( index ).is.equals( 1 );
+  // });
+
+  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 使用数组渲染 )', () => {
+  //   const customName = window.customName;
+  //   let index = 0;
+
+  //   Hu.define( customName, {
+  //     render( html ){
+  //       return html`<div>${[ 1, 2, 3 ]}</div>`
+  //     },
+  //     disconnected(){
+  //       index++;
+  //     }
+  //   });
+
+  //   const custom = document.createElement( customName ).$appendTo( document.body );
+  //   const hu = custom.$hu;
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
+  //   expect( index ).is.equals( 0 );
+
+  //   custom.$remove();
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
+  //   expect( index ).is.equals( 1 );
+  // });
+
+  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 使用 repeat 指令方法渲染 )', () => {
+  //   const customName = window.customName;
+  //   let index = 0;
+
+  //   Hu.define( customName, {
+  //     render( html ){
+  //       return html`<div>${
+  //         html.repeat( [ 1, 2, 3 ], val => val, val => {
+  //           return html`<span>${ val }</span>`;
+  //         })
+  //       }</div>`
+  //     },
+  //     disconnected(){
+  //       index++;
+  //     }
+  //   });
+
+  //   const custom = document.createElement( customName ).$appendTo( document.body );
+  //   const hu = custom.$hu;
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div><span>1</span><span>2</span><span>3</span></div>`);
+  //   expect( index ).is.equals( 0 );
+
+  //   custom.$remove();
+
+  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div><span>1</span><span>2</span><span>3</span></div>`);
+  //   expect( index ).is.equals( 1 );
+  // });
 
   it( '生命周期回调的 this 指向的都是当前实例', () => {
     const result = [];
