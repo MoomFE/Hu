@@ -24,9 +24,9 @@ module.exports = {
     banner
   },
   plugins: [
-    fix(),
+    fix,
     resolve(),
-    console(),
-    updateReadme()
+    console,
+    updateReadme
   ]
 };

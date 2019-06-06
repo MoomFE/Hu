@@ -5,7 +5,8 @@ const { readFileSync, writeFileSync } = require('fs-extra');
 const dirname = resolve( __dirname, '../../' );
 const readmePath = resolve( dirname, 'README.md' );
 
-const result = {
+
+module.exports = {
   name: 'update readme',
   writeBundle( bundle ){
     Object.entries( bundle ).$each(([ name, { code } ]) => {
@@ -24,5 +25,3 @@ const result = {
     });
   }
 };
-
-module.exports = () => result;

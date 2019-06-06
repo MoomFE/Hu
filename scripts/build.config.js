@@ -1,11 +1,11 @@
 require('@moomfe/zenjs');
+require('./extras/copy-polyfill');
 
-const { writeFileSync } = require('fs-extra');
-
+const basic = require('./basic.config');
 const fix = require('./plugins/Fix-webcomponentsjs-window-is-not-defined');
+const cody = require('./plugins/copy-to-test');
 const terser = require('./plugins/terser');
 const replace = require('./plugins/replace');
-const basic = require('./basic.config');
 
 
 const configs = [];
@@ -37,7 +37,7 @@ configs.$each( config => {
   });
 
   newConfig.plugins.push(
-    terser()
+    terser
   );
 
   configs.push( newConfig );
@@ -75,7 +75,7 @@ configs.$each( config => {
 // 修复 webcomponentsjs polyfill 的 "window is not defined" 错误
 configs.$each( config => {
   /\.polyfill\./.test( config.output.file ) && config.plugins.push(
-    fix()
+    fix
   );
 });
 
@@ -89,16 +89,9 @@ configs.$each( config => {
 });
 
 // 复制到测试文件夹
-configs
-  .filter( config => config.output.file === basic.output.file )
-  .forEach( config => {
-    config.plugins.push({
-      name: 'copy to test',
-      writeBundle( bundle ){
-        writeFileSync( 'test/Lib/hu.js', bundle['hu.js'].code, 'utf-8' )
-      }
-    });
-  });
+configs.filter( config => config.output.file === basic.output.file ).forEach( config => {
+  config.plugins.push( cody );
+});
 
 
 module.exports = configs;

@@ -1,6 +1,7 @@
 const { terser } = require('rollup-plugin-terser');
 
-const result = terser({
+
+module.exports = terser({
   ecma: 6,
   warnings: true,
   compress: {
@@ -38,5 +39,3 @@ const result = terser({
     unsafe_methods: true
   }
 });
-
-module.exports = () => result;

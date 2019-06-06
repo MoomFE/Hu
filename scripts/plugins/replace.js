@@ -1,5 +1,4 @@
 const replace = require('rollup-plugin-replace');
-
 const packages = require('../../package.json');
 
 const productionReplace = replace({

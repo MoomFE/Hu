@@ -1,8 +1,8 @@
 const { readFile } = require('fs-extra');
-
 const rSearch = /\\node_modules\\@webcomponents\\webcomponentsjs\\webcomponents-(bundle|loader)\.js$/;
 
-const result = {
+
+module.exports = {
   name: 'fix webcomponentsjs: window is not defined',
   async load( id ){
     if( rSearch.test( id ) ){
@@ -19,5 +19,3 @@ const result = {
     return null;
   }
 };
-
-module.exports = () => result;

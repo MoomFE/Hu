@@ -11,7 +11,8 @@ function getSize( size ){
   else return ( size / 1024 ).toFixed( 2 ) + 'KB';
 }
 
-const result = {
+
+module.exports = {
   name: 'console',
   buildStart( inputOptions ){
     const input = resolve( dirname, inputOptions.input );
@@ -36,5 +37,3 @@ const result = {
     console.log(`------------------------------------\n`);
   }
 };
-
-module.exports = () => result;
