@@ -1,7 +1,6 @@
 import { create, assign } from "../../shared/global/Object/index";
 import addEventListener from "../../shared/util/addEventListener";
 import removeEventListener from "../../shared/util/removeEventListener";
-import triggerEvent from "../../shared/util/triggerEvent";
 import each from "../../shared/util/each";
 import isEmptyObject from "../../shared/util/isEmptyObject";
 import isEqual from "../../shared/util/isEqual";
@@ -20,7 +19,6 @@ const util = create( null );
 assign( util, {
   addEvent: addEventListener,
   removeEvent: removeEventListener,
-  triggerEvent,
   each,
   isPlainObject,
   isEmptyObject,
