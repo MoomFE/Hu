@@ -2350,7 +2350,7 @@
       else{
         addEventListener(
           element, type,
-          this.listener = function listener( ...args ){
+          this.listener = function listener( event ){
             // 修饰符检测
             for( let modifier of modifiers ){
               if( modifier( element, event, modifiers ) === false ) return;
@@ -2360,7 +2360,7 @@
               removeEventListener( element, type, listener, options );
             }
             // 修饰符全部检测通过, 执行用户传入方法
-            isFunction( self.value ) && apply( self.value, this, args );
+            isFunction( self.value ) && apply( self.value, this, arguments );
           },
           options
         );
