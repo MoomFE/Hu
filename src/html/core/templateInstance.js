@@ -34,7 +34,7 @@ export default class TemplateInstance{
     const templateParts = template.parts;
     const templatePartsLength = templateParts.length;
     const templateContent = template.element.content;
-    const fragment = isCEPolyfill ? templateContent.cloneNode( true ) : document.importNode( templateContent, true );
+    const fragment = document.importNode( templateContent, true );
     const walker = document.createTreeWalker( fragment, 133, null, false );
     const templateStack = [];
     let partIndex = 0;
