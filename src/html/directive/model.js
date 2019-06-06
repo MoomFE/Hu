@@ -183,20 +183,20 @@ function handlerRadio( model, element, options ){
  * @param {Element} element 
  * @param {[ {}, string ]} options 
  */
-function handlerDefault( model, element, options ){
+function handlerDefault( model, element, options, input ){
   // 监听绑定值改变
   watch( model, options, element, 'value' );
   // 监听控件值改变
-  addEvent( model, element, 'compositionstart', event => {
+  addEvent( model, element, 'compositionstart', () => {
     element.composing = true;
   });
-  addEvent( model, element, 'compositionend', event => {
+  addEvent( model, element, 'compositionend', () => {
     if( !element.composing ) return;
 
     element.composing = false;
-    triggerEvent( element, 'input' );
+    input();
   });
-  addEvent( model, element, 'input', event => {
+  addEvent( model, element, 'input', input = () => {
     if( element.composing || !options.length ) return;
 
     options[ 0 ][ options[ 1 ] ] = element.value;

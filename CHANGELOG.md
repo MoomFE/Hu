@@ -2,6 +2,7 @@
     1. 新增第三个参数可传入一个方法, 在触发事件前会调用并传入事件对象及触发元素, 可对事件对象进行更改或做其它操作
     2. 现在可以将第二个参数替换为数组从而设置 initEvent 的参数, 数组内依次是 type, bubbles, cancelable;
        正常传参时 bubbles, cancelable 将默认为 true
+  - 💄 更改 `model` 指令的内部逻辑, 不再依赖 `triggerEvent` 工具方法
 
 # 1.0.0-bata.14
   - 📅 2019-06-06
