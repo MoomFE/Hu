@@ -374,9 +374,9 @@ interface Hu{
     /**
      * 触发事件
      * @param elem 触发事件的元素对象
-     * @param type 事件名称
+     * @param type 事件名称的字符串或者内容为 type, bubbles, cancelable 的数组
      */
-    triggerEvent( elem: Element, type: string ): void;
+    triggerEvent( elem: Element, type: string | [], process: ( event: Event, elem: Element ) => void ): void;
 
     /**
      * 对象遍历方法
