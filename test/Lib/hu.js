@@ -797,7 +797,7 @@
     initProps( userOptions, options, mixins );
     initState( isCustomElement, userOptions, options, mixins );
     initLifecycle( userOptions, options, mixins );
-    initOther( isCustomElement, userOptions, options, mixins );
+    initOther( isCustomElement, userOptions, options);
 
     return [
       userOptions,
@@ -2342,7 +2342,10 @@
     addEvent( element, type, { once, native, options, modifiers }, isCE, self ){
       // 绑定的对象是通过 Hu 注册的自定义元素
       if( isCE && !native ){
-        element[ once ? '$once' : '$on' ]( type, this.listener = function( ...args ){
+        const instance = activeCustomElement.get( element );
+        const fn = once ? '$once' : '$on';
+
+        instance[ fn ]( type, this.listener = function( ...args ){
           isFunction( self.value ) && apply( self.value, this, args );
         });
       }
@@ -2702,7 +2705,7 @@
       const templateParts = template.parts;
       const templatePartsLength = templateParts.length;
       const templateContent = template.element.content;
-      const fragment = isCEPolyfill ? templateContent.cloneNode( true ) : document.importNode( templateContent, true );
+      const fragment = document.importNode( templateContent, true );
       const walker = document.createTreeWalker( fragment, 133, null, false );
       const templateStack = [];
       let partIndex = 0;

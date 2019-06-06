@@ -1,5 +1,5 @@
 import isSingleBind from "../util/isSingleBind";
-import { definedCustomElement } from "../../static/define/const";
+import { definedCustomElement, activeCustomElement } from "../../static/define/const";
 import { keys } from "../../shared/global/Object/index";
 import { supportsPassive } from "../../shared/const/env";
 import isFunction from "../../shared/util/isFunction";
@@ -29,7 +29,10 @@ export default class BasicEventDirective{
   addEvent( element, type, { once, native, options, modifiers }, isCE, self ){
     // 绑定的对象是通过 Hu 注册的自定义元素
     if( isCE && !native ){
-      element[ once ? '$once' : '$on' ]( type, this.listener = function( ...args ){
+      const instance = activeCustomElement.get( element );
+      const fn = once ? '$once' : '$on';
+
+      instance[ fn ]( type, this.listener = function( ...args ){
         isFunction( self.value ) && apply( self.value, this, args );
       });
     }
