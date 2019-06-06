@@ -2259,7 +2259,7 @@
       let index = 0;
       let result = '';
 
-      for( const { value } of parts ){
+      for( let { value } of parts ){
         result += strings[ index++ ];
 
         if( value != null && isIterable( value ) && !isString( value ) ){

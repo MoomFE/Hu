@@ -1,5 +1,5 @@
-const searchValue = /for\s*\(\s*const\s*([^\s]+)\s*of/g;
-const replaceValue = 'for( let $1 of';
+const searchValue = /for\s*\(\s*const\s*([^\)]+?)\s*of\s*([^\)]+?)\s*\)/g;
+const replaceValue = 'for( let $1 of $2 )';
 
 
 module.exports = {
