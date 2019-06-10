@@ -3,7 +3,7 @@ require('./extras/copy-polyfill');
 
 const basic = require('./basic.config');
 const fix = require('./plugins/Fix-webcomponentsjs-window-is-not-defined');
-const cody = require('./plugins/copy-to-test');
+const copy = require('./plugins/copy-to-test');
 const terser = require('./plugins/terser');
 const replace = require('./plugins/replace');
 
@@ -90,7 +90,7 @@ configs.$each( config => {
 
 // 复制到测试文件夹
 configs.filter( config => config.output.file === basic.output.file ).forEach( config => {
-  config.plugins.push( cody );
+  config.plugins.push( copy );
 });
 
 
