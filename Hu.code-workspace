@@ -4,9 +4,6 @@
       "path": "."
     },
     {
-      "path": "typings"
-    },
-    {
       "path": "test"
     },
     {
@@ -19,7 +16,6 @@
   "settings": {
     "files.exclude": {
       "node_modules": true,
-      "typings": true,
       "dist": true,
       "test": true,
       "src": true,
