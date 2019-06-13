@@ -15,7 +15,7 @@
   "module": "dist/hu.esm.js",
   "unpkg": "dist/hu.js",
   "jsdelivr": "dist/hu.js",
-  "typings": "./typings/hu.d.ts",
+  "typings": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MoomFE/Hu.git"
