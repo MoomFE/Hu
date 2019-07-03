@@ -1,8 +1,12 @@
 {
+  declare function describe( name: string, fn: () => {} ): void;
+  declare function it( name: string, fn: () => {} ): void;
   declare const should: Chai.Should;
   declare const expect: Chai.ExpectStatic;
 
   interface Window{
+    describe( name: string, fn: () => {} ): void;
+    it( name: string, fn: () => {} ): void;
     should: Chai.Should;
     expect: Chai.ExpectStatic;
   }
