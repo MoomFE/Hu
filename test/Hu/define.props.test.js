@@ -60,46 +60,6 @@ describe( 'Hu.define - props', () => {
     expect( hu.$props.$b ).is.equals( '3' );
   });
 
-  it( '可以使用 attr 属性将多个 prop 绑定到一个 attribute 上, 当 attribute 更改时, 所有绑定到 attribute 上的 prop 均会更新', () => {
-    const customName = window.customName;
-    const a = Symbol('a');
-    const props = {};
-          props[ a ] = { attr: 'a' };
-          props[ 'a' ] = { attr: 'a' };
-          props[ 'aB' ] = { attr: 'a', type: Number };
-
-    Hu.define( customName, {
-      props
-    });
-
-    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu ).has.property( a );
-    expect( hu ).has.property( 'a' );
-    expect( hu ).has.property( 'aB' );
-    expect( hu.$props ).has.property( a );
-    expect( hu.$props ).has.property( 'a' );
-    expect( hu.$props ).has.property( 'aB' );
-
-    expect( hu[ a ] ).is.equals( '1' );
-    expect( hu[ 'a' ] ).is.equals( '1' );
-    expect( hu[ 'aB' ] ).is.equals( 1 );
-    expect( hu.$props[ a ] ).is.equals( '1' );
-    expect( hu.$props[ 'a' ] ).is.equals( '1' );
-    expect( hu.$props[ 'aB' ] ).is.equals( 1 );
-
-    custom.setAttribute('a','2');
-
-    expect( hu[ a ] ).is.equals( '2' );
-    expect( hu[ 'a' ] ).is.equals( '2' );
-    expect( hu[ 'aB' ] ).is.equals( 2 );
-    expect( hu.$props[ a ] ).is.equals( '2' );
-    expect( hu.$props[ 'a' ] ).is.equals( '2' );
-    expect( hu.$props[ 'aB' ] ).is.equals( 2 );
-  });
-
   it( '可以通过 $hu 对 prop 进行读取和更改', () => {
     const customName = window.customName;
 
@@ -171,6 +131,5 @@ describe( 'Hu.define - props', () => {
     expect( hu.a ).is.equals( undefined );
     expect( hu.$props.a ).is.equals( '1' );
   });
-
 
 });

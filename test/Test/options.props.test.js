@@ -886,6 +886,52 @@ describe( 'options.props', () => {
     expect( hu.$props[ b ] ).is.equals( 'f' );
   });
 
+  it( '使用对象的方式定义 props 时可以使用来源属性将多个 prop 绑定到同一个 attribute 上', () => {
+    const customName = window.customName;
+    const a = Symbol('d');
+
+    Hu.define( customName, {
+      props: {
+        [ a ]: { attr: 'a' },
+        a: null,
+        b: { attr: 'a' },
+        c: { attr: 'a', type: Number }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( a );
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property( 'b' );
+    expect( hu ).has.property( 'c' );
+    expect( hu.$props ).has.property( a );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property( 'b' );
+    expect( hu.$props ).has.property( 'c' );
+
+    expect( hu[ a ] ).is.equals( '1' );
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[ 'b' ] ).is.equals( '1' );
+    expect( hu[ 'c' ] ).is.equals( 1 );
+    expect( hu.$props[ a ] ).is.equals( '1' );
+    expect( hu.$props[ 'a' ] ).is.equals( '1' );
+    expect( hu.$props[ 'b' ] ).is.equals( '1' );
+    expect( hu.$props[ 'c' ] ).is.equals( 1 );
+
+    custom.setAttribute( 'a', '2' );
+    expect( hu[ a ] ).is.equals( '2' );
+    expect( hu[ 'a' ] ).is.equals( '2' );
+    expect( hu[ 'b' ] ).is.equals( '2' );
+    expect( hu[ 'c' ] ).is.equals( 2 );
+    expect( hu.$props[ a ] ).is.equals( '2' );
+    expect( hu.$props[ 'a' ] ).is.equals( '2' );
+    expect( hu.$props[ 'b' ] ).is.equals( '2' );
+    expect( hu.$props[ 'c' ] ).is.equals( 2 );
+  });
+
   it( '实例的 prop 对应的 attribute 属性值被更改时, 会立即将改变同步到实例中', () => {
     const customName = window.customName;
     const aE = Symbol('aE');
