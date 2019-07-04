@@ -729,4 +729,262 @@ describe( 'options.props', () => {
     expect( hu.$props.a ).is.equals( hu );
   });
 
+  it( '使用对象的方式定义 props 且设置 prop 的来源属性时会从相应的 attribute 属性中取值', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      props: {
+        a: { attr: 'b' },
+        b: { attr: 'a' },
+        c: null,
+        aA: { attr: 'a-B' },
+        aB: { attr: 'a-a' },
+        aC: null
+      }
+    });
+
+    const div = document.createElement('div').$html(`
+      <${ customName } a="1" b="2" c="3" a-a="4" a-b="5" a-c="6"></${ customName }>
+    `);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property( 'b' );
+    expect( hu ).has.property( 'c' );
+    expect( hu ).has.property( 'aA' );
+    expect( hu ).has.property( 'aB' );
+    expect( hu ).has.property( 'aC' );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property( 'b' );
+    expect( hu.$props ).has.property( 'c' );
+    expect( hu.$props ).has.property( 'aA' );
+    expect( hu.$props ).has.property( 'aB' );
+    expect( hu.$props ).has.property( 'aC' );
+
+    expect( hu.a ).is.equals( '2' );
+    expect( hu.b ).is.equals( '1' );
+    expect( hu.c ).is.equals( '3' );
+    expect( hu.aA ).is.equals( '5' );
+    expect( hu.aB ).is.equals( '4' );
+    expect( hu.aC ).is.equals( '6' );
+    expect( hu.$props.a ).is.equals( '2' );
+    expect( hu.$props.b ).is.equals( '1' );
+    expect( hu.$props.c ).is.equals( '3' );
+    expect( hu.$props.aA ).is.equals( '5' );
+    expect( hu.$props.aB ).is.equals( '4' );
+    expect( hu.$props.aC ).is.equals( '6' );
+  });
+
+  it( '使用数组的方式定义 props 且设置 prop 的来源属性时会将大写名称转为以连字符连接的小写名称', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      props: [ 'a', 'aB', 'a-c' ]
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1" a-b="2" a-c="3"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property( 'aB' );
+    expect( hu ).has.property( 'a-c' );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property( 'aB' );
+    expect( hu.$props ).has.property( 'a-c' );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[ 'aB' ] ).is.equals( '2' );
+    expect( hu[ 'a-c' ] ).is.equals( '3' );
+    expect( hu.$props[ 'a' ] ).is.equals( '1' );
+    expect( hu.$props[ 'aB' ] ).is.equals( '2' );
+    expect( hu.$props[ 'a-c' ] ).is.equals( '3' );
+  });
+
+  it( '使用对象的方式定义 props 且设置 prop 的来源属性时会将大写名称转为以连字符连接的小写名称', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        'aB': null,
+        'a-c': null
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1" a-b="2" a-c="3"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property( 'aB' );
+    expect( hu ).has.property( 'a-c' );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property( 'aB' );
+    expect( hu.$props ).has.property( 'a-c' );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[ 'aB' ] ).is.equals( '2' );
+    expect( hu[ 'a-c' ] ).is.equals( '3' );
+    expect( hu.$props[ 'a' ] ).is.equals( '1' );
+    expect( hu.$props[ 'aB' ] ).is.equals( '2' );
+    expect( hu.$props[ 'a-c' ] ).is.equals( '3' );
+  });
+
+  it( '使用对象的方式定义 props 且 prop 是 Symbol 类型时可以设置默认值属性进行赋值', () => {
+    const customName = window.customName;
+    const a = Symbol('a');
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      props: {
+        [ a ]: { default: 'c' },
+        [ b ]: { default: 'd' }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( a );
+    expect( hu ).has.property( b );
+    expect( hu.$props ).has.property( a );
+    expect( hu.$props ).has.property( b );
+
+    expect( hu[ a ] ).is.equals( 'c' );
+    expect( hu[ b ] ).is.equals( 'd' );
+    expect( hu.$props[ a ] ).is.equals( 'c' );
+    expect( hu.$props[ b ] ).is.equals( 'd' );
+  });
+
+  it( '使用对象的方式定义 props 且 prop 是 Symbol 类型时可以设置来源属性从相应的 attribute 属性中取值', () => {
+    const customName = window.customName;
+    const a = Symbol('a');
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      props: {
+        [ a ]: { attr: 'c' },
+        [ b ]: { attr: 'd' }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } c="e" d="f"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( a );
+    expect( hu ).has.property( b );
+    expect( hu.$props ).has.property( a );
+    expect( hu.$props ).has.property( b );
+
+    expect( hu[ a ] ).is.equals( 'e' );
+    expect( hu[ b ] ).is.equals( 'f' );
+    expect( hu.$props[ a ] ).is.equals( 'e' );
+    expect( hu.$props[ b ] ).is.equals( 'f' );
+  });
+
+  it( '实例的 prop 对应的 attribute 属性值被更改时, 会立即将改变同步到实例中', () => {
+    const customName = window.customName;
+    const aE = Symbol('aE');
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        aB: { attr: 'b' },
+        aC: { attr: 'a-d' },
+        aD: { attr: 'a-c' },
+        [ aE ]: { attr: 'a-e' }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1" b="2" a-c="4" a-d="3" a-e="5"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property( 'aB' );
+    expect( hu ).has.property( 'aC' );
+    expect( hu ).has.property( 'aD' );
+    expect( hu ).has.property( aE );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property( 'aB' );
+    expect( hu.$props ).has.property( 'aC' );
+    expect( hu.$props ).has.property( 'aD' );
+    expect( hu.$props ).has.property( aE );
+
+    expect( hu.a ).is.equals( '1' );
+    expect( hu.aB ).is.equals( '2' );
+    expect( hu.aC ).is.equals( '3' );
+    expect( hu.aD ).is.equals( '4' );
+    expect( hu[ aE ] ).is.equals( '5' );
+    expect( hu.$props.a ).is.equals( '1' );
+    expect( hu.$props.aB ).is.equals( '2' );
+    expect( hu.$props.aC ).is.equals( '3' );
+    expect( hu.$props.aD ).is.equals( '4' );
+    expect( hu.$props[ aE ] ).is.equals( '5' );
+
+    custom.setAttribute( 'a', '11' );
+    expect( hu.a ).is.equals( '11' );
+    expect( hu.aB ).is.equals( '2' );
+    expect( hu.aC ).is.equals( '3' );
+    expect( hu.aD ).is.equals( '4' );
+    expect( hu[ aE ] ).is.equals( '5' );
+    expect( hu.$props.a ).is.equals( '11' );
+    expect( hu.$props.aB ).is.equals( '2' );
+    expect( hu.$props.aC ).is.equals( '3' );
+    expect( hu.$props.aD ).is.equals( '4' );
+    expect( hu.$props[ aE ] ).is.equals( '5' );
+
+    custom.setAttribute( 'b', '22' );
+    expect( hu.a ).is.equals( '11' );
+    expect( hu.aB ).is.equals( '22' );
+    expect( hu.aC ).is.equals( '3' );
+    expect( hu.aD ).is.equals( '4' );
+    expect( hu[ aE ] ).is.equals( '5' );
+    expect( hu.$props.a ).is.equals( '11' );
+    expect( hu.$props.aB ).is.equals( '22' );
+    expect( hu.$props.aC ).is.equals( '3' );
+    expect( hu.$props.aD ).is.equals( '4' );
+    expect( hu.$props[ aE ] ).is.equals( '5' );
+
+    custom.setAttribute( 'a-c', '44' );
+    expect( hu.a ).is.equals( '11' );
+    expect( hu.aB ).is.equals( '22' );
+    expect( hu.aC ).is.equals( '3' );
+    expect( hu.aD ).is.equals( '44' );
+    expect( hu[ aE ] ).is.equals( '5' );
+    expect( hu.$props.a ).is.equals( '11' );
+    expect( hu.$props.aB ).is.equals( '22' );
+    expect( hu.$props.aC ).is.equals( '3' );
+    expect( hu.$props.aD ).is.equals( '44' );
+    expect( hu.$props[ aE ] ).is.equals( '5' );
+
+    custom.setAttribute( 'a-d', '33' );
+    expect( hu.a ).is.equals( '11' );
+    expect( hu.aB ).is.equals( '22' );
+    expect( hu.aC ).is.equals( '33' );
+    expect( hu.aD ).is.equals( '44' );
+    expect( hu[ aE ] ).is.equals( '5' );
+    expect( hu.$props.a ).is.equals( '11' );
+    expect( hu.$props.aB ).is.equals( '22' );
+    expect( hu.$props.aC ).is.equals( '33' );
+    expect( hu.$props.aD ).is.equals( '44' );
+    expect( hu.$props[ aE ] ).is.equals( '5' );
+
+    custom.setAttribute( 'a-e', '55' );
+    expect( hu.a ).is.equals( '11' );
+    expect( hu.aB ).is.equals( '22' );
+    expect( hu.aC ).is.equals( '33' );
+    expect( hu.aD ).is.equals( '44' );
+    expect( hu[ aE ] ).is.equals( '55' );
+    expect( hu.$props.a ).is.equals( '11' );
+    expect( hu.$props.aB ).is.equals( '22' );
+    expect( hu.$props.aC ).is.equals( '33' );
+    expect( hu.$props.aD ).is.equals( '44' );
+    expect( hu.$props[ aE ] ).is.equals( '55' );
+  });
+
 });
