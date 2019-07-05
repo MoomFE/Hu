@@ -1,8 +1,24 @@
-describe( 'Hu.define - styles', () => {
+describe( 'options.styles', () => {
 
-  it( '使用 styles 选项传入自定义元素的样式', () => {
-    const customName = window.customName;
+  /** @type {string} */
+  let customName;
+  /** @type {Element} */
+  let custom;
+  /** @type {$hu} */
+  let hu;
 
+  beforeEach(() => {
+    customName = window.customName;
+  });
+
+  afterEach(() => {
+    custom && custom.$remove();
+    hu && hu.$destroy();
+  });
+
+  // ------------------------------------
+
+  it( '使用 styles 选项定义实例的样式 ( 一 )', () => {
     Hu.define( customName, {
       styles: `
         :host > div{
@@ -14,17 +30,13 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
-
-    custom.$remove();
   });
 
-  it( '使用 styles 选项传入自定义元素的样式, 使用数组传参', () => {
-    const customName = window.customName;
-
+  it( '使用 styles 选项定义实例的样式, 使用数组传参 ( 一 )', () => {
     Hu.define( customName, {
       styles: [
         `:host > div{ position: fixed }`,
@@ -36,19 +48,15 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
     expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
     expect( getComputedStyle( hu.$refs.div ).left ).is.equals( '0px' );
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( 通配选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         *{ position: fixed }
@@ -65,20 +73,16 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('fixed');
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( 标签选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         div{ position: fixed }
@@ -94,21 +98,17 @@ describe( 'Hu.define - styles', () => {
         `;
       }
     });
-  
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('static');
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( 类选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         .test{ position: fixed }
@@ -124,21 +124,17 @@ describe( 'Hu.define - styles', () => {
         `;
       }
     });
-  
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('static');
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( id 选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         #test{ position: fixed }
@@ -155,20 +151,16 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('static');
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( 后代选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         div div{ position: fixed }
@@ -185,20 +177,16 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('fixed');
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( 子选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         div > div{ position: fixed }
@@ -215,20 +203,16 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('fixed');
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( 相邻兄弟选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         div + div{ position: fixed }
@@ -247,21 +231,17 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div5 ).position ).is.equals('static');
-
-    custom.$remove();
   });
 
   it( '使用 styles 选项传入自定义元素的样式 ( 匹配选择器 )', () => {
-    const customName = window.customName;
-
     Hu.define( customName, {
       styles: `
         div ~ div{ position: fixed }
@@ -280,16 +260,14 @@ describe( 'Hu.define - styles', () => {
       }
     });
 
-    const custom = document.createElement( customName ).$appendTo( document.body );
-    const hu = custom.$hu;
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
 
     expect( getComputedStyle( hu.$refs.div1 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div2 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div3 ).position ).is.equals('static');
     expect( getComputedStyle( hu.$refs.div4 ).position ).is.equals('fixed');
     expect( getComputedStyle( hu.$refs.div5 ).position ).is.equals('fixed');
-
-    custom.$remove();
   });
 
 });
