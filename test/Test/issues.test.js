@@ -222,4 +222,28 @@ describe( 'Issues', () => {
     ]).then(() => done());
   });
 
+  it( '#7', () => {
+    const customName = window.customName;
+    const div = document.createElement('div').$appendTo( document.body ).$prop({
+      id: customName
+    });
+
+    new Hu({
+      el: div,
+      styles: `
+        #${ customName }{
+          color: #FFF
+        }
+      `
+    });
+
+    expect( true ).is.equals(
+      [ '#FFF', '#fff', 'rgb(255, 255, 255)' ].$inArray(
+        div.$css('color')
+      )
+    );
+
+    div.$remove();
+  });
+
 });
