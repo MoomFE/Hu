@@ -81,7 +81,7 @@ describe( 'instance.props', () => {
     expect( hu ).has.not.property(  b  );
     expect( hu.$props ).has.property( 'a' );
     expect( hu.$props ).has.property(  b  );
-    
+
     expect( hu[ 'a' ] ).is.equals( undefined );
     expect( hu[  b  ] ).is.equals( undefined );
     expect( hu.$props[ 'a' ] ).is.equals( '1' );
