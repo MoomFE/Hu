@@ -36,6 +36,23 @@ describe( 'options.styles', () => {
     expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
   });
 
+  it( '使用 styles 选项定义实例的样式 ( 二 )', () => {
+    custom = document.createElement('div').$appendTo( document.body ).$prop( 'id', customName );
+    hu = new Hu({
+      el: custom,
+      styles: `
+        #${ customName } > div{
+          position: fixed;
+        }
+      `,
+      render( html ){
+        return html`<div ref="div"></div>`;
+      }
+    });
+
+    expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+  });
+
   it( '使用 styles 选项定义实例的样式, 使用数组传参 ( 一 )', () => {
     Hu.define( customName, {
       styles: [
@@ -50,6 +67,25 @@ describe( 'options.styles', () => {
 
     custom = document.createElement( customName ).$appendTo( document.body );
     hu = custom.$hu;
+
+    expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+    expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
+    expect( getComputedStyle( hu.$refs.div ).left ).is.equals( '0px' );
+  });
+
+  it( '使用 styles 选项定义实例的样式, 使用数组传参 ( 二 )', () => {
+    custom = document.createElement('div').$appendTo( document.body ).$prop( 'id', customName );
+    hu = new Hu({
+      el: custom,
+      styles: [
+        `:host > div{ position: fixed }`,
+        `:host > div{ top: 0 }`,
+        `:host > div{ left: 0 }`
+      ],
+      render( html ){
+        return html`<div ref="div"></div>`;
+      }
+    });
 
     expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
     expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
