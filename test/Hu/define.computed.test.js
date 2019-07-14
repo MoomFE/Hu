@@ -710,54 +710,6 @@ describe( 'Hu.define - computed', () => {
     });
   });
 
-  it( '计算属性可以传入一个对象, 包含了当前计算属性的 setter 与 getter 方法', () => {
-    const hu = new Hu({
-      data: {
-        a: 1
-      },
-      computed: {
-        b: {
-          get(){
-            return this.a * 2
-          },
-          set( value ){
-            this.a = value;
-          }
-        }
-      }
-    });
-
-    expect( hu.b ).is.equals( 2 );
-
-    hu.b = 2;
-
-    expect( hu.b ).is.equals( 4 );
-  });
-
-  it( '计算属性可以传入一个对象, 包含了当前计算属性的 setter 与 getter 方法 ( Vue )', () => {
-    const vm = new Vue({
-      data: {
-        a: 1
-      },
-      computed: {
-        b: {
-          get(){
-            return this.a * 2
-          },
-          set( value ){
-            this.a = value;
-          }
-        }
-      }
-    });
-
-    expect( vm.b ).is.equals( 2 );
-
-    vm.b = 2;
-
-    expect( vm.b ).is.equals( 4 );
-  });
-
   if( supportsForInTriggerProxyOwnKeys ){
 
     it( '计算属性在计算时需要遍历对象时, 若对象内部元素被更改, 计算属性也会触发 ( for ... in )', () => {
@@ -1221,36 +1173,6 @@ describe( 'Hu.define - computed', () => {
 
       done();
     });
-  });
-
-  it( '计算属性的首个参数会是当前实例对象', () => {
-    let index = 0;
-    const hu = new Hu({
-      computed: {
-        a( hu ){
-          index++;
-          expect( hu ).is.equals( this );
-        }
-      }
-    });
-
-    hu.a;
-    expect( index ).is.equals( 1 );
-  });
-
-  it( '计算属性的首个参数会是当前实例对象 ( Vue )', () => {
-    let index = 0;
-    const vm = new Vue({
-      computed: {
-        a( hu ){
-          index++;
-          expect( hu ).is.equals( this );
-        }
-      }
-    });
-
-    vm.a;
-    expect( index ).is.equals( 1 );
   });
 
   it( '计算属性在依赖了数组长度时, 若数组长度被字符串数字赋值后, 若值相同, 则不应该被调起', ( done ) => {
