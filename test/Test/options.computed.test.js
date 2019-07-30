@@ -146,4 +146,154 @@ describe( 'options.computed', () => {
     // expect( vm.$computed.a ).is.equals( vm );
   });
 
+  it('------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------');
+
+  it( '实例化后所定义的计算属性会全部添加到 $computed 实例属性中', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      computed: {
+        a: () => '1',
+        [ b ]: () => '2',
+        $c: () => '3'
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.$computed ).has.property( 'a' );
+    expect( hu.$computed ).has.property(  b  );
+    expect( hu.$computed ).has.property(  '$c'  );
+
+    expect( hu.$computed[ 'a' ] ).is.equals( '1' );
+    expect( hu.$computed[  b  ] ).is.equals( '2' );
+    expect( hu.$computed[ '$c' ] ).is.equals( '3' );
+  });
+
+  it( '实例化后会在实例本身添加 $computed 下所有首字母不为 $ 的计算属性的映射', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      computed: {
+        a: () => '1',
+        [ b ]: () => '2',
+        $c: () => '3'
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property(  b  );
+    expect( hu ).has.not.property(  '$c'  );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+  });
+
+  it( '实例化后若删除在实例本身添加的计算属性的映射, 不会影响到 $computed 实例属性内的计算属性本体', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      computed: {
+        a: () => '1',
+        [ b ]: () => '2'
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property(  b  );
+    expect( hu.$computed ).has.property( 'a' );
+    expect( hu.$computed ).has.property(  b  );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+    expect( hu.$computed[ 'a' ] ).is.equals( '1' );
+    expect( hu.$computed[  b  ] ).is.equals( '2' );
+
+    delete hu[ 'a' ];
+    delete hu[  b  ];
+
+    expect( hu ).has.not.property( 'a' );
+    expect( hu ).has.not.property(  b  );
+    expect( hu.$computed ).has.property( 'a' );
+    expect( hu.$computed ).has.property(  b  );
+
+    expect( hu[ 'a' ] ).is.equals( undefined );
+    expect( hu[  b  ] ).is.equals( undefined );
+    expect( hu.$computed[ 'a' ] ).is.equals( '1' );
+    expect( hu.$computed[  b  ] ).is.equals( '2' );
+  });
+
+  it( '实例化后不可以通过当前实例对象对计算属性进行读取和更改', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      computed: {
+        a: () => '1',
+        [ b ]: () => '2'
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property(  b  );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+
+    hu[ 'a' ] = 3;
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+
+    hu[  b  ] = 4;
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+  });
+
+  it( '实例化后不可以通过 $computed 实例属性对计算属性进行读取和更改', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      computed: {
+        a: () => '1',
+        [ b ]: () => '2'
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.$computed ).has.property( 'a' );
+    expect( hu.$computed ).has.property(  b  );
+
+    expect( hu.$computed[ 'a' ] ).is.equals( '1' );
+    expect( hu.$computed[  b  ] ).is.equals( '2' );
+
+    hu.$computed[ 'a' ] = 3;
+    expect( hu.$computed[ 'a' ] ).is.equals( '1' );
+    expect( hu.$computed[  b  ] ).is.equals( '2' );
+
+    hu.$computed[  b  ] = 4;
+    expect( hu.$computed[ 'a' ] ).is.equals( '1' );
+    expect( hu.$computed[  b  ] ).is.equals( '2' );
+  });
+
 });
