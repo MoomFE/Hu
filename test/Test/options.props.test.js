@@ -1123,7 +1123,7 @@ describe( 'options.props', () => {
     expect( hu.$props[  b  ] ).is.equals( '2' );
   });
 
-  it( '实例化后可以通过当前实例对象对 prop 进行读取和更改', () => {
+  it( '实例化后可以通过当前实例对象对 prop 进行更改', () => {
     const customName = window.customName;
     const b = Symbol('b');
 
@@ -1153,7 +1153,7 @@ describe( 'options.props', () => {
     expect( hu[  b  ] ).is.equals( 4 );
   });
 
-  it( '实例化后可以通过 $props 实例属性对 prop 进行读取和更改', () => {
+  it( '实例化后可以通过 $props 实例属性对 prop 进行更改', () => {
     const customName = window.customName;
     const b = Symbol('b');
 
