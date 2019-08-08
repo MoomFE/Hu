@@ -4,6 +4,56 @@ describe( 'options.methods', () => {
   function fn2(){ return 2 }
   function fn3(){ return 3 }
 
+  it( '定义方法时非 function 类型的将会被忽略', () => {
+    const hu = new Hu({
+      methods: {
+        a: fn1,
+        b: '',
+        c: true,
+        d: false,
+        e: {},
+        f: [],
+        g: null,
+        h: undefined,
+        i: Symbol('i')
+      }
+    });
+
+    expect( hu ).has.property('a');
+    expect( hu ).not.has.property('b');
+    expect( hu ).not.has.property('c');
+    expect( hu ).not.has.property('d');
+    expect( hu ).not.has.property('e');
+    expect( hu ).not.has.property('f');
+    expect( hu ).not.has.property('g');
+    expect( hu ).not.has.property('h');
+    expect( hu ).not.has.property('i');
+
+    expect( hu.$methods ).has.property('a');
+    expect( hu.$methods ).not.has.property('b');
+    expect( hu.$methods ).not.has.property('c');
+    expect( hu.$methods ).not.has.property('d');
+    expect( hu.$methods ).not.has.property('e');
+    expect( hu.$methods ).not.has.property('f');
+    expect( hu.$methods ).not.has.property('g');
+    expect( hu.$methods ).not.has.property('h');
+    expect( hu.$methods ).not.has.property('i');
+
+    expect( hu.a() ).is.equals( 1 );
+  });
+
+  it( '定义的方法在执行时, this 的指向是当前实例', () => {
+    const hu = new Hu({
+      methods: {
+        a: function(){
+          return this;
+        }
+      }
+    });
+
+    expect( hu.a() ).is.equals( hu );
+  });
+
   it('------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------');
 
   it( '实例化后所定义的方法会全部添加到 $methods 实例属性中', () => {
