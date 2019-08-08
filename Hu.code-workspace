@@ -28,6 +28,7 @@
       ".gitignore": true
     },
     "editor.tabSize": 2,
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "breadcrumbs.enabled": false
   }
 }
