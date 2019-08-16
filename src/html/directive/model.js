@@ -7,7 +7,6 @@ import { filter } from "../../shared/global/Array/prototype";
 import isFunction from "../../shared/util/isFunction";
 import $watch from "../../core/prototype/$watch";
 import getAttribute from "../../shared/util/getAttribute";
-import triggerEvent from "../../shared/util/triggerEvent";
 import { apply } from "../../shared/global/Reflect/index";
 import removeEventListener from "../../shared/util/removeEventListener";
 
