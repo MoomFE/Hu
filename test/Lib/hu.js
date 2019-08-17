@@ -797,7 +797,7 @@
     initProps( userOptions, options, mixins );
     initState( isCustomElement, userOptions, options, mixins );
     initLifecycle( userOptions, options, mixins );
-    initOther( isCustomElement, userOptions, options);
+    initOther( isCustomElement, userOptions, options, mixins );
 
     return [
       userOptions,
@@ -2681,8 +2681,9 @@
       for( let part of this.parts ){
         part && commitPart(
           part,
-          values[ index++ ]
+          values[ index ]
         );
+        index++;
       }
     }
 

@@ -21,8 +21,9 @@ export default class TemplateInstance{
     for( const part of this.parts ){
       part && commitPart(
         part,
-        values[ index++ ]
+        values[ index ]
       );
+      index++
     }
   }
 
