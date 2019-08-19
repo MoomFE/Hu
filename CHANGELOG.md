@@ -1,7 +1,8 @@
   - 💄 更改 `model` 指令的内部逻辑, 不再依赖 `triggerEvent` 工具方法
-  - ⚠️ 移除 `triggerEvent` 工具方法
-  - 🐞 修复渲染时可能导致的插槽混乱的问题 ( [#3](https://github.com/MoomFE/Hu/issues/3) )
   - 💄 使 styles 选项在使用 new 创建的实例中也可用 ( [#7](https://github.com/MoomFE/Hu/issues/7) )
+  - ⚠️ 移除 `triggerEvent` 工具方法
+  - 🐞 修复在使用 polyfill 的情况下, 内部方法 toString 不能正确判断对象是否可以被 JSON.stringify 转换 ( [#2](https://github.com/MoomFE/Hu/issues/2) )
+  - 🐞 修复渲染时可能导致的插槽混乱的问题 ( [#3](https://github.com/MoomFE/Hu/issues/3) )
 
 # 1.0.0-bata.14
   - 📅 2019-06-06
