@@ -78,9 +78,9 @@ describe( 'options.styles', () => {
     hu = new Hu({
       el: custom,
       styles: [
-        `:host > div{ position: fixed }`,
-        `:host > div{ top: 0 }`,
-        `:host > div{ left: 0 }`
+        `#${ customName } > div{ position: fixed }`,
+        `#${ customName } > div{ top: 0 }`,
+        `#${ customName } > div{ left: 0 }`
       ],
       render( html ){
         return html`<div ref="div"></div>`;
