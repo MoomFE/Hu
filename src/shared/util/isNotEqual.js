@@ -1,6 +1,3 @@
-import isEqual from "./isEqual";
-
-
 export default
 /**
  * 判断传入的两个值是否不相等
