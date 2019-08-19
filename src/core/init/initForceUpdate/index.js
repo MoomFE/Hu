@@ -9,13 +9,13 @@ import prepareTemplateStyles from "./util/prepareTemplateStyles";
 
 
 /** 迫使 Hu 实例重新渲染 */
-export default ( name, target, targetProxy, isCustomElement ) => {
+export default ( name, target, targetProxy ) => {
   /** 当前实例实例选项 */
   const options = optionsMap[ name ];
   /** 当前实例的渲染方法 */
   const userRender = options.render;
   /** 当前实例的样式 */
-  const userStyles = isCustomElement && options.styles && options.styles.cloneNode( true );
+  const userStyles = options.styles && options.styles.cloneNode( true );
   /** 是否已经渲染过当前实例的样式 */
   let canRenderedStyles = !!userStyles;
 

@@ -22,7 +22,7 @@ export default function initState( isCustomElement, userOptions, options, mixins
   initData( isCustomElement, data, options );
   initComputed( computed, options );
   initWatch( watch, options );
-  isCustomElement && initStyles( userOptions.styles, options );
+  initStyles( userOptions.styles, options );
 
   if( !isMixin ){
     // 处理 Mixins
@@ -32,7 +32,7 @@ export default function initState( isCustomElement, userOptions, options, mixins
       }
     }
     // 处理自定义元素的样式
-    if( isCustomElement && options.styles ){
+    if( options.styles ){
       const style = document.createElement('style');
 
       style.textContent = options.styles.join('');

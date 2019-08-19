@@ -15,7 +15,7 @@ export default class HuConstructor{
     const targetProxy = observe( this, observeHu );
 
     // 初始化 $forceUpdate 方法
-    initForceUpdate( name, this, targetProxy, isCustomElement );
+    initForceUpdate( name, this, targetProxy );
     // 初始化事件相关
     initEvents( targetProxy );
   }

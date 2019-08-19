@@ -646,7 +646,7 @@
     initData( isCustomElement, data, options );
     initComputed( computed, options );
     initWatch( watch, options );
-    isCustomElement && initStyles( userOptions.styles, options );
+    initStyles( userOptions.styles, options );
 
     if( !isMixin ){
       // 处理 Mixins
@@ -656,7 +656,7 @@
         }
       }
       // 处理自定义元素的样式
-      if( isCustomElement && options.styles ){
+      if( options.styles ){
         const style = document.createElement('style');
 
         style.textContent = options.styles.join('');
@@ -797,7 +797,7 @@
     initProps( userOptions, options, mixins );
     initState( isCustomElement, userOptions, options, mixins );
     initLifecycle( userOptions, options, mixins );
-    initOther( isCustomElement, userOptions, options, mixins );
+    initOther( isCustomElement, userOptions, options);
 
     return [
       userOptions,
@@ -3570,13 +3570,13 @@
   };
 
   /** 迫使 Hu 实例重新渲染 */
-  var initForceUpdate = ( name, target, targetProxy, isCustomElement ) => {
+  var initForceUpdate = ( name, target, targetProxy ) => {
     /** 当前实例实例选项 */
     const options = optionsMap[ name ];
     /** 当前实例的渲染方法 */
     const userRender = options.render;
     /** 当前实例的样式 */
-    const userStyles = isCustomElement && options.styles && options.styles.cloneNode( true );
+    const userStyles = options.styles && options.styles.cloneNode( true );
     /** 是否已经渲染过当前实例的样式 */
     let canRenderedStyles = !!userStyles;
 
@@ -3932,7 +3932,7 @@
       const targetProxy = observe( this, observeHu );
 
       // 初始化 $forceUpdate 方法
-      initForceUpdate( name, this, targetProxy, isCustomElement );
+      initForceUpdate( name, this, targetProxy );
       // 初始化事件相关
       initEvents( targetProxy );
     }
