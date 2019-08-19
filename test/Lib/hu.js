@@ -1821,7 +1821,7 @@
     if( isString( value ) ) return value;
     // [] -> '[]'
     // {} -> '{}'
-    if( isArray( value ) || ( isPlainObject( value ) && value.toString === toString ) ){
+    if( isArray( value ) || ( isPlainObject( value ) && value.toString === emptyObject.toString ) ){
       return JSON.stringify( value, null, 2 );
     }
     // true -> 'true'

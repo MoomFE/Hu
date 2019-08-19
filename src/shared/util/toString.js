@@ -1,7 +1,7 @@
 import { isArray } from "../global/Array/index";
 import isPlainObject from "./isPlainObject";
-import { toString } from "../global/Object/prototype";
 import isString from "./isString";
+import emptyObject from "../const/emptyObject";
 
 
 export default
@@ -17,7 +17,7 @@ value => {
   if( isString( value ) ) return value;
   // [] -> '[]'
   // {} -> '{}'
-  if( isArray( value ) || ( isPlainObject( value ) && value.toString === toString ) ){
+  if( isArray( value ) || ( isPlainObject( value ) && value.toString === emptyObject.toString ) ){
     return JSON.stringify( value, null, 2 );
   }
   // true -> 'true'
