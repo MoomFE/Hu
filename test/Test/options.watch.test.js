@@ -200,6 +200,450 @@ describe( 'options.watch', () => {
     });
   });
 
+  it( '使用 watch 对实例内的属性进行监听, 对 String 类型进行监听', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: () => ({
+        a: 'a'
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = 'b';
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 'b', 'a' ]);
+
+      hu.a = 'c';
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 'c', 'b' ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 String 类型进行监听 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: () => ({
+        a: 'a'
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = 'b';
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 'b', 'a' ]);
+
+      vm.a = 'c';
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 'c', 'b' ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Number 类型进行监听', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: () => ({
+        a: 1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      hu.a = 3;
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Number 类型进行监听 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: () => ({
+        a: 1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      vm.a = 3;
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Function 类型进行监听', ( done ) => {
+    let result;
+    const fn1 = () => {};
+    const fn2 = () => {};
+    const fn3 = () => {};
+    const hu = new Hu({
+      data: () => ({
+        a: fn1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = fn2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ fn2, fn1 ]);
+
+      hu.a = fn3;
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ fn3, fn2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Function 类型进行监听 ( Vue )', ( done ) => {
+    let result;
+    const fn1 = () => {};
+    const fn2 = () => {};
+    const fn3 = () => {};
+    const vm = new Vue({
+      data: () => ({
+        a: fn1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = fn2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ fn2, fn1 ]);
+
+      vm.a = fn3;
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ fn3, fn2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Object 类型进行监听', ( done ) => {
+    let result;
+    const obj1 = [];
+    const obj2 = [];
+    const obj3 = {};
+    const obj4 = {};
+    const hu = new Hu({
+      data: () => ({
+        a: obj1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = obj2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ obj2, obj1 ]);
+
+      hu.a = obj3;
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ obj3, obj2 ]);
+
+        hu.a = obj4;
+        hu.$nextTick(() => {
+          expect( result ).is.deep.equals([ obj4, obj3 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Object 类型进行监听 ( Vue )', ( done ) => {
+    let result;
+    const obj1 = [];
+    const obj2 = [];
+    const obj3 = {};
+    const obj4 = {};
+    const vm = new Vue({
+      data: () => ({
+        a: obj1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = obj2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ obj2, obj1 ]);
+
+      vm.a = obj3;
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ obj3, obj2 ]);
+
+        vm.a = obj4;
+        vm.$nextTick(() => {
+          expect( result ).is.deep.equals([ obj4, obj3 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Symbol 类型进行监听', ( done ) => {
+    let result;
+    const smb1 = Symbol('1');
+    const smb2 = Symbol('2');
+    const smb3 = Symbol('3');
+    const hu = new Hu({
+      data: () => ({
+        a: smb1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = smb2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ smb2, smb1 ]);
+
+      hu.a = smb3;
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ smb3, smb2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对 Symbol 类型进行监听 ( Vue )', ( done ) => {
+    let result;
+    const smb1 = Symbol('1');
+    const smb2 = Symbol('2');
+    const smb3 = Symbol('3');
+    const vm = new Vue({
+      data: () => ({
+        a: smb1
+      }),
+      watch: {
+        a: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = smb2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ smb2, smb1 ]);
+
+      vm.a = smb3;
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ smb3, smb2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对各种类型的切换进行监听', ( done ) => {
+    const types = [
+      '', ' ', 'a',
+      -1, 0, 1,
+      () => {}, function(){},
+      [], [ 1 ], [ 1 ],
+      {}, { a: 1 }, { a: 1 },
+      Symbol(''), Symbol('1'), Symbol('1'),
+      undefined, null
+    ];
+    const values = [];
+
+    for( let i = 0, types1 = Array.$copy( types ); i < types1.length - 1; i++ ){
+      const promise = new Promise( resolve => {
+
+        let result;
+        const hu = new Hu({
+          data: () => ({
+            value: types1[ i ]
+          }),
+          watch: {
+            value: ( value, oldValue ) => result = [ value, oldValue ]
+          }
+        });
+
+        expect( result ).is.undefined;
+
+        hu.value = types1[ i + 1 ];
+        hu.$nextTick(() => {
+          expect( result ).is.deep.equals([
+            types1[ i + 1 ],
+            types1[ i ]
+          ]);
+
+          resolve();
+        });
+
+      });
+
+      values.push( promise );
+    }
+
+    for( let i = 0, types2 = Array.$copy( types ).reverse(); i < types2.length - 1; i++ ){
+      const promise = new Promise( resolve => {
+
+        let result;
+        const hu = new Hu({
+          data: () => ({
+            value: types2[ i ]
+          }),
+          watch: {
+            value: ( value, oldValue ) => result = [ value, oldValue ]
+          }
+        });
+
+        expect( result ).is.undefined;
+
+        hu.value = types2[ i + 1 ];
+        hu.$nextTick(() => {
+          expect( result ).is.deep.equals([
+            types2[ i + 1 ],
+            types2[ i ]
+          ]);
+
+          resolve();
+        });
+
+      });
+
+      values.push( promise );
+    }
+
+    Promise.all( values ).then(() => {
+      done();
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对各种类型的切换进行监听 ( Vue )', ( done ) => {
+    const types = [
+      '', ' ', 'a',
+      -1, 0, 1,
+      () => {}, function(){},
+      [], [ 1 ], [ 1 ],
+      {}, { a: 1 }, { a: 1 },
+      Symbol(''), Symbol('1'), Symbol('1'),
+      undefined, null
+    ];
+    const values = [];
+
+    for( let i = 0, types1 = Array.$copy( types ); i < types1.length - 1; i++ ){
+      const promise = new Promise( resolve => {
+
+        let result;
+        const vm = new Vue({
+          data: () => ({
+            value: types1[ i ]
+          }),
+          watch: {
+            value: ( value, oldValue ) => result = [ value, oldValue ]
+          }
+        });
+
+        expect( result ).is.undefined;
+
+        vm.value = types1[ i + 1 ];
+        vm.$nextTick(() => {
+          expect( result ).is.deep.equals([
+            types1[ i + 1 ],
+            types1[ i ]
+          ]);
+
+          resolve();
+        });
+
+      });
+
+      values.push( promise );
+    }
+
+    for( let i = 0, types2 = Array.$copy( types ).reverse(); i < types2.length - 1; i++ ){
+      const promise = new Promise( resolve => {
+
+        let result;
+        const vm = new Vue({
+          data: () => ({
+            value: types2[ i ]
+          }),
+          watch: {
+            value: ( value, oldValue ) => result = [ value, oldValue ]
+          }
+        });
+
+        expect( result ).is.undefined;
+
+        vm.value = types2[ i + 1 ];
+        vm.$nextTick(() => {
+          expect( result ).is.deep.equals([
+            types2[ i + 1 ],
+            types2[ i ]
+          ]);
+
+          resolve();
+        });
+
+      });
+
+      values.push( promise );
+    }
+
+    Promise.all( values ).then(() => {
+      done();
+    });
+  });
+
   it( '使用 watch 对实例内的属性进行监听, 只有值被真正更改时, 回调才被触发', ( done ) => {
     let index = 0;
     let result;
