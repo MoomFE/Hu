@@ -998,4 +998,230 @@ describe( 'options.watch', () => {
     });
   });
 
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 上层兄弟节点改变时不会触发回调', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b: { c: 1 },
+          d: 2
+        }
+      }),
+      watch: {
+        'a.b': {
+          deep: true,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.b.c = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a.b.c = 3;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.a.d = 3;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 2 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 上层兄弟节点改变时不会触发回调 ( Vue )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: () => ({
+        a: {
+          b: { c: 1 },
+          d: 2
+        }
+      }),
+      watch: {
+        'a.b': {
+          deep: true,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    vm.a.b.c = 2;
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      vm.a.b.c = 3;
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        vm.a.d = 3;
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 2 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 子级 Object 对象节点内部改变时不会触发回调', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b: { c: 1 },
+          d: 2
+        }
+      }),
+      watch: {
+        a: {
+          deep: true,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.d = 3;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a.b.c = 2;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+
+        hu.a.b.c = 3;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 1 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 子级 Object 对象节点内部改变时不会触发回调 ( Vue ) ( 不一致 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: () => ({
+        a: {
+          b: { c: 1 },
+          d: 2
+        }
+      }),
+      watch: {
+        a: {
+          deep: true,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    vm.a.d = 3;
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      vm.a.b.c = 2;
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        vm.a.b.c = 3;
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 子级 Array 对象节点内部改变时不会触发回调', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b: [
+            1
+          ],
+          d: 2
+        }
+      }),
+      watch: {
+        a: {
+          deep: true,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.d = 3;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a.b.splice( 0, 1, 2 );
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+
+        hu.a.b.splice( 0, 1, 3 );
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 1 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 子级 Array 对象节点内部改变时不会触发回调 ( Vue ) ( 不一致 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: () => ({
+        a: {
+          b: [
+            1
+          ],
+          d: 2
+        }
+      }),
+      watch: {
+        a: {
+          deep: true,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    vm.a.d = 3;
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      vm.a.b.splice( 0, 1, 2 );
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        vm.a.b.splice( 0, 1, 3 );
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          done();
+        });
+      });
+    });
+  });
+
 });
