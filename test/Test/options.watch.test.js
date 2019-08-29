@@ -58,6 +58,118 @@ describe( 'options.watch', () => {
     });
   });
 
+  it( '使用 watch 对实例内的属性进行监听, 触发的回调函数的 this 指向的是当前实例', () => {
+    let result;
+    const hu = new Hu({
+      watch: {
+        $data: {
+          immediate: true,
+          handler(){
+            result = this;
+          }
+        }
+      }
+    });
+
+    // 确保 expect 一定执行过
+    expect( result ).is.deep.equals( hu );
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 触发的回调函数的 this 指向的是当前实例 ( Vue )', () => {
+    let result;
+    const vm = new Vue({
+      watch: {
+        $data: {
+          immediate: true,
+          handler(){
+            result = this;
+          }
+        }
+      }
+    });
+
+    // 确保 expect 一定执行过
+    expect( result ).is.deep.equals( vm );
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用字符串的键对一个对象内部属性进行监听', () => {
+    let result;
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b: 2,
+          c: 3
+        }
+      }),
+      watch: {
+        'a.b': ( value, oldValue ) => {
+          index++;
+          result = [ value, oldValue ];
+        }
+      }
+    });
+
+    hu.a.b = 3;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( result ).is.deep.equals([ 3, 2 ]);
+
+      hu.a.b = 4;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( result ).is.deep.equals([ 4, 3 ]);
+
+        hu.a.c = 5;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 2 );
+          expect( result ).is.deep.equals([ 4, 3 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用字符串的键对一个对象内部属性进行监听 ( Vue )', () => {
+    let result;
+    let index = 0;
+    const vm = new Vue({
+      data: () => ({
+        a: {
+          b: 2,
+          c: 3
+        }
+      }),
+      watch: {
+        'a.b': ( value, oldValue ) => {
+          index++;
+          result = [ value, oldValue ];
+        }
+      }
+    });
+
+    vm.a.b = 3;
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( result ).is.deep.equals([ 3, 2 ]);
+
+      vm.a.b = 4;
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( result ).is.deep.equals([ 4, 3 ]);
+
+        vm.a.c = 5;
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 2 );
+          expect( result ).is.deep.equals([ 4, 3 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
   it( '使用 watch 对实例内的属性进行监听, 值可以为一个字符串的方法名称', ( done ) => {
     let result;
     const hu = new Hu({
@@ -1357,6 +1469,142 @@ describe( 'options.watch', () => {
           done();
         });
       });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对数组的 length 进行监听, 不管给 length 赋了什么类型的值, 触发回调时的应该是真实的 length', ( done ) => {
+    let result;
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        arr: [ ]
+      }),
+      watch: {
+        'arr.length': ( value , oldValue ) => {
+          index++;
+          result = [ value, oldValue ];
+        }
+      }
+    });
+
+    hu.arr.length = 1;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( result ).is.deep.equals([ 1, 0 ]);
+
+      hu.arr.length = 3;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( result ).is.deep.equals([ 3, 1 ]);
+
+        hu.arr.length = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( result ).is.deep.equals([ 4, 3 ]);
+
+          hu.arr.length = '0';
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+            expect( result ).is.deep.equals([ 0, 4 ]);
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对数组的 length 进行监听, 不管给 length 赋了什么类型的值, 触发回调时的应该是真实的 length ( Vue ) ( 不支持 )', ( done ) => {
+    let result;
+    let index = 0;
+    const vm = new Vue({
+      data: () => ({
+        arr: [ ]
+      }),
+      watch: {
+        'arr.length': ( value , oldValue ) => {
+          index++;
+          result = [ value, oldValue ];
+        }
+      }
+    });
+
+    vm.$set( vm.arr, 'length', 1 );
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 0 );
+      expect( result ).is.undefined;
+
+      vm.$set( vm.arr, 'length', 3 );
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 0 );
+        expect( result ).is.undefined;
+
+        vm.$set( vm.arr, 'length', '4' );
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 0 );
+          expect( result ).is.undefined;
+
+          vm.$set( vm.arr, 'length', '0' );
+          vm.$nextTick(() => {
+            expect( index ).is.equals( 0 );
+            expect( result ).is.undefined;
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 在触发的回调内修改监听的值会立即再触发回调', () => {
+    const steps = [];
+    const hu = new Hu({
+      data: () => ({
+        a: 1
+      }),
+      watch: {
+        a: [
+          value => {
+            steps.push( 1 );
+            hu.a = 3;
+          },
+          value => steps.push( 2 ),
+          value => steps.push( 3 )
+        ]
+      }
+    });
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( steps ).is.deep.equals([ 1, 1, 2, 3 ]);
+
+      done();
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 在触发的回调内修改监听的值会立即再触发回调 ( Vue )', () => {
+    const steps = [];
+    const vm = new Vue({
+      data: () => ({
+        a: 1
+      }),
+      watch: {
+        a: [
+          value => {
+            steps.push( 1 );
+            vm.a = 3;
+          },
+          value => steps.push( 2 ),
+          value => steps.push( 3 )
+        ]
+      }
+    });
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( steps ).is.deep.equals([ 1, 1, 2, 3 ]);
+
+      done();
     });
   });
 
