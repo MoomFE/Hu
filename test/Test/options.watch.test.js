@@ -1224,4 +1224,140 @@ describe( 'options.watch', () => {
     });
   });
 
+  it( '使用 watch 对实例内的属性进行监听, 值被删除时也会触发回调', ( done ) => {
+    let result;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b: 1
+        }
+      }),
+      watch: {
+        'a.b': ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    hu.a.b = 2;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      hu.a.b = 3;
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        delete hu.a.b;
+        hu.$nextTick(() => {
+          expect( result ).is.deep.equals([ undefined, 3 ]);
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 值被删除时也会触发回调 ( Vue )', ( done ) => {
+    let result;
+    const vm = new Vue({
+      data: () => ({
+        a: {
+          b: 1
+        }
+      }),
+      watch: {
+        'a.b': ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    });
+
+    vm.a.b = 2;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      vm.a.b = 3;
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        Vue.delete( vm.a, 'b' );
+        vm.$nextTick(() => {
+          expect( result ).is.deep.equals([ undefined, 3 ]);
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对数组使用 length = num 的方式删除值后也会触发回调', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        arr: [ 1, 2, 3 ]
+      }),
+      watch: {
+        arr: {
+          deep: true,
+          handler: ( value, oldValue ) => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+    expect( hu.arr ).is.deep.equals([ 1, 2, 3 ]);
+
+    hu.arr.push( 4 );
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.arr ).is.deep.equals([ 1, 2, 3, 4 ]);
+
+      hu.arr.pop();
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( hu.arr ).is.deep.equals([ 1, 2, 3 ]);
+
+        hu.arr.length = 1;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( hu.arr ).is.deep.equals([ 1 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 对数组使用 length = num 的方式删除值后也会触发回调 ( Vue ) ( 不支持 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: () => ({
+        arr: [ 1, 2, 3 ]
+      }),
+      watch: {
+        arr: {
+          deep: true,
+          handler: ( value, oldValue ) => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+    expect( vm.arr ).is.deep.equals([ 1, 2, 3 ]);
+
+    vm.arr.push( 4 );
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( vm.arr ).is.deep.equals([ 1, 2, 3, 4 ]);
+
+      vm.arr.pop();
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( vm.arr ).is.deep.equals([ 1, 2, 3 ]);
+
+        Vue.set( vm.arr, 'length', 1 );
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 2 );
+          expect( vm.arr ).is.deep.equals([ 1 ]);
+
+          done();
+        });
+      });
+    });
+  });
+
 });
