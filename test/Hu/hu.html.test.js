@@ -14,66 +14,6 @@ describe( 'Hu.html', () => {
   }();
 
 
-
-
-
-  it( '渲染注释节点 - 使用插值绑定', () => {
-    Hu.render( div )`<!--${ 123 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->`);
-
-    Hu.render( div )`
-    <!--${ 123 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-    <!--${ marker }-->`);
-
-    Hu.render( div )`<!--${ 123 }-->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->
-    `);
-
-    Hu.render( div )`
-      <!--${ 123 }-->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }-->
-    `);
-
-    Hu.render( div )`
-      <!-- ${ 123 }-->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }-->
-    `);
-
-    Hu.render( div )`
-      <!--${ 123 } -->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker } -->
-    `);
-
-    Hu.render( div )`
-      <!-- ${ 123 } -->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker } -->
-    `);
-
-    Hu.render( div )`
-      <!-- 1${ 2 }3 -->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- 1${ marker }3 -->
-    `);
-
-    Hu.render( div )`
-      <!-- 1<div>2${ 3 }4</div>5 -->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- 1<div>2${ marker }4</div>5 -->
-    `);
-  });
-
   it( '渲染文本节点 - 多个插值绑定', () => {
     Hu.render( div )`
       ${ 1 } ${ 2 } ${ 3 } ${ 4 }

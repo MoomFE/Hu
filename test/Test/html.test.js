@@ -129,69 +129,75 @@ describe( 'html', () => {
   });
 
   it( '渲染文本节点 - 使用插值绑定', () => {
-    render( div )`${ '测试' }测试`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`${ '测试' }测试`);
+    render( div )`${ '123' }测试`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123测试`);
 
-    render( div )`
-      ${ '测试' }测试
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      ${ '测试' }测试
-    `);
-
-    render( div )`
-      ${ '测试' }测试`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      ${ '测试' }测试`);
-
-    render( div )`${ '测试' }测试
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`${ '测试' }测试
-    `);
+    render( div )`测试${ '123' }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试123`);
 
     // ------
 
-    render( div )`测试${ '测试' }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试${ '测试' }`);
-
-    render( div )`
-      测试${ '测试' }
+    render( div )`${ '123' }
+      测试
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      测试${ '测试' }
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      测试
     `);
 
     render( div )`
-      测试${ '测试' }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      测试${ '测试' }`);
-
-    render( div )`测试${ '测试' }
+      ${ '123' }测试
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试${ '测试' }
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      123测试
     `);
+
+    render( div )`
+      测试${ '123' }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      测试123
+    `);
+
+    render( div )`
+      测试
+    ${ '123' }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      测试
+    123`);
 
     // ------
 
-    render( div )`${ '测试' }测试${ '测试' }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`${ '测试' }测试${ '测试' }`);
+    render( div )`${ '123' }
+      测试`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      测试`);
 
     render( div )`
-      ${ '测试' }测试${ '测试' }
-    `;
+      ${ '123' }测试`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      ${ '测试' }测试${ '测试' }
-    `);
+      123测试`);
 
     render( div )`
-      ${ '测试' }测试${ '测试' }`;
+      测试${ '123' }`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      ${ '测试' }测试${ '测试' }`);
+      测试123`);
 
-    render( div )`${ '测试' }测试${ '测试' }
+    // ------
+
+    render( div )`${ 123 }测试
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`${ '测试' }测试${ '测试' }
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123测试
     `);
+
+    render( div )`测试${ 123 }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试123
+    `);
+
+    render( div )`测试
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`测试
+    123`);
   });
 
   it( '渲染元素节点 - 使用插值绑定', () => {
@@ -310,6 +316,204 @@ describe( 'html', () => {
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
       1231123<div class="123asd123">1232123</div>1233123
     123`);
+  });
+
+  it( '渲染注释节点 - 使用插值绑定', () => {
+    Hu.render( div )`<!--${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->`);
+
+    Hu.render( div )`
+      <!--${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }-->
+    `);
+
+    Hu.render( div )`
+      <!--${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }-->`);
+
+    Hu.render( div )`<!--${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!-- ${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } -->`);
+
+    Hu.render( div )`
+      <!-- ${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker } -->
+    `);
+
+    Hu.render( div )`
+      <!-- ${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker } -->`);
+
+    Hu.render( div )`<!-- ${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } -->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!-- ${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }-->`);
+
+    Hu.render( div )`
+      <!-- ${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker }-->
+    `);
+
+    Hu.render( div )`
+      <!-- ${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker }-->`);
+
+    Hu.render( div )`<!-- ${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }-->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!--${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker } -->`);
+
+    Hu.render( div )`
+      <!--${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker } -->
+    `);
+
+    Hu.render( div )`
+      <!--${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker } -->`);
+
+    Hu.render( div )`<!--${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker } -->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!--${ 123 }${ 123 }${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker }-->`);
+
+    Hu.render( div )`
+      <!--${ 123 }${ 123 }${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }${ marker }${ marker }-->
+    `);
+
+    Hu.render( div )`
+      <!--${ 123 }${ 123 }${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }${ marker }${ marker }-->`);
+
+    Hu.render( div )`<!--${ 123 }${ 123 }${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker }-->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!-- ${ 123 }${ 123 }${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker } -->`);
+
+    Hu.render( div )`
+      <!-- ${ 123 }${ 123 }${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker }${ marker }${ marker } -->
+    `);
+
+    Hu.render( div )`
+      <!-- ${ 123 }${ 123 }${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker }${ marker }${ marker } -->`);
+
+    Hu.render( div )`<!-- ${ 123 }${ 123 }${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker } -->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!--${ 123 }${ 123 }${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker } -->`);
+
+    Hu.render( div )`
+      <!--${ 123 }${ 123 }${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }${ marker }${ marker } -->
+    `);
+
+    Hu.render( div )`
+      <!--${ 123 }${ 123 }${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }${ marker }${ marker } -->`);
+
+    Hu.render( div )`<!--${ 123 }${ 123 }${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker } -->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!-- ${ 123 }${ 123 }${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker }-->`);
+
+    Hu.render( div )`
+      <!-- ${ 123 }${ 123 }${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker }${ marker }${ marker }-->
+    `);
+
+    Hu.render( div )`
+      <!-- ${ 123 }${ 123 }${ 123 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker }${ marker }${ marker }-->`);
+
+    Hu.render( div )`<!-- ${ 123 }${ 123 }${ 123 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker }-->
+    `);
+
+    // ------
+
+    Hu.render( div )`<!-- ${ 123 } ${ 123 } ${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } ${ marker } ${ marker } -->`);
+
+    Hu.render( div )`
+      <!-- ${ 123 } ${ 123 } ${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker } ${ marker } ${ marker } -->
+    `);
+
+    Hu.render( div )`
+      <!-- ${ 123 } ${ 123 } ${ 123 } -->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- ${ marker } ${ marker } ${ marker } -->`);
+
+    Hu.render( div )`<!-- ${ 123 } ${ 123 } ${ 123 } -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } ${ marker } ${ marker } -->
+    `);
   });
 
 });
