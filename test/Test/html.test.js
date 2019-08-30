@@ -196,254 +196,6 @@ describe( 'html', () => {
 
   it( '渲染元素节点 - 使用插值绑定', () => {
     render( div )`${ 123 }
-      <div></div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
-      <div></div>
-    `);
-
-    render( div )`
-      ${ 123 }<div></div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<div></div>
-    `);
-
-    render( div )`
-      <div>${ 123 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>123</div>
-    `);
-
-    render( div )`
-      <div></div>${ 123 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div></div>123
-    `);
-
-    render( div )`
-      <div></div>
-    ${ 123 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div></div>
-    123`);
-
-    // ------
-
-    render( div )`${ 123 }
-      <div>123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
-      <div>123</div>
-    `);
-
-    render( div )`
-      ${ 123 }<div>123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<div>123</div>
-    `);
-
-    render( div )`
-      <div>${ 123 }123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>123123</div>
-    `);
-
-    render( div )`
-      <div>123${ 123 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>123123</div>
-    `);
-
-    render( div )`
-      <div>123</div>${ 123 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>123</div>123
-    `);
-
-    render( div )`
-      <div>123</div>
-    ${ 123 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>123</div>
-    123`);
-
-    // ------
-
-    render( div )`${ 123 }
-      <div class="asd"></div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
-      <div class="asd"></div>
-    `);
-
-    render( div )`
-      ${ 123 }<div class="asd"></div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<div class="asd"></div>
-    `);
-
-    render( div )`
-      <div class="${ 123 }asd"></div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="123asd"></div>
-    `);
-
-    render( div )`
-      <div class="asd${ 123 }"></div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd123"></div>
-    `);
-
-    render( div )`
-      <div class="asd">${ 123 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd">123</div>
-    `);
-
-    render( div )`
-      <div class="asd"></div>${ 123 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd"></div>123
-    `);
-
-    render( div )`
-      <div class="asd"></div>
-    ${ 123 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd"></div>
-    123`);
-
-    // ------
-
-    render( div )`${ 123 }
-      <div class="asd">123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
-      <div class="asd">123</div>
-    `);
-
-    render( div )`
-      ${ 123 }<div class="asd">123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<div class="asd">123</div>
-    `);
-
-    render( div )`
-      <div class="${ 123 }asd">123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="123asd">123</div>
-    `);
-
-    render( div )`
-      <div class="asd${ 123 }">123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd123">123</div>
-    `);
-
-    render( div )`
-      <div class="asd">${ 123 }123</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd">123123</div>
-    `);
-
-    render( div )`
-      <div class="asd">123${ 123 }</div>
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd">123123</div>
-    `);
-
-    render( div )`
-      <div class="asd">123</div>${ 123 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd">123</div>123
-    `);
-
-    render( div )`
-      <div class="asd">123</div>
-    ${ 123 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="asd">123</div>
-    123`);
-
-    // ------
-
-    render( div )`${ 123 }
-      1<div>2</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
-      1<div>2</div>3
-    `);
-
-    render( div )`
-      ${ 123 }1<div>2</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1231<div>2</div>3
-    `);
-
-    render( div )`
-      1${ 123 }<div>2</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1123<div>2</div>3
-    `);
-
-    render( div )`
-      1<div>${ 123 }2</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div>1232</div>3
-    `);
-
-    render( div )`
-      1<div>2${ 123 }</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div>2123</div>3
-    `);
-
-    render( div )`
-      1<div>2</div>${ 123 }3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div>2</div>1233
-    `);
-
-    render( div )`
-      1<div>2</div>3${ 123 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div>2</div>3123
-    `);
-
-    render( div )`
-      1<div>2</div>3
-    ${ 123 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div>2</div>3
-    123`);
-
-    // ------
-
-    render( div )`${ 123 }
       1<div class="asd">2</div>3
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
@@ -512,6 +264,43 @@ describe( 'html', () => {
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
       1<div class="asd">2</div>3
     123`);
+
+    // ------
+
+    render( div )`${ 123 }
+      1<div class="asd">2</div>3
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      1<div class="asd">2</div>3
+    123`);
+
+    render( div )`
+      ${ 123 }1<div class="asd">2</div>3${ 123 }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1231<div class="asd">2</div>3123
+    `);
+
+    render( div )`
+      1<div class="asd">${ 123 }2${ 123 }</div>3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1<div class="asd">1232123</div>3
+    `);
+
+    render( div )`
+      1<div class="${ 123 }asd${ 123 }">2</div>3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1<div class="123asd123">2</div>3
+    `);
+
+    render( div )`
+      1<div class="asd">${ 123 }2${ 123 }</div>3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1<div class="asd">1232123</div>3
+    `);
   });
 
 });
