@@ -29,12 +29,12 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 ## 大小 - 版本详解
 | Description | UMD | CommonJS | ES Module |
 | :- | :- | :- | :- |
-| 正常版 | **hu.js**<br>*107.33KB / 29KB* | **hu.common.js**<br>*99.84KB / 29KB* | **hu.esm.js**<br>*99.82KB / 29KB* |
-| 正常版 ( 生产环境 ) | **hu.min.js**<br>*26.68KB / 10KB* | **hu.common.min.js**<br>*34.33KB / 12KB* | **hu.esm.min.js**<br>*26.51KB / 10KB* |
-| 正常版 + Polyfill | **hu.polyfill.js**<br>*215.35KB / 61KB* | **hu.polyfill.common.js**<br>*207.35KB / 61KB* | **hu.polyfill.esm.js**<br>*207.33KB / 61KB* |
-| 正常版 + Polyfill ( 生产环境 ) | **hu.polyfill.min.js**<br>*126.38KB / 41KB* | **hu.polyfill.common.min.js**<br>*134.04KB / 42KB* | **hu.polyfill.esm.min.js**<br>*126.21KB / 41KB* |
-| 正常版 + Polyfill ( 按需加载 ) | **hu.polyfill.async.js**<br>*114.02KB / 31KB* | **hu.polyfill.async.common.js**<br>*106.17KB / 31KB* | **hu.polyfill.async.esm.js**<br>*106.15KB / 31KB* |
-| 正常版 + Polyfill ( 按需加载 ) ( 生产环境 ) | **hu.polyfill.async.min.js**<br>*29.00KB / 11KB* | **hu.polyfill.async.common.min.js**<br>*36.66KB / 12KB* | **hu.polyfill.async.esm.min.js**<br>*28.83KB / 11KB* |
+| 正常版 | **hu.js**<br>*107.42KB / 29KB* | **hu.common.js**<br>*99.92KB / 29KB* | **hu.esm.js**<br>*99.91KB / 29KB* |
+| 正常版 ( 生产环境 ) | **hu.min.js**<br>*26.72KB / 11KB* | **hu.common.min.js**<br>*34.40KB / 12KB* | **hu.esm.min.js**<br>*26.55KB / 10KB* |
+| 正常版 + Polyfill | **hu.polyfill.js**<br>*215.44KB / 61KB* | **hu.polyfill.common.js**<br>*207.43KB / 61KB* | **hu.polyfill.esm.js**<br>*207.42KB / 61KB* |
+| 正常版 + Polyfill ( 生产环境 ) | **hu.polyfill.min.js**<br>*126.43KB / 41KB* | **hu.polyfill.common.min.js**<br>*134.11KB / 42KB* | **hu.polyfill.esm.min.js**<br>*126.26KB / 41KB* |
+| 正常版 + Polyfill ( 按需加载 ) | **hu.polyfill.async.js**<br>*114.10KB / 31KB* | **hu.polyfill.async.common.js**<br>*106.25KB / 31KB* | **hu.polyfill.async.esm.js**<br>*106.24KB / 31KB* |
+| 正常版 + Polyfill ( 按需加载 ) ( 生产环境 ) | **hu.polyfill.async.min.js**<br>*29.05KB / 11KB* | **hu.polyfill.async.common.min.js**<br>*36.74KB / 12KB* | **hu.polyfill.async.esm.min.js**<br>*28.88KB / 11KB* |
 
 <br>
 

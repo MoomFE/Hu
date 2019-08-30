@@ -57,6 +57,7 @@ export const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F 
 
 export const boundAttributeSuffix = '$hu$';
 export const boundAttributeSuffixLength = boundAttributeSuffix.length;
+export const boundAttributeSuffixRegex = /\$hu\$/g;
 
 export const marker = `{{hu-${ String( random() ).slice(2) }}}`;
 export const nodeMarker = `<!--${ marker }-->`;

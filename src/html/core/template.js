@@ -1,4 +1,4 @@
-import { marker, markerRegex, lastAttributeNameRegex, boundAttributeSuffix, boundAttributeSuffixLength, commentMarkerRegex } from "../const/index";
+import { marker, markerRegex, lastAttributeNameRegex, boundAttributeSuffix, boundAttributeSuffixLength, commentMarkerRegex, boundAttributeSuffixRegex } from "../const/index";
 import createMarker from "../util/createMarker";
 import getAttribute from "../../shared/util/getAttribute";
 
@@ -179,7 +179,7 @@ export default class Template{
           }
           // 正常注释
           else{
-            const data = node.data = node.data.replace( commentMarkerRegex, marker );
+            const data = node.data = node.data.replace( commentMarkerRegex, marker ).replace( boundAttributeSuffixRegex, '' );
             let markerIndex = -1;
 
             // 查找注释中所有插值绑定

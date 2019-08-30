@@ -1961,6 +1961,7 @@
 
   const boundAttributeSuffix = '$hu$';
   const boundAttributeSuffixLength = boundAttributeSuffix.length;
+  const boundAttributeSuffixRegex = /\$hu\$/g;
 
   const marker = `{{hu-${ String( random() ).slice(2) }}}`;
   const nodeMarker = `<!--${ marker }-->`;
@@ -2145,7 +2146,7 @@
             }
             // 正常注释
             else{
-              const data = node.data = node.data.replace( commentMarkerRegex, marker );
+              const data = node.data = node.data.replace( commentMarkerRegex, marker ).replace( boundAttributeSuffixRegex, '' );
               let markerIndex = -1;
 
               // 查找注释中所有插值绑定
