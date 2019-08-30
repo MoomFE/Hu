@@ -15,44 +15,7 @@ describe( 'Hu.html', () => {
 
 
 
-  it( '渲染文本节点 - 类似属性绑定的文本节点', () => {
-    Hu.render( div )`attr1=${ 1 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`attr1=1`);
 
-    Hu.render( div )`
-    attr1=${ 1 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-    attr1=1`);
-
-    Hu.render( div )`attr1=${ 1 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`attr1=1
-    `);
-
-    Hu.render( div )`
-      attr1=${ 1 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      attr1=1
-    `);
-
-    Hu.render( div )`
-      attr1=${ 1 } attr2=${ 2 } attr3=${ 3 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      attr1=1 attr2=2 attr3=3
-    `);
-  });
-
-  it( '渲染注释节点 - 类似属性绑定的注释节点', () => {
-    Hu.render( div )`
-      <!-- 1<div class=${ 'static' }>2${ 3 }4</div>5 -->
-    `;
-
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- 1<div class$hu$=${ marker }>2${ marker }4</div>5 -->
-    `);
-  });
 
   it( '同时渲染文本节点及注释节点', () => {
     Hu.render( div )`
