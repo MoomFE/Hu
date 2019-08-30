@@ -270,52 +270,6 @@ describe( 'html', () => {
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
       1<div class="asd">2</div>3
     123`);
-
-    // ------
-
-    render( div )`${ 123 }
-      1<div class="asd">2</div>3
-    ${ 123 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
-      1<div class="asd">2</div>3
-    123`);
-
-    render( div )`
-      ${ 123 }1<div class="asd">2</div>3${ 123 }
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1231<div class="asd">2</div>3123
-    `);
-
-    render( div )`
-      1<div class="asd">${ 123 }2${ 123 }</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div class="asd">1232123</div>3
-    `);
-
-    render( div )`
-      1<div class="${ 123 }asd${ 123 }">2</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div class="123asd123">2</div>3
-    `);
-
-    render( div )`
-      1<div class="asd">${ 123 }2${ 123 }</div>3
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1<div class="asd">1232123</div>3
-    `);
-
-    // ------
-
-    render( div )`${ 123 }
-      ${ 123 }1${ 123 }<div class="${ 123 }asd${ 123 }">${ 123 }2${ 123 }</div>${ 123 }3${ 123 }
-    ${ 123 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
-      1231123<div class="123asd123">1232123</div>1233123
-    123`);
   });
 
   it( '渲染注释节点 - 使用插值绑定', () => {
@@ -404,9 +358,184 @@ describe( 'html', () => {
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker } -->
     `);
+  });
+
+  it( '渲染文本节点 - 使用多个插值绑定', () => {
+    render( div )`${ 123 }测试${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123测试123`);
+
+    render( div )` ${ 123 }测试${ 123 } `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(` 123测试123 `);
+
+    render( div )`${ 123 } 测试 ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123 测试 123`);
 
     // ------
 
+    render( div )`${ 123 }
+      测试
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      测试
+    123`);
+
+    render( div )` ${ 123 }
+      测试
+    ${ 123 } `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(` 123
+      测试
+    123 `);
+
+    render( div )`${ 123 }
+      ${ 123 }测试${ 123 }
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      123测试123
+    123`);
+
+    render( div )`${ 123 }
+      ${ 123 } 测试 ${ 123 }
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      123 测试 123
+    123`);
+
+    // ------
+
+    render( div )`${ 123 }
+      测试${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      测试123`);
+
+    render( div )` ${ 123 }
+      测试 ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(` 123
+      测试 123`);
+
+    render( div )` ${ 123 }
+      测试 ${ 123 } `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(` 123
+      测试 123 `);
+
+    render( div )`${ 123 }
+      ${ 123 }测试${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      123测试123`);
+
+    render( div )`${ 123 }
+      ${ 123 } 测试 ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      123 测试 123`);
+
+    // ------
+
+    render( div )`${ 123 }测试
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123测试
+    123`);
+
+    render( div )` ${ 123 }测试
+    ${ 123 } `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(` 123测试
+    123 `);
+
+    render( div )`${ 123 } 测试
+     ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123 测试
+     123`);
+
+    render( div )`${ 123 }测试${ 123 }
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123测试123
+    123`);
+
+    render( div )`${ 123 } 测试 ${ 123 }
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123 测试 123
+    123`);
+  });
+
+  it( '渲染元素节点 - 使用多个插值绑定', () => {
+    render( div )`
+      1${ 123 }<div class="asd">2</div>${ 123 }3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1123<div class="asd">2</div>1233
+    `);
+
+    render( div )`
+      1 ${ 123 } <div class="asd">2</div> ${ 123 } 3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1 123 <div class="asd">2</div> 123 3
+    `);
+
+    // ------
+
+    render( div )`
+      1${ 123 }<div class="${ 123 }asd${ 123 }">2</div>${ 123 }3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1123<div class="123asd123">2</div>1233
+    `);
+
+    render( div )`
+      1 ${ 123 } <div class=" ${ 123 } asd ${ 123 } ">2</div> ${ 123 } 3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1 123 <div class=" 123 asd 123 ">2</div> 123 3
+    `);
+
+    // ------
+
+    render( div )`
+      1${ 123 }<div class="${ 123 }asd${ 123 }">${ 123 }2${ 123 }</div>${ 123 }3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1123<div class="123asd123">1232123</div>1233
+    `);
+
+    render( div )`
+      1 ${ 123 } <div class=" ${ 123 } asd ${ 123 } "> ${ 123 } 2 ${ 123 } </div> ${ 123 } 3
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1 123 <div class=" 123 asd 123 "> 123 2 123 </div> 123 3
+    `);
+
+    // ------
+
+    render( div )`
+      ${ 123 }1${ 123 }<div class="${ 123 }asd${ 123 }">${ 123 }2${ 123 }</div>${ 123 }3${ 123 }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      1231123<div class="123asd123">1232123</div>1233123
+    `);
+
+    render( div )`
+       ${ 123 } 1 ${ 123 } <div class=" ${ 123 } asd ${ 123 } "> ${ 123 } 2 ${ 123 } </div> ${ 123 } 3 ${ 123 }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+       123 1 123 <div class=" 123 asd 123 "> 123 2 123 </div> 123 3 123
+    `);
+
+    // ------
+
+    render( div )`${ 123 }
+      ${ 123 }1${ 123 }<div class="${ 123 }asd${ 123 }">${ 123 }2${ 123 }</div>${ 123 }3${ 123 }
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      1231123<div class="123asd123">1232123</div>1233123
+    123`);
+
+    render( div )` ${ 123 }
+       ${ 123 } 1 ${ 123 } <div class=" ${ 123 } asd ${ 123 } "> ${ 123 } 2 ${ 123 } </div> ${ 123 } 3 ${ 123 }
+     ${ 123 } `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(` 123
+       123 1 123 <div class=" 123 asd 123 "> 123 2 123 </div> 123 3 123
+     123 `);
+  });
+
+  it( '渲染注释节点 - 使用多个插值绑定', () => {
     Hu.render( div )`<!--${ 123 }${ 123 }${ 123 }-->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker }-->`);
 

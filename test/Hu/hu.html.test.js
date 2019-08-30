@@ -14,48 +14,6 @@ describe( 'Hu.html', () => {
   }();
 
 
-  it( '渲染文本节点 - 多个插值绑定', () => {
-    Hu.render( div )`
-      ${ 1 } ${ 2 } ${ 3 } ${ 4 }
-    `;
-
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      1 2 3 4
-    `);
-  });
-
-  it( '渲染元素节点 - 多个插值绑定', () => {
-    Hu.render( div )`
-      <div class="${ 'static' } ${ 'class1' } ${ 'class2' }"></div>
-    `;
-
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="static class1 class2"></div>
-    `);
-  });
-
-  it( '渲染注释节点 - 多个插值绑定', () => {
-    Hu.render( div )`
-      <!-- ${ 1 }${ 2 }${ 3 } -->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }${ marker }${ marker } -->
-    `);
-
-    Hu.render( div )`
-      <!-- ${ 1 } ${ 2 } ${ 3 } -->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker } ${ marker } ${ marker } -->
-    `);
-
-    Hu.render( div )`
-      <!-- ${ 1 }<div>2${ 3 }4</div>${ 5 } -->
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }<div>2${ marker }4</div>${ marker } -->
-    `);
-  });
 
   it( '渲染文本节点 - 类似属性绑定的文本节点', () => {
     Hu.render( div )`attr1=${ 1 }`;
