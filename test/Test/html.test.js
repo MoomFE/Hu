@@ -894,4 +894,107 @@ describe( 'html', () => {
     `);
   });
 
+  it( '同时渲染元素节点与注释节点', () => {
+    render( div )`
+      <!--${ 1 }--><div class=${ 2 }>${ 3 }</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--${ marker }--><div class="2">3</div>
+    `);
+
+    render( div )`
+      <!-- <div class=${ 1 }>${ 2 }</div> --><div class=${ 3 }>${ 4 }<!-- ${ 5 } -->${ 6 }</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!-- <div class=${ marker }>${ marker }</div> --><div class="3">4<!-- ${ marker } -->6</div>
+    `);
+
+    // ------
+
+    render( div )`
+      <div class=${ 2 }>${ 3 }</div><!--${ 1 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div class="2">3</div><!--${ marker }-->
+    `);
+
+    render( div )`
+      <div class=${ 3 }>${ 4 }<!-- ${ 5 } -->${ 6 }</div><!-- <div class=${ 1 }>${ 2 }</div> -->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div class="3">4<!-- ${ marker } -->6</div><!-- <div class=${ marker }>${ marker }</div> -->
+    `);
+  });
+
+  it( '同时渲染文本节点及元素节点及注释节点', () => {
+    render( div )`
+      <div>1${ 2 }3<!--${ 4 }-->5${ 6 }7</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>123<!--${ marker }-->567</div>
+    `);
+
+    render( div )`
+      <div>1${ 2 }3<!-- ${ 4 } ${ 5 } -->6${ 7 }8</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>123<!-- ${ marker } ${ marker } -->678</div>
+    `);
+  });
+
+  it( '渲染 template 元素节点内的内容', () => {
+    render( div )`
+      <div>'123'</div>
+      <template>
+        <div>${ 123 }-${ 456 }-${ 789 }</div>
+      </template>
+      <div>'123'</div>
+    `;
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>'123'</div>
+      <template>
+        <div>123-456-789</div>
+      </template>
+      <div>'123'</div>
+    `);
+  });
+
+  it( '在插值绑定中使用 null 或 undefined 将会转为空字符串', () => {
+    render( div )`${ null }`;
+    expect( div.innerHTML ).is.equals(`<!----><!----><!----><!---->`);
+
+    render( div )`${ undefined }`;
+    expect( div.innerHTML ).is.equals(`<!----><!----><!----><!---->`);
+
+    render( div )` ${ null } `;
+    expect( div.innerHTML ).is.equals(`<!---->  <!---->`);
+
+    render( div )` ${ undefined } `;
+    expect( div.innerHTML ).is.equals(`<!---->  <!---->`);
+
+    render( div )`<div class=${ null }>${ null }</div>`;
+    expect( div.innerHTML ).is.equals(`<!----><div class=""><!----><!----></div><!---->`);
+
+    render( div )`<div class=${ undefined }>${ undefined }</div>`;
+    expect( div.innerHTML ).is.equals(`<!----><div class=""><!----><!----></div><!---->`);
+  });
+
+  it( '在插值绑定中使用 JSON 将会使用 JSON.stringify 进行格式化输出', () => {
+    render( div )`${
+      {}
+    }`;
+    expect( div.innerHTML ).is.equals(`<!----><!---->{}<!----><!---->`);
+
+    render( div )`${
+      { asd: 123 }
+    }`;
+    expect( div.innerHTML ).is.equals(`<!----><!---->{\n  "asd": 123\n}<!----><!---->`);
+
+    render( div )`${
+      { asd: [ 123 ] }
+    }`;
+    expect( div.innerHTML ).is.equals(`<!----><!---->{\n  "asd": [\n    123\n  ]\n}<!----><!---->`);
+  });
+
 });
