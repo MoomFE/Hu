@@ -848,49 +848,49 @@ describe( 'html', () => {
 
   it( '同时渲染文本节点及注释节点', () => {
     render( div )`${ 1 }2${ 3 }<!--${ 4 }5${ 6 }-->${ 7 }8${ 9 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--456-->789`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--${ marker }5${ marker }-->789`);
 
     render( div )`
       ${ 1 }2${ 3 }<!--${ 4 }5${ 6 }-->${ 7 }8${ 9 }
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<!--456-->789
+      123<!--${ marker }5${ marker }-->789
     `);
 
     // ------
 
     render( div )`1${ 2 }3<!--4${ 5 }6-->7${ 8 }9`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--456-->789`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--4${ marker }6-->789`);
 
     render( div )`
       1${ 2 }3<!--4${ 5 }6-->7${ 8 }9
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<!--456-->789
+      123<!--4${ marker }6-->789
     `);
 
     // ------
 
     render( div )`<!--${ 4 }5${ 6 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--456-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }5${ marker }-->`);
 
     render( div )`
       <!--${ 4 }5${ 6 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--456-->
+      <!--${ marker }5${ marker }-->
     `);
 
     // ------
 
     render( div )`<!--4${ 5 }6-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--456-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--4${ marker }6-->`);
 
     render( div )`
       <!--4${ 5 }6-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--456-->
+      <!--4${ marker }6-->
     `);
   });
 
