@@ -92,7 +92,7 @@ describe( 'options.watch', () => {
     expect( result ).is.deep.equals( vm );
   });
 
-  it( '使用 watch 对实例内的属性进行监听, 使用字符串的键对一个对象内部属性进行监听', () => {
+  it( '使用 watch 对实例内的属性进行监听, 使用字符串的键对一个对象内部属性进行监听', ( done ) => {
     let result;
     let index = 0;
     const hu = new Hu({
@@ -131,7 +131,7 @@ describe( 'options.watch', () => {
     });
   });
 
-  it( '使用 watch 对实例内的属性进行监听, 使用字符串的键对一个对象内部属性进行监听 ( Vue )', () => {
+  it( '使用 watch 对实例内的属性进行监听, 使用字符串的键对一个对象内部属性进行监听 ( Vue )', ( done ) => {
     let result;
     let index = 0;
     const vm = new Vue({
@@ -1556,7 +1556,7 @@ describe( 'options.watch', () => {
     });
   });
 
-  it( '使用 watch 对实例内的属性进行监听, 在触发的回调内修改监听的值会立即再触发回调', () => {
+  it( '使用 watch 对实例内的属性进行监听, 在触发的回调内修改监听的值会立即再触发回调', ( done ) => {
     const steps = [];
     const hu = new Hu({
       data: () => ({
@@ -1582,7 +1582,7 @@ describe( 'options.watch', () => {
     });
   });
 
-  it( '使用 watch 对实例内的属性进行监听, 在触发的回调内修改监听的值会立即再触发回调 ( Vue )', () => {
+  it( '使用 watch 对实例内的属性进行监听, 在触发的回调内修改监听的值会立即再触发回调 ( Vue )', ( done ) => {
     const steps = [];
     const vm = new Vue({
       data: () => ({
