@@ -372,13 +372,6 @@ interface Hu{
     removeEvent( elem: Element, type: string, listener: function, options: boolean | {} ): void;
 
     /**
-     * 触发事件
-     * @param elem 触发事件的元素对象
-     * @param type 事件名称的字符串或者内容为 type, bubbles, cancelable 的数组
-     */
-    triggerEvent( elem: Element, type: string | [], process: ( event: Event, elem: Element ) => void ): void;
-
-    /**
      * 对象遍历方法
      *  - 和 jQuery 的 each 方法不同, 遍历过程无法通过返回 false 进行中断
      *  - 就是个普通的对象遍历方法
@@ -532,9 +525,8 @@ interface ComponentOptions{
   };
 
   /**
-   * 指定自定义元素的样式
-   *  - 只在自定义元素创建的实例下可用
-   *  - 在使用 polyfill 的环境下, 可以解决样式无法生效的问题
+   * 指定当前实例的样式
+   *  - 在使用 polyfill 的环境下, 可以解决自定义元素样式无法生效的问题
    */
   styles?: string | string[];
 
@@ -545,29 +537,34 @@ interface ComponentOptions{
   render?( this: $hu, html: html ): TemplateResult;
 
   /**
-   * 实例初始化后被调用, 计算属性 computed 和数据监听 watch 还未初始化
+   * 实例初始化后被调用
+   *  - 计算属性 computed 和数据监听 watch 还未初始化
    */
   beforeCreate?( this: $hu );
 
   /**
-   * 实例创建完成后被调用, 但是挂载还未开始
+   * 实例创建完成后被调用
+   *  - 但是挂载还未开始
    */
   created?( this: $hu );
 
   /**
    * 首次挂载开始之前被调用
-   * - 对于自定义元素, 会在首次被添加到文档流时调用
+   *  - 对于自定义元素, 会在被添加到文档流时调用
+   *  - 对于自定义元素, 会在 mounted 及 connected 钩子之前执行
    */
   beforeMount?( this: $hu );
 
   /**
    * 首次挂载之后被调用
-   * - 对于自定义元素, 会在首次被添加到文档流时调用
+   *  - 对于自定义元素, 会在被添加到文档流时调用
+   *  - 对于自定义元素, 会在 connected 钩子之前执行
    */
   mounted?( this: $hu );
 
   /**
-   * 实例销毁之前调用. 在这一步, 实例仍然完全可用
+   * 实例销毁之前调用
+   *  - 此时实例完全可用
    */
   beforeDestroy?( this: $hu );
 
@@ -578,13 +575,14 @@ interface ComponentOptions{
 
   /**
    * 自定义元素被添加到文档流 ( 自定义元素独有 )
-   * - 此时实例完全可用
+   *  - 此时实例完全可用
    */
   connected?( this: $hu );
 
   /**
    * 自定义元素被移动到新文档时调用 ( 自定义元素独有 )
-   * - 此时实例完全可用
+   *  - 只在无需 polyfill 的环境下可用
+   *  - 此时实例完全可用
    * @param newDocument 被移动到的新文档 document 引用
    * @param oldDocument 被移动到的旧文档 document 引用
    */
@@ -592,14 +590,14 @@ interface ComponentOptions{
 
   /**
    * 自定义元素被从文档流移除 ( 自定义元素独有 )
-   * - 此时实例完全可用
+   *  - 此时实例完全可用
    */
   disconnected?( this: $hu );
 
   /**
    * 选项接受一个混入对象的数组, 这些混入实例对象可以像正常的实例对象一样包含选项
-   * - 举例: 如果你的混入包含一个生命周期方法而创建组件本身也有一个, 两个函数将被调用
-   * - Mixin 生命周期方法按照传入顺序依次调用, 并在调用组件自身的生命周期方法之前被调用
+   *  - 举例: 如果你的混入包含一个生命周期方法而创建组件本身也有一个, 两个函数将被调用
+   *  - Mixin 生命周期方法按照传入顺序依次调用, 并在调用组件自身的生命周期方法之前被调用
    */
   mixins: ComponentOptions[];
 
@@ -632,7 +630,7 @@ interface PropOptions<T=any> {
   },
   /**
    * 定义当前 prop 的默认值
-   * - 如果创建当前自定义元素时未定义属于当前 prop 的 attribute 时, 则取当前默认值
+   *  - 如果创建当前自定义元素时未定义属于当前 prop 的 attribute 时, 则取当前默认值
    */
   default?: string | number | boolean | null | undefined | (() => any)
 }
@@ -676,8 +674,8 @@ interface html{
 
   /**
    * 将内容按普通 HTML 不转义直接插入到当前位置
-   *   - 在网站上动态渲染任意 HTML 是非常危险的, 因为容易导致 XSS 攻击
-   *   - 只在可信内容上使用 unsafe, 永不用在用户提交的内容上
+   *  - 在网站上动态渲染任意 HTML 是非常危险的, 因为容易导致 XSS 攻击
+   *  - 只在可信内容上使用 unsafe, 永不用在用户提交的内容上
    * @param value
    */
   unsafe( value: string );
