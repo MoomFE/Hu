@@ -301,6 +301,15 @@ describe( 'html', () => {
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
       1<div class="asd">1232123</div>3
     `);
+
+    // ------
+
+    render( div )`${ 123 }
+      ${ 123 }1${ 123 }<div class="${ 123 }asd${ 123 }">${ 123 }2${ 123 }</div>${ 123 }3${ 123 }
+    ${ 123 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123
+      1231123<div class="123asd123">1232123</div>1233123
+    123`);
   });
 
 });
