@@ -17,38 +17,7 @@ describe( 'Hu.html', () => {
 
 
 
-  it( '同时渲染文本节点及注释节点', () => {
-    Hu.render( div )`
-      <!--${ 1 }-->2<!--${ 3 }-->
-    `;
-    expect( div.textContent ).is.equals(`
-      2
-    `);
 
-    Hu.render( div )`
-      1<!--${ 2 }-->3<!--${ 4 }-->5
-    `;
-    expect( div.textContent ).is.equals(`
-      135
-    `);
-  });
-
-  it( '同时渲染文本节点及元素节点', () => {
-    Hu.render( div )`
-      ${ 1 }2${ 3 }<div>${ 4 }5${ 6 }</div>${ 7 }8${ 9 }
-    `;
-
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<div>456</div>789
-    `);
-
-    Hu.render( div )`
-      1${ 2 }3<div>4${ 5 }6</div>7${ 8 }9
-    `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<div>456</div>789
-    `);
-  });
 
   it( '同时渲染元素节点及注释节点', () => {
     Hu.render( div )`

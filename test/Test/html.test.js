@@ -798,4 +798,100 @@ describe( 'html', () => {
     `);
   });
 
+  it( '同时渲染文本节点及元素节点', () => {
+    render( div )`${ 1 }2${ 3 }<div>${ 4 }5${ 6 }</div>${ 7 }8${ 9 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<div>456</div>789`);
+
+    render( div )`
+      ${ 1 }2${ 3 }<div>${ 4 }5${ 6 }</div>${ 7 }8${ 9 }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      123<div>456</div>789
+    `);
+
+    // ------
+
+    render( div )`1${ 2 }3<div>4${ 5 }6</div>7${ 8 }9`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<div>456</div>789`);
+
+    render( div )`
+      1${ 2 }3<div>4${ 5 }6</div>7${ 8 }9
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      123<div>456</div>789
+    `);
+
+    // ------
+
+    render( div )`<div>${ 4 }5${ 6 }</div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>456</div>`);
+
+    render( div )`
+      <div>${ 4 }5${ 6 }</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>456</div>
+    `);
+
+    // ------
+
+    render( div )`<div>4${ 5 }6</div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>456</div>`);
+
+    render( div )`
+      <div>4${ 5 }6</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>456</div>
+    `);
+  });
+
+  it( '同时渲染文本节点及注释节点', () => {
+    render( div )`${ 1 }2${ 3 }<!--${ 4 }5${ 6 }-->${ 7 }8${ 9 }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--456-->789`);
+
+    render( div )`
+      ${ 1 }2${ 3 }<!--${ 4 }5${ 6 }-->${ 7 }8${ 9 }
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      123<!--456-->789
+    `);
+
+    // ------
+
+    render( div )`1${ 2 }3<!--4${ 5 }6-->7${ 8 }9`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--456-->789`);
+
+    render( div )`
+      1${ 2 }3<!--4${ 5 }6-->7${ 8 }9
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      123<!--456-->789
+    `);
+
+    // ------
+
+    render( div )`<!--${ 4 }5${ 6 }-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--456-->`);
+
+    render( div )`
+      <!--${ 4 }5${ 6 }-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--456-->
+    `);
+
+    // ------
+
+    render( div )`<!--4${ 5 }6-->`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--456-->`);
+
+    render( div )`
+      <!--4${ 5 }6-->
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <!--456-->
+    `);
+  });
+
 });
