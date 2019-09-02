@@ -13,7 +13,7 @@ describe( 'html.directiveBasic', () => {
   });
 
 
-  it( '使用 .attr 的方式对元素属性 ( Property ) 进行绑定', () => {
+  it( '使用 .prop 的方式对元素属性 ( Property ) 进行绑定', () => {
     render( div )`
       <div .prop=${{ a: 1, b: 2 }}></div>
     `;

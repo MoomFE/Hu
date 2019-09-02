@@ -405,4 +405,98 @@ describe( 'html.directiveFn', () => {
     });
   });
 
+  it( 'html.bind: 使用该指令方法和文本区域进行绑定', ( done ) => {
+    const data = Hu.observable({
+      text1: '10',
+      text2: '20'
+    });
+    const text1 = bind( data, 'text1' );
+    const text2 = bind( data, 'text2' );
+
+    render( div )`<div>${ text1 }${ text2 }</div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1020</div>`);
+
+    data.text1 = '11';
+    data.text2 = '21';
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1121</div>`);
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和元素属性进行绑定', ( done ) => {
+    const data = Hu.observable({
+      attr1: '10',
+      attr2: '20'
+    });
+    const attr1 = bind( data, 'attr1' );
+    const attr2 = bind( data, 'attr2' );
+
+    render( div )`<div attr1=${ attr1 } attr2=${ attr2 }></div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div attr1="10" attr2="20"></div>`);
+
+    data.attr1 = '11';
+    data.attr2 = '21';
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div attr1="11" attr2="21"></div>`);
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 .prop 指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      prop1: '10',
+      prop2: '20'
+    });
+    const prop1 = bind( data, 'prop1' );
+    const prop2 = bind( data, 'prop2' );
+
+    render( div )`<div .prop1=${ prop1 } .prop2=${ prop2 }></div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div></div>`);
+    expect( div.firstElementChild ).is.includes({
+      prop1: '10',
+      prop2: '20'
+    });
+
+    data.prop1 = '11';
+    data.prop2 = '21';
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div></div>`);
+      expect( div.firstElementChild ).is.includes({
+        prop1: '11',
+        prop2: '21'
+      });
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 ?attr 指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      attr1: false,
+      attr2: true
+    });
+    const attr1 = bind( data, 'attr1' );
+    const attr2 = bind( data, 'attr2' );
+
+    render( div )`<div ?attr1=${ attr1 } ?attr2=${ attr2 }></div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div attr2=""></div>`);
+
+    data.attr1 = true;
+    data.attr2 = false;
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div attr1=""></div>`);
+      
+      data.attr1 = true;
+      data.attr2 = true;
+      nextTick(() => {
+        expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div attr1="" attr2=""></div>`);
+        done();
+      });
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 @event 指令进行绑定', ( done ) => {
+    
+  });
+
 });
