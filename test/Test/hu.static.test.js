@@ -136,7 +136,7 @@ describe( 'Hu.static', () => {
     );
   });
 
-  it( 'Hu.render 另一种方式', () => {
+  it( 'Hu.render 另一种使用方式', () => {
     const div = document.createElement('div');
 
     Hu.render( div )`
