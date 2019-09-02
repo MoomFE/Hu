@@ -223,4 +223,186 @@ describe( 'html.directiveFn', () => {
     });
   });
 
+  it( 'html.bind: 使用该指令方法对观察者对象进行绑定不会被 render 收集, 所以不会触发重新渲染', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      el: div,
+      data: () => ({
+        name: '1'
+      }),
+      render( html ){
+        const name = bind( this, 'name' );
+
+        index++;
+        return html`
+          <div ref="div" name=${ name }>${ name }</div>
+        `;
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( hu.$refs.div.$attr('name') ).is.equals('1');
+    expect( hu.$refs.div.textContent ).is.equals('1');
+
+    hu.name = '2';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.$refs.div.$attr('name') ).is.equals('2');
+      expect( hu.$refs.div.textContent ).is.equals('2');
+
+      hu.name = '3';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( hu.$refs.div.$attr('name') ).is.equals('3');
+        expect( hu.$refs.div.textContent ).is.equals('3');
+
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+
+        expect( index ).is.equals( 4 );
+        expect( hu.$refs.div.$attr('name') ).is.equals('3');
+        expect( hu.$refs.div.textContent ).is.equals('3');
+
+        hu.name = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+          expect( hu.$refs.div.$attr('name') ).is.equals('4');
+          expect( hu.$refs.div.textContent ).is.equals('4');
+
+          hu.name = '5';
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+            expect( hu.$refs.div.$attr('name') ).is.equals('5');
+            expect( hu.$refs.div.textContent ).is.equals('5');
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法建立的绑定会在下次 render 时进行解绑', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      name: '10',
+      name2: '20'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+
+    // 绑定到 'name'
+    render( div )`
+      <div name=${ bind( data, 'name' ) }></div>
+    `;
+
+    // 首次读取
+    expect( div.firstElementChild.$attr('name') ).is.equals('10');
+    expect( steps ).is.deep.equals([ 'name' ]);
+
+    // 修改 'name' 时, 会重新读取值
+    data.name = '11';
+    nextTick(() => {
+      expect( div.firstElementChild.$attr('name') ).is.equals('11');
+      expect( steps ).is.deep.equals([ 'name', 'name' ]);
+
+      // 绑定到 'name2', 那么 'name' 就应该被解绑了
+      render( div )`
+        <div name=${ bind( data, 'name2' ) }></div>
+      `;
+
+      // 首次读取
+      expect( div.firstElementChild.$attr('name') ).is.equals('20');
+      expect( steps ).is.deep.equals([ 'name', 'name', 'name2' ]);
+
+      // 修改 'name2' 时, 会重新读取值
+      data.name2 = '21';
+      nextTick(() => {
+        expect( div.firstElementChild.$attr('name') ).is.equals('21');
+        expect( steps ).is.deep.equals([ 'name', 'name', 'name2', 'name2' ]);
+
+        // 修改 'name' 时, 因为已经解绑了, 那么不会触发新的读取了
+        data.name = '12';
+        nextTick(() => {
+          expect( div.firstElementChild.$attr('name') ).is.equals('21');
+          expect( steps ).is.deep.equals([ 'name', 'name', 'name2', 'name2' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法在自定义元素实例中建立的绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      name: '1'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        const name = bind( data, 'name' );
+
+        return html`
+          <div name=${ name }></div>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( isConnected ).is.true;
+    expect( hu.$el.firstElementChild.$attr('name') ).is.equals('1');
+    expect( steps ).is.deep.equals([ 'name' ]);
+
+    data.name = '2';
+    nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( hu.$el.firstElementChild.$attr('name') ).is.equals('2');
+      expect( steps ).is.deep.equals([ 'name', 'name' ]);
+
+      data.name = '3';
+      nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+        expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
+
+        custom.$remove();
+
+        expect( isConnected ).is.false;
+        expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+        expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
+
+        data.name = '3';
+        nextTick(() => {
+          expect( isConnected ).is.false;
+          expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+          expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
 });
