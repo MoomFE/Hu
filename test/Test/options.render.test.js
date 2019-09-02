@@ -96,7 +96,7 @@ describe( 'options.render', () => {
     });
 
     expect( isRender ).is.true;
-    expect( index ),is.equals( 1 );
+    expect( index ).is.equals( 1 );
   });
 
   it( '使用 new 创建的实例会在绑定 el 时立即运行 render 方法进行渲染 ( use $mount )', () => {
