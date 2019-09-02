@@ -140,4 +140,302 @@ describe( 'options.render', () => {
     div.$remove();
   });
 
+  it( '执行 render 方法时会进行依赖收集', ( done ) => {
+    let index = 0;
+    const div = document.createElement('div');
+    const data = {
+      a: 1
+    };
+    const dataProxy = Hu.observable({
+      b: 2
+    });
+
+    const hu = new Hu({
+      data: () => ({
+        c: 3
+      }),
+      render(){
+        index++;
+        return `a: ${ data.a }; b: ${ dataProxy.b }; c: ${ this.c };`;
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+    hu.$mount( div );
+
+    expect( index ).is.equals( 1 );
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+    data.a = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+      dataProxy.b = 3;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 3;`);
+
+        hu.c = 4;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+          data.a = 5;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 3 );
+            expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+            dataProxy.b = 6;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 4 );
+              expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 5; b: 6; c: 4;`);
+
+              hu.c = 7;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 5 );
+                expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 5; b: 6; c: 7;`);
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '执行 render 方法时会进行依赖收集 ( 二 )', ( done ) => {
+    let index = 0;
+    const customName = window.customName;
+    const data = {
+      a: 1
+    };
+    const dataProxy = Hu.observable({
+      b: 2
+    });
+
+    Hu.define( customName, {
+      data: () => ({
+        c: 3
+      }),
+      render(){
+        index++;
+        return `a: ${ data.a }; b: ${ dataProxy.b }; c: ${ this.c };`;
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( index ).is.equals( 1 );
+    expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+    data.a = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+      dataProxy.b = 3;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 3;`);
+
+        hu.c = 4;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+          data.a = 5;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 3 );
+            expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+            dataProxy.b = 6;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 4 );
+              expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 5; b: 6; c: 4;`);
+
+              hu.c = 7;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 5 );
+                expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 5; b: 6; c: 7;`);
+
+                div.$delete();
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '当 render 方法的依赖更新后, 将会在下一个 tick 触发 render 方法重新渲染', ( done ) => {
+    let index = 0;
+    const div = document.createElement('div');
+    const data = {
+      a: 1
+    };
+    const dataProxy = Hu.observable({
+      b: 2
+    });
+
+    const hu = new Hu({
+      data: () => ({
+        c: 3
+      }),
+      render(){
+        index++;
+        return `a: ${ data.a }; b: ${ dataProxy.b }; c: ${ this.c };`;
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+    hu.$mount( div );
+
+    expect( index ).is.equals( 1 );
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+    data.a = 2;
+    expect( index ).is.equals( 1 );
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 1; b: 2; c: 3;`);
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+      dataProxy.b = 3;
+      expect( index ).is.equals( 1 );
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 1; b: 2; c: 3;`);
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 3;`);
+
+        hu.c = 4;
+        expect( index ).is.equals( 2 );
+        expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 3;`);
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+          data.a = 5;
+          expect( index ).is.equals( 3 );
+          expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 4;`);
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 3 );
+            expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+            dataProxy.b = 6;
+            expect( index ).is.equals( 3 );
+            expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 2; b: 3; c: 4;`);
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 4 );
+              expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 5; b: 6; c: 4;`);
+
+              hu.c = 7;
+              expect( index ).is.equals( 4 );
+              expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 5; b: 6; c: 4;`);
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 5 );
+                expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`a: 5; b: 6; c: 7;`);
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '当 render 方法的依赖更新后, 将会在下一个 tick 触发 render 方法重新渲染 ( 二 )', ( done ) => {
+    let index = 0;
+    const customName = window.customName;
+    const data = {
+      a: 1
+    };
+    const dataProxy = Hu.observable({
+      b: 2
+    });
+
+    Hu.define( customName, {
+      data: () => ({
+        c: 3
+      }),
+      render(){
+        index++;
+        return `a: ${ data.a }; b: ${ dataProxy.b }; c: ${ this.c };`;
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body );
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( index ).is.equals( 1 );
+    expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+    data.a = 2;
+    expect( index ).is.equals( 1 );
+    expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 1; b: 2; c: 3;`);
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 1; b: 2; c: 3;`);
+
+      dataProxy.b = 3;
+      expect( index ).is.equals( 1 );
+      expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 1; b: 2; c: 3;`);
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+        expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 3;`);
+
+        hu.c = 4;
+        expect( index ).is.equals( 2 );
+        expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 3;`);
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+          expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+          data.a = 5;
+          expect( index ).is.equals( 3 );
+          expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 4;`);
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 3 );
+            expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 4;`);
+
+            dataProxy.b = 6;
+            expect( index ).is.equals( 3 );
+            expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 2; b: 3; c: 4;`);
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 4 );
+              expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 5; b: 6; c: 4;`);
+
+              hu.c = 7;
+              expect( index ).is.equals( 4 );
+              expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 5; b: 6; c: 4;`);
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 5 );
+                expect( stripExpressionMarkers( hu.$el.textContent ) ).is.equals(`a: 5; b: 6; c: 7;`);
+
+                div.$delete();
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
 });
