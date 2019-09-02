@@ -153,7 +153,7 @@ describe( 'html.directiveBasic', () => {
 
     render( div )`
       <div ref="none" type="checkbox" @click=${event => none = event.defaultPrevented}></div>
-      <div ref="prevent" type="checkbox" @click.prevent=${event => none = event.defaultPrevented}></div>
+      <div ref="prevent" type="checkbox" @click.prevent=${event => prevent = event.defaultPrevented}></div>
     `;
 
     expect( none ).is.undefined;
@@ -173,7 +173,7 @@ describe( 'html.directiveBasic', () => {
       <div ref="none" @click=${() => result.push( 0 )}>
         <span></span>
       </div>
-      <div ref="self" @click.self=${() => result.push( 0 )}>
+      <div ref="self" @click.self=${() => result.push( 1 )}>
         <span></span>
       </div>
     `;
