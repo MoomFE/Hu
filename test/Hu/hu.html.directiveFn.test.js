@@ -1,51 +1,5 @@
 describe( 'Hu.html.directiveFn', () => {
 
-  it( 'html.bind: 使用该指令方法可以将观察者对象的值与元素的属性进行绑定', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = Hu.observable({
-      name: '1'
-    });
-
-    Hu.render( div )`
-      <div name=${ bind( data, 'name' ) }></div>
-    `;
-
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-
-    data.name = 2;
-
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals( '2' );
-
-      done();
-    });
-  });
-
-  it( 'html.bind: 该指令方法传入的参数若不是观察者对象则不会响应值的变化', ( done ) => {
-    const bind = Hu.html.bind;
-    const div = document.createElement('div');
-    const data = {
-      name: '1'
-    };
-
-    Hu.render( div )`
-      <div name=${ bind( data, 'name' ) }></div>
-    `;
-
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-
-    data.name = 2;
-
-    expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-    Hu.nextTick(() => {
-      expect( div.firstElementChild.getAttribute('name') ).is.equals( '1' );
-
-      done();
-    });
-  });
-
   it( 'html.bind: 该指令方法绑定的元素属性会在下次使用 render 时进行解绑', ( done ) => {
     const bind = Hu.html.bind;
     const div = document.createElement('div');

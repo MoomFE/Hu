@@ -2,6 +2,8 @@ describe( 'html.directiveFn', () => {
 
   const render = Hu.render;
   const html = Hu.html;
+  const nextTick = Hu.nextTick;
+  const { repeat, unsafe, bind } = html;
 
   /** @type {Element} */
   let div;
@@ -20,7 +22,7 @@ describe( 'html.directiveFn', () => {
     ];
 
     render( div )`${
-      html.repeat( arr, 'key', data => {
+      repeat( arr, 'key', data => {
         return html`<span>${ data.text }</span>`
       })
     }`;
@@ -33,7 +35,7 @@ describe( 'html.directiveFn', () => {
     // 逆序后重新渲染
     arr.reverse();
     render( div )`${
-      html.repeat( arr, 'key', data => {
+      repeat( arr, 'key', data => {
         return html`<span>${ data.text }</span>`
       })
     }`;
@@ -97,14 +99,14 @@ describe( 'html.directiveFn', () => {
     ];
 
     render( div )`${
-      html.repeat( arr, 'key', data => {
+      repeat( arr, 'key', data => {
         return html`<span>${ data.text }</span>`
       })
     }`;
 
     render( div )`
       <div>${
-        html.repeat( arr, 'key', data => {
+        repeat( arr, 'key', data => {
           return html`<span>${ data.text }</span>`
         })
       }</div>
@@ -112,28 +114,28 @@ describe( 'html.directiveFn', () => {
 
     should.throw(() => {
       render( div )`
-        <div text=${ html.repeat( arr, 'key', data => data.text ) }></div>
+        <div text=${ repeat( arr, 'key', data => data.text ) }></div>
       `;
-    }, 'html.repeat 指令方法只能在文本区域中使用 !');
+    }, 'repeat 指令方法只能在文本区域中使用 !');
 
     should.throw(() => {
       render( div )`
-        <div .text=${ html.repeat( arr, 'key', data => data.text ) }></div>
+        <div .text=${ repeat( arr, 'key', data => data.text ) }></div>
       `;
-    }, 'html.repeat 指令方法只能在文本区域中使用 !');
+    }, 'repeat 指令方法只能在文本区域中使用 !');
 
     should.throw(() => {
       render( div )`
-        <div ?text=${ html.repeat( arr, 'key', data => data.text ) }></div>
+        <div ?text=${ repeat( arr, 'key', data => data.text ) }></div>
       `;
-    }, 'html.repeat 指令方法只能在文本区域中使用 !');
+    }, 'repeat 指令方法只能在文本区域中使用 !');
   });
 
   it( 'html.unsafe: 使用该指令方法包装的 HTML 片段不会被转义', () => {
     const span = '<span>123</span>';
 
     render( div )`${
-      html.unsafe( span )
+      unsafe( span )
     }`;
 
     expect( div.firstElementChild.nodeName ).is.equals('SPAN');
@@ -155,32 +157,70 @@ describe( 'html.directiveFn', () => {
     const span = '<span>123</span>';
 
     render( div )`${
-      html.unsafe( span )
+      unsafe( span )
     }`;
 
     render( div )`
       <div>${
-        html.unsafe( span )
+        unsafe( span )
       }</div>
     `;
 
     should.throw(() => {
       render( div )`
-        <div unsafe=${ html.unsafe( span ) }></div>
+        <div unsafe=${ unsafe( span ) }></div>
       `;
-    }, 'html.unsafe 指令方法只能在文本区域中使用 !');
+    }, 'unsafe 指令方法只能在文本区域中使用 !');
 
     should.throw(() => {
       render( div )`
-        <div .unsafe=${ html.unsafe( span ) }></div>
+        <div .unsafe=${ unsafe( span ) }></div>
       `;
-    }, 'html.unsafe 指令方法只能在文本区域中使用 !');
+    }, 'unsafe 指令方法只能在文本区域中使用 !');
 
     should.throw(() => {
       render( div )`
-        <div ?unsafe=${ html.unsafe( span ) }></div>
+        <div ?unsafe=${ unsafe( span ) }></div>
       `;
-    }, 'html.unsafe 指令方法只能在文本区域中使用 !');
+    }, 'unsafe 指令方法只能在文本区域中使用 !');
+  });
+
+  it( 'html.bind: 使用该指令方法可以将观察者对象的值与插值绑定位置的指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      name: '1'
+    });
+
+    render( div )`
+      <div name=${ bind( data, 'name' ) }></div>
+    `;
+
+    expect( div.firstElementChild.$attr('name') ).is.equals('1');
+
+    data.name = 2;
+    nextTick(() => {
+      expect( div.firstElementChild.$attr('name') ).is.equals('2');
+
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法时传入的参数若不是观察者对象则不会响应值的变化', ( done ) => {
+    const data = {
+      name: '1'
+    };
+
+    render( div )`
+      <div name=${ bind( data, 'name' ) }></div>
+    `;
+
+    expect( div.firstElementChild.$attr('name') ).is.equals('1');
+
+    data.name = 2;
+    nextTick(() => {
+      expect( div.firstElementChild.$attr('name') ).is.equals('1');
+
+      done();
+    });
   });
 
 });
