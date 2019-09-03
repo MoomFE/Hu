@@ -496,7 +496,126 @@ describe( 'html.directiveFn', () => {
   });
 
   it( 'html.bind: 使用该指令方法和 @event 指令进行绑定', ( done ) => {
-    
+    const steps = [];
+    const data = Hu.observable({
+      left: () => steps.push('left'),
+      right: () => steps.push('right')
+    });
+    const left = bind( data, 'left' );
+    const right = bind( data, 'right' );
+
+    render( div )`<div @click.left=${ left } @click.right=${ right }></div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div></div>`);
+    triggerEvent( div.firstElementChild, 'click', event => event.button = 0 );
+    triggerEvent( div.firstElementChild, 'click', event => event.button = 2 );
+    triggerEvent( div.firstElementChild, 'click', event => event.button = 2 );
+    triggerEvent( div.firstElementChild, 'click', event => event.button = 0 );
+    expect( steps ).is.deep.equals([ 'left', 'right', 'right', 'left' ]);
+
+    data.left = () => steps.push('--left--');
+    data.right = () => steps.push('--right--');
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div></div>`);
+      triggerEvent( div.firstElementChild, 'click', event => event.button = 2 );
+      triggerEvent( div.firstElementChild, 'click', event => event.button = 0 );
+      triggerEvent( div.firstElementChild, 'click', event => event.button = 0 );
+      triggerEvent( div.firstElementChild, 'click', event => event.button = 2 );
+      expect( steps ).is.deep.equals([ 'left', 'right', 'right', 'left', '--right--', '--left--', '--left--', '--right--' ]);
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 :class 指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      class1: '10'
+    });
+    const class1 = bind( data, 'class1' );
+
+    render( div )`<div :class=${ class1 }></div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div class="10"></div>`);
+
+    data.class1 = '11';
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div class="11"></div>`);
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 :style 指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      style: {
+        color: 'red'
+      }
+    });
+    const style = bind( data, 'style' );
+
+    render( div )`<div :style=${ style }></div>`;
+    expect( div.firstElementChild.style ).is.includes({
+      color: 'red'
+    });
+
+    data.style = {
+      color: 'green'
+    };
+    nextTick(() => {
+      expect( div.firstElementChild.style ).is.includes({
+        color: 'green'
+      });
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 :html 指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      html: '<span>10</span>'
+    });
+    const html = bind( data, 'html' );
+
+    render( div )`<div :html=${ html }></div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div><span>10</span></div>`);
+
+    data.html = '<span>11</span>';
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div><span>11</span></div>`);
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 :text 指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      text: '<span>10</span>'
+    });
+    const text = bind( data, 'text' );
+
+    render( div )`<div :text=${ text }></div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>&lt;span&gt;10&lt;/span&gt;</div>`);
+
+    data.text = '<span>11</span>';
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>&lt;span&gt;11&lt;/span&gt;</div>`);
+      done();
+    });
+  });
+
+  it( 'html.bind: 使用该指令方法和 :text 指令进行绑定', ( done ) => {
+    const data = Hu.observable({
+      show: true
+    });
+    const show = bind( data, 'show' );
+
+    render( div )`<div :show=${ show }></div>`;
+    expect( div.firstElementChild.style.display ).is.equals(``);
+
+    data.show = false;
+    nextTick(() => {
+      expect( div.firstElementChild.style.display ).is.equals(`none`);
+      
+      data.show = true;
+      nextTick(() => {
+        expect( div.firstElementChild.style.display ).is.equals(``);
+        done();
+      });
+    });
   });
 
 });
