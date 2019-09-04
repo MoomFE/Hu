@@ -848,4 +848,189 @@ describe( 'html.directive', () => {
     expect( vm.value ).is.equals( '4' );
   });
 
+  it( '使用 :model 指令产生的绑定会在下次 render 时进行解绑', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      value: '10',
+      value2: '20'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+
+    render( div )`
+      <input ref="input" :model=${[ data, 'value' ]} />
+    `;
+
+    const input = div.querySelector('[ref="input"]');
+
+    // 首次读取
+    expect( input.value ).is.equals('10');
+    expect( steps ).is.deep.equals([ 'value' ]);
+
+    // 修改 'value' 时, 会重新读取值
+    data.value = '11';
+    nextTick(() => {
+      expect( input.value ).is.equals('11');
+      expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+      // 绑定到 'value2', 那么 'value' 就应该被解绑了
+      render( div )`
+        <textarea ref="textarea" :model=${[ data, 'value2' ]}></textarea>
+      `;
+
+      const textarea = div.querySelector('[ref="textarea"]');
+
+      // 首次读取
+      expect( input.value ).is.equals('11');
+      expect( textarea.value ).is.equals('20');
+      expect( steps ).is.deep.equals([ 'value', 'value', 'value2' ]);
+
+      // 修改 'value2' 时, 会重新读取值
+      data.value2 = '21';
+      nextTick(() => {
+        expect( input.value ).is.equals('11');
+        expect( textarea.value ).is.equals('21');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value2', 'value2' ]);
+
+        // 修改 'value' 时, 因为已经解绑了, 那么不会触发新的读取了
+        data.value = '12';
+        nextTick(() => {
+          expect( input.value ).is.equals('11');
+          expect( textarea.value ).is.equals('21');
+          expect( steps ).is.deep.equals([ 'value', 'value', 'value2', 'value2' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令产生的绑定会在下次 render 时进行解绑 ( Vue )', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      renderInput: true,
+      value: '10',
+      value2: '20'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    
+    const vm = new Vue({
+      data: customDataProxy,
+      template: `
+        <input v-if="renderInput" ref="input" v-model="value" />
+        <textarea v-else ref="textarea" v-model="value2"></textarea>
+      `
+    });
+
+    // 清除 Vue 初始化对象时产生的读取
+    steps.$delete( 0, 666 );
+
+    // 执行渲染
+    vm.$mount( div );
+
+    const input = vm.$refs.input;
+
+    // 首次读取
+    expect( input.value ).is.equals('10');
+    expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value' ]);
+
+    // 修改 'value' 时, 会重新读取值
+    vm.value = '11';
+    vm.$nextTick(() => {
+      expect( input.value ).is.equals('11');
+      expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value' ]);
+
+      // 绑定到 'value2', 那么 'value' 就应该被解绑了
+      vm.renderInput = false;
+      vm.$nextTick(() => {
+        const textarea = vm.$refs.textarea;
+
+        // 首次读取
+        expect( input.value ).is.equals('11');
+        expect( textarea.value ).is.equals('20');
+        expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value', 'renderInput', 'value2', 'value2' ]);
+
+        // 修改 'value2' 时, 会重新读取值
+        vm.value2 = '21';
+        vm.$nextTick(() => {
+          expect( input.value ).is.equals('11');
+          expect( textarea.value ).is.equals('21');
+          expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value', 'renderInput', 'value2', 'value2', 'renderInput', 'value2', 'value2' ]);
+
+          // 修改 'value' 时, 因为已经解绑了, 那么不会触发新的读取了
+          vm.value = '12';
+          vm.$nextTick(() => {
+            expect( input.value ).is.equals('11');
+            expect( textarea.value ).is.equals('21');
+            expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value', 'renderInput', 'value2', 'value2', 'renderInput', 'value2', 'value2' ]);
+
+            done();
+          });
+        });
+      })
+    });
+  });
+
+  it( '使用 :model 指令产生的对观察者对象的依赖不会被 render 收集, 所以不会触发重新渲染', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '1'
+      },
+      render( html ){
+        index++;
+        return html`
+          <input ref="input" :model=${[ this, 'value' ]}>
+        `;
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( hu.$refs.input.value ).is.equals('1');
+
+    hu.value = '2';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.$refs.input.value ).is.equals('2');
+
+      hu.value = '3';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( hu.$refs.input.value ).is.equals('3');
+
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+
+        expect( index ).is.equals( 4 );
+        expect( hu.$refs.input.value ).is.equals('3');
+
+        hu.value = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+          expect( hu.$refs.input.value ).is.equals('4');
+
+          hu.value = '5';
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+            expect( hu.$refs.input.value ).is.equals('5');
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
 });
