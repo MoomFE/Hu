@@ -65,6 +65,20 @@ interface Window{
 // ------
 
 /**
+ * 当前模板插值绑定标识字符串
+ */
+declare const templateMarker: string;
+
+interface Window{
+  /**
+   * 当前模板插值绑定标识字符串
+   */
+  templateMarker: string;
+}
+
+// ------
+
+/**
  * 捕获传入方法在运行中使用 console.error 抛出的所有异常并且和传入的预期异常进行比对
  * @param fn 需要捕获异常的方法
  * @param msg 预期的异常字符串或字符串数组

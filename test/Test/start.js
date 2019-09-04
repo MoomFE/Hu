@@ -43,6 +43,15 @@
   // ------
 
   {
+    const templateResult = Hu.html`<!--${ null }-->`;
+    const template = templateResult.getTemplateElement();
+
+    window.templateMarker = template.content.firstChild.data.trim();
+  }
+
+  // ------
+
+  {
     const error = console.error;
 
     window.watchError = function( fn, msg ){

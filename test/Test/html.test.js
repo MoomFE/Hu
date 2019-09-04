@@ -11,12 +11,6 @@ describe( 'html', () => {
     div && div.$remove();
   });
 
-  let marker;
-  !function(){
-    const templateResult = html`<!--${ null }-->`;
-    const template = templateResult.getTemplateElement();
-    marker = template.content.firstChild.data.trim();
-  }();
 
   it( '渲染文本节点', () => {
     render( div )`测试`;
@@ -274,89 +268,89 @@ describe( 'html', () => {
 
   it( '渲染注释节点 - 使用插值绑定', () => {
     render( div )`<!--${ 123 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker }-->`);
 
     render( div )`
       <!--${ 123 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }-->
+      <!--${ templateMarker }-->
     `);
 
     render( div )`
       <!--${ 123 }-->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }-->`);
+      <!--${ templateMarker }-->`);
 
     render( div )`<!--${ 123 }-->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }-->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker }-->
     `);
 
     // ------
 
     render( div )`<!-- ${ 123 } -->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } -->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker } -->`);
 
     render( div )`
       <!-- ${ 123 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker } -->
+      <!-- ${ templateMarker } -->
     `);
 
     render( div )`
       <!-- ${ 123 } -->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker } -->`);
+      <!-- ${ templateMarker } -->`);
 
     render( div )`<!-- ${ 123 } -->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } -->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker } -->
     `);
 
     // ------
 
     render( div )`<!-- ${ 123 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker }-->`);
 
     render( div )`
       <!-- ${ 123 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }-->
+      <!-- ${ templateMarker }-->
     `);
 
     render( div )`
       <!-- ${ 123 }-->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }-->`);
+      <!-- ${ templateMarker }-->`);
 
     render( div )`<!-- ${ 123 }-->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }-->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker }-->
     `);
 
     // ------
 
     render( div )`<!--${ 123 } -->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker } -->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker } -->`);
 
     render( div )`
       <!--${ 123 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker } -->
+      <!--${ templateMarker } -->
     `);
 
     render( div )`
       <!--${ 123 } -->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker } -->`);
+      <!--${ templateMarker } -->`);
 
     render( div )`<!--${ 123 } -->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker } -->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker } -->
     `);
   });
 
@@ -537,111 +531,111 @@ describe( 'html', () => {
 
   it( '渲染注释节点 - 使用多个插值绑定', () => {
     render( div )`<!--${ 123 }${ 123 }${ 123 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker }-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker }${ templateMarker }${ templateMarker }-->`);
 
     render( div )`
       <!--${ 123 }${ 123 }${ 123 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }${ marker }${ marker }-->
+      <!--${ templateMarker }${ templateMarker }${ templateMarker }-->
     `);
 
     render( div )`
       <!--${ 123 }${ 123 }${ 123 }-->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }${ marker }${ marker }-->`);
+      <!--${ templateMarker }${ templateMarker }${ templateMarker }-->`);
 
     render( div )`<!--${ 123 }${ 123 }${ 123 }-->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker }-->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker }${ templateMarker }${ templateMarker }-->
     `);
 
     // ------
 
     render( div )`<!-- ${ 123 }${ 123 }${ 123 } -->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker } -->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker }${ templateMarker }${ templateMarker } -->`);
 
     render( div )`
       <!-- ${ 123 }${ 123 }${ 123 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }${ marker }${ marker } -->
+      <!-- ${ templateMarker }${ templateMarker }${ templateMarker } -->
     `);
 
     render( div )`
       <!-- ${ 123 }${ 123 }${ 123 } -->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }${ marker }${ marker } -->`);
+      <!-- ${ templateMarker }${ templateMarker }${ templateMarker } -->`);
 
     render( div )`<!-- ${ 123 }${ 123 }${ 123 } -->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker } -->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker }${ templateMarker }${ templateMarker } -->
     `);
 
     // ------
 
     render( div )`<!--${ 123 }${ 123 }${ 123 } -->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker } -->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker }${ templateMarker }${ templateMarker } -->`);
 
     render( div )`
       <!--${ 123 }${ 123 }${ 123 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }${ marker }${ marker } -->
+      <!--${ templateMarker }${ templateMarker }${ templateMarker } -->
     `);
 
     render( div )`
       <!--${ 123 }${ 123 }${ 123 } -->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }${ marker }${ marker } -->`);
+      <!--${ templateMarker }${ templateMarker }${ templateMarker } -->`);
 
     render( div )`<!--${ 123 }${ 123 }${ 123 } -->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }${ marker }${ marker } -->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker }${ templateMarker }${ templateMarker } -->
     `);
 
     // ------
 
     render( div )`<!-- ${ 123 }${ 123 }${ 123 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker }-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker }${ templateMarker }${ templateMarker }-->`);
 
     render( div )`
       <!-- ${ 123 }${ 123 }${ 123 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }${ marker }${ marker }-->
+      <!-- ${ templateMarker }${ templateMarker }${ templateMarker }-->
     `);
 
     render( div )`
       <!-- ${ 123 }${ 123 }${ 123 }-->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker }${ marker }${ marker }-->`);
+      <!-- ${ templateMarker }${ templateMarker }${ templateMarker }-->`);
 
     render( div )`<!-- ${ 123 }${ 123 }${ 123 }-->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker }${ marker }${ marker }-->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker }${ templateMarker }${ templateMarker }-->
     `);
 
     // ------
 
     render( div )`<!-- ${ 123 } ${ 123 } ${ 123 } -->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } ${ marker } ${ marker } -->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker } ${ templateMarker } ${ templateMarker } -->`);
 
     render( div )`
       <!-- ${ 123 } ${ 123 } ${ 123 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker } ${ marker } ${ marker } -->
+      <!-- ${ templateMarker } ${ templateMarker } ${ templateMarker } -->
     `);
 
     render( div )`
       <!-- ${ 123 } ${ 123 } ${ 123 } -->`;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- ${ marker } ${ marker } ${ marker } -->`);
+      <!-- ${ templateMarker } ${ templateMarker } ${ templateMarker } -->`);
 
     render( div )`<!-- ${ 123 } ${ 123 } ${ 123 } -->
     `;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ marker } ${ marker } ${ marker } -->
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!-- ${ templateMarker } ${ templateMarker } ${ templateMarker } -->
     `);
   });
 
@@ -755,14 +749,14 @@ describe( 'html', () => {
       <!--attr=${ 1 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--attr=${ marker }-->
+      <!--attr=${ templateMarker }-->
     `);
 
     render( div )`
       <!-- attr=${ 1 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- attr=${ marker } -->
+      <!-- attr=${ templateMarker } -->
     `);
 
     // ------
@@ -771,14 +765,14 @@ describe( 'html', () => {
       <!--attr1=${ 1 } attr2=${ 1 } attr3=${ 1 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--attr1=${ marker } attr2=${ marker } attr3=${ marker }-->
+      <!--attr1=${ templateMarker } attr2=${ templateMarker } attr3=${ templateMarker }-->
     `);
 
     render( div )`
       <!-- attr1=${ 1 } attr2=${ 1 } attr3=${ 1 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- attr1=${ marker } attr2=${ marker } attr3=${ marker } -->
+      <!-- attr1=${ templateMarker } attr2=${ templateMarker } attr3=${ templateMarker } -->
     `);
 
     // ------
@@ -787,14 +781,14 @@ describe( 'html', () => {
       <!--attr1=${ 1 }attr2=${ 1 }attr3=${ 1 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--attr1=${ marker }attr2=${ marker }attr3=${ marker }-->
+      <!--attr1=${ templateMarker }attr2=${ templateMarker }attr3=${ templateMarker }-->
     `);
 
     render( div )`
       <!-- attr1=${ 1 }attr2=${ 1 }attr3=${ 1 } -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- attr1=${ marker }attr2=${ marker }attr3=${ marker } -->
+      <!-- attr1=${ templateMarker }attr2=${ templateMarker }attr3=${ templateMarker } -->
     `);
   });
 
@@ -848,49 +842,49 @@ describe( 'html', () => {
 
   it( '同时渲染文本节点及注释节点', () => {
     render( div )`${ 1 }2${ 3 }<!--${ 4 }5${ 6 }-->${ 7 }8${ 9 }`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--${ marker }5${ marker }-->789`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--${ templateMarker }5${ templateMarker }-->789`);
 
     render( div )`
       ${ 1 }2${ 3 }<!--${ 4 }5${ 6 }-->${ 7 }8${ 9 }
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<!--${ marker }5${ marker }-->789
+      123<!--${ templateMarker }5${ templateMarker }-->789
     `);
 
     // ------
 
     render( div )`1${ 2 }3<!--4${ 5 }6-->7${ 8 }9`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--4${ marker }6-->789`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`123<!--4${ templateMarker }6-->789`);
 
     render( div )`
       1${ 2 }3<!--4${ 5 }6-->7${ 8 }9
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      123<!--4${ marker }6-->789
+      123<!--4${ templateMarker }6-->789
     `);
 
     // ------
 
     render( div )`<!--${ 4 }5${ 6 }-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ marker }5${ marker }-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--${ templateMarker }5${ templateMarker }-->`);
 
     render( div )`
       <!--${ 4 }5${ 6 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }5${ marker }-->
+      <!--${ templateMarker }5${ templateMarker }-->
     `);
 
     // ------
 
     render( div )`<!--4${ 5 }6-->`;
-    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--4${ marker }6-->`);
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<!--4${ templateMarker }6-->`);
 
     render( div )`
       <!--4${ 5 }6-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--4${ marker }6-->
+      <!--4${ templateMarker }6-->
     `);
   });
 
@@ -899,14 +893,14 @@ describe( 'html', () => {
       <!--${ 1 }--><div class=${ 2 }>${ 3 }</div>
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!--${ marker }--><div class="2">3</div>
+      <!--${ templateMarker }--><div class="2">3</div>
     `);
 
     render( div )`
       <!-- <div class=${ 1 }>${ 2 }</div> --><div class=${ 3 }>${ 4 }<!-- ${ 5 } -->${ 6 }</div>
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <!-- <div class=${ marker }>${ marker }</div> --><div class="3">4<!-- ${ marker } -->6</div>
+      <!-- <div class=${ templateMarker }>${ templateMarker }</div> --><div class="3">4<!-- ${ templateMarker } -->6</div>
     `);
 
     // ------
@@ -915,14 +909,14 @@ describe( 'html', () => {
       <div class=${ 2 }>${ 3 }</div><!--${ 1 }-->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="2">3</div><!--${ marker }-->
+      <div class="2">3</div><!--${ templateMarker }-->
     `);
 
     render( div )`
       <div class=${ 3 }>${ 4 }<!-- ${ 5 } -->${ 6 }</div><!-- <div class=${ 1 }>${ 2 }</div> -->
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div class="3">4<!-- ${ marker } -->6</div><!-- <div class=${ marker }>${ marker }</div> -->
+      <div class="3">4<!-- ${ templateMarker } -->6</div><!-- <div class=${ templateMarker }>${ templateMarker }</div> -->
     `);
   });
 
@@ -931,14 +925,14 @@ describe( 'html', () => {
       <div>1${ 2 }3<!--${ 4 }-->5${ 6 }7</div>
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>123<!--${ marker }-->567</div>
+      <div>123<!--${ templateMarker }-->567</div>
     `);
 
     render( div )`
       <div>1${ 2 }3<!-- ${ 4 } ${ 5 } -->6${ 7 }8</div>
     `;
     expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
-      <div>123<!-- ${ marker } ${ marker } -->678</div>
+      <div>123<!-- ${ templateMarker } ${ templateMarker } -->678</div>
     `);
   });
 
