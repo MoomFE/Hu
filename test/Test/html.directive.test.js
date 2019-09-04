@@ -1033,4 +1033,342 @@ describe( 'html.directive', () => {
     });
   });
 
+  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( select )', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      value: '1'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <select ref="select" :model=${[ data, 'value' ]}>
+            <option value="1">11</option>
+            <option value="12">1212</option>
+            <option value="123">123123</option>
+          </select>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+    const select = hu.$refs.select;
+
+    expect( isConnected ).is.true;
+    expect( select.value ).is.equals('1');
+    expect( steps ).is.deep.equals([ 'value' ]);
+
+    data.value = '12';
+    nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( select.value ).is.equals('12');
+      expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+      data.value = '123';
+      nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( select.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        custom.$remove();
+
+        expect( isConnected ).is.false;
+        expect( select.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        data.value = '1';
+        nextTick(() => {
+          expect( isConnected ).is.false;
+          expect( select.value ).is.equals('123');
+          expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( input[type="checkbox"] )', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      value: true
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <input ref="checkbox" type="checkbox" :model=${[ data, 'value' ]} />
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+    const checkbox = hu.$refs.checkbox;
+
+    expect( isConnected ).is.true;
+    expect( checkbox.checked ).is.true;
+    expect( steps ).is.deep.equals([ 'value' ]);
+
+    data.value = false;
+    nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( checkbox.checked ).is.false;
+      expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+      data.value = true;
+      nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( checkbox.checked ).is.true;
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        custom.$remove();
+
+        expect( isConnected ).is.false;
+        expect( checkbox.checked ).is.true;
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        data.value = '1';
+        nextTick(() => {
+          expect( isConnected ).is.false;
+          expect( checkbox.checked ).is.true;
+          expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( input[type="radio"] )', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      value: '1'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <input ref="radio1" type="radio" value="1" :model=${[ data, 'value' ]}>
+          <input ref="radio2" type="radio" value="12" :model=${[ data, 'value' ]}>
+          <input ref="radio3" type="radio" value="123" :model=${[ data, 'value' ]}>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+    const radio1 = hu.$refs.radio1;
+    const radio2 = hu.$refs.radio2;
+    const radio3 = hu.$refs.radio3;
+
+    expect( isConnected ).is.true;
+    expect( radio1.checked ).is.equals( true );
+    expect( radio2.checked ).is.equals( false );
+    expect( radio3.checked ).is.equals( false );
+    expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+    data.value = '12';
+    nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( radio1.checked ).is.equals( false );
+      expect( radio2.checked ).is.equals( true );
+      expect( radio3.checked ).is.equals( false );
+      expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+      data.value = '123';
+      nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( radio1.checked ).is.equals( false );
+        expect( radio2.checked ).is.equals( false );
+        expect( radio3.checked ).is.equals( true );
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+        custom.$remove();
+
+        expect( isConnected ).is.false;
+        expect( radio1.checked ).is.equals( false );
+        expect( radio2.checked ).is.equals( false );
+        expect( radio3.checked ).is.equals( true );
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+        data.value = '1';
+        nextTick(() => {
+          expect( isConnected ).is.false;
+          expect( radio1.checked ).is.equals( false );
+          expect( radio2.checked ).is.equals( false );
+          expect( radio3.checked ).is.equals( true );
+          expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( input )', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      value: '1'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <input ref="input" :model=${[ data, 'value' ]}>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+    const input = hu.$refs.input;
+
+    expect( isConnected ).is.true;
+    expect( input.value ).is.equals('1');
+    expect( steps ).is.deep.equals([ 'value' ]);
+
+    data.value = '12';
+    nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( input.value ).is.equals('12');
+      expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+      data.value = '123';
+      nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( input.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        custom.$remove();
+
+        expect( isConnected ).is.false;
+        expect( input.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        data.value = '1';
+        nextTick(() => {
+          expect( isConnected ).is.false;
+          expect( input.value ).is.equals('123');
+          expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( textarea )', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      value: '1'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <textarea ref="textarea" :model=${[ data, 'value' ]}></textarea>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+    const textarea = hu.$refs.textarea;
+
+    expect( isConnected ).is.true;
+    expect( textarea.value ).is.equals('1');
+    expect( steps ).is.deep.equals([ 'value' ]);
+
+    data.value = '12';
+    nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( textarea.value ).is.equals('12');
+      expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+      data.value = '123';
+      nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( textarea.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        custom.$remove();
+
+        expect( isConnected ).is.false;
+        expect( textarea.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        data.value = '1';
+        nextTick(() => {
+          expect( isConnected ).is.false;
+          expect( textarea.value ).is.equals('123');
+          expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          done();
+        });
+      });
+    });
+  });
+
 });

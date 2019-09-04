@@ -393,7 +393,7 @@ describe( 'html.directiveFn', () => {
         expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
         expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
 
-        data.name = '3';
+        data.name = '4';
         nextTick(() => {
           expect( isConnected ).is.false;
           expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
