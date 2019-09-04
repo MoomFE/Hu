@@ -1,5 +1,0 @@
-describe( 'Hu.define - mixins', () => {
-
-  
-
-});
