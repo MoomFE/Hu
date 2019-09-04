@@ -260,7 +260,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令对 select 表单控件进行双向绑定 ( Vue )', ( done ) => {
+  it( '使用 v-model 指令对 select 表单控件进行双向绑定 ( Vue )', ( done ) => {
     const vm = new Vue({
       el: div,
       data: {
@@ -364,7 +364,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令对 input[type="checkbox"] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+  it( '使用 v-model 指令对 input[type="checkbox"] 表单控件进行双向绑定 ( Vue )', ( done ) => {
     const vm = new Vue({
       el: div,
       data: {
@@ -486,7 +486,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令对 input[type="radio"] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+  it( '使用 v-model 指令对 input[type="radio"] 表单控件进行双向绑定 ( Vue )', ( done ) => {
     const vm = new Vue({
       el: div,
       data: {
@@ -605,7 +605,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令对 input 表单控件进行双向绑定 ( Vue )', ( done ) => {
+  it( '使用 v-model 指令对 input 表单控件进行双向绑定 ( Vue )', ( done ) => {
     const vm = new Vue({
       el: div,
       data: {
@@ -671,7 +671,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令对 textarea 表单控件进行双向绑定 ( Vue )', ( done ) => {
+  it( '使用 v-model 指令对 textarea 表单控件进行双向绑定 ( Vue )', ( done ) => {
     const vm = new Vue({
       el: div,
       data: {
@@ -740,7 +740,7 @@ describe( 'html.directive', () => {
     expect( data.value ).is.equals( '4' );
   });
 
-  it( '使用 :model 指令对 input 表单控件进行双向绑定时, 不会受到输入法影响 ( Vue )', () => {
+  it( '使用 v-model 指令对 input 表单控件进行双向绑定时, 不会受到输入法影响 ( Vue )', () => {
     const vm = new Vue({
       el: div,
       data: {
@@ -812,7 +812,7 @@ describe( 'html.directive', () => {
     expect( data.value ).is.equals( '4' );
   });
 
-  it( '使用 :model 指令对 textarea 表单控件进行双向绑定时, 不会受到输入法影响 ( Vue )', () => {
+  it( '使用 v-model 指令对 textarea 表单控件进行双向绑定时, 不会受到输入法影响 ( Vue )', () => {
     const vm = new Vue({
       el: div,
       data: {
@@ -911,7 +911,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令产生的绑定会在下次 render 时进行解绑 ( Vue )', ( done ) => {
+  it( '使用 v-model 指令产生的绑定会在下次 render 时进行解绑 ( Vue )', ( done ) => {
     const steps = [];
     const customDataProxy = new Proxy({
       renderInput: true,
