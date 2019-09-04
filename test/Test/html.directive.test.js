@@ -36,7 +36,7 @@ describe( 'html.directive', () => {
 
   it( '使用 :class 指令对元素 className 进行绑定 ( 字符串方式 )', () => {
     // 1
-    Hu.render( div )`
+    render( div )`
       <div :class=${ 'a b c' }></div>
     `;
     expect(
@@ -44,7 +44,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
 
     // 2
-    Hu.render( div )`
+    render( div )`
       <div class="a" :class=${ 'b c' }></div>
     `;
     expect(
@@ -54,7 +54,7 @@ describe( 'html.directive', () => {
 
   it( '使用 :class 指令对元素 className 进行绑定 ( JSON 方式 )', () => {
     // 1
-    Hu.render( div )`
+    render( div )`
       <div :class=${{ a: true, b: true, c: true }}></div>
     `;
     expect(
@@ -62,7 +62,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
 
     // 2
-    Hu.render( div )`
+    render( div )`
       <div :class=${{ a: true, b: false, c: true }}></div>
     `;
     expect(
@@ -70,7 +70,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'c' ]);
 
     // 3
-    Hu.render( div )`
+    render( div )`
       <div class="a" :class=${{ b: true, c: true }}></div>
     `;
     expect(
@@ -78,7 +78,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
 
     // 4
-    Hu.render( div )`
+    render( div )`
       <div class="a" :class=${{ b: false, c: true }}></div>
     `;
     expect(
@@ -88,7 +88,7 @@ describe( 'html.directive', () => {
 
   it( '使用 :class 指令对元素 className 进行绑定 ( 数组方式 )', () => {
     // 1
-    Hu.render( div )`
+    render( div )`
       <div :class=${[ 'a', 'b', 'c' ]}></div>
     `;
     expect(
@@ -96,7 +96,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
 
     // 2
-    Hu.render( div )`
+    render( div )`
       <div :class=${[ { a: true }, 'b', { c: true } ]}></div>
     `;
     expect(
@@ -104,7 +104,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
 
     // 3
-    Hu.render( div )`
+    render( div )`
       <div :class=${[ 'a b', { c: false } ]}></div>
     `;
     expect(
@@ -112,7 +112,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b' ]);
 
     // 4
-    Hu.render( div )`
+    render( div )`
       <div class="a" :class=${[ 'b', 'c' ]}></div>
     `;
     expect(
@@ -120,7 +120,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
 
     // 5
-    Hu.render( div )`
+    render( div )`
       <div class="a" :class=${[ 'b', { c: true } ]}></div>
     `;
     expect(
@@ -128,7 +128,7 @@ describe( 'html.directive', () => {
     ).is.deep.equals([ 'a', 'b', 'c' ]);
 
     // 6
-    Hu.render( div )`
+    render( div )`
       <div class="a" :class=${[ 'b', { c: false } ]}></div>
     `;
     expect(
@@ -138,7 +138,7 @@ describe( 'html.directive', () => {
 
   it( '使用 :style 指令对元素 style 进行绑定 ( 字符串方式 )', () => {
     // 1
-    Hu.render( div )`
+    render( div )`
       <div :style=${ 'width: 100px; height: 120px' }></div>
     `;
     expect( div.firstElementChild.style ).is.deep.include({
@@ -147,7 +147,7 @@ describe( 'html.directive', () => {
     });
 
     // 2
-    Hu.render( div )`
+    render( div )`
       <div style="width: 100px" :style=${ 'height: 120px' }></div>
     `;
     expect( div.firstElementChild.style ).is.deep.include({
@@ -158,7 +158,7 @@ describe( 'html.directive', () => {
 
   it( '使用 :style 指令对元素 style 进行绑定 ( JSON 方式 )', () => {
     // 1
-    Hu.render( div )`
+    render( div )`
       <div :style=${{ width: '100px', height: '120px' }}></div>
     `;
     expect( div.firstElementChild.style ).is.deep.include({
@@ -167,7 +167,7 @@ describe( 'html.directive', () => {
     });
 
     // 2
-    Hu.render( div )`
+    render( div )`
       <div style="width: 100px" :style=${{ height: '120px' }}></div>
     `;
     expect( div.firstElementChild.style ).is.deep.include({
@@ -178,7 +178,7 @@ describe( 'html.directive', () => {
 
   it( '使用 :style 指令对元素 style 进行绑定 ( 数组方式 )', () => {
     // 1
-    Hu.render( div )`
+    render( div )`
       <div :style=${[ 'width: 100px', { height: '120px' } ]}></div>
     `;
     expect( div.firstElementChild.style ).is.deep.include({
@@ -187,7 +187,7 @@ describe( 'html.directive', () => {
     });
 
     // 2
-    Hu.render( div )`
+    render( div )`
       <div style="width: 100px" :style=${[ { height: '120px' } ]}></div>
     `;
     expect( div.firstElementChild.style ).is.deep.include({
@@ -923,7 +923,7 @@ describe( 'html.directive', () => {
         return target[ name ];
       }
     });
-    
+
     const vm = new Vue({
       data: customDataProxy,
       template: `
@@ -1033,7 +1033,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( select )', ( done ) => {
+  it( '使用 :model 指令对 select 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
     const steps = [];
     const customDataProxy = new Proxy({
       value: '1'
@@ -1101,7 +1101,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( input[type="checkbox"] )', ( done ) => {
+  it( '使用 :model 指令对 input[type="checkbox"] 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
     const steps = [];
     const customDataProxy = new Proxy({
       value: true
@@ -1165,7 +1165,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( input[type="radio"] )', ( done ) => {
+  it( '使用 :model 指令对 input[type="radio"] 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
     const steps = [];
     const customDataProxy = new Proxy({
       value: '1'
@@ -1243,7 +1243,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( input )', ( done ) => {
+  it( '使用 :model 指令对 input 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
     const steps = [];
     const customDataProxy = new Proxy({
       value: '1'
@@ -1307,7 +1307,7 @@ describe( 'html.directive', () => {
     });
   });
 
-  it( '使用 :model 指令在自定义元素中建立的绑定, 会在自定义元素从文档流移除时进行解绑 ( textarea )', ( done ) => {
+  it( '使用 :model 指令对 textarea 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
     const steps = [];
     const customDataProxy = new Proxy({
       value: '1'
@@ -1369,6 +1369,223 @@ describe( 'html.directive', () => {
         });
       });
     });
+  });
+
+  it( '使用 :text 指令对元素 textContent 进行绑定', () => {
+    const text = '<span>123</span>'
+
+    render( div )`
+      <div :text=${ text }></div>
+    `;
+
+    expect( div.firstElementChild.innerHTML ).is.equals(
+      text.$replaceAll('<','&lt;')
+          .$replaceAll('>','&gt;')
+    );
+  });
+
+  it( '使用 :text 指令对元素 textContent 进行绑定, 传入 JSON 将会使用 JSON.stringify 进行格式化输出', () => {
+    render( div )`
+      <div :text=${{}}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{}</div>
+    `);
+
+    render( div )`
+      <div :text=${{ asd: 123 }}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": 123\n}</div>
+    `);
+
+    render( div )`
+      <div :text=${{ asd: [ 123 ] }}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": [\n    123\n  ]\n}</div>
+    `);
+  });
+
+  it( '使用 :text 指令对元素 textContent 进行绑定, 传入数组将会使用 JSON.stringify 进行格式化输出', () => {
+    render( div )`
+      <div :text=${[]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[]</div>
+    `);
+
+    render( div )`
+      <div :text=${[ 1, 2, 3 ]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  2,\n  3\n]</div>
+    `);
+
+    render( div )`
+      <div :text=${[ 1, { asd: 123 }, 3 ]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  {\n    "asd": 123\n  },\n  3\n]</div>
+    `);
+  });
+
+  it( '使用 :text 指令对元素 textContent 进行绑定, 传入 null 或 undefined 时将会转为空字符串', () => {
+    render( div )`
+      <div :text=${ null }></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+    render( div )`
+      <div :text=${ undefined }></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+  });
+
+  it( '使用 :text 指令对元素 textContent 进行绑定, 首次传入 null 或 undefined 时, 元素的内容应该被清空', () => {
+    render( div )`
+      <div :text=${ null }>123</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+    render( div )`
+      <div :text=${ undefined }>123</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+  });
+
+  it( '使用 :html 指令对元素 innerHTML 进行绑定', () => {
+    const text = '<span>123</span>'
+
+    render( div )`
+      <div :html=${ text }></div>
+    `;
+
+    expect( div.firstElementChild.innerHTML ).is.equals(
+      text
+    );
+  });
+
+  it( '使用 :html 指令对元素 innerHTML 进行绑定, 传入 JSON 将会使用 JSON.stringify 进行格式化输出', () => {
+    render( div )`
+      <div :html=${{}}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{}</div>
+    `);
+
+    render( div )`
+      <div :html=${{ asd: 123 }}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": 123\n}</div>
+    `);
+
+    render( div )`
+      <div :html=${{ asd: [ 123 ] }}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": [\n    123\n  ]\n}</div>
+    `);
+  });
+
+  it( '使用 :html 指令对元素 textContent 进行绑定, 传入数组将会使用 JSON.stringify 进行格式化输出', () => {
+    render( div )`
+      <div :html=${[]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[]</div>
+    `);
+
+    render( div )`
+      <div :html=${[ 1, 2, 3 ]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  2,\n  3\n]</div>
+    `);
+
+    render( div )`
+      <div :html=${[ 1, { asd: 123 }, 3 ]}></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  {\n    "asd": 123\n  },\n  3\n]</div>
+    `);
+  });
+
+  it( '使用 :html 指令对元素 innerHTML 进行绑定, 传入 null 或 undefined 时将会转为空字符串', () => {
+    render( div )`
+      <div :html=${ null }></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+    render( div )`
+      <div :html=${ undefined }></div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+  });
+
+  it( '使用 :html 指令对元素 innerHTML 进行绑定, 首次传入 null 或 undefined 时, 元素的内容应该被清空', () => {
+    render( div )`
+      <div :html=${ null }>123</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+    render( div )`
+      <div :html=${ undefined }>123</div>
+    `;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+  });
+
+  it( '使用 :show 指令对元素的显示隐藏进行控制', () => {
+    render( div )`
+      <div :show=${ false }></div>
+    `;
+    expect( div.firstElementChild.style.display ).is.equals('none');
+
+    render( div )`
+      <div :show=${ true }></div>
+    `;
+    expect( div.firstElementChild.style.display ).is.equals('');
+
+    render( div )`
+      <div :show=${ false }></div>
+    `;
+    expect( div.firstElementChild.style.display ).is.equals('none');
+  });
+
+  it( '使用 :show 指令对元素的显示隐藏进行控制, 首次传入 null 或 undefined 时, 元素应该被隐藏', () => {
+    render( div )`
+      <div :show=${ undefined }></div>
+    `;
+    expect( div.firstElementChild.style.display ).is.equals('none');
+  });
+
+  it( '使用不存在的指令, 将会被当做普通属性处理', () => {
+    render( div )`
+      <div :zhang-wei=${ 666 }></div>
+    `;
+    expect( div.firstElementChild.getAttribute(':zhang-wei') ).equals('666');
+
+    render( div )`
+      <div :toString=${ 666 }></div>
+    `;
+    expect( div.firstElementChild.getAttribute(':tostring') ).equals('666');
   });
 
 });
