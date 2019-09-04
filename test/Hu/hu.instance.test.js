@@ -252,42 +252,6 @@ describe( 'Hu.instance', () => {
     expect( hu.$customElement ).is.equals( custom );
   });
 
-  if( customElements.polyfillWrapFlushCallback === undefined ){
-
-    it( '实例上的 $el 属性存放的是当前实例的根节点', () => {
-      const customName = window.customName;
-
-      Hu.define( customName );
-
-      const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-      const custom = div.firstElementChild;
-      const hu = custom.$hu;
-
-      expect( hu.$el ).is.a('ShadowRoot');
-    });
-
-  }
-
-  it( '实例上的 $el 属性存放的是当前实例的根节点 ( 二 )', () => {
-    const div = document.createElement('div');
-    const hu = new Hu({
-      el: div
-    });
-
-    expect( hu.$el ).is.equals( div );
-  });
-
-  it( '实例上的 $el 属性存放的是当前实例的根节点 ( 三 )', () => {
-    const div = document.createElement('div');
-    const hu = new Hu();
-
-    expect( hu.$el ).is.undefined;
-
-    hu.$mount( div );
-
-    expect( hu.$el ).is.equals( div );
-  });
-
   it( '实例上的 $forceUpdate 方法可以强制使当前 Hu 实例重新渲染', () => {
     const customName = window.customName;
     let num = 0;
