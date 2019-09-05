@@ -1254,4 +1254,858 @@ describe( 'Hu.instance', () => {
     vm.$el.$remove();
   });
 
+  it( '使用 $watch 方法对实例属性进行监听', ( done ) => {
+    const hu = new Hu({
+      data: () => ({
+        a: 1
+      })
+    });
+
+    let result;
+    hu.$watch( 'a', ( value, oldValue ) => {
+      result = [ value, oldValue ];
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( result ).is.undefined;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      hu.a = 3;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对实例属性进行监听 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      data: () => ({
+        a: 1
+      })
+    });
+
+    let result;
+    vm.$watch( 'a', ( value, oldValue ) => {
+      result = [ value, oldValue ];
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = 2;
+    expect( result ).is.undefined;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      vm.a = 3;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对实例属性进行监听, 可以和 watch 选项一样使用包含选项的对象', ( done ) => {
+    const hu = new Hu({
+      data: () => ({
+        a: 1
+      })
+    });
+
+    let result;
+    hu.$watch( 'a', {
+      immediate: true,
+      handler: ( value, oldValue ) => {
+        result = [ value, oldValue ];
+      }
+    });
+
+    expect( result ).is.deep.equals([ 1, undefined ]);
+
+    hu.a = 2;
+    expect( result ).is.deep.equals([ 1, undefined ]);
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      hu.a = 3;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对实例属性进行监听, 可以和 watch 选项一样使用包含选项的对象 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      data: () => ({
+        a: 1
+      })
+    });
+
+    let result;
+    vm.$watch( 'a', {
+      immediate: true,
+      handler: ( value, oldValue ) => {
+        result = [ value, oldValue ];
+      }
+    });
+
+    expect( result ).is.deep.equals([ 1, undefined ]);
+
+    vm.a = 2;
+    expect( result ).is.deep.equals([ 1, undefined ]);
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      vm.a = 3;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听', ( done ) => {
+    const hu = new Hu({
+      data: () => ({
+        a: 1,
+        b: 2
+      })
+    });
+
+    let result;
+    hu.$watch( 
+      () => {
+        return hu.a + hu.b;
+      },
+      ( value, oldValue ) => {
+        result = [ value, oldValue ];
+      }
+    );
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( result ).is.undefined;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      hu.b = 3;
+      expect( result ).is.deep.equals([ 4, 3 ]);
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 5, 4 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      data: () => ({
+        a: 1,
+        b: 2
+      })
+    });
+
+    let result;
+    vm.$watch( 
+      () => {
+        return vm.a + vm.b;
+      },
+      ( value, oldValue ) => {
+        result = [ value, oldValue ];
+      }
+    );
+
+    expect( result ).is.undefined;
+
+    vm.a = 2;
+    expect( result ).is.undefined;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      vm.b = 3;
+      expect( result ).is.deep.equals([ 4, 3 ]);
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 5, 4 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 对其他观察者对象进行监听', ( done ) => {
+    const hu = new Hu();
+    const data = Hu.observable({
+      a: 1,
+      b: 2
+    });
+
+    let result;
+    hu.$watch( 
+      () => {
+        return data.a + data.b;
+      },
+      ( value, oldValue ) => {
+        result = [ value, oldValue ];
+      }
+    );
+
+    expect( result ).is.undefined;
+
+    data.a = 2;
+    expect( result ).is.undefined;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      data.b = 3;
+      expect( result ).is.deep.equals([ 4, 3 ]);
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 5, 4 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 对其他观察者对象进行监听 ( Vue )', ( done ) => {
+    const vm = new Vue();
+    const data = Vue.observable({
+      a: 1,
+      b: 2
+    });
+
+    let result;
+    vm.$watch( 
+      () => {
+        return data.a + data.b;
+      },
+      ( value, oldValue ) => {
+        result = [ value, oldValue ];
+      }
+    );
+
+    expect( result ).is.undefined;
+
+    data.a = 2;
+    expect( result ).is.undefined;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 4, 3 ]);
+
+      data.b = 3;
+      expect( result ).is.deep.equals([ 4, 3 ]);
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 5, 4 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 使用 deep 选项时如果方法返回值不是观察者对象则无效', ( done ) => {
+    const hu = new Hu({
+      data: { a: 1 }
+    });
+    const data = {
+      b: 2
+    };
+
+    let result;
+    hu.$watch(
+      () => {
+        hu.a;
+        return data;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ data, undefined ]);
+
+    data.b = 3;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ data, undefined ]);
+
+      hu.a = 2;
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ data, data ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 使用 deep 选项时如果方法返回值不是观察者对象则无效 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      data: { a: 1 }
+    });
+    const data = {
+      b: 2
+    };
+
+    let result;
+    vm.$watch(
+      () => {
+        vm.a;
+        return data;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ data, undefined ]);
+
+    data.b = 3;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ data, undefined ]);
+
+      vm.a = 2;
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ data, data ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 使用 deep 选项时如果方法返回值是观察者对象则生效', ( done ) => {
+    const hu = new Hu({
+      data: { a: 1 }
+    });
+    const data = Hu.observable({
+      b: 2
+    });
+
+    let result;
+    hu.$watch(
+      () => {
+        hu.a;
+        return data;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ data, undefined ]);
+
+    data.b = 3;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ data, data ]);
+
+      done();
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 使用 deep 选项时如果方法返回值是观察者对象则生效 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      data: { a: 1 }
+    });
+    const data = Vue.observable({
+      b: 2
+    });
+
+    let result;
+    vm.$watch(
+      () => {
+        vm.a;
+        return data;
+      },
+      {
+        deep: true,
+        immediate: true,
+        handler: ( value, oldValue ) => result = [ value, oldValue ]
+      }
+    );
+
+    expect( result ).is.deep.equals([ data, undefined ]);
+
+    data.b = 3;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ data, data ]);
+
+      done();
+    });
+  });
+
+  it( '使用 $watch 方法会返回取消监听的方法, 运行后, 会立即停止监听', () => {
+    let result;
+    const hu = new Hu({
+      data: () => ({
+        a: 1
+      })
+    });
+
+    const unWatch = hu.$watch( 'a', ( value, oldValue ) => {
+      result = [ value, oldValue ];
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( result ).is.undefined;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      unWatch();
+      hu.a = 3;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 2, 1 ]);
+      });
+    });
+  });
+
+  it( '使用 $watch 方法会返回取消监听的方法, 运行后, 会立即停止监听 ( Vue )', () => {
+    let result;
+    const vm = new Vue({
+      data: () => ({
+        a: 1
+      })
+    });
+
+    const unWatch = vm.$watch( 'a', ( value, oldValue ) => {
+      result = [ value, oldValue ];
+    });
+
+    expect( result ).is.undefined;
+
+    vm.a = 2;
+    expect( result ).is.undefined;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      unWatch();
+      vm.a = 3;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 2, 1 ]);
+      });
+    });
+  });
+
+  it( '使用 $watch 方法会返回取消监听的方法, 在回调中注销掉自身的监听后, 其他监听不会受到影响', ( done ) => {
+    const hu = new Hu({
+      data: {
+        a: 1
+      }
+    });
+
+    let i = 0;
+    let j = 0;
+    let isDestroy = false;
+    const unWatch = hu.$watch( 'a', ( value, oldValue ) => {
+      if( isDestroy )
+        return unWatch();
+      i++;
+    });
+    const unWatch2 = hu.$watch( 'a', ( value, oldValue ) => {
+      j++;
+    });
+
+    expect( i ).is.equals( 0 );
+    expect( j ).is.equals( 0 );
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( i ).is.equals( 1 );
+      expect( j ).is.equals( 1 );
+
+      hu.a = 3;
+      hu.$nextTick(() => {
+        expect( i ).is.equals( 2 );
+        expect( j ).is.equals( 2 );
+
+        isDestroy = true;
+
+        hu.a = 4;
+        hu.$nextTick(() => {
+          expect( i ).is.equals( 2 );
+          expect( j ).is.equals( 3 );
+
+          unWatch2();
+
+          hu.a = 4;
+          hu.$nextTick(() => {
+            expect( i ).is.equals( 2 );
+            expect( j ).is.equals( 3 );
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 $watch 方法会返回取消监听的方法, 在回调中注销掉自身的监听后, 其他监听不会受到影响 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      data: {
+        a: 1
+      }
+    });
+
+    let i = 0;
+    let j = 0;
+    let isDestroy = false;
+    const unWatch = vm.$watch( 'a', ( value, oldValue ) => {
+      if( isDestroy )
+        return unWatch();
+      i++;
+    });
+    const unWatch2 = vm.$watch( 'a', ( value, oldValue ) => {
+      j++;
+    });
+
+    expect( i ).is.equals( 0 );
+    expect( j ).is.equals( 0 );
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( i ).is.equals( 1 );
+      expect( j ).is.equals( 1 );
+
+      vm.a = 3;
+      vm.$nextTick(() => {
+        expect( i ).is.equals( 2 );
+        expect( j ).is.equals( 2 );
+
+        isDestroy = true;
+
+        vm.a = 4;
+        vm.$nextTick(() => {
+          expect( i ).is.equals( 2 );
+          expect( j ).is.equals( 3 );
+
+          unWatch2();
+
+          vm.a = 4;
+          vm.$nextTick(() => {
+            expect( i ).is.equals( 2 );
+            expect( j ).is.equals( 3 );
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '实例上的 $on 方法用于注册事件', () => {
+    const hu = new Hu();
+    let index = 0;
+    let result, result1;
+
+    hu.$on( 'test', function(){
+      index++;
+      result = [ ...arguments ];
+      expect( hu ).is.equals( this );
+    });
+
+    hu.$on([ 'test1', 'test2' ], function(){
+      index++;
+      result1 = [ ...arguments ];
+      expect( hu ).is.equals( this );
+    });
+
+    hu.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.undefined;
+
+    hu.$emit( 'test1', 4, 5, 6 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    hu.$emit( 'test2', 7, 8, 9 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+  });
+
+  it( '实例上的 $on 方法用于注册事件 ( Vue )', () => {
+    const vm = new Vue();
+    let index = 0;
+    let result, result1;
+
+    vm.$on( 'test', function(){
+      index++;
+      result = [ ...arguments ];
+      expect( vm ).is.equals( this );
+    });
+
+    vm.$on([ 'test1', 'test2' ], function(){
+      index++;
+      result1 = [ ...arguments ];
+      expect( vm ).is.equals( this );
+    });
+
+    vm.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.undefined;
+
+    vm.$emit( 'test1', 4, 5, 6 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    vm.$emit( 'test2', 7, 8, 9 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+  });
+
+  it( '实例上的 $once 方法用于注册只执行一次的事件', () => {
+    const hu = new Hu();
+    let index = 0;
+    let result, result1;
+
+    hu.$once( 'test', function(){
+      index++;
+      result = [ ...arguments ];
+      expect( hu ).is.equals( this );
+    });
+
+    hu.$on( 'test1', function(){
+      index++;
+      result1 = [ ...arguments ];
+      expect( hu ).is.equals( this );
+    });
+
+    hu.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.undefined;
+
+    hu.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.undefined;
+
+    hu.$emit( 'test1', 4, 5, 6 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    hu.$emit( 'test1', 7, 8, 9 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+  });
+
+  it( '实例上的 $once 方法用于注册只执行一次的事件 ( Vue )', () => {
+    const vm = new Vue();
+    let index = 0;
+    let result, result1;
+
+    vm.$once( 'test', function(){
+      index++;
+      result = [ ...arguments ];
+      expect( vm ).is.equals( this );
+    });
+
+    vm.$on( 'test1', function(){
+      index++;
+      result1 = [ ...arguments ];
+      expect( vm ).is.equals( this );
+    });
+
+    vm.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.undefined;
+
+    vm.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.undefined;
+
+    vm.$emit( 'test1', 4, 5, 6 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    vm.$emit( 'test1', 7, 8, 9 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+  });
+
+  it( '实例上的 $off 方法用于解绑事件', () => {
+    const hu = new Hu();
+    let index = 0;
+    let result, result1;
+
+    function fn(){
+      index++;
+      result = [ ...arguments ];
+    }
+
+    function fn1(){
+      index++;
+      result1 = [ ...arguments ];
+    }
+
+    hu.$on( [ 'test', 'test1' ], fn );
+    hu.$on( [ 'test', 'test1' ], fn1 );
+
+    // 解绑某个事件的某个回调
+    hu.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 1, 2, 3 ]);
+
+    hu.$off( 'test', fn );
+    hu.$emit( 'test', 4, 5, 6 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    // 解绑某个事件的全部回调
+    hu.$emit( 'test1', 7, 8, 9 );
+    expect( index ).is.equals( 5 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+    hu.$off( 'test1' );
+    hu.$emit( 'test1', 1, 2, 3 );
+    expect( index ).is.equals( 5 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+    // 解绑所有事件
+    hu.$emit( 'test', 4, 5, 6 );
+    expect( index ).is.equals( 6 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    hu.$off();
+    hu.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 6 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+  });
+
+  it( '实例上的 $off 方法用于解绑事件 ( Vue )', () => {
+    const vm = new Vue();
+    let index = 0;
+    let result, result1;
+
+    function fn(){
+      index++;
+      result = [ ...arguments ];
+    }
+
+    function fn1(){
+      index++;
+      result1 = [ ...arguments ];
+    }
+
+    vm.$on( [ 'test', 'test1' ], fn );
+    vm.$on( [ 'test', 'test1' ], fn1 );
+
+    // 解绑某个事件的某个回调
+    vm.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 1, 2, 3 ]);
+
+    vm.$off( 'test', fn );
+    vm.$emit( 'test', 4, 5, 6 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    // 解绑某个事件的全部回调
+    vm.$emit( 'test1', 7, 8, 9 );
+    expect( index ).is.equals( 5 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+    vm.$off( 'test1' );
+    vm.$emit( 'test1', 1, 2, 3 );
+    expect( index ).is.equals( 5 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+    // 解绑所有事件
+    vm.$emit( 'test', 4, 5, 6 );
+    expect( index ).is.equals( 6 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    vm.$off();
+    vm.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 6 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+  });
+
+  it( '实例上的 $emit 方法用于触发事件', () => {
+    const hu = new Hu();
+    let index = 0;
+    let result;
+
+    hu.$on( 'test', function(){
+      index++;
+      result = [ ...arguments ];
+    });
+
+    hu.$emit( 'test' );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ ]);
+
+    hu.$emit( 'test', 1 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1 ]);
+
+    hu.$emit( 'test', 1, 2 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2 ]);
+  });
+
+  it( '实例上的 $emit 方法用于触发事件 ( Vue )', () => {
+    const vm = new Vue();
+    let index = 0;
+    let result;
+
+    vm.$on( 'test', function(){
+      index++;
+      result = [ ...arguments ];
+    });
+
+    vm.$emit( 'test' );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ ]);
+
+    vm.$emit( 'test', 1 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1 ]);
+
+    vm.$emit( 'test', 1, 2 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2 ]);
+  });
+
 });
