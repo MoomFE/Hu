@@ -2108,4 +2108,553 @@ describe( 'Hu.instance', () => {
     expect( result ).is.deep.equals([ 1, 2 ]);
   });
 
+  it( '实例上的 $mount 方法用于手动挂载使用 new 创建的实例', () => {
+    const hu = new Hu({
+      render( html ){
+        return html`<div>123</div>`;
+      }
+    });
+
+    expect( hu.$el ).is.undefined;
+
+    hu.$mount( div );
+
+    expect( hu.$el ).is.equals( div );
+  });
+
+  it( '实例上的 $mount 方法用于手动挂载使用 new 创建的实例 ( Vue )', () => {
+    const vm = new Vue({
+      template: `
+        <div>123</div>
+      `
+    });
+
+    expect( vm.$el ).is.undefined;
+
+    vm.$mount( div );
+
+    expect( vm.$el ).is.not.undefined;
+
+    vm.$destroy();
+    vm.$el.$remove();
+  });
+
+  it( '实例上的 $mount 方法用于手动挂载使用 new 创建的实例 ( 二 )', () => {
+    const customName = window.customName;
+    const hu = new Hu({
+      render( html ){
+        return html`<div>123</div>`;
+      }
+    });
+
+    expect( hu.$el ).is.undefined;
+
+    div.id = customName;
+
+    hu.$mount( '#' + customName );
+
+    expect( hu.$el ).is.equals( div );
+  });
+
+  it( '实例上的 $mount 方法用于手动挂载使用 new 创建的实例 ( 二 ) ( Vue )', () => {
+    const customName = window.customName;
+    const vm = new Vue({
+      template: `
+        <div>123</div>
+      `
+    });
+
+    expect( vm.$el ).is.undefined;
+
+    div.id = customName;
+
+    vm.$mount( '#' + customName );
+
+    expect( vm.$el ).is.not.undefined;
+
+    vm.$destroy();
+    vm.$el.$remove();
+  });
+
+  it( '实例上的 $forceUpdate 方法用于强制实例立即重新渲染', () => {
+    let index = 0;
+    const hu = new Hu({
+      el: div,
+      render: () => index++
+    });
+
+    expect( index ).is.equals( 1 );
+
+    hu.$forceUpdate();
+    expect( index ).is.equals( 2 );
+
+    hu.$forceUpdate();
+    hu.$forceUpdate();
+    expect( index ).is.equals( 4 );
+  });
+
+  it( '实例上的 $forceUpdate 方法用于强制实例立即重新渲染 ( Vue ) ( 不一致 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      el: div,
+      render: () => index++
+    });
+
+    expect( index ).is.equals( 1 );
+
+    vm.$forceUpdate();
+    expect( index ).is.equals( 1 );
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+
+      vm.$forceUpdate();
+      vm.$forceUpdate();
+      expect( index ).is.equals( 2 );
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 3 );
+
+        done();
+      });
+    });
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后触发 beforeDestroy, destroyed 生命周期', () => {
+    const steps = [];
+    const hu = new Hu({
+      beforeDestroy: () => steps.push('beforeDestroy'),
+      destroyed: () => steps.push('destroyed')
+    });
+
+    expect( steps ).is.deep.equals([ ]);
+
+    hu.$destroy();
+
+    expect( steps ).is.deep.equals([ 'beforeDestroy', 'destroyed' ]);
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后触发 beforeDestroy, destroyed 生命周期 ( Vue )', () => {
+    const steps = [];
+    const vm = new Vue({
+      beforeDestroy: () => steps.push('beforeDestroy'),
+      destroyed: () => steps.push('destroyed')
+    });
+
+    expect( steps ).is.deep.equals([ ]);
+
+    vm.$destroy();
+
+    expect( steps ).is.deep.equals([ 'beforeDestroy', 'destroyed' ]);
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的 watch 监听', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
+      watch: {
+        a: () => index++
+      }
+    });
+
+    hu.$watch( 'a', () => index++ );
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+
+      hu.a = 3;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 4 );
+
+        hu.$destroy();
+
+        hu.a = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的 watch 监听 ( Vue )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      watch: {
+        a: () => index++
+      }
+    });
+
+    vm.$watch( 'a', () => index++ );
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( index ).is.equals( 2 );
+
+      vm.a = 3;
+      vm.$nextTick(() => {
+        expect( index ).is.equals( 4 );
+
+        vm.$destroy();
+
+        vm.a = 2;
+        vm.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的计算属性', ( done ) => {
+    const hu = new Hu({
+      data: {
+        a: 1
+      },
+      computed: {
+        b(){
+          return this.a * 2;
+        },
+        c(){
+          return this.b * 2;
+        }
+      }
+    });
+
+    expect( hu.a ).is.equals( 1 );
+    expect( hu.b ).is.equals( 2 );
+    expect( hu.c ).is.equals( 4 );
+
+    hu.a = 2;
+    hu.$nextTick(() => {
+      expect( hu.a ).is.equals( 2 );
+      expect( hu.b ).is.equals( 4 );
+      expect( hu.c ).is.equals( 8 );
+
+      hu.a = 3;
+      hu.$nextTick(() => {
+        expect( hu.a ).is.equals( 3 );
+        expect( hu.b ).is.equals( 6 );
+        expect( hu.c ).is.equals( 12 );
+
+        hu.$destroy();
+
+        hu.a = 4;
+        hu.$nextTick(() => {
+          expect( hu.a ).is.equals( 4 );
+          expect( hu.b ).is.equals( 6 );
+          expect( hu.c ).is.equals( 12 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的计算属性 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      data: {
+        a: 1
+      },
+      computed: {
+        b(){
+          return this.a * 2;
+        },
+        c(){
+          return this.b * 2;
+        }
+      }
+    });
+
+    expect( vm.a ).is.equals( 1 );
+    expect( vm.b ).is.equals( 2 );
+    expect( vm.c ).is.equals( 4 );
+
+    vm.a = 2;
+    vm.$nextTick(() => {
+      expect( vm.a ).is.equals( 2 );
+      expect( vm.b ).is.equals( 4 );
+      expect( vm.c ).is.equals( 8 );
+
+      vm.a = 3;
+      vm.$nextTick(() => {
+        expect( vm.a ).is.equals( 3 );
+        expect( vm.b ).is.equals( 6 );
+        expect( vm.c ).is.equals( 12 );
+
+        vm.$destroy();
+
+        vm.a = 4;
+        vm.$nextTick(() => {
+          expect( vm.a ).is.equals( 4 );
+          expect( vm.b ).is.equals( 6 );
+          expect( vm.c ).is.equals( 12 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有自定义事件绑定', () => {
+    let index = 0;
+    const hu = new Hu();
+
+    hu.$on( 'test', () => index++ );
+    hu.$on( 'test', () => index++ );
+    hu.$on( 'test', () => index++ );
+
+    expect( index ).is.equals( 0 );
+
+    hu.$emit('test');
+    expect( index ).is.equals( 3 );
+
+    hu.$emit('test');
+    expect( index ).is.equals( 6 );
+
+    hu.$emit('test');
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    hu.$destroy();
+
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    hu.$emit('test');
+    hu.$emit('test');
+    expect( index ).is.equals( 12 );
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有自定义事件绑定 ( Vue )', () => {
+    let index = 0;
+    const vm = new Vue();
+
+    vm.$on( 'test', () => index++ );
+    vm.$on( 'test', () => index++ );
+    vm.$on( 'test', () => index++ );
+
+    expect( index ).is.equals( 0 );
+
+    vm.$emit('test');
+    expect( index ).is.equals( 3 );
+
+    vm.$emit('test');
+    expect( index ).is.equals( 6 );
+
+    vm.$emit('test');
+    vm.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    vm.$destroy();
+
+    vm.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    vm.$emit('test');
+    expect( index ).is.equals( 12 );
+
+    vm.$emit('test');
+    vm.$emit('test');
+    expect( index ).is.equals( 12 );
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的 bind 指令的绑定', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      name: '1'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        const name = html.bind( data, 'name' );
+
+        return html`
+          <div name=${ name }></div>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( isConnected ).is.true;
+    expect( hu.$el.firstElementChild.$attr('name') ).is.equals('1');
+    expect( steps ).is.deep.equals([ 'name' ]);
+
+    data.name = '2';
+    hu.$nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( hu.$el.firstElementChild.$attr('name') ).is.equals('2');
+      expect( steps ).is.deep.equals([ 'name', 'name' ]);
+
+      data.name = '3';
+      hu.$nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+        expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
+
+        hu.$destroy();
+
+        expect( isConnected ).is.true;
+        expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+        expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
+
+        data.name = '4';
+        hu.$nextTick(() => {
+          expect( isConnected ).is.true;
+          expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+          expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
+
+          custom.$remove();
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的双向数据绑定', ( done ) => {
+    const steps = [];
+    const customDataProxy = new Proxy({
+      value: '1'
+    }, {
+      get: ( target, name ) => {
+        Hu.util.isString( name ) && steps.push( name );
+        return target[ name ];
+      }
+    });
+    const data = Hu.observable(
+      customDataProxy
+    );
+    const customName = window.customName;
+    let isConnected = false;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`
+          <input ref="input" :model=${[ data, 'value' ]}>
+        `;
+      },
+      connected: () => isConnected = true,
+      disconnected: () => isConnected = false
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+    const input = hu.$refs.input;
+
+    expect( isConnected ).is.true;
+    expect( input.value ).is.equals('1');
+    expect( steps ).is.deep.equals([ 'value' ]);
+
+    data.value = '12';
+    hu.$nextTick(() => {
+      expect( isConnected ).is.true;
+      expect( input.value ).is.equals('12');
+      expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+      data.value = '123';
+      hu.$nextTick(() => {
+        expect( isConnected ).is.true;
+        expect( input.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        hu.$destroy();
+
+        expect( isConnected ).is.true;
+        expect( input.value ).is.equals('123');
+        expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+        data.value = '1';
+        hu.$nextTick(() => {
+          expect( isConnected ).is.true;
+          expect( input.value ).is.equals('123');
+          expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          custom.$remove();
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '实例上的所有前缀为 $ 的私有属性及方法均不能进行修改及删除', () => {
+    const hu = new Hu({
+      el: div,
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    let run = false;
+    Hu.util.each( hu, ( key, value ) => {
+      run = true;
+
+      const type = Object.prototype.toString.call( value );
+
+      delete hu[ key ];
+      expect( hu[ key ] ).is.equals( value );
+      expect( Object.prototype.toString.call( hu[ key ] ) ).is.equals( type );
+
+      hu[ key ] = 123;
+      expect( hu[ key ] ).is.equals( value );
+      expect( Object.prototype.toString.call( hu[ key ] ) ).is.equals( type );
+    });
+
+    expect( run ).is.true;
+  });
+
+  it( '实例上的所有前缀为 $ 的私有属性及方法均不能进行修改及删除 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( div );
+    const hu = custom.$hu;
+
+    let run = false;
+    Hu.util.each( hu, ( key, value ) => {
+      run = true;
+
+      const type = Object.prototype.toString.call( value );
+
+      delete hu[ key ];
+      expect( hu[ key ] ).is.equals( value );
+      expect( Object.prototype.toString.call( hu[ key ] ) ).is.equals( type );
+
+      hu[ key ] = 123;
+      expect( hu[ key ] ).is.equals( value );
+      expect( Object.prototype.toString.call( hu[ key ] ) ).is.equals( type );
+    });
+
+    expect( run ).is.true;
+  });
+
 });
