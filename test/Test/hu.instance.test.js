@@ -212,7 +212,7 @@ describe( 'Hu.instance', () => {
   });
 
   it( '自定义元素实例上的 $root 属性是当前实例的根实例 ( 三 ) ( Vue ) ( 无法重现 )', () => {
-    
+
   });
 
   it( '实例上的 $parent 属性是当前实例的父实例, 没有父实例则为 undefined', () => {
@@ -372,7 +372,7 @@ describe( 'Hu.instance', () => {
   });
 
   it( '自定义元素实例上的 $parent 属性是当前实例的父实例 ( 三 ) ( Vue ) ( 无法重现 )', () => {
-    
+
   });
 
   it( '实例上的 $children 属性是当前实例的根实例', () => {
@@ -553,7 +553,7 @@ describe( 'Hu.instance', () => {
   });
 
   it( '自定义元素实例上的 $root 属性是当前实例的根实例 ( 三 ) ( Vue ) ( 无法重现 )', () => {
-    
+
   });
 
   it( '自定义元素实例上的 $props 属性是当前实例的 props 对象的代理', () => {
@@ -777,15 +777,21 @@ describe( 'Hu.instance', () => {
       }
     });
 
-    let runDelete = false;
+    let run = false;
 
     Hu.util.each( hu.$options, ( key, value ) => {
-      runDelete = true;
+      run = true;
+
+      hu.$options[ key ] = 123;
+
+      expect( hu.$options[ key ] ).is.equals( value );
 
       delete hu.$options[ key ];
 
       expect( hu.$options[ key ] ).is.equals( value );
     });
+
+    expect( run ).is.true;
   });
 
   it( '实例上的 $options 属性是当前实例的初始化选项, 且不可更改 ( 二 )', () => {
@@ -854,15 +860,122 @@ describe( 'Hu.instance', () => {
       }
     });
 
-    let runDelete = false;
+    let run = false;
 
     Hu.util.each( hu.$options, ( key, value ) => {
-      runDelete = true;
+      run = true;
+
+      hu.$options[ key ] = 123;
+
+      expect( hu.$options[ key ] ).is.equals( value );
 
       delete hu.$options[ key ];
 
       expect( hu.$options[ key ] ).is.equals( value );
     });
+
+    expect( run ).is.true;
+  });
+
+  it( '实例上的 $info 属性包含了当前实例的各种信息, 且不可更改', () => {
+    const hu = new Hu({
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+    const info = hu.$info;
+
+    // 类型限定
+    expect( info.uid ).is.a('string');
+    expect( info.name ).is.a('string');
+    expect( info.isMounted ).is.a('boolean');
+    expect( info.isCustomElement ).is.a('boolean');
+    expect( info.isConnected ).is.a('boolean');
+
+    // 值比对
+    expect( info.uid ).is.equals( info.name );
+    expect( info.isMounted ).is.equals( false );
+    expect( info.isCustomElement ).is.equals( false );
+    expect( info.isConnected ).is.equals( false );
+
+    hu.$mount( div );
+
+    // 值比对
+    expect( info.uid ).is.equals( info.name );
+    expect( info.isMounted ).is.equals( true );
+    expect( info.isCustomElement ).is.equals( false );
+    expect( info.isConnected ).is.equals( true );
+
+    // 不可修改及删除
+    let run;
+
+    Hu.util.each( info, ( key, value ) => {
+      run = true;
+
+      info[ key ] = 123;
+
+      expect( info[ key ] ).is.equals( value );
+
+      delete info[ key ];
+
+      expect( info[ key ] ).is.equals( value );
+    });
+
+    expect( run ).is.true;
+  });
+
+  it( '实例上的 $info 属性包含了当前实例的各种信息, 且不可更改 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    const custom = document.createElement( customName );
+    const hu = custom.$hu;
+    const info = hu.$info;
+
+    // 类型限定
+    expect( info.uid ).is.a('string');
+    expect( info.name ).is.a('string');
+    expect( info.isMounted ).is.a('boolean');
+    expect( info.isCustomElement ).is.a('boolean');
+    expect( info.isConnected ).is.a('boolean');
+
+    // 值比对
+    expect( info.uid ).is.not.equals( info.name );
+    expect( info.name ).is.equals( customName );
+    expect( info.isMounted ).is.equals( false );
+    expect( info.isCustomElement ).is.equals( true );
+    expect( info.isConnected ).is.equals( false );
+
+    custom.$appendTo( div );
+
+    // 值比对
+    expect( info.uid ).is.not.equals( info.name );
+    expect( info.name ).is.equals( customName );
+    expect( info.isMounted ).is.equals( true );
+    expect( info.isCustomElement ).is.equals( true );
+    expect( info.isConnected ).is.equals( true );
+
+    // 不可修改及删除
+    let run;
+
+    Hu.util.each( info, ( key, value ) => {
+      run = true;
+
+      info[ key ] = 123;
+
+      expect( info[ key ] ).is.equals( value );
+
+      delete info[ key ];
+
+      expect( info[ key ] ).is.equals( value );
+    });
+
+    expect( run ).is.true;
   });
 
 });
