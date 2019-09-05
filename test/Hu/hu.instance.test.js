@@ -98,45 +98,6 @@ describe( 'Hu.instance', () => {
     }
   });
 
-  it( '实例上的 $options 选项, 包含了实例初始化选项, 且不可更改', () => {
-    const customName = window.customName;
-    const data = () => ({
-      asd: 123456
-    });
-
-    Hu.define( customName, {
-      data,
-      asd: 123
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.$data ).is.deep.equals({ asd: 123456 });
-    expect( hu.$options ).is.deep.equals({ asd: 123, data });
-
-    hu.$options.asd = 456;
-    expect( hu.$options ).is.deep.equals({ asd: 123, data });
-  });
-
-  it( '实例上的 $options 选项, 包含了实例初始化选项, 且不可更改 ( 二 )', () => {
-    const data = () => ({
-      asd: 123456
-    });
-
-    const hu = new Hu({
-      data,
-      asd: 123
-    });
-
-    expect( hu.$data ).is.deep.equals({ asd: 123456 });
-    expect( hu.$options ).is.deep.equals({ asd: 123, data });
-
-    hu.$options.asd = 456;
-    expect( hu.$options ).is.deep.equals({ asd: 123, data });
-  });
-
   it( '实例上的 $info 选项, 包含了当前实例的各种信息, 且不可更改', () => {
     const customName = window.customName;
 
@@ -314,80 +275,6 @@ describe( 'Hu.instance', () => {
     hu.$forceUpdate();
     hu.$forceUpdate();
     expect( num ).is.equals( 4 );
-  });
-
-  it( '实例上的 $data 属性会存放所有定义了的属性', () => {
-    const $$a = Symbol('$$a');
-    const hu = new Hu({
-      data: {
-        a: 123,
-        $a: 456,
-        [ $$a ]: 789
-      }
-    });
-
-    expect( hu.$data ).is.deep.equals({
-      a: 123,
-      $a: 456,
-      [ $$a ]: 789
-    });
-  });
-
-  it( '实例上的 $data 属性会存放所有定义了的属性 ( 二 )', () => {
-    const $$a = Symbol('$$a');
-    const hu = new Hu({
-      data: () => ({
-        a: 123,
-        $a: 456,
-        [ $$a ]: 789
-      })
-    });
-
-    expect( hu.$data ).is.deep.equals({
-      a: 123,
-      $a: 456,
-      [ $$a ]: 789
-    });
-  });
-
-  it( '实例上的 $data 属性会存放所有定义了的属性 ( 三 )', () => {
-    const customName = window.customName;
-    const $$a = Symbol('$$a');
-
-    Hu.define( customName, {
-      data: () => ({
-        a: 123,
-        $a: 456,
-        [ $$a ]: 789
-      })
-    });
-
-    const div = document.createElement('div').$html(`<${ customName }></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
-
-    expect( hu.$data ).is.deep.equals({
-      a: 123,
-      $a: 456,
-      [ $$a ]: 789
-    });
-  });
-
-  it( '实例上的 $data 属性下首字母不为 $ 的计算属性会在实例上添加映射', () => {
-    const $$a = Symbol('$$a');
-    const hu = new Hu({
-      data: {
-        a: 123,
-        $a: 456,
-        [ $$a ]: 789
-      }
-    });
-
-    expect( hu ).not.has.property('$a');
-    expect( hu ).is.deep.include({
-      a: 123,
-      [ $$a ]: 789
-    });
   });
 
   it( '实例上的 $computed 属性会存放所有定义了的计算属性', () => {

@@ -556,4 +556,313 @@ describe( 'Hu.instance', () => {
     
   });
 
+  it( '自定义元素实例上的 $props 属性是当前实例的 props 对象的代理', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        b: null
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( div );
+    const hu = custom.$hu;
+
+    expect( hu.$props ).is.deep.equals({
+      a: undefined,
+      b: undefined
+    });
+  });
+
+  it( '实例上的 $data 属性是当前实例的 data 对象的代理', () => {
+    const hu = new Hu({
+      data: {
+        a: 1,
+        b: 2
+      }
+    });
+
+    expect( hu.$data ).is.deep.equals({
+      a: 1,
+      b: 2
+    });
+  });
+
+  it( '实例上的 $data 属性是当前实例的 data 对象的代理 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      data: () => ({
+        a: 1,
+        b: 2
+      })
+    });
+
+    const custom = document.createElement( customName ).$appendTo( div );
+    const hu = custom.$hu;
+
+    expect( hu.$data ).is.deep.equals({
+      a: 1,
+      b: 2
+    });
+  });
+
+  it( '实例上的 $methods 属性是当前实例的 methods 对象的代理', () => {
+    const hu = new Hu({
+      methods: {
+        a: () => 1,
+        b: () => 2
+      }
+    });
+
+    expect( hu.$methods ).is.have.all.keys([
+      'a', 'b'
+    ]);
+
+    expect( hu.$methods.a() ).is.equals( 1 );
+    expect( hu.$methods.b() ).is.equals( 2 );
+  });
+
+  it( '实例上的 $methods 属性是当前实例的 methods 对象的代理 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      methods: {
+        a: () => 1,
+        b: () => 2
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( div );
+    const hu = custom.$hu;
+
+    expect( hu.$methods ).is.have.all.keys([
+      'a', 'b'
+    ]);
+
+    expect( hu.$methods.a() ).is.equals( 1 );
+    expect( hu.$methods.b() ).is.equals( 2 );
+  });
+
+  it( '实例上的 $globalMethods 属性是当前实例的 globalMethods 对象的代理', () => {
+    const hu = new Hu({
+      globalMethods: {
+        a: () => 1,
+        b: () => 2
+      }
+    });
+
+    expect( hu.$globalMethods ).is.have.all.keys([
+      'a', 'b'
+    ]);
+
+    expect( hu.$globalMethods.a() ).is.equals( 1 );
+    expect( hu.$globalMethods.b() ).is.equals( 2 );
+  });
+
+  it( '实例上的 $globalMethods 属性是当前实例的 globalMethods 对象的代理 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      globalMethods: {
+        a: () => 1,
+        b: () => 2
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( div );
+    const hu = custom.$hu;
+
+    expect( hu.$globalMethods ).is.have.all.keys([
+      'a', 'b'
+    ]);
+
+    expect( hu.$globalMethods.a() ).is.equals( 1 );
+    expect( hu.$globalMethods.b() ).is.equals( 2 );
+  });
+
+  it( '实例上的 $computed 属性是当前实例的 computed 对象的代理', () => {
+    const hu = new Hu({
+      computed: {
+        a: () => 1,
+        b: () => 2
+      }
+    });
+
+    expect( hu.$computed ).is.deep.equals({
+      a: 1,
+      b: 2
+    });
+  });
+
+  it( '实例上的 $computed 属性是当前实例的 computed 对象的代理 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      computed: {
+        a: () => 1,
+        b: () => 2
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( div );
+    const hu = custom.$hu;
+
+    expect( hu.$computed ).is.deep.equals({
+      a: 1,
+      b: 2
+    });
+  });
+
+  it( '实例上的 $options 属性是当前实例的初始化选项, 且不可更改', () => {
+    const data = () => ({
+      d: 1,
+      e: 2
+    });
+    const method1 = () => 1;
+    const method2 = () => 2;
+    const method3 = () => 3;
+    const method4 = () => 4;
+    const computed1 = () => 5;
+    const computed2 = () => 6;
+
+    const hu = new Hu({
+      props: {
+        a: null,
+        b: String,
+        c: {
+          from: 'cc',
+          type: Number,
+          default: 0
+        }
+      },
+      data,
+      methods: {
+        f: method1,
+        g: method2
+      },
+      globalMethods: {
+        h: method3,
+        i: method4
+      },
+      computed: {
+        j: computed1,
+        k: computed2
+      }
+    });
+
+    expect( hu.$options ).is.deep.equals({
+      props: {
+        a: null,
+        b: String,
+        c: {
+          from: 'cc',
+          type: Number,
+          default: 0
+        }
+      },
+      data,
+      methods: {
+        f: method1,
+        g: method2
+      },
+      globalMethods: {
+        h: method3,
+        i: method4
+      },
+      computed: {
+        j: computed1,
+        k: computed2
+      }
+    });
+
+    let runDelete = false;
+
+    Hu.util.each( hu.$options, ( key, value ) => {
+      runDelete = true;
+
+      delete hu.$options[ key ];
+
+      expect( hu.$options[ key ] ).is.equals( value );
+    });
+  });
+
+  it( '实例上的 $options 属性是当前实例的初始化选项, 且不可更改 ( 二 )', () => {
+    const customName = window.customName;
+    const data = () => ({
+      d: 1,
+      e: 2
+    });
+    const method1 = () => 1;
+    const method2 = () => 2;
+    const method3 = () => 3;
+    const method4 = () => 4;
+    const computed1 = () => 5;
+    const computed2 = () => 6;
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        b: String,
+        c: {
+          from: 'cc',
+          type: Number,
+          default: 0
+        }
+      },
+      data,
+      methods: {
+        f: method1,
+        g: method2
+      },
+      globalMethods: {
+        h: method3,
+        i: method4
+      },
+      computed: {
+        j: computed1,
+        k: computed2
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( div );
+    const hu = custom.$hu;
+
+    expect( hu.$options ).is.deep.equals({
+      props: {
+        a: null,
+        b: String,
+        c: {
+          from: 'cc',
+          type: Number,
+          default: 0
+        }
+      },
+      data,
+      methods: {
+        f: method1,
+        g: method2
+      },
+      globalMethods: {
+        h: method3,
+        i: method4
+      },
+      computed: {
+        j: computed1,
+        k: computed2
+      }
+    });
+
+    let runDelete = false;
+
+    Hu.util.each( hu.$options, ( key, value ) => {
+      runDelete = true;
+
+      delete hu.$options[ key ];
+
+      expect( hu.$options[ key ] ).is.equals( value );
+    });
+  });
+
 });
