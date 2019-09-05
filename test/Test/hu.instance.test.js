@@ -978,4 +978,106 @@ describe( 'Hu.instance', () => {
     expect( run ).is.true;
   });
 
+  it( '实例上的 $refs 属性是一个包含了当前实例持有注册过 ref 引用特性的所有 DOM 元素的对象', () => {
+    const hu = new Hu({
+      render( html ){
+        return html`
+          <div ref="1">123</div>
+          <div ref="2">456</div>
+          <div ref="3">789</div>
+        `;
+      }
+    });
+
+    expect( hu.$refs ).is.undefined;
+
+    hu.$mount( div );
+
+    expect( hu.$refs ).is.deep.equals({
+      1: div.querySelector(':nth-child(1)'),
+      2: div.querySelector(':nth-child(2)'),
+      3: div.querySelector(':nth-child(3)')
+    });
+  });
+
+  it( '实例上的 $refs 属性是一个包含了当前实例持有注册过 ref 引用特性的所有 DOM 元素的对象 ( Vue ) ( 不一致 )', () => {
+    const vm = new Vue({
+      template: `
+        <div>
+          <div ref="1">123</div>
+          <div ref="2">456</div>
+          <div ref="3">789</div>
+        </div>
+      `
+    });
+
+    expect( vm.$refs ).is.deep.equals({});
+
+    vm.$mount( div );
+
+    expect( vm.$refs ).is.deep.equals({
+      1: vm.$el.querySelector(':nth-child(1)'),
+      2: vm.$el.querySelector(':nth-child(2)'),
+      3: vm.$el.querySelector(':nth-child(3)')
+    });
+
+    vm.$destroy();
+    vm.$el.$remove();
+  });
+
+  it( '实例上的 $refs 属性在有多个 ref 匹配的情况下会自动拓展为数组', () => {
+    const hu = new Hu({
+      el: div,
+      render( html ){
+        return html`
+          <div ref="1">123</div>
+          <div ref="1">456</div>
+          <div ref="2">789</div>
+        `;
+      }
+    });
+
+    expect( hu.$refs ).is.deep.equals({
+      1: [
+        div.querySelector(':nth-child(1)'),
+        div.querySelector(':nth-child(2)')
+      ],
+      2: div.querySelector(':nth-child(3)')
+    });
+  });
+
+  it( '实例上的 $refs 属性在有多个 ref 匹配的情况下会自动拓展为数组 ( Vue ) ( 不一致 )', () => {
+    const vm = new Vue({
+      el: div,
+      data: {
+        arr: [ 1, 2, 3 ]
+      },
+      template: `
+        <div>
+          <div ref="1">123</div>
+          <div ref="1">456</div>
+          <div ref="2">789</div>
+          <div v-for="item in arr" ref="3">
+            {{ item }}
+          </div>
+        </div>
+      `
+    });
+
+    expect( vm.$refs ).is.deep.equals({
+      1: vm.$el.querySelector(':nth-child(2)'),
+      2: vm.$el.querySelector(':nth-child(3)'),
+      3: [
+        vm.$el.querySelector(':nth-child(4)'),
+        vm.$el.querySelector(':nth-child(5)'),
+        vm.$el.querySelector(':nth-child(6)')
+      ]
+    });
+
+
+
+    vm.$destroy();
+    vm.$el.$remove();
+  });
+
 });

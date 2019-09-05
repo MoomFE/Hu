@@ -247,51 +247,6 @@ describe( 'Hu.instance', () => {
     expect( hu.$computed.b ).is.undefined;
   });
 
-  it( '实例上的 $refs 属性将在首次渲染之后生效', () => {
-    const div = document.createElement('div');
-    const hu = new Hu({
-      render( html ){
-        return html`
-          <div ref="1">123</div>
-          <div ref="2">456</div>
-          <div ref="3">789</div>
-        `;
-      }
-    });
-
-    expect( hu.$refs ).is.undefined;
-
-    hu.$mount( div );
-
-    expect( hu.$refs ).is.deep.equals({
-      1: div.querySelector('div:nth-child(1)'),
-      2: div.querySelector('div:nth-child(2)'),
-      3: div.querySelector('div:nth-child(3)')
-    });
-  });
-
-  it( '实例上的 $refs 属性在有多个 ref 匹配的情况下会自动拓展为数组', () => {
-    const div = document.createElement('div');
-    const hu = new Hu({
-      el: div,
-      render( html ){
-        return html`
-          <div ref="1">123</div>
-          <div ref="1">456</div>
-          <div ref="3">789</div>
-        `;
-      }
-    });
-
-    expect( hu.$refs ).is.deep.equals({
-      1: [
-        div.querySelector('div:nth-child(1)'),
-        div.querySelector('div:nth-child(2)')
-      ],
-      3: div.querySelector('div:nth-child(3)')
-    });
-  });
-
   it( '实例上的 $on 方法用于注册事件', () => {
     const hu = new Hu();
     let index = 0;
