@@ -103,6 +103,9 @@ describe( 'Hu.instance', () => {
 
     expect( vm.$root ).is.equals( vm );
     expect( vm.$refs.custom.$root ).is.equals( vm );
+
+    vm.$destroy();
+    vm.$el.$remove();
   });
 
   it( '自定义元素实例上的 $root 属性是当前实例的根实例 ( 二 )', () => {
@@ -157,6 +160,9 @@ describe( 'Hu.instance', () => {
     expect( vm.$root ).is.equals( vm );
     expect( vm.$refs.custom.$root ).is.equals( vm );
     expect( vm.$refs.custom.$refs.custom.$root ).is.equals( vm );
+
+    vm.$destroy();
+    vm.$el.$remove();
   });
 
   it( '自定义元素实例上的 $root 属性是当前实例的根实例 ( 三 )', () => {
@@ -263,6 +269,9 @@ describe( 'Hu.instance', () => {
 
     expect( vm.$parent ).is.undefined;
     expect( vm.$refs.custom.$parent ).is.equals( vm );
+
+    vm.$destroy();
+    vm.$el.$remove();
   });
 
   it( '自定义元素实例上的 $parent 属性是当前实例的父实例 ( 二 )', () => {
@@ -317,6 +326,9 @@ describe( 'Hu.instance', () => {
     expect( vm.$parent ).is.undefined;
     expect( vm.$refs.custom.$parent ).is.equals( vm );
     expect( vm.$refs.custom.$refs.custom.$parent ).is.equals( vm.$refs.custom );
+
+    vm.$destroy();
+    vm.$el.$remove();
   });
 
   it( '自定义元素实例上的 $parent 属性是当前实例的父实例 ( 三 )', () => {
@@ -427,6 +439,9 @@ describe( 'Hu.instance', () => {
       vm.$refs.custom
     ]);
     expect( vm.$refs.custom.$children ).is.have.members([]);
+
+    vm.$destroy();
+    vm.$el.$remove();
   });
 
   it( '自定义元素实例上的 $children 属性是当前实例的根实例 ( 二 )', () => {
@@ -489,6 +504,9 @@ describe( 'Hu.instance', () => {
       vm.$refs.custom.$refs.custom
     ]);
     expect( vm.$refs.custom.$refs.custom.$children ).is.have.members([]);
+
+    vm.$destroy();
+    vm.$el.$remove();
   });
 
   it( '自定义元素实例上的 $children 属性是当前实例的根实例 ( 三 )', () => {
@@ -1073,8 +1091,6 @@ describe( 'Hu.instance', () => {
         vm.$el.querySelector(':nth-child(6)')
       ]
     });
-
-
 
     vm.$destroy();
     vm.$el.$remove();
