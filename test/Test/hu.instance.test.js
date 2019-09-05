@@ -626,6 +626,38 @@ describe( 'Hu.instance', () => {
     });
   });
 
+  it( '实例上的 $data 属性下首字母不为 $ 的属性会在实例本身添加映射', () => {
+    const c = Symbol('a');
+    const hu = new Hu({
+      data: {
+        a: 1,
+        b: 2,
+        [ c ]: 3,
+        $d: 4,
+        _e: 5
+      }
+    });
+
+    expect( hu.$data ).is.deep.equals({
+      a: 1,
+      b: 2,
+      [ c ]: 3,
+      $d: 4,
+      _e: 5
+    });
+
+    expect( hu ).is.include({
+      a: 1,
+      b: 2,
+      [ c ]: 3,
+      _e: 5
+    });
+
+    expect( hu ).is.not.include({
+      $d: 4,
+    });
+  });
+
   it( '实例上的 $methods 属性是当前实例的 methods 对象的代理', () => {
     const hu = new Hu({
       methods: {
@@ -661,6 +693,40 @@ describe( 'Hu.instance', () => {
 
     expect( hu.$methods.a() ).is.equals( 1 );
     expect( hu.$methods.b() ).is.equals( 2 );
+  });
+
+  it( '实例上的 $methods 属性下首字母首字母不为 $ 的方法会在实例本身添加映射', () => {
+    const c = Symbol('a');
+    const hu = new Hu({
+      methods: {
+        a: () => 1,
+        b: () => 2,
+        [ c ]: () => 3,
+        $d: () => 4,
+        _e: () => 5
+      }
+    });
+
+    expect( hu.$methods ).have.property( 'a' );
+    expect( hu.$methods ).have.property( 'b' );
+    expect( hu.$methods ).have.property( c );
+    expect( hu.$methods ).have.property( '$d' );
+    expect( hu.$methods ).have.property( '_e' );
+    expect( hu.$methods.a() ).is.equals( 1 );
+    expect( hu.$methods.b() ).is.equals( 2 );
+    expect( hu.$methods[ c ]() ).is.equals( 3 );
+    expect( hu.$methods.$d() ).is.equals( 4 );
+    expect( hu.$methods._e() ).is.equals( 5 );
+
+    expect( hu ).have.property( 'a' );
+    expect( hu ).have.property( 'b' );
+    expect( hu ).have.property( c );
+    expect( hu ).not.have.property( '$d' );
+    expect( hu ).have.property( '_e' );
+    expect( hu.a() ).is.equals( 1 );
+    expect( hu.b() ).is.equals( 2 );
+    expect( hu[ c ]() ).is.equals( 3 );
+    expect( hu._e() ).is.equals( 5 );
   });
 
   it( '实例上的 $globalMethods 属性是当前实例的 globalMethods 对象的代理', () => {
@@ -700,6 +766,40 @@ describe( 'Hu.instance', () => {
     expect( hu.$globalMethods.b() ).is.equals( 2 );
   });
 
+  it( '实例上的 $globalMethods 属性下首字母首字母不为 $ 的方法会在实例本身添加映射', () => {
+    const c = Symbol('a');
+    const hu = new Hu({
+      globalMethods: {
+        a: () => 1,
+        b: () => 2,
+        [ c ]: () => 3,
+        $d: () => 4,
+        _e: () => 5
+      }
+    });
+
+    expect( hu.$globalMethods ).have.property( 'a' );
+    expect( hu.$globalMethods ).have.property( 'b' );
+    expect( hu.$globalMethods ).have.property( c );
+    expect( hu.$globalMethods ).have.property( '$d' );
+    expect( hu.$globalMethods ).have.property( '_e' );
+    expect( hu.$globalMethods.a() ).is.equals( 1 );
+    expect( hu.$globalMethods.b() ).is.equals( 2 );
+    expect( hu.$globalMethods[ c ]() ).is.equals( 3 );
+    expect( hu.$globalMethods.$d() ).is.equals( 4 );
+    expect( hu.$globalMethods._e() ).is.equals( 5 );
+
+    expect( hu ).have.property( 'a' );
+    expect( hu ).have.property( 'b' );
+    expect( hu ).have.property( c );
+    expect( hu ).not.have.property( '$d' );
+    expect( hu ).have.property( '_e' );
+    expect( hu.a() ).is.equals( 1 );
+    expect( hu.b() ).is.equals( 2 );
+    expect( hu[ c ]() ).is.equals( 3 );
+    expect( hu._e() ).is.equals( 5 );
+  });
+
   it( '实例上的 $computed 属性是当前实例的 computed 对象的代理', () => {
     const hu = new Hu({
       computed: {
@@ -730,6 +830,64 @@ describe( 'Hu.instance', () => {
     expect( hu.$computed ).is.deep.equals({
       a: 1,
       b: 2
+    });
+  });
+
+  it( '实例上的 $computed 属性是禁止增删改的', () => {
+    const hu = new Hu({
+      computed: {
+        a: () => 123
+      }
+    });
+
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.$computed.a ).is.equals( 123 );
+
+    // 禁止修改
+    hu.$computed.a = 234;
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.$computed.a ).is.equals( 123 );
+
+    // 禁止删除
+    delete hu.$computed.a;
+    expect( hu.a ).is.equals( 123 );
+    expect( hu.$computed.a ).is.equals( 123 );
+
+    // 禁止添加
+    hu.$computed.b = 123;
+    expect( hu.b ).is.undefined;
+    expect( hu.$computed.b ).is.undefined;
+  });
+
+  it( '实例上的 $computed 属性下首字母首字母不为 $ 的计算属性会在实例本身添加映射', () => {
+    const c = Symbol('c');
+    const hu = new Hu({
+      computed: {
+        a: () => 1,
+        b: () => 2,
+        [ c ]: () => 3,
+        $d: () => 4,
+        _e: () => 5
+      }
+    });
+
+    expect( hu.$computed ).is.deep.equals({
+      a: 1,
+      b: 2,
+      [ c ]: 3,
+      $d: 4,
+      _e: 5
+    });
+
+    expect( hu ).is.includes({
+      a: 1,
+      b: 2,
+      [ c ]: 3,
+      _e: 5
+    });
+
+    expect( hu ).is.not.includes({
+      $d: 4
     });
   });
 
