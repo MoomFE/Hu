@@ -1033,6 +1033,43 @@ describe( 'options.props', () => {
     expect( hu.$props[ aE ] ).is.equals( '55' );
   });
 
+  it( '使用对象的方式定义 props 且设置 prop 的类型为 Boolean 且默认值为 true, 传入字符串 false 时实例应该解析为布尔值 false', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      props: {
+        a: {
+          type: {
+            from: Boolean,
+            default: true
+          }
+        }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="false"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu.$props ).has.property( 'a' );
+
+    expect( hu.a ).is.equals( false );
+    expect( hu.$props.a ).is.equals( false );
+
+    // ------
+
+    const div = document.createElement('div').$html(`<${ customName } a="true"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu.$props ).has.property( 'a' );
+
+    expect( hu.a ).is.equals( true );
+    expect( hu.$props.a ).is.equals( true );
+  });
+
   it('------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------');
 
   it( '实例化后所定义的 props 会全部添加到 $props 实例属性中', () => {

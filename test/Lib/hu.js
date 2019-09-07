@@ -406,7 +406,10 @@
   var fromBooleanAttribute = /**
    * 序列化为 Boolean 属性
    */
-  value => value !== null;
+  value => {
+    return value === 'false' ? false
+                             : value !== null;
+  };
 
   var isObject = /**
    * 判断传入对象是否是 Object 类型且不为 null
