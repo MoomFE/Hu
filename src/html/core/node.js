@@ -84,7 +84,7 @@ export default class NodePart{
     const startNode = hasStartNode ? args[0] : this.startNode;
 
     // 若未指定起始位置, 那么需要清除 parts 指令片段
-    // 若制定了起始位置, 那么 parts 的回收必须手动完成
+    // 若指定了起始位置, 那么 parts 的回收必须手动完成
     if( !hasStartNode ){
       this.destroyPart();
     }

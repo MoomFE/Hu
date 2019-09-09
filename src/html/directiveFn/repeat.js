@@ -171,7 +171,6 @@ function generateMap( list, start, end ){
 }
 
 function removePart( part ){
-  console.log( 123 );
   removeNodes( part.startNode.parentNode, part.startNode, part.endNode.nextSibling );
 }
 
