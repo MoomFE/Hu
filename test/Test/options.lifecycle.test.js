@@ -797,6 +797,31 @@ describe( 'options.lifecycle', () => {
     expect( index ).is.equals( 2 );
   });
 
+  it( 'disconnected 生命周期回调: 自定义元素被从文档流移除后, Shadow DOM 也会被清空', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName, {
+      render( html ){
+        return html`<div>123</div>`
+      },
+      disconnected(){
+        index++;
+      }
+    });
+
+    const custom = document.createElement( customName ).$appendTo( document.body );
+    const hu = custom.$hu;
+
+    expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals('<div>123</div>');
+    expect( index ).is.equals( 0 );
+
+    custom.$remove();
+
+    expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals('');
+    expect( index ).is.equals( 1 );
+  });
+
   it( '生命周期回调的 this 指向的都是当前实例', () => {
     const result = [];
     const returnSelf = function(){
@@ -843,122 +868,5 @@ describe( 'options.lifecycle', () => {
     expect( result.length ).is.equals( 6 );
     expect( result ).is.deep.equals([ 'beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeDestroy', 'destroyed' ]);
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 正常渲染 )', () => {
-  //   const customName = window.customName;
-  //   let index = 0;
-
-  //   Hu.define( customName, {
-  //     render( html ){
-  //       return html`<div>123</div>`
-  //     },
-  //     disconnected(){
-  //       index++;
-  //     }
-  //   });
-
-  //   const custom = document.createElement( customName ).$appendTo( document.body );
-  //   const hu = custom.$hu;
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
-  //   expect( index ).is.equals( 0 );
-
-  //   custom.$remove();
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
-  //   expect( index ).is.equals( 1 );
-  // });
-
-  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 使用插值渲染 )', () => {
-  //   const customName = window.customName;
-  //   let index = 0;
-
-  //   Hu.define( customName, {
-  //     render( html ){
-  //       return html`<div>${ 123 }</div>`
-  //     },
-  //     disconnected(){
-  //       index++;
-  //     }
-  //   });
-
-  //   const custom = document.createElement( customName ).$appendTo( document.body );
-  //   const hu = custom.$hu;
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
-  //   expect( index ).is.equals( 0 );
-
-  //   custom.$remove();
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
-  //   expect( index ).is.equals( 1 );
-  // });
-
-  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 使用数组渲染 )', () => {
-  //   const customName = window.customName;
-  //   let index = 0;
-
-  //   Hu.define( customName, {
-  //     render( html ){
-  //       return html`<div>${[ 1, 2, 3 ]}</div>`
-  //     },
-  //     disconnected(){
-  //       index++;
-  //     }
-  //   });
-
-  //   const custom = document.createElement( customName ).$appendTo( document.body );
-  //   const hu = custom.$hu;
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
-  //   expect( index ).is.equals( 0 );
-
-  //   custom.$remove();
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div>123</div>`);
-  //   expect( index ).is.equals( 1 );
-  // });
-
-  // it( 'disconnected 生命周期回调: 自定义元素被从文档流移除, 但是 Shadow DOM 内的元素依旧是可以正常访问的 ( 使用 repeat 指令方法渲染 )', () => {
-  //   const customName = window.customName;
-  //   let index = 0;
-
-  //   Hu.define( customName, {
-  //     render( html ){
-  //       return html`<div>${
-  //         html.repeat( [ 1, 2, 3 ], val => val, val => {
-  //           return html`<span>${ val }</span>`;
-  //         })
-  //       }</div>`
-  //     },
-  //     disconnected(){
-  //       index++;
-  //     }
-  //   });
-
-  //   const custom = document.createElement( customName ).$appendTo( document.body );
-  //   const hu = custom.$hu;
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div><span>1</span><span>2</span><span>3</span></div>`);
-  //   expect( index ).is.equals( 0 );
-
-  //   custom.$remove();
-
-  //   expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals(`<div><span>1</span><span>2</span><span>3</span></div>`);
-  //   expect( index ).is.equals( 1 );
-  // });
 
 });

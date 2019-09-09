@@ -370,33 +370,34 @@ describe( 'html.directiveFn', () => {
 
     const custom = document.createElement( customName ).$appendTo( document.body );
     const hu = custom.$hu;
+    const div = hu.$el.firstElementChild;
 
     expect( isConnected ).is.true;
-    expect( hu.$el.firstElementChild.$attr('name') ).is.equals('1');
+    expect( div.$attr('name') ).is.equals('1');
     expect( steps ).is.deep.equals([ 'name' ]);
 
     data.name = '2';
     nextTick(() => {
       expect( isConnected ).is.true;
-      expect( hu.$el.firstElementChild.$attr('name') ).is.equals('2');
+      expect( div.$attr('name') ).is.equals('2');
       expect( steps ).is.deep.equals([ 'name', 'name' ]);
 
       data.name = '3';
       nextTick(() => {
         expect( isConnected ).is.true;
-        expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+        expect( div.$attr('name') ).is.equals('3');
         expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
 
         custom.$remove();
 
         expect( isConnected ).is.false;
-        expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+        expect( div.$attr('name') ).is.equals('3');
         expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
 
         data.name = '4';
         nextTick(() => {
           expect( isConnected ).is.false;
-          expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
+          expect( div.$attr('name') ).is.equals('3');
           expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
 
           done();
