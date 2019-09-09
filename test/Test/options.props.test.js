@@ -1059,15 +1059,15 @@ describe( 'options.props', () => {
 
     // ------
 
-    const div = document.createElement('div').$html(`<${ customName } a="true"></${ customName }>`);
-    const custom = div.firstElementChild;
-    const hu = custom.$hu;
+    const div2 = document.createElement('div').$html(`<${ customName } a="true"></${ customName }>`);
+    const custom2 = div2.firstElementChild;
+    const hu2 = custom2.$hu;
 
-    expect( hu ).has.property( 'a' );
-    expect( hu.$props ).has.property( 'a' );
+    expect( hu2 ).has.property( 'a' );
+    expect( hu2.$props ).has.property( 'a' );
 
-    expect( hu.a ).is.equals( true );
-    expect( hu.$props.a ).is.equals( true );
+    expect( hu2.a ).is.equals( true );
+    expect( hu2.$props.a ).is.equals( true );
   });
 
   it('------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------');
