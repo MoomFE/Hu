@@ -410,7 +410,7 @@ describe( 'Hu.static', () => {
     expect( Hu.util.isIterable( 'undefined' ) ).is.true;
     expect( Hu.util.isIterable( 'null' ) ).is.true;
     expect( Hu.util.isIterable( 'asd' ) ).is.true;
-    expect( Hu.util.isIterable( '' ) ).is.false;
+    expect( Hu.util.isIterable( '' ) ).is.true;
     expect( Hu.util.isIterable( {} ) ).is.false;
     expect( Hu.util.isIterable( { asd: 123 } ) ).is.false;
     expect( Hu.util.isIterable( [] ) ).is.true;

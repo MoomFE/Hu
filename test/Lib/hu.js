@@ -1130,7 +1130,7 @@
    * 判断传入对象是否可迭代
    */
   var isIterable = value => {
-    return isArray( value ) || !!(
+    return isString( value ) || !!(
       value && value[ Symbol.iterator ]
     );
   };

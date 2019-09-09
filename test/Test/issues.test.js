@@ -246,4 +246,11 @@ describe( 'Issues', () => {
     div.$remove();
   });
 
+  it( '#16', () => {
+    expect( Hu.util.isIterable( 'undefined' ) ).is.true;
+    expect( Hu.util.isIterable( 'null' ) ).is.true;
+    expect( Hu.util.isIterable( 'asd' ) ).is.true;
+    expect( Hu.util.isIterable( '' ) ).is.true;
+  });
+
 });
