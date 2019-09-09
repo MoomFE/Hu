@@ -6,7 +6,7 @@ import { has } from "../../shared/global/Reflect/index";
 
 export default class HtmlDirective{
 
-  constructor( element, name, strings, modifiers ){
+  constructor( element, strings, modifiers ){
     if( !isSingleBind( strings ) ){
       throw new Error(':html 指令的传值只允许包含单个表达式 !');
     }

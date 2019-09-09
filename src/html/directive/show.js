@@ -5,7 +5,7 @@ import isNotEqual from "../../shared/util/isNotEqual";
 
 export default class ShowDirective{
 
-  constructor( element, name, strings, modifiers ){
+  constructor( element, strings, modifiers ){
     if( !isSingleBind( strings ) ){
       throw new Error(':text 指令的传值只允许包含单个表达式 !');
     }

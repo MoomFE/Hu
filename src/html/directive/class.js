@@ -13,7 +13,7 @@ const classesMap = new WeakMap();
 
 export default class ClassDirective{
 
-  constructor( element, name, strings, modifiers ){
+  constructor( element, strings, modifiers ){
     if( !isSingleBind( strings ) ){
       throw new Error(':class 指令的传值只允许包含单个表达式 !');
     }

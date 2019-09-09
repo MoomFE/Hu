@@ -14,7 +14,7 @@ const styleMap = new WeakMap();
 
 export default class StyleDirective{
 
-  constructor( element, name, strings, modifiers ){
+  constructor( element, strings, modifiers ){
     if( !isSingleBind( strings ) ){
       throw new Error(':style 指令的传值只允许包含单个表达式 !');
     }

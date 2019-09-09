@@ -19,9 +19,11 @@ export default {
     let directive;
     /** 属性对应的处理指令实例 */
     let directiveInstance;
+    /** 指令前缀 */
+    const prefix = name[ 0 ];
 
     // 处理基础指令
-    switch( name[ 0 ] ){
+    switch( prefix ){
       // 用于绑定 DOM 属性 ( property )
       case '.': directive = BasicPropertyDirective; sliceNum = 1; break;
       // 事件绑定
@@ -52,8 +54,16 @@ export default {
       modifiers[ modifier ] = true;
     }
 
+    /** 实例化指令时的传值 */
+    const args = [ element, name, strings, modifiers ];
+
+    // 用户注册的指令无需传入名称
+    if( directive && prefix === ':' ){
+      args.splice( 1, 1 );
+    }
+
     // 实例化指令
-    directiveInstance = new ( directive || AttributeCommitter )( element, name, strings, modifiers );
+    directiveInstance = new ( directive || AttributeCommitter )( ...args );
 
     // 单个属性使用了多个插值绑定的情况下
     // 需要返回多个指令类
