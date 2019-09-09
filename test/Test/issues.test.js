@@ -246,6 +246,18 @@ describe( 'Issues', () => {
     div.$remove();
   });
 
+  it( '#11', () => {
+    const customName = window.customName;
+
+    Hu.define( customName );
+
+    const custom = document.createElement( customName );
+    const hu = custom.$hu;
+
+    expect( custom.addEventListener ).is.equals( hu.$on );
+    expect( custom.removeEventListener ).is.equals( hu.$off );
+  });
+
   it( '#16', () => {
     expect( Hu.util.isIterable( 'undefined' ) ).is.true;
     expect( Hu.util.isIterable( 'null' ) ).is.true;
