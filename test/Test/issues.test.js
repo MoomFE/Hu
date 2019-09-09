@@ -159,69 +159,6 @@ describe( 'Issues', () => {
     ]).then(() => done());
   });
 
-  it( '#5', ( done ) => {
-    Promise.all([
-      // Vue
-      new Promise(( resolve ) => {
-        let result;
-        const vm = new Vue({
-          data: {
-            a: []
-          },
-          watch: {
-            a: ([ first ]) => result = first
-          }
-        });
-
-        vm.a.unshift( 1 );
-        vm.$nextTick(() => {
-          expect( result ).is.equals( 1 );
-
-          vm.a.unshift( 2 );
-          vm.$nextTick(() => {
-            expect( result ).is.equals( 2 );
-
-            vm.a.unshift( 3 );
-            vm.$nextTick(() => {
-              expect( result ).is.equals( 3 );
-
-              resolve();
-            });
-          });
-        });
-      }),
-      // Hu
-      new Promise(( resolve ) => {
-        let result;
-        const hu = new Hu({
-          data: {
-            a: []
-          },
-          watch: {
-            a: ([ first ]) => result = first
-          }
-        });
-
-        hu.a.unshift( 1 );
-        hu.$nextTick(() => {
-          expect( result ).is.equals( 1 );
-
-          hu.a.unshift( 2 );
-          hu.$nextTick(() => {
-            expect( result ).is.equals( 2 );
-
-            hu.a.unshift( 3 );
-            hu.$nextTick(() => {
-              expect( result ).is.equals( 3 );
-
-              resolve();
-            });
-          });
-        });
-      })
-    ]).then(() => done());
-  });
-
   it( '#7', () => {
     const customName = window.customName;
     const div = document.createElement('div').$appendTo( document.body ).$prop({
