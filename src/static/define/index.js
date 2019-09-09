@@ -42,7 +42,9 @@ export default function define( name, _userOptions ){
     // 自定义元素实例上的事件处理相关方法
     $on,
     $once,
-    $off
+    $off,
+    addEventListener: $on,
+    removeEventListener: $off
   });
 
   // 注册组件
