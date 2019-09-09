@@ -867,6 +867,7 @@ describe( 'Hu.static', () => {
     expect( destroyIndex ).is.equals( 1 );
 
     // ------
+
     Hu.render( div )`
       <div>${
         Hu.html`<div :test=${ null }><div>`
@@ -1396,70 +1397,87 @@ describe( 'Hu.static', () => {
     expect( destroyIndex ).is.equals( 2 );
   });
 
-  // it( '注册的指令方法可以被正确调用 ( 在 render 方法中使用 )', () => {
-  //   let result;
-  //   const fn = Hu.directiveFn(( value ) => part => {
-  //     result = value;
-  //   });
+  it( 'Hu.directiveFn: 使用该方法可用于注册自定义指令方法', () => {
+    let result;
+    const fn = Hu.directiveFn( value => part => {
+      result = value;
+    });
 
-  //   Hu.render(
-  //     fn( 123 ),
-  //     div
-  //   );
-  //   expect( result ).is.equals( 123 );
-  // });
+    Hu.render(
+      fn( 123 ),
+      div
+    );
+    expect( result ).is.equals( 123 );
+  });
 
-  // it( '注册的指令方法可以被正确调用 ( 在指令中使用 )', () => {
-  //   let result;
-  //   const fn = Hu.directiveFn(( value ) => part => {
-  //     result = value;
-  //   });
+  it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在 render 中使用 )', () => {
+    let result;
+    const fn = Hu.directiveFn( value => part => {
+      result = value;
+    });
 
-  //   Hu.render( div )`
-  //     <div :text=${ fn( 123 ) }></div>
-  //   `;
-  //   expect( result ).is.equals( 123 );
-  // });
+    Hu.render(
+      fn( 123 ),
+      div
+    );
+    expect( result ).is.equals( 123 );
+  });
 
-  // it( '注册的指令方法可以被正确调用 ( 在 NodePart 中使用 )', () => {
-  //   let result;
-  //   const fn = Hu.directiveFn(( value ) => part => {
-  //     result = value;
-  //   });
+  it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在指令中使用 )', () => {
+    let result;
+    const fn = Hu.directiveFn(( value ) => part => {
+      result = value;
+    });
 
-  //   Hu.render( div )`
-  //     <div>${ fn( 123 ) }</div>
-  //   `;
-  //   expect( result ).is.equals( 123 );
-  // });
+    Hu.render( div )`
+      <div :text=${ fn( 123 ) }></div>
+    `;
+    expect( result ).is.equals( 123 );
+  });
 
-  // it( '注册的指令方法可以被正确调用 ( 在 NodePart 数组方式中使用 )', () => {
-  //   let result;
-  //   const fn = Hu.directiveFn(( value ) => part => {
-  //     result = value;
-  //   });
+  it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在 NodePart 中使用 )', () => {
+    let result;
+    const fn = Hu.directiveFn(( value ) => part => {
+      result = value;
+    });
 
-  //   Hu.render( div )`
-  //     <div>${[ fn( 123 ) ]}</div>
-  //   `;
-  //   expect( result ).is.equals( 123 );
-  // });
+    Hu.render( div )`
+      <div>${ fn( 123 ) }</div>
+    `;
+    expect( result ).is.equals( 123 );
+  });
 
-  // it( '注册的指令方法可以被正确调用 ( 在 repeat 指令方法中使用 )', () => {
-  //   let result;
-  //   const fn = Hu.directiveFn(( value ) => part => {
-  //     result = value;
-  //   });
+  it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在 NodePart 数组中使用 )', () => {
+    let result;
+    const fn = Hu.directiveFn(( value ) => part => {
+      result = value;
+    });
 
-  //   Hu.render( div )`
-  //     <div>${
-  //       Hu.html.repeat( [ 123 ], val => val, val => {
-  //         return fn( val );
-  //       })
-  //     }</div>
-  //   `;
-  //   expect( result ).is.equals( 123 );
-  // });
+    Hu.render( div )`
+      <div>${[ fn( 123 ) ]}</div>
+    `;
+    expect( result ).is.equals( 123 );
+  });
+
+  it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在 repeat 指令方法中使用 )', () => {
+    let result;
+    const fn = Hu.directiveFn(( value ) => part => {
+      result = value;
+    });
+
+    Hu.render( div )`
+      <div>${
+        Hu.html.repeat( [ 123 ], val => val, val => {
+          return fn( val );
+        })
+      }</div>
+    `;
+    expect( result ).is.equals( 123 );
+  });
+
+  it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法', () => {
+    
+  });
 
   // it( '注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在 render 方法中使用 )', () => {
   //   let commitPart;
