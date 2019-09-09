@@ -59,19 +59,21 @@ export default class NodePart{
   }
   /**
    * 销毁当前插值绑定内的所有指令及 NodePart
-   * @param {boolean} onlyDestroyDirective 是否只注销指令
+   * @param {boolean} onlyDirective 是否只注销指令
    */
-  destroyPart( onlyDestroyDirective ){
+  destroyPart( onlyDirective ){
     // 注销模板片段对象 ( 如果有 )
     if( this.instance ){
-      this.instance.destroy( onlyDestroyDirective );
+      this.instance.destroy( onlyDirective );
       this.instance = void 0;
     }
     // 注销数组类型的写入值
     else if( isArray( this.value ) ){
-      for( const part of this.value ) if( part ){
-        if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
-        else destroyPart( part );
+      for( const part of this.value ){
+        if( part ){
+          if( onlyDirective && part instanceof NodePart ) part.destroyPart( onlyDirective );
+          else destroyPart( part );
+        }
       }
     }
   }

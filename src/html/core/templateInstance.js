@@ -18,13 +18,12 @@ export default class TemplateInstance{
   update( values ){
     let index = 0;
 
-    for( const part of this.parts ){
-      part && commitPart(
-        part,
-        values[ index ]
-      );
-      index++
-    }
+    this.parts.forEach( part => {
+      if( part ){
+        commitPart( part, values[ index ] );
+      }
+      index++;
+    });
   }
 
   /**
@@ -107,13 +106,18 @@ export default class TemplateInstance{
 
   /**
    * 
-   * @param {boolean} onlyDestroyDirective 是否只注销指令
+   * @param {boolean} onlyDirective 是否只注销指令
    */
-  destroy( onlyDestroyDirective ){
-    for( const part of this.parts ) if( part ){
-      if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
-      else destroyPart( part );
-    }
+  destroy( onlyDirective ){
+    this.parts.forEach( part => {
+      if( part ){
+        if( onlyDirective && part instanceof NodePart ){
+          part.destroyPart( onlyDirective );
+        }else{
+          destroyPart( part );
+        }
+      }
+    });
   }
 
 }

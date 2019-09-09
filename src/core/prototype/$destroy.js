@@ -2,7 +2,7 @@ import callLifecycle from "../../static/define/util/callLifecycle";
 import { computedMap } from "../../static/define/init/initComputed";
 import { watcherMap } from "./$watch";
 import removeRenderDeps from "../init/initForceUpdate/util/removeRenderDeps";
-import destroyDirective from "../../html/util/destroyDirective";
+import destroyRender from "../../render/util/destroyRender";
 
 
 export default function(){
@@ -14,7 +14,7 @@ export default function(){
   removeComputed( watcherMap, this );
 
   // 注销 render 时创建的指令及指令方法
-  destroyDirective( this.$el );
+  destroyRender( this.$el, true );
 
   // 清空 render 方法收集到的依赖
   removeRenderDeps( this );

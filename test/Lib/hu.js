@@ -2696,13 +2696,12 @@
     update( values ){
       let index = 0;
 
-      for( let part of this.parts ){
-        part && commitPart(
-          part,
-          values[ index ]
-        );
+      this.parts.forEach( part => {
+        if( part ){
+          commitPart( part, values[ index ] );
+        }
         index++;
-      }
+      });
     }
 
     /**
@@ -2785,13 +2784,18 @@
 
     /**
      * 
-     * @param {boolean} onlyDestroyDirective 是否只注销指令
+     * @param {boolean} onlyDirective 是否只注销指令
      */
-    destroy( onlyDestroyDirective ){
-      for( let part of this.parts ) if( part ){
-        if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
-        else destroyPart( part );
-      }
+    destroy( onlyDirective ){
+      this.parts.forEach( part => {
+        if( part ){
+          if( onlyDirective && part instanceof NodePart ){
+            part.destroyPart( onlyDirective );
+          }else{
+            destroyPart( part );
+          }
+        }
+      });
     }
 
   }
@@ -2952,19 +2956,21 @@
     }
     /**
      * 销毁当前插值绑定内的所有指令及 NodePart
-     * @param {boolean} onlyDestroyDirective 是否只注销指令
+     * @param {boolean} onlyDirective 是否只注销指令
      */
-    destroyPart( onlyDestroyDirective ){
+    destroyPart( onlyDirective ){
       // 注销模板片段对象 ( 如果有 )
       if( this.instance ){
-        this.instance.destroy( onlyDestroyDirective );
+        this.instance.destroy( onlyDirective );
         this.instance = void 0;
       }
       // 注销数组类型的写入值
       else if( isArray( this.value ) ){
-        for( let part of this.value ) if( part ){
-          if( onlyDestroyDirective && part instanceof NodePart ) part.destroyPart( onlyDestroyDirective );
-          else destroyPart( part );
+        for( let part of this.value ){
+          if( part ){
+            if( onlyDirective && part instanceof NodePart ) part.destroyPart( onlyDirective );
+            else destroyPart( part );
+          }
         }
       }
     }
@@ -2977,7 +2983,7 @@
       const startNode = hasStartNode ? args[0] : this.startNode;
 
       // 若未指定起始位置, 那么需要清除 parts 指令片段
-      // 若制定了起始位置, 那么 parts 的回收必须手动完成
+      // 若指定了起始位置, 那么 parts 的回收必须手动完成
       if( !hasStartNode ){
         this.destroyPart();
       }
@@ -3393,7 +3399,6 @@
   }
 
   function removePart( part ){
-    console.log( 123 );
     removeNodes( part.startNode.parentNode, part.startNode, part.endNode.nextSibling );
   }
 
@@ -3895,17 +3900,21 @@
     }
   };
 
-  var destroyDirective = /**
-   * 注销某个已渲染的节点中所有的指令及指令方法
-   * 但是不影响已渲染的 DOM
-   * @param {Element} container 上次渲染的根节点
+  var destroyRender = /**
+   * 注销某个已渲染的节点
+   * @param {Element} container 已渲染的根节点
+   * @param {Boolean} onlyDirective 是否只注销指令
    */
-  ( container ) => {
+  ( container, onlyDirective ) => {
     /** 获取在传入节点渲染时使用的 NodePart */
     const nodePart = renderParts.get( container );
 
     if( nodePart ){
-      nodePart.destroyPart( true );
+      if( onlyDirective ){
+        nodePart.destroyPart( onlyDirective );
+      }else{
+        nodePart.destroy();
+      }
       renderParts.delete( container );
     }
   };
@@ -3919,7 +3928,7 @@
     removeComputed( watcherMap, this );
 
     // 注销 render 时创建的指令及指令方法
-    destroyDirective( this.$el );
+    destroyRender( this.$el, true );
 
     // 清空 render 方法收集到的依赖
     removeRenderDeps( this );
@@ -4257,20 +4266,6 @@
       isEqual( propsTarget[ name ], fromValue ) || (
         propsTargetProxy[ name ] = fromValue
       );
-    }
-  };
-
-  var destroyRender = /**
-   * 注销某个已渲染的节点
-   * @param {Element} container 已渲染的根节点
-   */
-  ( container ) => {
-    /** 获取在传入节点渲染时使用的 NodePart */
-    const nodePart = renderParts.get( container );
-
-    if( nodePart ){
-      nodePart.destroy();
-      renderParts.delete( container );
     }
   };
 
