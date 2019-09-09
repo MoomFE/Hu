@@ -3899,9 +3899,8 @@
    * 注销某个已渲染的节点中所有的指令及指令方法
    * 但是不影响已渲染的 DOM
    * @param {Element} container 上次渲染的根节点
-   * @param {boolean} destroyAll 是否移除已渲染的 DOM
    */
-  ( container, destroyAll ) => {
+  ( container ) => {
     /** 获取在传入节点渲染时使用的 NodePart */
     const nodePart = renderParts.get( container );
 
@@ -4261,13 +4260,27 @@
     }
   };
 
+  var destroyRender = /**
+   * 注销某个已渲染的节点
+   * @param {Element} container 已渲染的根节点
+   */
+  ( container ) => {
+    /** 获取在传入节点渲染时使用的 NodePart */
+    const nodePart = renderParts.get( container );
+
+    if( nodePart ){
+      nodePart.destroy();
+      renderParts.delete( container );
+    }
+  };
+
   var initDisconnectedCallback = options => function(){
     const $hu = activeCustomElement.get( this );
     const infoTarget = observeProxyMap.get( $hu.$info ).target;
 
     infoTarget.isConnected = false;
 
-    destroyDirective( $hu.$el );
+    destroyRender( $hu.$el );
     removeRenderDeps( $hu );
 
     callLifecycle( $hu, 'disconnected', options );
