@@ -612,15 +612,15 @@ describe( 'options.watch', () => {
       Symbol(''), Symbol('1'), Symbol('1'),
       undefined, null
     ];
-    const values = [];
+    const promises = [];
 
-    for( let i = 0, types1 = Array.$copy( types ); i < types1.length - 1; i++ ){
-      const promise = new Promise( resolve => {
+    for( let index = 0, types1 = Array.$copy( types ); index < types1.length - 1; index++ ) promises.push(
+      new Promise( resolve => {
 
         let result;
         const hu = new Hu({
           data: () => ({
-            value: types1[ i ]
+            value: types1[ index ]
           }),
           watch: {
             value: ( value, oldValue ) => result = [ value, oldValue ]
@@ -629,28 +629,26 @@ describe( 'options.watch', () => {
 
         expect( result ).is.undefined;
 
-        hu.value = types1[ i + 1 ];
+        hu.value = types1[ index + 1 ];
         hu.$nextTick(() => {
           expect( result ).is.deep.equals([
-            types1[ i + 1 ],
-            types1[ i ]
+            types1[ index + 1 ],
+            types1[ index ]
           ]);
 
           resolve();
         });
 
-      });
+      })
+    );
 
-      values.push( promise );
-    }
-
-    for( let i = 0, types2 = Array.$copy( types ).reverse(); i < types2.length - 1; i++ ){
-      const promise = new Promise( resolve => {
+    for( let index = 0, types2 = Array.$copy( types ).reverse(); index < types2.length - 1; index++ ) promises.push(
+      new Promise( resolve => {
 
         let result;
         const hu = new Hu({
           data: () => ({
-            value: types2[ i ]
+            value: types2[ index ]
           }),
           watch: {
             value: ( value, oldValue ) => result = [ value, oldValue ]
@@ -659,22 +657,20 @@ describe( 'options.watch', () => {
 
         expect( result ).is.undefined;
 
-        hu.value = types2[ i + 1 ];
+        hu.value = types2[ index + 1 ];
         hu.$nextTick(() => {
           expect( result ).is.deep.equals([
-            types2[ i + 1 ],
-            types2[ i ]
+            types2[ index + 1 ],
+            types2[ index ]
           ]);
 
           resolve();
         });
 
-      });
+      })
+    );
 
-      values.push( promise );
-    }
-
-    Promise.all( values ).then(() => {
+    Promise.all( promises ).then(() => {
       done();
     });
   });
@@ -689,15 +685,15 @@ describe( 'options.watch', () => {
       Symbol(''), Symbol('1'), Symbol('1'),
       undefined, null
     ];
-    const values = [];
+    const promises = [];
 
-    for( let i = 0, types1 = Array.$copy( types ); i < types1.length - 1; i++ ){
-      const promise = new Promise( resolve => {
+    for( let index = 0, types1 = Array.$copy( types ); index < types1.length - 1; index++ ) promises.push(
+      new Promise( resolve => {
 
         let result;
         const vm = new Vue({
           data: () => ({
-            value: types1[ i ]
+            value: types1[ index ]
           }),
           watch: {
             value: ( value, oldValue ) => result = [ value, oldValue ]
@@ -706,28 +702,26 @@ describe( 'options.watch', () => {
 
         expect( result ).is.undefined;
 
-        vm.value = types1[ i + 1 ];
+        vm.value = types1[ index + 1 ];
         vm.$nextTick(() => {
           expect( result ).is.deep.equals([
-            types1[ i + 1 ],
-            types1[ i ]
+            types1[ index + 1 ],
+            types1[ index ]
           ]);
 
           resolve();
         });
 
-      });
+      })
+    );
 
-      values.push( promise );
-    }
-
-    for( let i = 0, types2 = Array.$copy( types ).reverse(); i < types2.length - 1; i++ ){
-      const promise = new Promise( resolve => {
+    for( let index = 0, types2 = Array.$copy( types ).reverse(); index < types2.length - 1; index++ ) promises.push(
+      new Promise( resolve => {
 
         let result;
         const vm = new Vue({
           data: () => ({
-            value: types2[ i ]
+            value: types2[ index ]
           }),
           watch: {
             value: ( value, oldValue ) => result = [ value, oldValue ]
@@ -736,22 +730,20 @@ describe( 'options.watch', () => {
 
         expect( result ).is.undefined;
 
-        vm.value = types2[ i + 1 ];
+        vm.value = types2[ index + 1 ];
         vm.$nextTick(() => {
           expect( result ).is.deep.equals([
-            types2[ i + 1 ],
-            types2[ i ]
+            types2[ index + 1 ],
+            types2[ index ]
           ]);
 
           resolve();
         });
 
-      });
+      })
+    );
 
-      values.push( promise );
-    }
-
-    Promise.all( values ).then(() => {
+    Promise.all( promises ).then(() => {
       done();
     });
   });
