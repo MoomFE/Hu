@@ -1507,8 +1507,10 @@ describe( 'Hu.static', () => {
 
   it( 'Hu.directiveFn: 使用该方法可用于注册自定义指令方法', () => {
     let result;
-    const fn = Hu.directiveFn( value => part => {
-      result = value;
+    const fn = Hu.directiveFn( class{
+      commit( value ){
+        result = value;
+      }
     });
 
     Hu.render(
@@ -1520,8 +1522,10 @@ describe( 'Hu.static', () => {
 
   it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在 render 中使用 )', () => {
     let result;
-    const fn = Hu.directiveFn( value => part => {
-      result = value;
+    const fn = Hu.directiveFn( class{
+      commit( value ){
+        result = value;
+      }
     });
 
     Hu.render(
@@ -1533,8 +1537,10 @@ describe( 'Hu.static', () => {
 
   it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在指令中使用 )', () => {
     let result;
-    const fn = Hu.directiveFn(( value ) => part => {
-      result = value;
+    const fn = Hu.directiveFn( class{
+      commit( value ){
+        result = value;
+      }
     });
 
     Hu.render( div )`
@@ -1545,8 +1551,10 @@ describe( 'Hu.static', () => {
 
   it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在模板中使用 )', () => {
     let result;
-    const fn = Hu.directiveFn(( value ) => part => {
-      result = value;
+    const fn = Hu.directiveFn( class{
+      commit( value ){
+        result = value;
+      }
     });
 
     Hu.render( div )`
@@ -1557,8 +1565,10 @@ describe( 'Hu.static', () => {
 
   it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在数组中使用 )', () => {
     let result;
-    const fn = Hu.directiveFn(( value ) => part => {
-      result = value;
+    const fn = Hu.directiveFn( class{
+      commit( value ){
+        result = value;
+      }
     });
 
     Hu.render( div )`
@@ -1569,8 +1579,10 @@ describe( 'Hu.static', () => {
 
   it( 'Hu.directiveFn: 注册的指令方法在不同地方的使用 ( 在 repeat 指令方法中使用 )', () => {
     let result;
-    const fn = Hu.directiveFn(( value ) => part => {
-      result = value;
+    const fn = Hu.directiveFn( class{
+      commit( value ){
+        result = value;
+      }
     });
 
     Hu.render( div )`
@@ -1586,22 +1598,17 @@ describe( 'Hu.static', () => {
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在 render 中使用 )', () => {
     let commitIndex = 0;
     let destroyIndex = 0;
-    let commitPart, destroyPart;
-    const fn = Hu.directiveFn( value => [
-      part => {
+    const fn = Hu.directiveFn( class{
+      commit( value ){
         commitIndex++;
-        commitPart = part;
-      },
-      part => {
-        destroyIndex++;
-        destroyPart = part;
       }
-    ]);
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render(
       fn( 123 ),
@@ -1609,8 +1616,6 @@ describe( 'Hu.static', () => {
     );
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render(
       123,
@@ -1618,9 +1623,6 @@ describe( 'Hu.static', () => {
     );
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 1 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.not.undefined;
-    expect( commitPart ).is.equals( destroyPart );
 
     // ------
 
@@ -1642,39 +1644,29 @@ describe( 'Hu.static', () => {
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在指令中使用 )', () => {
     let commitIndex = 0;
     let destroyIndex = 0;
-    let commitPart, destroyPart;
-    const fn = Hu.directiveFn( value => [
-      part => {
+    const fn = Hu.directiveFn( class{
+      commit( value ){
         commitIndex++;
-        commitPart = part;
-      },
-      part => {
-        destroyIndex++;
-        destroyPart = part;
       }
-    ]);
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div :text=${ fn( 123 ) }></div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div></div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 1 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.not.undefined;
-    expect( commitPart ).is.equals( destroyPart );
 
     // ------
 
@@ -1700,39 +1692,29 @@ describe( 'Hu.static', () => {
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在模板中使用 )', () => {
     let commitIndex = 0;
     let destroyIndex = 0;
-    let commitPart, destroyPart;
-    const fn = Hu.directiveFn( value => [
-      part => {
+    const fn = Hu.directiveFn( class{
+      commit( value ){
         commitIndex++;
-        commitPart = part;
-      },
-      part => {
-        destroyIndex++;
-        destroyPart = part;
       }
-    ]);
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div>${ fn( 123 ) }</div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div></div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 1 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.not.undefined;
-    expect( commitPart ).is.equals( destroyPart );
 
     // ------
 
@@ -1758,39 +1740,29 @@ describe( 'Hu.static', () => {
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在数组中使用 )', () => {
     let commitIndex = 0;
     let destroyIndex = 0;
-    let commitPart, destroyPart;
-    const fn = Hu.directiveFn( value => [
-      part => {
+    const fn = Hu.directiveFn( class{
+      commit( value ){
         commitIndex++;
-        commitPart = part;
-      },
-      part => {
-        destroyIndex++;
-        destroyPart = part;
       }
-    ]);
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div>${[ fn( 123 ) ]}</div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div></div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 1 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.not.undefined;
-    expect( commitPart ).is.equals( destroyPart );
 
     // ------
 
@@ -1816,22 +1788,17 @@ describe( 'Hu.static', () => {
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 在 repeat 指令方法中使用 )', () => {
     let commitIndex = 0;
     let destroyIndex = 0;
-    let commitPart, destroyPart;
-    const fn = Hu.directiveFn( value => [
-      part => {
+    const fn = Hu.directiveFn( class{
+      commit( value ){
         commitIndex++;
-        commitPart = part;
-      },
-      part => {
-        destroyIndex++;
-        destroyPart = part;
       }
-    ]);
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div>${
@@ -1842,17 +1809,12 @@ describe( 'Hu.static', () => {
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div></div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 1 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.not.undefined;
-    expect( commitPart ).is.equals( destroyPart );
 
     // ------
 
@@ -1882,189 +1844,145 @@ describe( 'Hu.static', () => {
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 插值内切换: 指令方法切换为非指令方法 )', () => {
     let commitIndex = 0;
     let destroyIndex = 0;
-    let commitPart, destroyPart;
-    const fn = Hu.directiveFn( value => [
-      part => {
+    const fn = Hu.directiveFn( class{
+      commit( value ){
         commitIndex++;
-        commitPart = part;
-      },
-      part => {
-        destroyIndex++;
-        destroyPart = part;
       }
-    ]);
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div>${ fn( 123 ) }</div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div>${ 123 }</div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 1 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.not.undefined;
-    expect( commitPart ).is.equals( destroyPart );
   });
 
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 插值内切换: 非指令方法切换为指令方法 )', () => {
     let commitIndex = 0;
     let destroyIndex = 0;
-    let commitPart, destroyPart;
-    const fn = Hu.directiveFn( value => [
-      part => {
+    const fn = Hu.directiveFn( class{
+      commit( value ){
         commitIndex++;
-        commitPart = part;
-      },
-      part => {
-        destroyIndex++;
-        destroyPart = part;
       }
-    ]);
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div>${ 123 }</div>
     `;
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.undefined;
-    expect( destroyPart ).is.undefined;
 
     Hu.render( div )`
       <div>${ fn( 123 ) }</div>
     `;
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( commitPart ).is.not.undefined;
-    expect( destroyPart ).is.undefined;
   });
 
   it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 插值内切换: 切换为其他指令方法 )', () => {
     let commitIndex1 = 0;
     let destroyIndex1 = 0;
-    let commitPart1, destroyPart1;
-    const fn1 = Hu.directiveFn( value => [
-      part => {
+    const fn1 = Hu.directiveFn( class{
+      commit( value ){
         commitIndex1++;
-        commitPart1 = part;
-      },
-      part => {
-        destroyIndex1++;
-        destroyPart1 = part;
       }
-    ]);
+      destroy(){
+        destroyIndex1++;
+      }
+    });
 
     let commitIndex2 = 0;
     let destroyIndex2 = 0;
-    let commitPart2, destroyPart2;
-    const fn2 = Hu.directiveFn( value => [
-      part => {
+    const fn2 = Hu.directiveFn( class{
+      commit( value ){
         commitIndex2++;
-        commitPart2 = part;
-      },
-      part => {
-        destroyIndex2++;
-        destroyPart2 = part;
       }
-    ]);
+      destroy(){
+        destroyIndex2++;
+      }
+    });
 
     expect( commitIndex1 ).is.equals( 0 );
     expect( destroyIndex1 ).is.equals( 0 );
-    expect( commitPart1 ).is.undefined;
-    expect( destroyPart1 ).is.undefined;
     expect( commitIndex2 ).is.equals( 0 );
     expect( destroyIndex2 ).is.equals( 0 );
-    expect( commitPart2 ).is.undefined;
-    expect( destroyPart2 ).is.undefined;
 
     Hu.render( div )`
       <div>${ fn1( 123 ) }</div>
     `;
     expect( commitIndex1 ).is.equals( 1 );
     expect( destroyIndex1 ).is.equals( 0 );
-    expect( commitPart1 ).is.not.undefined;
-    expect( destroyPart1 ).is.undefined;
     expect( commitIndex2 ).is.equals( 0 );
     expect( destroyIndex2 ).is.equals( 0 );
-    expect( commitPart2 ).is.undefined;
-    expect( destroyPart2 ).is.undefined;
 
     Hu.render( div )`
       <div>${ fn2( 123 ) }</div>
     `;
     expect( commitIndex1 ).is.equals( 1 );
     expect( destroyIndex1 ).is.equals( 1 );
-    expect( commitPart1 ).is.not.undefined;
-    expect( destroyPart1 ).is.not.undefined;
     expect( commitIndex2 ).is.equals( 1 );
     expect( destroyIndex2 ).is.equals( 0 );
-    expect( commitPart2 ).is.not.undefined;
-    expect( destroyPart2 ).is.undefined;
 
     Hu.render( div )`
       <div>${ 123 }</div>
     `;
     expect( commitIndex1 ).is.equals( 1 );
     expect( destroyIndex1 ).is.equals( 1 );
-    expect( commitPart1 ).is.not.undefined;
-    expect( destroyPart1 ).is.not.undefined;
     expect( commitIndex2 ).is.equals( 1 );
     expect( destroyIndex2 ).is.equals( 1 );
-    expect( commitPart2 ).is.not.undefined;
-    expect( destroyPart2 ).is.not.undefined;
-    expect( commitPart1 ).is.equals( destroyPart1 ).is.equals( commitPart2 ).is.equals( destroyPart2 );
   });
 
-  // it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 插值内切换: 切换为同样的指令方法 )', () => {
-  //   let commitIndex = 0;
-  //   let destroyIndex = 0;
-  //   let commitPart, destroyPart;
-  //   const fn = Hu.directiveFn( value => [
-  //     part => {
-  //       commitIndex++;
-  //       commitPart = part;
-  //     },
-  //     part => {
-  //       destroyIndex++;
-  //       destroyPart = part;
-  //     }
-  //   ]);
+  it( 'Hu.directiveFn: 注册的指令方法在被弃用时会触发对应 destroy 方法 ( 插值内切换: 切换为同样的指令方法 )', () => {
+    let constructorIndex = 0;
+    let commitIndex = 0;
+    let destroyIndex = 0;
+    const fn = Hu.directiveFn( class{
+      constructor(){
+        constructorIndex++
+      }
+      commit( value ){
+        commitIndex++;
+      }
+      destroy(){
+        destroyIndex++;
+      }
+    });
 
-  //   expect( commitIndex ).is.equals( 0 );
-  //   expect( destroyIndex ).is.equals( 0 );
-  //   expect( commitPart ).is.undefined;
-  //   expect( destroyPart ).is.undefined;
+    expect( constructorIndex ).is.equals( 0 );
+    expect( commitIndex ).is.equals( 0 );
+    expect( destroyIndex ).is.equals( 0 );
 
-  //   Hu.render( div )`
-  //     <div>${ fn( 123 ) }</div>
-  //   `;
-  //   expect( commitIndex ).is.equals( 1 );
-  //   expect( destroyIndex ).is.equals( 0 );
-  //   expect( commitPart ).is.not.undefined;
-  //   expect( destroyPart ).is.undefined;
+    Hu.render( div )`
+      <div>${ fn( 123 ) }</div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 1 );
+    expect( destroyIndex ).is.equals( 0 );
 
-  //   Hu.render( div )`
-  //     <div>${ fn( 123 ) }</div>
-  //   `;
-  //   expect( commitIndex ).is.equals( 2 );
-  //   expect( destroyIndex ).is.equals( 0 );
-  //   expect( commitPart ).is.not.undefined;
-  //   expect( destroyPart ).is.undefined;
-  // });
+    Hu.render( div )`
+      <div>${ fn( 456 ) }</div>
+    `;
+    expect( constructorIndex ).is.equals( 1 );
+    expect( commitIndex ).is.equals( 2 );
+    expect( destroyIndex ).is.equals( 0 );
+  });
 
 });
