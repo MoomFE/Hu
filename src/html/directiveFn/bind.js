@@ -9,7 +9,8 @@ import $watch from '../../core/prototype/$watch';
 const bindMap = new WeakMap();
 
 
-export default directiveFn(( proxy, name ) => {
+export default () => {};
+directiveFn(( proxy, name ) => {
 
   /**
    * 传入对象是否是观察者对象

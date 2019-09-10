@@ -20,7 +20,8 @@ import destroyPart from '../util/destroyPart';
 const partListCache = new WeakMap();
 const keyListCache = new WeakMap();
 
-export default directiveFn(( items, key, template ) => {
+export default () => {};
+directiveFn(( items, key, template ) => {
   const keyFn = isFunction( key ) ? key : item => item[ key ];
 
   return [

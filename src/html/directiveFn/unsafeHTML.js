@@ -19,7 +19,8 @@ import commitPart from "../util/commitPart";
 const optionsMap = new WeakMap();
 
 
-export default directiveFn( value => part => {
+export default () => {};
+directiveFn( value => part => {
   if( !( part instanceof NodePart ) ){
     throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
   }
