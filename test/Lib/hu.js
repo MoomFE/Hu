@@ -2624,34 +2624,49 @@
    */
   ( part, value ) => {
     /**
-     * 尝试在指令方法合集中获取指令方法的信息
-     * 如果可以获取到信息
+     * 尝试从指令方法合集中获取传入值的信息
+     * 如果获取到了
      * 那么提交的值就是指令方法
      */
-    const directiveFnOptions = directiveFns.get( value );
+    let options = directiveFns.get( value );
     /**
-     * 尝试在已激活的指令方法合集中获取指令方法的信息
+     * 尝试从已激活的指令方法合集中获取当前指令的相关信息
      * 如果可以获取到信息
-     * 那么说明上次提交值时也是指令方法
+     * 那么说明上次提交值时使用的也是指令方法
      */
-    const oldDirectiveFnOptions = activeDirectiveFns.get( part );
+    let activeOptions = activeDirectiveFns.get( part );
 
-    // 如果上次提交的也是指令方法
-    if( oldDirectiveFnOptions ){
-      // 将之前的指令方法销毁
-      oldDirectiveFnOptions[ 1 ]( part );
-      // 删除缓存信息
-      activeDirectiveFns.delete( part );
+    // 如果上次提交的是指令方法, 那么需要进一步处理
+    if( activeOptions ){
+      // 1. 如果这次提交的值不是指令方法, 那么需要将上次的指令方法销毁
+      // 2. 如果这次提交的值是指令方法, 但不是同一个指令方法, 那么需要将上次的指令方法销毁
+      if( !options || options && options !== activeOptions.opts ){
+        // 那么将上一次提交的指令方法进行销毁
+        activeOptions.ins.destroy && activeOptions.ins.destroy();
+        // 删除缓存信息
+        activeDirectiveFns.delete( part );
+        activeOptions = void 0;
+      }
+      // 如果上次的指令方法和这次的指令方法相同, 那么将本次指令方法的参数进行转移
+      // 继续使用上次的指令方法实例
+      if( options && activeOptions ){
+        activeOptions.args = options.args;
+      }
     }
 
-    // 如果值是指令方法, 那么需要存储相关信息
+    // 如果上次提交的值缓存信息
+    // 说明上次的不是指令方法或不是同一个指令方法
+    // 那么需要存储相关信息
     // 相关指令注销时, 同时也要注销指令方法
-    if( directiveFnOptions ){
-      activeDirectiveFns.set( part, directiveFnOptions );
+    if( options && !activeOptions ){
+      activeDirectiveFns.set( part, {
+        opts: options,
+        args: options.args
+      });
     }
 
     // 提交更改
-    part.commit( value, !!directiveFnOptions );
+    part.commit( value, !!options );
   };
 
   var destroyPart = /**
@@ -3196,43 +3211,36 @@
   /**
    * 注册指令方法
    */
-  var directiveFn = ( directiveFn ) => {
-
+  function directiveFn( directive ){
     /** 当前指令方法的 ID */
     const id = uid$1();
 
     // 注册指令方法后
-    // 生成等待用户调用的方法
+    // 返回方法等待用户调用并传参
     return ( ...args ) => {
-      // 将用户传入的参数传递给注册的指令方法
-      // 生成等待模板解析的方法
-      let directive = directiveFn( ...args );
-      let directiveDestroy;
+      // 用户调用并传参后
+      // 返回方法等待渲染时被调用
+      function directiveFn( part ){
+        const options = activeDirectiveFns.get( part );
+        const instance = options.ins || (
+          options.ins = new directive( part )
+        );
 
-
-      // 指令方法返回的是数组
-      // 可能同时注册了指令方法的注销方法
-      if( isArray( directive ) ){
-        [ directive, directiveDestroy ] = directive;
-      }
-
-      // 如果没有指令方法的注销方法, 则将注销方法指向到空方法
-      if( !isFunction( directiveDestroy ) ){
-        directiveDestroy = noop;
+        instance.update( options.args );
       }
 
       // 将指令方法相关的信息存储起来
-      // 
-      directiveFns.set( directive, [
+      directiveFns.set( directiveFn, {
         id,
-        directiveDestroy
-      ]);
+        args,
+        dit: directive
+      });
 
       // 返回方法
       // 等待下一步调用
-      return directive;
+      return directiveFn;
     };
-  };
+  }
 
   /**
    * lit-html
@@ -3246,7 +3254,8 @@
   const partListCache = new WeakMap();
   const keyListCache = new WeakMap();
 
-  var repeat = directiveFn(( items, key, template ) => {
+  var repeat = () => {};
+  directiveFn(( items, key, template ) => {
     const keyFn = isFunction( key ) ? key : item => item[ key ];
 
     return [
@@ -3425,7 +3434,8 @@
   const optionsMap$1 = new WeakMap();
 
 
-  var unsafeHTML = directiveFn( value => part => {
+  var unsafeHTML = () => {};
+  directiveFn( value => part => {
     if( !( part instanceof NodePart ) ){
       throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
     }
@@ -3466,7 +3476,8 @@
   const bindMap = new WeakMap();
 
 
-  var bind = directiveFn(( proxy, name ) => {
+  var bind = () => {};
+  directiveFn(( proxy, name ) => {
 
     /**
      * 传入对象是否是观察者对象
