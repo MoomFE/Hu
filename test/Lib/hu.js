@@ -3225,7 +3225,7 @@
           options.ins = new directive( part )
         );
 
-        instance.commit( options.args );
+        instance.commit( ...options.args );
       }
 
       // 将指令方法相关的信息存储起来
