@@ -1,6 +1,7 @@
   - 💄 将实例的 $on, $off 方法覆盖自定义元素本身的 事件绑定/事件解除 方法 ( [#11](https://github.com/MoomFE/Hu/issues/11) )
   - 💄 自定义元素 Shadow DOM 的内容应该在自定义元素从文档流移除时进行清除 ( [#12](https://github.com/MoomFE/Hu/issues/12) )
   - ⚠️ 使用 `Hu.directive` 注册自定义指令, 不再向 constructor 传入 name 参数
+  - ⚠️ 完全重构 `Hu.directiveFn` 方法, 将使用类来创建指令方法, 以更好的管理指令方法的生命周期
   - 🐞 修复工具方法 `isIterable` 判定空字符串为不可迭代的问题 ( [#16](https://github.com/MoomFE/Hu/issues/16) )
   - 🐞 修复两次渲染时使用了同一个指令方法, 前一个指令方法不会被销毁的问题 ( [#19](https://github.com/MoomFE/Hu/issues/19) )
 
