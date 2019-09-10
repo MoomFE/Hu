@@ -26,24 +26,6 @@ export default directiveFn(( proxy, name ) => {
       if( !isObserve ){
         return part.commit( proxy[ name ] );
       }
-
-      /**
-       * 尝试在绑定信息合集中查找上次的绑定信息
-       * 如果可以获取到信息
-       * 说明上次已经初始过一个绑定了
-       */
-      const bindOptions = bindMap.get( part );
-
-      // 如果有上次绑定的信息, 那么需要做一些处理
-      if( bindOptions ){
-        // 如果这次的绑定信息和上次的一模一样
-        // 那么直接复用上次的就好了
-        if( bindOptions[0] === proxy && bindOptions[1] === proxy ) return;
-        // 如果上次绑定的对象或者变量名和这次不一样
-        // 那么取消上次的绑定
-        // 程序继续往下执行, 运行新的绑定
-        else bindOptions[2]();
-      }
   
       // 绑定
       const unWatch = $watch(
