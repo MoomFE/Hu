@@ -3225,7 +3225,7 @@
           options.ins = new directive( part )
         );
 
-        instance.update( options.args );
+        instance.commit( options.args );
       }
 
       // 将指令方法相关的信息存储起来
@@ -3428,7 +3428,7 @@
 
         this.part = part;
       }
-      update( value ){
+      commit( value ){
         // 这次设置的值和上次是一样的
         if( value === this.value ){
           return;

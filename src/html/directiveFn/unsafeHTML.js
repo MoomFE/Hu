@@ -12,7 +12,7 @@ export default directiveFn(
 
       this.part = part;
     }
-    update( value ){
+    commit( value ){
       // 这次设置的值和上次是一样的
       if( value === this.value ){
         return;
