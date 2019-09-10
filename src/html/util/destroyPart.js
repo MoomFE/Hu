@@ -8,23 +8,22 @@ export default
  */
 part => {
   /**
-   * 尝试在已激活的指令方法合集中获取指令方法的信息
+   * 尝试从已激活的指令方法合集中获取当前指令的相关信息
    * 如果可以获取到信息
-   * 说明该指令是使用了指令方法的
+   * 那么说明上次提交值时使用的是指令方法
    */
-  const directiveFnOptions = activeDirectiveFns.get( part );
+  const activeOptions = activeDirectiveFns.get( part );
 
-  // 需要将指令方法销毁
-  if( directiveFnOptions ){
-    // 将指令方法销毁
-    directiveFnOptions[ 1 ]( part );
+  // 是指令方法, 需要将指令方法销毁
+  if( activeOptions ){
+    const instance = activeOptions.ins;
+
+    // 那么将上一次提交的指令方法进行销毁
+    instance && instance.destroy && instance.destroy();
     // 删除缓存信息
     activeDirectiveFns.delete( part );
   }
 
-  // 指令有 destroy 方法
-  // 也进行调用
-  if( part.destroy ){
-    part.destroy();
-  }
+  // 将指令销毁
+  part.destroy && part.destroy();
 }
