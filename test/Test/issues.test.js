@@ -202,4 +202,69 @@ describe( 'Issues', () => {
     expect( Hu.util.isIterable( '' ) ).is.true;
   });
 
+  it( '#19', ( done ) => {
+    const div = document.createElement('div');
+    const {
+      render, html, observable,
+      nextTick,
+      directive, directiveFn
+    } = Hu;
+
+    const data = observable({
+      text: 1
+    });
+
+    const outputMap = new Map();
+    const hu = new Hu();
+    const output = directiveFn( prefix => [
+      part => {
+        outputMap.set(
+          part,
+          hu.$watch(
+            () => data.text,
+            {
+              immediate: true,
+              handler: ( value ) => part.commit( `${ prefix }: ${ value }` )
+            }
+          )
+        );
+      },
+      part => {
+        outputMap.get( part )();
+      }
+    ]);
+
+    render( div )`${
+      output('asd')
+    }`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`asd: 1`);
+
+    data.text++;
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`asd: 2`);
+
+      render( div )`${
+        output('fgh')
+      }`;
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`fgh: 2`);
+
+      data.text++;
+      nextTick(() => {
+        expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`fgh: 3`);
+
+        render( div )`${
+          null
+        }`;
+        expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+        data.text++;
+        nextTick(() => {
+          expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+          done();
+        });
+      });
+    });
+  });
+
 });

@@ -21,24 +21,12 @@ export default
    */
   const oldDirectiveFnOptions = activeDirectiveFns.get( part );
 
-  // 如果上次提交的也是指令方法, 那么需要做一些处理
+  // 如果上次提交的也是指令方法
   if( oldDirectiveFnOptions ){
-    // 如果这次提交的值同样是指令方法, 那么需要判断是否是同一种指令方法
-    // 如果不是同一种指令方法, 需要将之前的指令方法销毁
-    if( directiveFnOptions ){
-      // 两个指令方法的 ID 不同, 说明不是同一个指令方法
-      if( directiveFnOptions[0] !== oldDirectiveFnOptions[0] ){
-        // 将之前的指令方法销毁
-        oldDirectiveFnOptions[ 1 ]( part );
-      }
-    }
-    // 如果这次提交的值不是指令方法, 那么需要将上次的指令方法销毁
-    else{
-      // 将之前的指令方法销毁
-      oldDirectiveFnOptions[ 1 ]( part );
-      // 删除缓存信息
-      activeDirectiveFns.delete( part );
-    }
+    // 将之前的指令方法销毁
+    oldDirectiveFnOptions[ 1 ]( part );
+    // 删除缓存信息
+    activeDirectiveFns.delete( part );
   }
 
   // 如果值是指令方法, 那么需要存储相关信息
