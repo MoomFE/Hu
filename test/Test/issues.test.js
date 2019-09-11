@@ -191,8 +191,57 @@ describe( 'Issues', () => {
     const custom = document.createElement( customName );
     const hu = custom.$hu;
 
-    expect( custom.addEventListener ).is.equals( hu.$on );
-    expect( custom.removeEventListener ).is.equals( hu.$off );
+    let index = 0;
+    let result, result1;
+
+    function fn(){
+      index++;
+      result = [ ...arguments ];
+    }
+
+    function fn1(){
+      index++;
+      result1 = [ ...arguments ];
+    }
+
+    custom.$on( [ 'test', 'test1' ], fn );
+    custom.$on( [ 'test', 'test1' ], fn1 );
+
+    // 解绑某个事件的某个回调
+    hu.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 1, 2, 3 ]);
+
+    custom.$off( 'test', fn );
+    hu.$emit( 'test', 4, 5, 6 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    // 解绑某个事件的全部回调
+    hu.$emit( 'test1', 7, 8, 9 );
+    expect( index ).is.equals( 5 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+    custom.$off( 'test1' );
+    hu.$emit( 'test1', 1, 2, 3 );
+    expect( index ).is.equals( 5 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+    // 解绑所有事件
+    hu.$emit( 'test', 4, 5, 6 );
+    expect( index ).is.equals( 6 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+    custom.$off();
+    hu.$emit( 'test', 1, 2, 3 );
+    expect( index ).is.equals( 6 );
+    expect( result ).is.deep.equals([ 7, 8, 9 ]);
+    expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
   });
 
   it( '#16', () => {
