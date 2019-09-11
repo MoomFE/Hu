@@ -9,7 +9,7 @@ import initParent from "./initParent";
 import { observeMap } from "../../observable/observe";
 import callLifecycle from "../util/callLifecycle";
 import { activeCustomElement, activeHu } from "../const";
-import moveInstancePrototypeToCE from "../util/moveInstancePrototypeToCE";
+import moveHuPrototypeToCE from "../util/moveHuPrototypeToCE";
 
 
 /**
@@ -37,7 +37,7 @@ export default function init( isCustomElement, root, name, options, userOptions 
     // 标识 $el 选项与实例的引用
     activeHu.set( target.$el, targetProxy );
     // 将实例方法添加到自定义元素上
-    moveInstancePrototypeToCE( root, target, targetProxy );
+    moveHuPrototypeToCE( root, target, targetProxy );
   }
 
   initParent( isCustomElement, target, targetProxy );
