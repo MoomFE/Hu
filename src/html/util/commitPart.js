@@ -27,7 +27,7 @@ export default
     // 2. 如果这次提交的值是指令方法, 但不是同一个指令方法, 那么需要将上次的指令方法销毁
     if( !options || options && options.id !== activeOptions.opts.id ){
       // 那么将上一次提交的指令方法进行销毁
-      activeOptions.ins.destroy && activeOptions.ins.destroy();
+      activeOptions.ins && activeOptions.ins.destroy && activeOptions.ins.destroy();
       // 删除缓存信息
       activeDirectiveFns.delete( part );
       activeOptions = void 0;
