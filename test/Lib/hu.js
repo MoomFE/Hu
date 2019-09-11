@@ -4361,18 +4361,6 @@
   // 指令注销方法
   directive.destroy = destroyPart;
 
-  const otherHu = inBrowser ? window.Hu
-                            : void 0;
-
-  Hu.noConflict = () => {
-    if( inBrowser && window.Hu === Hu ) window.Hu = otherHu;
-    return Hu;
-  };
-
-  if( inBrowser ){
-    window.Hu = Hu;
-  }
-
   assign( Hu, {
     define,
     render: staticRender,

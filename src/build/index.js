@@ -10,7 +10,6 @@ import util from '../static/util/index';
 import html from '../html/html';
 import directive from '../static/directive/index';
 import directiveFn from '../static/directiveFn/index';
-import '../static/noConflict/index';
 
 
 assign( Hu, {
