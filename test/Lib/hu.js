@@ -3249,36 +3249,36 @@
    * modified by Wei Zhang (@Zhang-Wei-666)
    */
 
-  const partListCache = new WeakMap();
-  const keyListCache = new WeakMap();
 
-  var repeat = () => {};
-  directiveFn(( items, key, template ) => {
-    const keyFn = isFunction( key ) ? key : item => item[ key ];
+  var repeat = directiveFn(
 
-    return [
-      /**
-       * commit
-       */
-      containerPart => {
-        if( !( containerPart instanceof NodePart ) ){
+    class repeat{
+      constructor( part ){
+        if( !( part instanceof NodePart ) ){
           throw new Error('Hu.html.repeat 指令方法只能在文本区域中使用 !');
         }
-    
-        const oldParts = partListCache.get( containerPart ) || [];
-        const oldKeys = keyListCache.get( containerPart ) || [];
-    
+
+        this.part = part;
+      }
+      commit( items, key, template ){
+        const containerPart = this.part;
+        const oldParts = this.parts || [];
+        const oldKeys = this.keys || [];
+
         const newKeys = [];
         const newValues = [];
         const newParts = [];
-    
+
+        const keyFn = isFunction( key ) ? key
+                                        : item => item[ key ];
+
         for( let index = 0, item; index < items.length; index++ ){
           item = items[ index ];
     
           newKeys[ index ] = keyFn( item, index, items );
           newValues[ index ] = template( item, index, items );
         }
-    
+
         let newKeyToIndexMap;
         let oldKeyToIndexMap;
     
@@ -3286,8 +3286,7 @@
         let oldTail = oldParts.length - 1;
         let newHead = 0;
         let newTail = newValues.length - 1;
-    
-    
+
         while( oldHead <= oldTail && newHead <= newTail ){
           if( oldParts[ oldHead ] === null ){
             oldHead++;
@@ -3362,22 +3361,18 @@
             removePart( oldPart );
           }
         }
-    
-        partListCache.set( containerPart, newParts );
-        keyListCache.set( containerPart, newKeys );
-      },
-      /**
-       * destroy
-       */
-      containerPart => {
-        const parts = partListCache.get( containerPart );
 
-        if( parts ) parts.forEach( part => {
+        this.parts = newParts;
+        this.keys = newKeys;
+      }
+      destroy(){
+        this.parts && this.parts.forEach( part => {
           return destroyPart( part );
         });
       }
-    ];
-  });
+    }
+
+  );
 
 
   function updatePart( part, value ){
