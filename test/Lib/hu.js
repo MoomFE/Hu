@@ -4124,6 +4124,29 @@
     });
   };
 
+  var moveInstancePrototypeToCE = ( root, target ) => {
+    const keys = {
+      // $on: $on,
+      // $off: $off,
+      // addEventListener: $on,
+      // removeEventListener: $off,
+    };
+
+    ownKeys( Hu.prototype ).filter( isReserved ).forEach( name => {
+      keys[ name ] = name;
+    });
+
+    // 自定义元素实例上的事件处理相关方法
+    keys.addEventListener = '$on';
+    keys.removeEventListener = '$off';
+
+    each( keys, ( to, from ) => {
+      defineProperty( root, to, {
+        value: target[ from ].bind( target )
+      });
+    });
+  };
+
   /**
    * 初始化当前组件属性
    * @param {boolean} isCustomElement 是否是初始化自定义元素
@@ -4148,6 +4171,8 @@
       activeCustomElement.set( root, targetProxy );
       // 标识 $el 选项与实例的引用
       activeHu.set( target.$el, targetProxy );
+      // 将实例方法添加到自定义元素上
+      moveInstancePrototypeToCE( root, target );
     }
 
     initParent( isCustomElement, target, targetProxy );
@@ -4174,7 +4199,7 @@
     return targetProxy;
   }
 
-  const Hu = new Proxy( HuConstructor, {
+  const Hu$1 = new Proxy( HuConstructor, {
     construct( HuConstructor, [ _userOptions ] ){
       const name = 'anonymous-' + uid$1();
       const [ userOptions, options ] = initOptions( false, name, _userOptions );
@@ -4184,7 +4209,7 @@
     }
   });
 
-  Hu.version = '1.0.0-bata.15';
+  Hu$1.version = '1.0.0-bata.15';
 
   var initAttributeChangedCallback = propsMap => function( name, oldValue, value ){
     if( value === oldValue ) return;
@@ -4281,13 +4306,7 @@
       // 自定义元素位置被移动
       adoptedCallback: initAdoptedCallback( options ),
       // 自定义元素属性被更改
-      attributeChangedCallback: initAttributeChangedCallback( options.propsMap ),
-      // 自定义元素实例上的事件处理相关方法
-      $on,
-      $once,
-      $off,
-      addEventListener: $on,
-      removeEventListener: $off
+      attributeChangedCallback: initAttributeChangedCallback( options.propsMap )
     });
 
     // 注册组件
@@ -4361,7 +4380,7 @@
   // 指令注销方法
   directive.destroy = destroyPart;
 
-  assign( Hu, {
+  assign( Hu$1, {
     define,
     render: staticRender,
     html,
@@ -4372,6 +4391,6 @@
     directiveFn
   });
 
-  return Hu;
+  return Hu$1;
 
 }));
