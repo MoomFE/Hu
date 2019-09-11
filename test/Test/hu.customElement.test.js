@@ -1,25 +1,24 @@
 describe( 'hu.customElement', () => {
 
+  let customName;
+  let custom;
+  let hu;
+  beforeEach(() => {
+    Hu.define( customName = window.customName );
+    custom = document.createElement( customName ).$appendTo( document.body );
+    hu = custom.$hu;
+  });
+  afterEach(() => {
+    custom.$remove();
+  });
+
+
   it( '自定义元素上的 $hu 属性为当前自定义元素的 Hu 实例', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const custom = document.createElement( customName );
-    const hu = custom.$hu;
-
     expect( hu ).is.instanceOf( Hu );
     expect( hu.$customElement ).is.equals( custom );
   });
 
   it( '自定义元素上的 $on 方法为当前自定义元素的 Hu 实例上 $on 方法的映射', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const custom = document.createElement( customName );
-    const hu = custom.$hu;
-
     let index = 0;
     let result, result1;
 
@@ -52,13 +51,6 @@ describe( 'hu.customElement', () => {
   });
 
   it( '自定义元素上的 $once 方法为当前自定义元素的 Hu 实例上 $once 方法的映射', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const custom = document.createElement( customName );
-    const hu = custom.$hu;
-
     let index = 0;
     let result, result1;
 
@@ -96,13 +88,6 @@ describe( 'hu.customElement', () => {
   });
 
   it( '自定义元素上的 $off 方法为当前自定义元素的 Hu 实例上 $off 方法的映射', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const custom = document.createElement( customName );
-    const hu = custom.$hu;
-
     let index = 0;
     let result, result1;
 
@@ -156,14 +141,29 @@ describe( 'hu.customElement', () => {
     expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
   });
 
+  it( '自定义元素上的 $emit 方法为当前自定义元素的 Hu 实例上 $emit 方法的映射', () => {
+    let index = 0;
+    let result;
+
+    hu.$on( 'test', function(){
+      index++;
+      result = [ ...arguments ];
+    });
+
+    custom.$emit( 'test' );
+    expect( index ).is.equals( 1 );
+    expect( result ).is.deep.equals([ ]);
+
+    custom.$emit( 'test', 1 );
+    expect( index ).is.equals( 2 );
+    expect( result ).is.deep.equals([ 1 ]);
+
+    custom.$emit( 'test', 1, 2 );
+    expect( index ).is.equals( 3 );
+    expect( result ).is.deep.equals([ 1, 2 ]);
+  });
+
   it( '自定义元素上的 addEventListener 方法为当前自定义元素的 Hu 实例上 $on 方法的映射', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const custom = document.createElement( customName );
-    const hu = custom.$hu;
-
     let index = 0;
     let result, result1;
 
@@ -196,13 +196,6 @@ describe( 'hu.customElement', () => {
   });
 
   it( '自定义元素上的 removeEventListener 方法为当前自定义元素的 Hu 实例上 $off 方法的映射', () => {
-    const customName = window.customName;
-
-    Hu.define( customName );
-
-    const custom = document.createElement( customName );
-    const hu = custom.$hu;
-
     let index = 0;
     let result, result1;
 
@@ -255,5 +248,47 @@ describe( 'hu.customElement', () => {
     expect( result ).is.deep.equals([ 7, 8, 9 ]);
     expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
   });
+
+  it( '自定义元素上的 $watch 方法为当前自定义元素的 Hu 实例上 $watch 方法的映射', () => {
+    let result;
+    hu.$watch( 'a', ( value, oldValue ) => {
+      result = [ value, oldValue ];
+    });
+
+    expect( result ).is.undefined;
+
+    hu.a = 2;
+    expect( result ).is.undefined;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 2, 1 ]);
+
+      hu.a = 3;
+      expect( result ).is.deep.equals([ 2, 1 ]);
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 3, 2 ]);
+
+        done();
+      });
+    });
+  });
+
+  it( '自定义元素上的 $nextTick 方法为当前自定义元素的 Hu 实例上 $nextTick 方法的映射', () => {
+    
+  });
+
+  // 剩下的还没写
+  "$nextTick",
+  "$destroy",
+  "$root",
+  "$parent",
+  "$children",
+  "$options",
+  "$info",
+  "$props",
+  "$methods",
+  "$globalMethods",
+  "$data",
+  "$computed",
+  "$hu"
 
 });
