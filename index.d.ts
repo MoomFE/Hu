@@ -301,11 +301,6 @@ interface Hu{
   define( name: string, options: ComponentOptions ): void;
 
   /**
-   * 释放 window.Hu 的控制权, 还原到定义 Hu 之前
-   */
-  noConflict(): Hu;
-
-  /**
    * 方法会返回一个可响应的对象代理, Hu 内部会用它来处理 data 函数返回的对象
    * - 返回的可响应的对象代理可以直接用于渲染函数和计算属性内, 并且会在发生改变时触发相应的更新
    * - 而对源对象直接进行修改将是不可响应的
