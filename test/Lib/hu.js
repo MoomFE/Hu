@@ -4124,7 +4124,7 @@
     });
   };
 
-  var moveInstancePrototypeToCE = ( root, target ) => {
+  var moveInstancePrototypeToCE = ( root, target, targetProxy ) => {
     const keys = {
       // $on: $on,
       // $off: $off,
@@ -4142,7 +4142,7 @@
 
     each( keys, ( to, from ) => {
       defineProperty( root, to, {
-        value: target[ from ].bind( target )
+        value: target[ from ].bind( targetProxy )
       });
     });
   };
@@ -4172,7 +4172,7 @@
       // 标识 $el 选项与实例的引用
       activeHu.set( target.$el, targetProxy );
       // 将实例方法添加到自定义元素上
-      moveInstancePrototypeToCE( root, target );
+      moveInstancePrototypeToCE( root, target, targetProxy );
     }
 
     initParent( isCustomElement, target, targetProxy );

@@ -3,7 +3,7 @@ import isReserved from "../../../shared/util/isReserved";
 import each from "../../../shared/util/each";
 
 
-export default ( root, target ) => {
+export default ( root, target, targetProxy ) => {
   const keys = {
     // $on: $on,
     // $off: $off,
@@ -21,7 +21,7 @@ export default ( root, target ) => {
 
   each( keys, ( to, from ) => {
     defineProperty( root, to, {
-      value: target[ from ].bind( target )
+      value: target[ from ].bind( targetProxy )
     });
   });
 };

@@ -37,7 +37,7 @@ export default function init( isCustomElement, root, name, options, userOptions 
     // 标识 $el 选项与实例的引用
     activeHu.set( target.$el, targetProxy );
     // 将实例方法添加到自定义元素上
-    moveInstancePrototypeToCE( root, target );
+    moveInstancePrototypeToCE( root, target, targetProxy );
   }
 
   initParent( isCustomElement, target, targetProxy );
