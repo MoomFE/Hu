@@ -216,23 +216,30 @@ describe( 'Issues', () => {
 
     const outputMap = new Map();
     const hu = new Hu();
-    const output = directiveFn( prefix => [
-      part => {
+    const output = directiveFn( class{
+      constructor( part ){
+        this.part = part;
+      }
+      commit( prefix ){
+        if( outputMap.get( this.part ) && this.prefix !== prefix ){
+          this.destroy();
+        }
+
         outputMap.set(
-          part,
+          this.part,
           hu.$watch(
             () => data.text,
             {
               immediate: true,
-              handler: ( value ) => part.commit( `${ prefix }: ${ value }` )
+              handler: ( value ) => this.part.commit( `${ prefix }: ${ value }` )
             }
           )
         );
-      },
-      part => {
-        outputMap.get( part )();
       }
-    ]);
+      destroy(){
+        outputMap.get( this.part )();
+      }
+    });
 
     render( div )`${
       output('asd')
