@@ -3636,25 +3636,13 @@
   const eventMap = new WeakMap();
   const onceMap = new WeakMap();
 
-  function processing( handler ){
-    return function(){
-      let hu;
-
-      if( ( hu = this ) instanceof HuConstructor || ( hu = activeCustomElement.get( hu ) ) instanceof HuConstructor ){
-        apply( handler, hu, arguments );
-      }
-
-      return this;
-    };
-  }
-
   function initEvents( targetProxy ){
     const events = create( null );
     eventMap.set( targetProxy, events );
   }
 
 
-  var $on = processing(function( type, fn ){
+  function $on( type, fn ){
     if( isArray( type ) ){
       for( let event of type ) this.$on( event, fn );
     }else{
@@ -3665,18 +3653,17 @@
 
       fns.push( fn );
     }
-  });
-
-  const $once = processing(function( type, fn ){
+  }
+  const $once = function( type, fn ){
     function once(){
       this.$off( type, once );
       apply( fn, this, arguments );
     }
     onceMap.set( once, fn );
     this.$on( type, once );
-  });
+  };
 
-  const $off = processing(function( type, fn ){
+  const $off = function( type, fn ){
     // 解绑所有事件
     if( !arguments.length ){
       return initEvents( this ), this;
@@ -3712,9 +3699,9 @@
     }
 
     return this;
-  });
+  };
 
-  const $emit = processing(function( type ){
+  const $emit = function( type ){
     const events = eventMap.get( this );
     const fns = events[ type ];
 
@@ -3728,7 +3715,7 @@
     }
 
     return this;
-  });
+  };
 
   var injectionToHu = /**
    * 在 $hu 上建立对象的映射
