@@ -234,26 +234,6 @@ describe( 'Hu.static', () => {
     });
   });
 
-  it( 'Hu.noConflict: 方法用于释放 window.Hu 的控制权, 还原到导入框架前的状态', () => {
-    const Hu = window.Hu;
-
-    Hu.noConflict();
-    expect( window.Hu ).is.undefined;
-
-    window.Hu = Hu;
-  });
-
-  it( 'Hu.noConflict: 方法的返回值始终是 Hu 对象本身', () => {
-    const Hu = window.Hu;
-    const result = Hu.noConflict();
-    const result2 = Hu.noConflict();
-
-    expect( result ).is.equals( Hu );
-    expect( result2 ).is.equals( Hu );
-
-    window.Hu = Hu;
-  });
-
   it( 'Hu.version: 字符串形式的 Hu 安装版本号', () => {
     expect( Hu.version ).is.a('string');
   });
