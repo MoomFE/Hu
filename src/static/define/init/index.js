@@ -40,16 +40,16 @@ export default function init( isCustomElement, root, name, options, userOptions 
     moveHuPrototypeToCE( root, target, targetProxy );
   }
 
-  initParent( isCustomElement, target, targetProxy );
-  initOptions( isCustomElement, name, target, userOptions );
-  initProps( isCustomElement, root, options, target, targetProxy );
-  initMethods( isCustomElement, root, options, target, targetProxy );
-  initData( options, target, targetProxy );
+  initParent( isCustomElement, target, root, targetProxy );
+  initOptions( isCustomElement, target, root, name, userOptions );
+  initProps( isCustomElement, target, root, options, targetProxy );
+  initMethods( isCustomElement, target, root, options, targetProxy );
+  initData( isCustomElement, target, root, options, targetProxy );
 
   // 运行 beforeCreate 生命周期方法
   callLifecycle( targetProxy, 'beforeCreate', options );
 
-  initComputed( options, target, targetProxy );
+  initComputed( isCustomElement, target, root, options, targetProxy );
   initWatch( options, target, targetProxy );
 
   // 运行 created 生命周期方法

@@ -1,9 +1,9 @@
-import { assign } from "../../../shared/global/Object/index";
 import { renderStack } from "../../../render/const/index";
 import { activeHu } from "../const";
+import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 
 
-export default ( isCustomElement, target, targetProxy ) => {
+export default ( isCustomElement, target, root, targetProxy ) => {
   let $root = targetProxy;
   let $parent;
 
@@ -23,7 +23,7 @@ export default ( isCustomElement, target, targetProxy ) => {
     }
   }
 
-  assign( target, {
+  injectionPrivateToInstance( isCustomElement, target, root, {
     $root,
     $parent,
     $children: []

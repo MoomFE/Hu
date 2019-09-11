@@ -4,6 +4,7 @@ import injectionToHu from "../util/injectionToHu";
 import { observe } from "../../observable/observe";
 import isFunction from "../../../shared/util/isFunction";
 import { has } from "../../../shared/global/Reflect/index";
+import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 
 
 /**
@@ -12,7 +13,7 @@ import { has } from "../../../shared/global/Reflect/index";
  * @param {{}} target
  * @param {{}} targetProxy
  */
-export default function initData( options, target, targetProxy ){
+export default function initData( isCustomElement, target, root, options, targetProxy ){
 
   const dataList = options.dataList;
   let dataTarget;
@@ -30,7 +31,7 @@ export default function initData( options, target, targetProxy ){
     dataTarget = create( null );
   }
 
-  const dataTargetProxy = target.$data = observe( dataTarget );
+  const dataTargetProxy = observe( dataTarget );
 
   each( dataTarget, name => {
     injectionToHu(
@@ -38,6 +39,10 @@ export default function initData( options, target, targetProxy ){
       () => dataTargetProxy[ name ],
       value => dataTargetProxy[ name ] = value
     );
+  });
+
+  injectionPrivateToInstance( isCustomElement, target, root, {
+    $data: dataTargetProxy
   });
 
 }

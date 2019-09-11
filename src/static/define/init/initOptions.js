@@ -1,13 +1,10 @@
 import { observe } from "../../observable/observe";
 import observeReadonly from "../../../shared/const/observeReadonly";
 import fnUid from "../../../shared/util/uid";
+import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 
 
-export default function initOptions( isCustomElement, name, target, userOptions ){
-
-  // Hu 的初始化选项
-  target.$options = observe( userOptions, observeReadonly );
-
+export default function initOptions( isCustomElement, target, root, name, userOptions ){
 
   /**
    * 实例的 UID
@@ -16,8 +13,10 @@ export default function initOptions( isCustomElement, name, target, userOptions 
   const uid = isCustomElement ? name + '-' + fnUid()
                               : name;
 
+  // Hu 的初始化选项
+  const $options = observe( userOptions, observeReadonly );
   // Hu 实例信息选项
-  target.$info = observe(
+  const $info = observe(
     {
       uid,
       name,
@@ -28,4 +27,8 @@ export default function initOptions( isCustomElement, name, target, userOptions 
     observeReadonly
   );
 
+  injectionPrivateToInstance( isCustomElement, target, root, {
+    $options,
+    $info
+  });
 }

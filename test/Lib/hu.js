@@ -3766,6 +3766,26 @@
     }
   };
 
+  var injectionPrivateToInstance = /**
+   * 在实例和自定义元素上建立内部对象的引用
+   */
+  ( isCustomElement, target, root, data ) => {
+    each( data, ( key, value ) => {
+
+      // 实例上直接写入就好
+      // 常规操作有观察者对象进行拦截
+      target[ key ] = value;
+
+      // 自定义元素上需要通过 defineProperty 进行转发
+      if( isCustomElement ){
+        defineProperty( root, key, {
+          value
+        });
+      }
+
+    });
+  };
+
   /**
    * 存放每个实例的 computed 相关数据
    */
@@ -3776,16 +3796,18 @@
   let emptyComputed;
 
 
-  function initComputed$1( options, target, targetProxy ){
+  function initComputed$1( isCustomElement, target, root, options, targetProxy ){
 
     const computed = options.computed;
 
     // 如果定义当前实例时未定义 computed 属性
     // 则当前实例的 $computed 就是个普通的观察者对象
     if( isEmptyObject( computed ) ){
-      return target.$computed = emptyComputed || (
-        emptyComputed = observe({}, observeReadonly)
-      );
+      return injectionPrivateToInstance( isCustomElement, target, root, {
+        $computed: emptyComputed || (
+          emptyComputed = observe({}, observeReadonly)
+        )
+      });
     }
 
     const computedOptions = createComputed( targetProxy );
@@ -3793,8 +3815,6 @@
 
     // 存储当前实例 computed 相关数据
     computedMap.set( targetProxy, computedOptions );
-
-    target.$computed = computedTargetProxyInterceptor;
 
     // 将拦截器伪造成观察者对象
     observeProxyMap.set( computedTargetProxyInterceptor, {} );
@@ -3806,6 +3826,10 @@
         () => computedTargetProxyInterceptor[ name ],
         value => computedTargetProxyInterceptor[ name ] = value
       );
+    });
+
+    injectionPrivateToInstance( isCustomElement, target, root, {
+      $computed: computedTargetProxyInterceptor
     });
   }
 
@@ -3903,11 +3927,11 @@
    * @param {{}} target 
    * @param {{}} targetProxy 
    */
-  function initProps$1( isCustomElement, root, options, target, targetProxy ){
+  function initProps$1( isCustomElement, target, root, options, targetProxy ){
 
     const props = options.props;
     const propsTarget = create( null );
-    const propsTargetProxy = target.$props = observe( propsTarget );
+    const propsTargetProxy = observe( propsTarget );
 
     // 尝试从标签上获取 props 属性, 否则取默认值
     each( props, ( name, options ) => {
@@ -3940,6 +3964,10 @@
       }
     });
 
+    injectionPrivateToInstance( isCustomElement, target, root, {
+      $props: propsTargetProxy
+    });
+
   }
 
   /**
@@ -3950,12 +3978,12 @@
    */
   function initMethods$1(
     isCustomElement,
+    target,
     root,
     {
       methods,
       globalMethods
     },
-    target,
     targetProxy
   ){
     /**
@@ -3963,11 +3991,10 @@
      *  - 非响应式
      *  - 会在实例上添加方法的副本 ( 单独修改删除时, 另一个不受影响 )
      */
-    const methodsTarget = target.$methods = create( null );
+    const methodsTarget = create( null );
 
     // 添加方法到对象中和实例中
     injectionMethods( methodsTarget, methods, target, targetProxy );
-
 
     /**
      * $globalMethods 实例属性
@@ -3975,7 +4002,7 @@
      *  - 会在实例上和自定义元素上添加方法的映射
      */
     const globalMethodsTarget = create( null );
-    const globalMethodsTargetProxy = target.$globalMethods = observe( globalMethodsTarget );
+    const globalMethodsTargetProxy = observe( globalMethodsTarget );
 
     // 添加方法到对象中
     // 实例和自定义元素上的映射通过回调方法手动添加
@@ -3989,6 +4016,11 @@
       injectionToHu( target, name, 0, get, set );
       // 添加映射到自定义元素中
       isCustomElement && injectionToHu( root, name, 0, get, set );
+    });
+
+    injectionPrivateToInstance( isCustomElement, target, root, {
+      $methods: methodsTarget,
+      $globalMethods: globalMethodsTargetProxy
     });
   }
 
@@ -4010,7 +4042,7 @@
    * @param {{}} target
    * @param {{}} targetProxy
    */
-  function initData$1( options, target, targetProxy ){
+  function initData$1( isCustomElement, target, root, options, targetProxy ){
 
     const dataList = options.dataList;
     let dataTarget;
@@ -4028,7 +4060,7 @@
       dataTarget = create( null );
     }
 
-    const dataTargetProxy = target.$data = observe( dataTarget );
+    const dataTargetProxy = observe( dataTarget );
 
     each( dataTarget, name => {
       injectionToHu(
@@ -4036,6 +4068,10 @@
         () => dataTargetProxy[ name ],
         value => dataTargetProxy[ name ] = value
       );
+    });
+
+    injectionPrivateToInstance( isCustomElement, target, root, {
+      $data: dataTargetProxy
     });
 
   }
@@ -4057,11 +4093,7 @@
     });
   }
 
-  function initOptions$1( isCustomElement, name, target, userOptions ){
-
-    // Hu 的初始化选项
-    target.$options = observe( userOptions, observeReadonly );
-
+  function initOptions$1( isCustomElement, target, root, name, userOptions ){
 
     /**
      * 实例的 UID
@@ -4070,8 +4102,10 @@
     const uid = isCustomElement ? name + '-' + uid$1()
                                 : name;
 
+    // Hu 的初始化选项
+    const $options = observe( userOptions, observeReadonly );
     // Hu 实例信息选项
-    target.$info = observe(
+    const $info = observe(
       {
         uid,
         name,
@@ -4082,9 +4116,13 @@
       observeReadonly
     );
 
+    injectionPrivateToInstance( isCustomElement, target, root, {
+      $options,
+      $info
+    });
   }
 
-  var initParent = ( isCustomElement, target, targetProxy ) => {
+  var initParent = ( isCustomElement, target, root, targetProxy ) => {
     let $root = targetProxy;
     let $parent;
 
@@ -4104,7 +4142,7 @@
       }
     }
 
-    assign( target, {
+    injectionPrivateToInstance( isCustomElement, target, root, {
       $root,
       $parent,
       $children: []
@@ -4162,16 +4200,16 @@
       moveHuPrototypeToCE( root, target, targetProxy );
     }
 
-    initParent( isCustomElement, target, targetProxy );
-    initOptions$1( isCustomElement, name, target, userOptions );
-    initProps$1( isCustomElement, root, options, target, targetProxy );
-    initMethods$1( isCustomElement, root, options, target, targetProxy );
-    initData$1( options, target, targetProxy );
+    initParent( isCustomElement, target, root, targetProxy );
+    initOptions$1( isCustomElement, target, root, name, userOptions );
+    initProps$1( isCustomElement, target, root, options, targetProxy );
+    initMethods$1( isCustomElement, target, root, options, targetProxy );
+    initData$1( isCustomElement, target, root, options, targetProxy );
 
     // 运行 beforeCreate 生命周期方法
     callLifecycle( targetProxy, 'beforeCreate', options );
 
-    initComputed$1( options, target, targetProxy );
+    initComputed$1( isCustomElement, target, root, options, targetProxy );
     initWatch$1( options, target, targetProxy );
 
     // 运行 created 生命周期方法

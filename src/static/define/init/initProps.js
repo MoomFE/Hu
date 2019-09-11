@@ -5,6 +5,7 @@ import returnArg from "../../../shared/util/returnArg";
 import defineProperty from "../../../shared/util/defineProperty";
 import { observe } from "../../observable/observe";
 import isReserved from "../../../shared/util/isReserved";
+import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 
 
 /**
@@ -15,11 +16,11 @@ import isReserved from "../../../shared/util/isReserved";
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
-export default function initProps( isCustomElement, root, options, target, targetProxy ){
+export default function initProps( isCustomElement, target, root, options, targetProxy ){
 
   const props = options.props;
   const propsTarget = create( null );
-  const propsTargetProxy = target.$props = observe( propsTarget );
+  const propsTargetProxy = observe( propsTarget );
 
   // 尝试从标签上获取 props 属性, 否则取默认值
   each( props, ( name, options ) => {
@@ -50,6 +51,10 @@ export default function initProps( isCustomElement, root, options, target, targe
         value => propsTargetProxy[ name ] = value
       );
     }
+  });
+
+  injectionPrivateToInstance( isCustomElement, target, root, {
+    $props: propsTargetProxy
   });
 
 }
