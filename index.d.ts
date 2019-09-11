@@ -258,6 +258,30 @@ class DirectiveClass {
 
 }
 
+/**
+ * 指令方法类
+ */
+class DirectiveFnClass {
+
+  /**
+   * 指令方法初始化时调用
+   * @param part 指令方法被应用的组件
+   */
+  constructor( part: DirectiveClass ): void;
+
+  /**
+   * 指令方法在被应用或更新时调用
+   * @param args 用户向指令方法传入的参数
+   */
+  commit( ...args: any[] ): void;
+
+  /**
+   * 当前指令方法被释放时调用
+   */
+  destroy(): void;
+
+}
+
 
 /**
  * Hu 静态对象
@@ -323,12 +347,7 @@ interface Hu{
   /**
    * 注册指令方法
    */
-  directiveFn( fn: ( ...args: anyp[] ) => ( part ) => void ): T;
-
-  /**
-   * 注册指令方法 ( 同时注册注销方法 )
-   */
-  directiveFn( fn: ( ...args: anyp[] ) => (( part ) => void)[] ): T;
+  directiveFn( DirectiveFnClass: DirectiveFnClass ): () => {};
 
   /**
    * 字符串形式的 Hu 安装版本号
