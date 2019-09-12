@@ -1254,6 +1254,62 @@ describe( 'Hu.instance', () => {
     vm.$el.$remove();
   });
 
+  it( '实例上的 $nextTick 方法用于在下次 DOM 更新循环结束之后执行延迟回调', ( done ) => {
+    const hu = new Hu({
+      el: div,
+      data: {
+        index: 0
+      },
+      render( html ){
+        return html`<div>${ this.index }</div>`;
+      }
+    });
+
+    expect( div.textContent ).is.equals('0');
+
+    hu.index++;
+    expect( div.textContent ).is.equals('0');
+    hu.$nextTick(() => {
+      expect( div.textContent ).is.equals('1');
+
+      hu.index++;
+      expect( div.textContent ).is.equals('1');
+      hu.$nextTick(() => {
+        expect( div.textContent ).is.equals('2');
+
+        done();
+      });
+    });
+  });
+
+  it( '实例上的 $nextTick 方法用于在下次 DOM 更新循环结束之后执行延迟回调 ( Vue )', ( done ) => {
+    const vm = new Vue({
+      el: div,
+      data: {
+        index: 0
+      },
+      template: `<div>{{ index }}</div>`
+    });
+
+    div = vm.$el;
+
+    expect( div.textContent ).is.equals('0');
+
+    vm.index++;
+    expect( div.textContent ).is.equals('0');
+    vm.$nextTick(() => {
+      expect( div.textContent ).is.equals('1');
+
+      vm.index++;
+      expect( div.textContent ).is.equals('1');
+      vm.$nextTick(() => {
+        expect( div.textContent ).is.equals('2');
+
+        done();
+      });
+    });
+  });
+
   it( '使用 $watch 方法对实例属性进行监听', ( done ) => {
     const hu = new Hu({
       data: () => ({

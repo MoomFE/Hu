@@ -249,7 +249,7 @@ describe( 'hu.customElement', () => {
     expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
   });
 
-  it( '自定义元素上的 $watch 方法为当前自定义元素的 Hu 实例上 $watch 方法的映射', () => {
+  it( '自定义元素上的 $watch 方法为当前自定义元素的 Hu 实例上 $watch 方法的映射', ( done ) => {
     let result;
     hu.$watch( 'a', ( value, oldValue ) => {
       result = [ value, oldValue ];
@@ -260,10 +260,10 @@ describe( 'hu.customElement', () => {
     hu.a = 2;
     expect( result ).is.undefined;
     hu.$nextTick(() => {
-      expect( result ).is.deep.equals([ 2, 1 ]);
+      expect( result ).is.deep.equals([ 2, undefined ]);
 
       hu.a = 3;
-      expect( result ).is.deep.equals([ 2, 1 ]);
+      expect( result ).is.deep.equals([ 2, undefined ]);
       hu.$nextTick(() => {
         expect( result ).is.deep.equals([ 3, 2 ]);
 
@@ -272,12 +272,27 @@ describe( 'hu.customElement', () => {
     });
   });
 
-  it( '自定义元素上的 $nextTick 方法为当前自定义元素的 Hu 实例上 $nextTick 方法的映射', () => {
-    
+  it( '自定义元素上的 $nextTick 方法为当前自定义元素的 Hu 实例上 $nextTick 方法的映射', ( done ) => {
+    let index = 0;
+
+    hu.$nextTick(() => {
+      index++;
+      expect( index ).is.equals( 1 );
+
+      custom.$nextTick(() => {
+        index++;
+        expect( index ).is.equals( 2 );
+
+        done();
+      });
+
+      expect( index ).is.equals( 1 );
+    });
+
+    expect( index ).is.equals( 0 );
   });
 
   // 剩下的还没写
-  "$nextTick",
   "$destroy",
   "$root",
   "$parent",
