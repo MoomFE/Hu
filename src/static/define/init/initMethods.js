@@ -23,6 +23,7 @@ export default function initMethods( isCustomElement, target, root, methods, tar
     const method = methodsTarget[ name ] = value.bind( targetProxy );
 
     injectionToInstance( isCustomElement, target, root, name, {
+      writable: true,
       value: method
     });
   });

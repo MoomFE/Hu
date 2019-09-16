@@ -820,20 +820,19 @@
   () => '' + uid++;
 
   var defineProperty$1 = /**
-   * 在传入对象上定义可枚举可删除的一个新属性 ( set / get )
+   * 在传入对象上定义可枚举可删除的一个新属性
    * 
    * @param {any} 需要定义属性的对象
    * @param {string} key 需要定义的属性名称
-   * @param {function} get 属性的 getter 方法
-   * @param {function} set 属性的 setter 方法
    */
-  ( obj, key, { get, set } ) => {
-    defineProperty( obj, key, {
-      enumerable: true,
-      configurable: true,
-      get,
-      set
-    });
+  ( obj, key, attributes ) => {
+    defineProperty(
+      obj, key,
+      assign(
+        { enumerable: true, configurable: true },
+        attributes
+      )
+    );
   };
 
   const callbacks = [];
@@ -3749,21 +3748,6 @@
 
   });
 
-  var definePropertyValue = /**
-   * 在传入对象上定义可枚举可删除的一个新属性 ( value )
-   * 
-   * @param {any} 需要定义属性的对象
-   * @param {string} attribute 需要定义的属性名称
-   * @param {function} value 属性值
-   */
-  ( obj, attribute, { value } ) => {
-    defineProperty( obj, attribute, {
-      enumerable: true,
-      configurable: true,
-      value
-    });
-  };
-
   var isPrivate = /**
    * 判断字符串首字母是否为 _
    * @param {String} value
@@ -3779,9 +3763,7 @@
   ( isCustomElement, target, root, key, attributes ) => {
 
     /** 对象名称是否是字符串 */
-    let keyIsString = isString( key ),
-    /** 建立对象的引用的方法 */
-        definePropertyFn;
+    let keyIsString = isString( key );
 
     // 对象名称首字母如果为 $ 那么则不允许添加到实例中去
     if( keyIsString && isReserved( key ) ){
@@ -3790,9 +3772,7 @@
     // 实例中有同名变量, 则删除
     has( target, key ) && delete target[ key ];
     // 在实例中对变量添加映射
-    ( definePropertyFn = has( attributes, 'value' ) ? definePropertyValue : defineProperty$1 )(
-      target, key, attributes
-    );
+    defineProperty$1( target, key, attributes );
 
     // 在自定义元素上建立对象的引用
     if( isCustomElement ){
@@ -3803,7 +3783,7 @@
       // 自定义元素中有同名变量, 则删除
       has( root, key ) && delete root[ key ];
       // 在自定义元素中对变量添加映射
-      definePropertyFn( root, key, attributes );
+      defineProperty$1( root, key, attributes );
     }
   };
 
@@ -4006,6 +3986,7 @@
       const method = methodsTarget[ name ] = value.bind( targetProxy );
 
       injectionToInstance( isCustomElement, target, root, name, {
+        writable: true,
         value: method
       });
     });
