@@ -1,6 +1,5 @@
 import callLifecycle from "../util/callLifecycle";
 import { observeProxyMap } from "../../observable/observe";
-import each from "../../../shared/util/each";
 import { activeCustomElement } from "../const";
 
 
@@ -14,10 +13,6 @@ export default options => function(){
 
   // 是首次挂载
   if( !isMounted ){
-    // 挂载全局方法
-    each( $hu.$globalMethods, ( name, value ) => {
-      return this[ name ] = value;
-    });
     // 运行 beforeMount 生命周期方法
     callLifecycle( $hu, 'beforeMount', options );
   }

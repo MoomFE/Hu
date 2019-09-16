@@ -11,14 +11,12 @@ export default function initState( isCustomElement, userOptions, options, mixins
 
   const {
     methods,
-    globalMethods,
     data,
     computed,
     watch
   } = userOptions;
 
-  initMethods( methods, options, 'methods' );
-  initMethods( globalMethods, options, 'globalMethods' );
+  initMethods( methods, options );
   initData( isCustomElement, data, options );
   initComputed( computed, options );
   initWatch( watch, options );
@@ -42,9 +40,9 @@ export default function initState( isCustomElement, userOptions, options, mixins
 }
 
 
-function initMethods( userMethods, options, name ){
+function initMethods( userMethods, options ){
   if( userMethods ){
-    const methods = options[ name ] || ( options[ name ] = {} );
+    const methods = options.methods || ( options.methods = {} );
 
     each( userMethods, ( key, method ) => {
       if( !methods[ key ] && isFunction( method ) ){

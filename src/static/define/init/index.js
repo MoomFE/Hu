@@ -42,8 +42,8 @@ export default function init( isCustomElement, root, name, options, userOptions 
 
   initParent( isCustomElement, target, root, targetProxy );
   initOptions( isCustomElement, target, root, name, userOptions );
-  initProps( isCustomElement, target, root, options, targetProxy );
-  initMethods( isCustomElement, target, root, options, targetProxy );
+  initProps( isCustomElement, target, root, options.props, targetProxy );
+  initMethods( isCustomElement, target, root, options.methods, targetProxy );
   initData( isCustomElement, target, root, options, targetProxy );
 
   // 运行 beforeCreate 生命周期方法
