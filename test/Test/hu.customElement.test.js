@@ -337,10 +337,6 @@ describe( 'hu.customElement', () => {
     expect( custom.$methods ).is.equals( hu.$methods ).is.not.undefined;
   });
 
-  it( '自定义元素上的 $globalMethods 方法为当前自定义元素的 Hu 实例上 $globalMethods 方法的映射', () => {
-    expect( custom.$globalMethods ).is.equals( hu.$globalMethods ).is.not.undefined;
-  });
-
   it( '自定义元素上的 $data 方法为当前自定义元素的 Hu 实例上 $data 方法的映射', () => {
     expect( custom.$data ).is.equals( hu.$data ).is.not.undefined;
   });
