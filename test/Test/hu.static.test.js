@@ -1980,4 +1980,27 @@ describe( 'Hu.static', () => {
     expect( destroyIndex ).is.equals( 0 );
   });
 
+  it( 'Hu.use: 方法用于安装一个 Hu.js 插件', () => {
+    let args;
+
+    const plugin = {
+      install( Hu, privateOptions, options ){
+        args = [ Hu, privateOptions, options ];
+      }
+    };
+
+    expect( args ).is.undefined;
+
+    Hu.use( plugin, {
+      a: 1
+    });
+
+    expect( args ).is.not.undefined;
+    expect( args[0] ).is.equals( Hu );
+    expect( args[1] ).is.a('object');
+    expect( args[2] ).is.deep.equals({
+      a: 1
+    });
+  });
+
 });
