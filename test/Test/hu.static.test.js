@@ -2003,4 +2003,25 @@ describe( 'Hu.static', () => {
     });
   });
 
+  it( 'Hu.use: 可以只提供一个方法用于安装插件', () => {
+    let args;
+
+    const plugin = function( Hu, privateOptions, options ){
+      args = [ Hu, privateOptions, options ];
+    }
+
+    expect( args ).is.undefined;
+
+    Hu.use( plugin, {
+      a: 1
+    });
+
+    expect( args ).is.not.undefined;
+    expect( args[0] ).is.equals( Hu );
+    expect( args[1] ).is.a('object');
+    expect( args[2] ).is.deep.equals({
+      a: 1
+    });
+  });
+
 });
