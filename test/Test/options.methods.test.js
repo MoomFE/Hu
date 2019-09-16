@@ -121,7 +121,7 @@ describe( 'options.methods', () => {
     expect( hu[ '_d' ]() ).is.equals( 4 );
   });
 
-  it( '实例化后会在自定义元素本身添加 $methods 下所有首字母不为 _ 的方法的副本', () => {
+  it( '实例化后会在自定义元素本身添加 $methods 下所有首字母不为 $ 和 _ 的方法的副本', () => {
     const customName = window.customName;
     const b = Symbol('b');
 

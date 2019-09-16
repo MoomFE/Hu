@@ -1452,7 +1452,7 @@ describe( 'options.computed', () => {
     expect( hu[ '_d' ] ).is.equals( '4' );
   });
 
-  it( '实例化后会在自定义元素本身添加 $computed 下所有首字母不为 _ 的计算属性的映射', () => {
+  it( '实例化后会在自定义元素本身添加 $computed 下所有首字母不为 $ 和 _ 的计算属性的映射', () => {
     const customName = window.customName;
     const b = Symbol('b');
 
