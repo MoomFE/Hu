@@ -1,7 +1,7 @@
-import { create, assign } from "../../shared/global/Object/index";
 import addEventListener from "../../shared/util/addEventListener";
 import removeEventListener from "../../shared/util/removeEventListener";
 import each from "../../shared/util/each";
+import create from "../../shared/util/create";
 import toString from "../../shared/util/toString";
 import isPlainObject from "../../shared/util/isPlainObject";
 import isEmptyObject from "../../shared/util/isEmptyObject";
@@ -16,9 +16,7 @@ import isSymbol from "../../shared/util/isSymbol";
 import uid from "../../shared/util/uid";
 
 
-const util = create( null );
-
-assign( util, {
+export default create({
   /** 绑定事件 */
   addEvent: addEventListener,
   /** 移除事件 */
@@ -50,5 +48,3 @@ assign( util, {
   /** 返回一个字符串 UID */
   uid
 });
-
-export default util;

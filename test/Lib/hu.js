@@ -4309,9 +4309,7 @@
     }
   }
 
-  const util = create( null );
-
-  assign( util, {
+  var util = create$1({
     /** 绑定事件 */
     addEvent: addEventListener,
     /** 移除事件 */
