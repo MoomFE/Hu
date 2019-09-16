@@ -1485,7 +1485,7 @@ describe( 'options.computed', () => {
     expect( hu.$computed[  b  ] ).is.equals( '2' );
   });
 
-  it( '实例化后不可以通过当前实例对象对计算属性进行更改', () => {
+  it( '实例化后不可以通过实例本身对计算属性进行更改', () => {
     const customName = window.customName;
     const b = Symbol('b');
 
