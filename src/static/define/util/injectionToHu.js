@@ -1,6 +1,7 @@
-import isSymbolOrNotReserved from "../../../shared/util/isSymbolOrNotReserved";
-import { has } from "../../../shared/global/Reflect/index";
+import isString from "../../../shared/util/isString";
+import isReserved from "../../../shared/util/isReserved";
 import defineProperty from "../../../shared/util/defineProperty";
+import { has } from "../../../shared/global/Reflect/index";
 
 
 export default
@@ -16,7 +17,7 @@ export default
 ( huTarget, key, value, get, set ) => {
 
   // 首字母为 $ 则不允许映射到 $hu 实例中去
-  if( !isSymbolOrNotReserved( key ) ) return;
+  if( isString( key ) && isReserved( key ) ) return;
 
   // 若在 $hu 下有同名变量, 则删除
   has( huTarget, key ) && delete huTarget[ key ];

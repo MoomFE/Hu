@@ -329,11 +329,11 @@
     }
   }
 
-  var isSymbol = /**
-   * 判断传入对象是否是 Symbol 类型
+  var isString = /**
+   * 判断传入对象是否是 String 类型
    * @param {any} value 需要判断的对象
    */
-  value => typeof value === 'symbol';
+  value => typeof value === 'string';
 
   var cached = /**
    * 创建一个可以缓存方法返回值的方法
@@ -356,24 +356,10 @@
     return charCode === 0x24;
   });
 
-  var isSymbolOrNotReserved = /**
-   * 判断传入名称是否是 Symbol 类型或是首字母不为 $ 的字符串
-   * @param { string | symbol } name 需要判断的名称
-   */
-  ( name ) => {
-    return isSymbol( name ) || !isReserved( name );
-  };
-
-  var isString = /**
-   * 判断传入对象是否是 String 类型
-   * @param {any} value 需要判断的对象
-   */
-  value => typeof value === 'string';
-
   var observeHu = {
     set: {
       before: ( target, name ) => {
-        return isSymbolOrNotReserved( name ) ? null : 0;
+        return isString( name ) && isReserved( name ) ? 0 : null;
       }
     },
     get: {
@@ -416,6 +402,12 @@
    * @param {any} value 需要判断的对象
    */
   value => value !== null && typeof value === 'object';
+
+  var isSymbol = /**
+   * 判断传入对象是否是 Symbol 类型
+   * @param {any} value 需要判断的对象
+   */
+  value => typeof value === 'symbol';
 
   var returnArg = /**
    * 返回传入的首个参数
@@ -3729,7 +3721,7 @@
   ( huTarget, key, value, get, set ) => {
 
     // 首字母为 $ 则不允许映射到 $hu 实例中去
-    if( !isSymbolOrNotReserved( key ) ) return;
+    if( isString( key ) && isReserved( key ) ) return;
 
     // 若在 $hu 下有同名变量, 则删除
     has( huTarget, key ) && delete huTarget[ key ];
