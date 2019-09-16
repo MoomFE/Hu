@@ -2,10 +2,9 @@ import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
-import defineProperty from "../../../shared/util/defineProperty";
 import { observe } from "../../observable/observe";
-import isReserved from "../../../shared/util/isReserved";
 import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
+import injectionToInstance from "../util/injectionToInstance";
 
 
 /**
@@ -16,9 +15,8 @@ import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
  * @param {{}} target 
  * @param {{}} targetProxy 
  */
-export default function initProps( isCustomElement, target, root, options, targetProxy ){
+export default function initProps( isCustomElement, target, root, props, targetProxy ){
 
-  const props = options.props;
   const propsTarget = create( null );
   const propsTargetProxy = observe( propsTarget );
 
@@ -42,15 +40,12 @@ export default function initProps( isCustomElement, target, root, options, targe
     }
   });
 
-  // 将 $props 上的属性在 $hu 上建立引用
+
   each( props, ( name, options ) => {
-    if( options.isSymbol || !isReserved( name ) ){
-      defineProperty(
-        target, name,
-        () => propsTargetProxy[ name ],
-        value => propsTargetProxy[ name ] = value
-      );
-    }
+    injectionToInstance( isCustomElement, target, root, name, {
+      get: () => propsTargetProxy[ name ],
+      set: value => propsTargetProxy[ name ] = value
+    });
   });
 
   injectionPrivateToInstance( isCustomElement, target, root, {

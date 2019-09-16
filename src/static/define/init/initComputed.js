@@ -1,10 +1,10 @@
 import each from "../../../shared/util/each";
-import injectionToHu from "../util/injectionToHu";
 import createComputed from "../../observable/createComputed";
 import { observeProxyMap, observe } from "../../observable/observe";
 import isEmptyObject from "../../../shared/util/isEmptyObject";
 import observeReadonly from "../../../shared/const/observeReadonly";
 import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
+import injectionToInstance from "../util/injectionToInstance";
 
 
 /**
@@ -40,13 +40,13 @@ export default function initComputed( isCustomElement, target, root, options, ta
   // 将拦截器伪造成观察者对象
   observeProxyMap.set( computedTargetProxyInterceptor, {} );
 
+
   each( computed, ( name, computed ) => {
     appendComputed( name, computed );
-    injectionToHu(
-      target, name, 0,
-      () => computedTargetProxyInterceptor[ name ],
-      value => computedTargetProxyInterceptor[ name ] = value
-    );
+    injectionToInstance( isCustomElement, target, root, name, {
+      get: () => computedTargetProxyInterceptor[ name ],
+      set: value => computedTargetProxyInterceptor[ name ] = value
+    });
   });
 
   injectionPrivateToInstance( isCustomElement, target, root, {

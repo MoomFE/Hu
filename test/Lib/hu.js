@@ -644,14 +644,12 @@
 
     const {
       methods,
-      globalMethods,
       data,
       computed,
       watch
     } = userOptions;
 
-    initMethods( methods, options, 'methods' );
-    initMethods( globalMethods, options, 'globalMethods' );
+    initMethods( methods, options );
     initData( isCustomElement, data, options );
     initComputed( computed, options );
     initWatch( watch, options );
@@ -675,9 +673,9 @@
   }
 
 
-  function initMethods( userMethods, options, name ){
+  function initMethods( userMethods, options ){
     if( userMethods ){
-      const methods = options[ name ] || ( options[ name ] = {} );
+      const methods = options.methods || ( options.methods = {} );
 
       each( userMethods, ( key, method ) => {
         if( !methods[ key ] && isFunction( method ) ){
@@ -822,15 +820,15 @@
   () => '' + uid++;
 
   var defineProperty$1 = /**
-   * 在传入对象上定义可枚举可删除的一个新属性
+   * 在传入对象上定义可枚举可删除的一个新属性 ( set / get )
    * 
    * @param {any} 需要定义属性的对象
-   * @param {string} attribute 需要定义的属性名称
+   * @param {string} key 需要定义的属性名称
    * @param {function} get 属性的 getter 方法
    * @param {function} set 属性的 setter 方法
    */
-  ( obj, attribute, get, set ) => {
-    defineProperty( obj, attribute, {
+  ( obj, key, { get, set } ) => {
+    defineProperty( obj, key, {
       enumerable: true,
       configurable: true,
       get,
@@ -989,8 +987,11 @@
         this.observeOptions = observeOptions;
         this.name = name;
         // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
-        defineProperty$1( this, 'shouldUpdate', () => shouldUpdate, value => {
-          if( shouldUpdate = value ) this.ssu();
+        defineProperty$1( this, 'shouldUpdate', {
+          get: () => shouldUpdate,
+          set: value => {
+            if( shouldUpdate = value ) this.ssu();
+          }
         });
       }else if( isComputed === false ){
         this.isWatch = true;
@@ -3709,34 +3710,6 @@
     return this;
   };
 
-  var injectionToHu = /**
-   * 在 $hu 上建立对象的映射
-   * 
-   * @param {{}} huTarget $hu 实例
-   * @param {string} key 对象名称
-   * @param {any} value 对象值
-   * @param {function} get 属性的 getter 方法, 若传值, 则视为使用 Object.defineProperty 对值进行定义
-   * @param {function} set 属性的 setter 方法
-   */
-  ( huTarget, key, value, get, set ) => {
-
-    // 首字母为 $ 则不允许映射到 $hu 实例中去
-    if( isString( key ) && isReserved( key ) ) return;
-
-    // 若在 $hu 下有同名变量, 则删除
-    has( huTarget, key ) && delete huTarget[ key ];
-
-    // 使用 Object.defineProperty 对值进行定义
-    if( get ){
-      defineProperty$1( huTarget, key, get, set );
-    }
-    // 直接写入到 $hu 上
-    else{
-      huTarget[ key ] = value;
-    }
-
-  };
-
   var isEmptyObject = /**
    * 判断传入对象是否是一个空对象
    * @param {any} value 需要判断的对象
@@ -3761,21 +3734,77 @@
   var injectionPrivateToInstance = /**
    * 在实例和自定义元素上建立内部对象的引用
    */
-  ( isCustomElement, target, root, data ) => {
-    each( data, ( key, value ) => {
+  ( isCustomElement, target, root, data ) => each( data, ( key, value ) => {
 
-      // 实例上直接写入就好
-      // 常规操作有观察者对象进行拦截
-      target[ key ] = value;
+    // 实例上直接写入就好
+    // 常规操作有观察者对象进行拦截
+    target[ key ] = value;
 
-      // 自定义元素上需要通过 defineProperty 进行转发
-      if( isCustomElement ){
-        defineProperty( root, key, {
-          value
-        });
-      }
+    // 自定义元素上需要通过 defineProperty 进行转发
+    if( isCustomElement ){
+      defineProperty( root, key, {
+        value
+      });
+    }
 
+  });
+
+  var definePropertyValue = /**
+   * 在传入对象上定义可枚举可删除的一个新属性 ( value )
+   * 
+   * @param {any} 需要定义属性的对象
+   * @param {string} attribute 需要定义的属性名称
+   * @param {function} value 属性值
+   */
+  ( obj, attribute, { value } ) => {
+    defineProperty( obj, attribute, {
+      enumerable: true,
+      configurable: true,
+      value
     });
+  };
+
+  var isPrivate = /**
+   * 判断字符串首字母是否为 _
+   * @param {String} value
+   */
+  cached( value => {
+    const charCode = ( value + '' ).charCodeAt(0);
+    return charCode === 0x5F;
+  });
+
+  var injectionToInstance = /**
+   * 在实例和自定义元素上建立对象的引用
+   */
+  ( isCustomElement, target, root, key, attributes ) => {
+
+    /** 对象名称是否是字符串 */
+    let keyIsString = isString( key ),
+    /** 建立对象的引用的方法 */
+        definePropertyFn;
+
+    // 对象名称首字母如果为 $ 那么则不允许添加到实例中去
+    if( keyIsString && isReserved( key ) ){
+      return;
+    }
+    // 实例中有同名变量, 则删除
+    has( target, key ) && delete target[ key ];
+    // 在实例中对变量添加映射
+    ( definePropertyFn = has( attributes, 'value' ) ? definePropertyValue : defineProperty$1 )(
+      target, key, attributes
+    );
+
+    // 在自定义元素上建立对象的引用
+    if( isCustomElement ){
+      // 对象名称首字母如果为 _ 那么则不允许添加到自定义元素中去
+      if( keyIsString && isPrivate( key ) ){
+        return;
+      }
+      // 自定义元素中有同名变量, 则删除
+      has( root, key ) && delete root[ key ];
+      // 在自定义元素中对变量添加映射
+      definePropertyFn( root, key, attributes );
+    }
   };
 
   /**
@@ -3811,13 +3840,13 @@
     // 将拦截器伪造成观察者对象
     observeProxyMap.set( computedTargetProxyInterceptor, {} );
 
+
     each( computed, ( name, computed ) => {
       appendComputed( name, computed );
-      injectionToHu(
-        target, name, 0,
-        () => computedTargetProxyInterceptor[ name ],
-        value => computedTargetProxyInterceptor[ name ] = value
-      );
+      injectionToInstance( isCustomElement, target, root, name, {
+        get: () => computedTargetProxyInterceptor[ name ],
+        set: value => computedTargetProxyInterceptor[ name ] = value
+      });
     });
 
     injectionPrivateToInstance( isCustomElement, target, root, {
@@ -3919,9 +3948,8 @@
    * @param {{}} target 
    * @param {{}} targetProxy 
    */
-  function initProps$1( isCustomElement, target, root, options, targetProxy ){
+  function initProps$1( isCustomElement, target, root, props, targetProxy ){
 
-    const props = options.props;
     const propsTarget = create( null );
     const propsTargetProxy = observe( propsTarget );
 
@@ -3945,15 +3973,12 @@
       }
     });
 
-    // 将 $props 上的属性在 $hu 上建立引用
+
     each( props, ( name, options ) => {
-      if( options.isSymbol || !isReserved( name ) ){
-        defineProperty$1(
-          target, name,
-          () => propsTargetProxy[ name ],
-          value => propsTargetProxy[ name ] = value
-        );
-      }
+      injectionToInstance( isCustomElement, target, root, name, {
+        get: () => propsTargetProxy[ name ],
+        set: value => propsTargetProxy[ name ] = value
+      });
     });
 
     injectionPrivateToInstance( isCustomElement, target, root, {
@@ -3968,16 +3993,7 @@
    * @param {{}} target 
    * @param {{}} targetProxy 
    */
-  function initMethods$1(
-    isCustomElement,
-    target,
-    root,
-    {
-      methods,
-      globalMethods
-    },
-    targetProxy
-  ){
+  function initMethods$1( isCustomElement, target, root, methods, targetProxy ){
     /**
      * $methods 实例属性
      *  - 非响应式
@@ -3985,46 +4001,17 @@
      */
     const methodsTarget = create( null );
 
-    // 添加方法到对象中和实例中
-    injectionMethods( methodsTarget, methods, target, targetProxy );
 
-    /**
-     * $globalMethods 实例属性
-     *  - 响应式
-     *  - 会在实例上和自定义元素上添加方法的映射
-     */
-    const globalMethodsTarget = create( null );
-    const globalMethodsTargetProxy = observe( globalMethodsTarget );
-
-    // 添加方法到对象中
-    // 实例和自定义元素上的映射通过回调方法手动添加
-    injectionMethods( globalMethodsTarget, globalMethods, target, targetProxy, name => {
-      const get = () => globalMethodsTargetProxy[ name ];
-      const set = method => isFunction( method ) && (
-        globalMethodsTargetProxy[ name ] = method
-      );
-
-      // 添加映射到实例中
-      injectionToHu( target, name, 0, get, set );
-      // 添加映射到自定义元素中
-      isCustomElement && injectionToHu( root, name, 0, get, set );
-    });
-
-    injectionPrivateToInstance( isCustomElement, target, root, {
-      $methods: methodsTarget,
-      $globalMethods: globalMethodsTargetProxy
-    });
-  }
-
-  function injectionMethods( methodsTarget, methods, target, targetProxy, callback ){
     each( methods, ( name, value ) => {
       const method = methodsTarget[ name ] = value.bind( targetProxy );
 
-      if( callback ){
-        callback( name );
-      }else{
-        injectionToHu( target, name, method );
-      }
+      injectionToInstance( isCustomElement, target, root, name, {
+        value: method
+      });
+    });
+
+    injectionPrivateToInstance( isCustomElement, target, root, {
+      $methods: methodsTarget
     });
   }
 
@@ -4052,14 +4039,14 @@
       dataTarget = create( null );
     }
 
+
     const dataTargetProxy = observe( dataTarget );
 
     each( dataTarget, name => {
-      injectionToHu(
-        target, name, 0,
-        () => dataTargetProxy[ name ],
-        value => dataTargetProxy[ name ] = value
-      );
+      injectionToInstance( isCustomElement, target, root, name, {
+        get: () => dataTargetProxy[ name ],
+        set: value => dataTargetProxy[ name ] = value
+      });
     });
 
     injectionPrivateToInstance( isCustomElement, target, root, {
@@ -4194,8 +4181,8 @@
 
     initParent( isCustomElement, target, root, targetProxy );
     initOptions$1( isCustomElement, target, root, name, userOptions );
-    initProps$1( isCustomElement, target, root, options, targetProxy );
-    initMethods$1( isCustomElement, target, root, options, targetProxy );
+    initProps$1( isCustomElement, target, root, options.props, targetProxy );
+    initMethods$1( isCustomElement, target, root, options.methods, targetProxy );
     initData$1( isCustomElement, target, root, options, targetProxy );
 
     // 运行 beforeCreate 生命周期方法
@@ -4272,10 +4259,6 @@
 
     // 是首次挂载
     if( !isMounted ){
-      // 挂载全局方法
-      each( $hu.$globalMethods, ( name, value ) => {
-        return this[ name ] = value;
-      });
       // 运行 beforeMount 生命周期方法
       callLifecycle( $hu, 'beforeMount', options );
     }

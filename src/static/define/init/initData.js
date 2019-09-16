@@ -1,10 +1,10 @@
 import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
-import injectionToHu from "../util/injectionToHu";
 import { observe } from "../../observable/observe";
 import isFunction from "../../../shared/util/isFunction";
 import { has } from "../../../shared/global/Reflect/index";
 import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
+import injectionToInstance from "../util/injectionToInstance";
 
 
 /**
@@ -31,14 +31,14 @@ export default function initData( isCustomElement, target, root, options, target
     dataTarget = create( null );
   }
 
+
   const dataTargetProxy = observe( dataTarget );
 
   each( dataTarget, name => {
-    injectionToHu(
-      target, name, 0,
-      () => dataTargetProxy[ name ],
-      value => dataTargetProxy[ name ] = value
-    );
+    injectionToInstance( isCustomElement, target, root, name, {
+      get: () => dataTargetProxy[ name ],
+      set: value => dataTargetProxy[ name ] = value
+    });
   });
 
   injectionPrivateToInstance( isCustomElement, target, root, {

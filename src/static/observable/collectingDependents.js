@@ -32,8 +32,11 @@ export class Watcher{
       this.observeOptions = observeOptions;
       this.name = name;
       // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
-      defineProperty( this, 'shouldUpdate', () => shouldUpdate, value => {
-        if( shouldUpdate = value ) this.ssu();
+      defineProperty( this, 'shouldUpdate', {
+        get: () => shouldUpdate,
+        set: value => {
+          if( shouldUpdate = value ) this.ssu();
+        }
       });
     }else if( isComputed === false ){
       this.isWatch = true;
