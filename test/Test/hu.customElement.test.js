@@ -292,18 +292,61 @@ describe( 'hu.customElement', () => {
     expect( index ).is.equals( 0 );
   });
 
-  // 剩下的还没写
-  "$destroy",
-  "$root",
-  "$parent",
-  "$children",
-  "$options",
-  "$info",
-  "$props",
-  "$methods",
-  "$globalMethods",
-  "$data",
-  "$computed",
-  "$hu"
+  it( '自定义元素上的 $destroy 方法为当前自定义元素的 Hu 实例上 $destroy 方法的映射', () => {
+    const steps = [];
+
+    hu.$on('hook:beforeDestroy', () => {
+      steps.push('beforeDestroy');
+    });
+    hu.$on('hook:destroyed', () => {
+      steps.push('destroyed');
+    });
+
+    expect( steps ).is.deep.equals([ ]);
+
+    custom.$destroy();
+
+    expect( steps ).is.deep.equals([ 'beforeDestroy', 'destroyed' ]);
+  });
+
+  it( '自定义元素上的 $root 方法为当前自定义元素的 Hu 实例上 $root 方法的映射', () => {
+    expect( custom.$root ).is.equals( hu.$root ).is.equals( hu );
+  });
+
+  it( '自定义元素上的 $parent 方法为当前自定义元素的 Hu 实例上 $parent 方法的映射', () => {
+    expect( custom.$parent ).is.equals( hu.$parent ).is.equals( undefined );
+  });
+
+  it( '自定义元素上的 $children 方法为当前自定义元素的 Hu 实例上 $children 方法的映射', () => {
+    expect( custom.$children ).is.equals( hu.$children ).is.deep.equals([]);
+  });
+
+  it( '自定义元素上的 $options 方法为当前自定义元素的 Hu 实例上 $options 方法的映射', () => {
+    expect( custom.$options ).is.equals( hu.$options ).is.not.undefined;
+  });
+
+  it( '自定义元素上的 $info 方法为当前自定义元素的 Hu 实例上 $info 方法的映射', () => {
+    expect( custom.$info ).is.equals( hu.$info ).is.not.undefined;
+  });
+
+  it( '自定义元素上的 $props 方法为当前自定义元素的 Hu 实例上 $props 方法的映射', () => {
+    expect( custom.$props ).is.equals( hu.$props ).is.not.undefined;
+  });
+
+  it( '自定义元素上的 $methods 方法为当前自定义元素的 Hu 实例上 $methods 方法的映射', () => {
+    expect( custom.$methods ).is.equals( hu.$methods ).is.not.undefined;
+  });
+
+  it( '自定义元素上的 $globalMethods 方法为当前自定义元素的 Hu 实例上 $globalMethods 方法的映射', () => {
+    expect( custom.$globalMethods ).is.equals( hu.$globalMethods ).is.not.undefined;
+  });
+
+  it( '自定义元素上的 $data 方法为当前自定义元素的 Hu 实例上 $data 方法的映射', () => {
+    expect( custom.$data ).is.equals( hu.$data ).is.not.undefined;
+  });
+
+  it( '自定义元素上的 $computed 方法为当前自定义元素的 Hu 实例上 $computed 方法的映射', () => {
+    expect( custom.$computed ).is.equals( hu.$computed ).is.not.undefined;
+  });
 
 });
