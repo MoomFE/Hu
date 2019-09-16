@@ -3,6 +3,8 @@
   - ⚠️ 使用 `Hu.directive` 注册自定义指令, 不再向 constructor 传入 name 参数
   - ⚠️ 完全重构 `Hu.directiveFn` 方法, 将使用类来创建指令方法, 以更好的管理指令方法的生命周期
   - ⚠️ 移除 `Hu.noConflict` 方法, 不再强制将 Hu 对象注入到 window, 更加规范化
+  - ⚠️ 实例选项移除 globalMethods 选项 ( [#6](https://github.com/MoomFE/Hu/issues/6) )
+  - ⚠️ 自定义元素创建的实例中, 会将实例上观察者对象的属性注入到自定义元素本身 ( [#6](https://github.com/MoomFE/Hu/issues/6) )
   - 🐞 修复工具方法 `isIterable` 判定空字符串为不可迭代的问题 ( [#16](https://github.com/MoomFE/Hu/issues/16) )
   - 🐞 修复两次渲染时使用了同一个指令方法, 前一个指令方法不会被销毁的问题 ( [#19](https://github.com/MoomFE/Hu/issues/19) )
 
