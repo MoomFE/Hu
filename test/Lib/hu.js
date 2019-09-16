@@ -4316,6 +4316,8 @@
     removeEvent: removeEventListener,
     /** 对象遍历方法 */
     each,
+    /** 创建一个干净的目标对象, 并把传入方法的对象全部浅拷贝到目标对象并返回目标对象 */
+    create: create$1,
     /** 将值转为字符串形式 */
     toString: toString$1,
     /** 判断传入对象是否是纯粹的对象 */
