@@ -29,7 +29,7 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 ## 大小 - 版本详解
 | Description | UMD | CommonJS | ES Module |
 | :- | :- | :- | :- |
-| 正常版 | **hu.js**<br>*106.71KB / 29KB* | **hu.common.js**<br>*99.22KB / 29KB* | **hu.esm.js**<br>*99.21KB / 29KB* |
+| 正常版 | **hu.js**<br>*107.67KB / 29KB* | **hu.common.js**<br>*99.22KB / 29KB* | **hu.esm.js**<br>*99.21KB / 29KB* |
 | 正常版 ( 生产环境 ) | **hu.min.js**<br>*26.82KB / 11KB* | **hu.common.min.js**<br>*34.31KB / 12KB* | **hu.esm.min.js**<br>*26.65KB / 10KB* |
 | 正常版 + Polyfill | **hu.polyfill.js**<br>*214.68KB / 61KB* | **hu.polyfill.common.js**<br>*206.74KB / 61KB* | **hu.polyfill.esm.js**<br>*206.72KB / 61KB* |
 | 正常版 + Polyfill ( 生产环境 ) | **hu.polyfill.min.js**<br>*126.53KB / 41KB* | **hu.polyfill.common.min.js**<br>*134.02KB / 42KB* | **hu.polyfill.esm.min.js**<br>*126.36KB / 41KB* |

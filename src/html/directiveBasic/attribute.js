@@ -45,7 +45,7 @@ export default class AttributeCommitter{
 
 }
 
-class AttributePart{
+export class AttributePart{
 
   constructor( committer ){
     this.committer = committer;

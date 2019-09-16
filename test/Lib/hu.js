@@ -4361,6 +4361,50 @@
   // 指令注销方法
   directive.destroy = destroyPart;
 
+  const installed = new Set;
+  const privateOptions = create$1({
+
+    // 基础指令
+    directiveBasic: {
+      Node: NodePart,
+      Attr: AttributeCommitter,
+      AttrPart: AttributePart,
+      Boolean: BasicBooleanDirective,
+      Event: BasicEventDirective,
+      Prop: BasicPropertyDirective
+    },
+
+    // 内置功能指令
+    directive: create$1({
+      Class: ClassDirective,
+      Html: HtmlDirective,
+      Model: ModelDirective,
+      Show: ShowDirective,
+      Style: StyleDirective,
+      Text: TextDirective,
+    })
+
+  });
+
+  function use( plugin, ...args ){
+    if( installed.has( plugin ) ){
+      return Hu$1;
+    }
+
+    args.unshift( Hu$1, privateOptions );
+
+    if( isFunction( plugin.install ) ){
+      apply( plugin.install, plugin, args );
+    }
+    else if( isFunction( plugin ) ){
+      apply( plugin, null, args );
+    }
+
+    installed.add( plugin );
+
+    return Hu$1;
+  }
+
   assign( Hu$1, {
     define,
     render: staticRender,
@@ -4369,7 +4413,8 @@
     observable,
     util,
     directive,
-    directiveFn
+    directiveFn,
+    use
   });
 
   return Hu$1;

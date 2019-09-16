@@ -10,6 +10,7 @@ import util from '../static/util/index';
 import html from '../html/html';
 import directive from '../static/directive/index';
 import directiveFn from '../static/directiveFn/index';
+import use from '../static/use/index';
 
 
 assign( Hu, {
@@ -20,7 +21,8 @@ assign( Hu, {
   observable,
   util,
   directive,
-  directiveFn
+  directiveFn,
+  use
 });
 
 
