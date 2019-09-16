@@ -1,5 +1,5 @@
 /*!
- * Hu.js v1.0.0-bata.15
+ * Hu.js v1.0.0-bata.16
  * https://github.com/MoomFE/Hu
  * 
  * (c) 2018-present Wei Zhang
@@ -4194,7 +4194,7 @@
     }
   });
 
-  Hu$1.version = '1.0.0-bata.15';
+  Hu$1.version = '1.0.0-bata.16';
 
   var initAttributeChangedCallback = propsMap => function( name, oldValue, value ){
     if( value === oldValue ) return;
