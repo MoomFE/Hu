@@ -30,11 +30,6 @@ interface $hu {
    */
   readonly $methods: Record< KEYTYPE, any >;
   /**
-   * Hu 实例全局方法对象
-   *  - 包含了声明实例时的 globalMethods 属性上定义的所有方法
-   */
-  readonly $globalMethods: Record< KEYTYPE, any >;
-  /**
    * Hu 实例数据对象
    * - 包含了声明实例时的 data 方法返回的所有属性
    */
@@ -493,17 +488,6 @@ interface ComponentOptions{
    * 定义一系列的方法以在 Hu 实例中使用
    */
   methods?: {
-    [ key: string ]: ( this: $hu, ...args: any[] ) => any;
-    [ key: number ]: ( this: $hu, ...args: any[] ) => any;
-    [ key: symbol ]: ( this: $hu, ...args: any[] ) => any;
-  };
-
-  /**
-   * 定义一系列的方法以在 Hu 实例中使用
-   *  - 和 methods 选项不同的是, 由自定义元素创建的实例会将方法的映射添加到自定义元素本身, 可以直接调用
-   *  - 和 methods 选项不同的是, 选项内的方法会添加映射而不是副本到实例本身中
-   */
-  globalMethods?: {
     [ key: string ]: ( this: $hu, ...args: any[] ) => any;
     [ key: number ]: ( this: $hu, ...args: any[] ) => any;
     [ key: symbol ]: ( this: $hu, ...args: any[] ) => any;
