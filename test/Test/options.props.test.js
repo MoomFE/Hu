@@ -1080,21 +1080,24 @@ describe( 'options.props', () => {
       props: {
         a: null,
         [ b ]: { attr: 'b' },
-        $c: { attr: 'c' }
+        $c: { attr: 'c' },
+        _d: { attr: 'd' }
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName } a="1" b="2" c="3"></${ customName }>`);
+    const div = document.createElement('div').$html(`<${ customName } a="1" b="2" c="3" d="4"></${ customName }>`);
     const custom = div.firstElementChild;
     const hu = custom.$hu;
 
     expect( hu.$props ).has.property( 'a' );
     expect( hu.$props ).has.property(  b  );
-    expect( hu.$props ).has.property(  '$c'  );
+    expect( hu.$props ).has.property( '$c' );
+    expect( hu.$props ).has.property( '_d' );
 
     expect( hu.$props[ 'a' ] ).is.equals( '1' );
     expect( hu.$props[  b  ] ).is.equals( '2' );
     expect( hu.$props[ '$c' ] ).is.equals( '3' );
+    expect( hu.$props[ '_d' ] ).is.equals( '4' );
   });
 
   it( '实例化后会在实例本身添加 $props 下所有首字母不为 $ 的 prop 的映射', () => {
@@ -1105,20 +1108,49 @@ describe( 'options.props', () => {
       props: {
         a: null,
         [ b ]: { attr: 'b' },
-        $c: { attr: 'c' }
+        $c: { attr: 'c' },
+        _d: { attr: 'd' }
       }
     });
 
-    const div = document.createElement('div').$html(`<${ customName } a="1" b="2" c="3"></${ customName }>`);
+    const div = document.createElement('div').$html(`<${ customName } a="1" b="2" c="3" d="4"></${ customName }>`);
     const custom = div.firstElementChild;
     const hu = custom.$hu;
 
     expect( hu ).has.property( 'a' );
     expect( hu ).has.property(  b  );
     expect( hu ).has.not.property(  '$c'  );
+    expect( hu ).has.property( '_d' );
 
     expect( hu[ 'a' ] ).is.equals( '1' );
     expect( hu[  b  ] ).is.equals( '2' );
+    expect( hu[ '_d' ] ).is.equals( '4' );
+  });
+
+  it( '实例化后会在自定义元素本身添加 $props 下所有首字母不为 _ 的 prop 的映射', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        [ b ]: { attr: 'b' },
+        $c: { attr: 'c' },
+        _d: { attr: 'd' }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1" b="2" c="3" d="4"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( custom ).has.property( 'a' );
+    expect( custom ).has.property(  b  );
+    expect( custom ).has.not.property(  '$c'  );
+    expect( custom ).has.not.property( '_d' );
+
+    expect( custom[ 'a' ] ).is.equals( '1' );
+    expect( custom[  b  ] ).is.equals( '2' );
   });
 
   it( '实例化后若删除在实例本身添加的 prop 的映射, 不会影响到 $props 实例属性内的 prop 本体', () => {
@@ -1160,6 +1192,53 @@ describe( 'options.props', () => {
     expect( hu.$props[  b  ] ).is.equals( '2' );
   });
 
+  it( '实例化后若删除在自定义元素本身添加的 prop 的映射, 不会影响到 $props 实例属性内的 prop 本体', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        [ b ]: { attr: 'b' }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1" b="2"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property(  b  );
+    expect( custom ).has.property( 'a' );
+    expect( custom ).has.property(  b  );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property(  b  );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+    expect( custom[ 'a' ] ).is.equals( '1' );
+    expect( custom[  b  ] ).is.equals( '2' );
+    expect( hu.$props[ 'a' ] ).is.equals( '1' );
+    expect( hu.$props[  b  ] ).is.equals( '2' );
+
+    delete custom[ 'a' ];
+    delete custom[  b  ];
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property(  b  );
+    expect( custom ).has.not.property( 'a' );
+    expect( custom ).has.not.property(  b  );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property(  b  );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+    expect( custom[ 'a' ] ).is.equals( undefined );
+    expect( custom[  b  ] ).is.equals( undefined );
+    expect( hu.$props[ 'a' ] ).is.equals( '1' );
+    expect( hu.$props[  b  ] ).is.equals( '2' );
+  });
+
   it( '实例化后可以通过实例本身对 prop 进行更改', () => {
     const customName = window.customName;
     const b = Symbol('b');
@@ -1177,17 +1256,71 @@ describe( 'options.props', () => {
 
     expect( hu ).has.property( 'a' );
     expect( hu ).has.property(  b  );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property(  b  );
 
     expect( hu[ 'a' ] ).is.equals( '1' );
     expect( hu[  b  ] ).is.equals( '2' );
+    expect( hu.$props[ 'a' ] ).is.equals( '1' );
+    expect( hu.$props[  b  ] ).is.equals( '2' );
 
     hu[ 'a' ] = 3;
     expect( hu[ 'a' ] ).is.equals( 3 );
     expect( hu[  b  ] ).is.equals( '2' );
+    expect( hu.$props[ 'a' ] ).is.equals( 3 );
+    expect( hu.$props[  b  ] ).is.equals( '2' );
 
     hu[  b  ] = 4;
     expect( hu[ 'a' ] ).is.equals( 3 );
     expect( hu[  b  ] ).is.equals( 4 );
+    expect( hu.$props[ 'a' ] ).is.equals( 3 );
+    expect( hu.$props[  b  ] ).is.equals( 4 );
+  });
+
+  it( '实例化后可以通过自定义元素本身对 prop 进行更改', () => {
+    const customName = window.customName;
+    const b = Symbol('b');
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        [ b ]: { attr: 'b' }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1" b="2"></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property(  b  );
+    expect( custom ).has.property( 'a' );
+    expect( custom ).has.property(  b  );
+    expect( hu.$props ).has.property( 'a' );
+    expect( hu.$props ).has.property(  b  );
+
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+    expect( custom[ 'a' ] ).is.equals( '1' );
+    expect( custom[  b  ] ).is.equals( '2' );
+    expect( hu.$props[ 'a' ] ).is.equals( '1' );
+    expect( hu.$props[  b  ] ).is.equals( '2' );
+
+    hu[ 'a' ] = 3;
+    expect( hu[ 'a' ] ).is.equals( 3 );
+    expect( hu[  b  ] ).is.equals( '2' );
+    expect( custom[ 'a' ] ).is.equals( 3 );
+    expect( custom[  b  ] ).is.equals( '2' );
+    expect( hu.$props[ 'a' ] ).is.equals( 3 );
+    expect( hu.$props[  b  ] ).is.equals( '2' );
+
+    hu[  b  ] = 4;
+    expect( hu[ 'a' ] ).is.equals( 3 );
+    expect( hu[  b  ] ).is.equals( 4 );
+    expect( custom[ 'a' ] ).is.equals( 3 );
+    expect( custom[  b  ] ).is.equals( 4 );
+    expect( hu.$props[ 'a' ] ).is.equals( 3 );
+    expect( hu.$props[  b  ] ).is.equals( 4 );
   });
 
   it( '实例化后可以通过 $props 实例属性对 prop 进行更改', () => {
@@ -1205,17 +1338,33 @@ describe( 'options.props', () => {
     const custom = div.firstElementChild;
     const hu = custom.$hu;
 
+    expect( hu ).has.property( 'a' );
+    expect( hu ).has.property(  b  );
+    expect( custom ).has.property( 'a' );
+    expect( custom ).has.property(  b  );
     expect( hu.$props ).has.property( 'a' );
     expect( hu.$props ).has.property(  b  );
 
+    expect( hu[ 'a' ] ).is.equals( '1' );
+    expect( hu[  b  ] ).is.equals( '2' );
+    expect( custom[ 'a' ] ).is.equals( '1' );
+    expect( custom[  b  ] ).is.equals( '2' );
     expect( hu.$props[ 'a' ] ).is.equals( '1' );
     expect( hu.$props[  b  ] ).is.equals( '2' );
 
     hu.$props[ 'a' ] = 3;
+    expect( hu[ 'a' ] ).is.equals( 3 );
+    expect( hu[  b  ] ).is.equals( '2' );
+    expect( custom[ 'a' ] ).is.equals( 3 );
+    expect( custom[  b  ] ).is.equals( '2' );
     expect( hu.$props[ 'a' ] ).is.equals( 3 );
     expect( hu.$props[  b  ] ).is.equals( '2' );
 
     hu.$props[  b  ] = 4;
+    expect( hu[ 'a' ] ).is.equals( 3 );
+    expect( hu[  b  ] ).is.equals( 4 );
+    expect( custom[ 'a' ] ).is.equals( 3 );
+    expect( custom[  b  ] ).is.equals( 4 );
     expect( hu.$props[ 'a' ] ).is.equals( 3 );
     expect( hu.$props[  b  ] ).is.equals( 4 );
   });
