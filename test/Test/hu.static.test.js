@@ -160,24 +160,39 @@ describe( 'Hu.static', () => {
     `);
   });
 
-  it( 'Hu.html.svg: 创建用于 SVG 标签内部标签的模板', () => {
-    const htmlResult = Hu.html`<text y="50%" dy="30%">123</text>`;
-    const svgResult = Hu.html.svg`<text y="50%" dy="30%">123</text>`;
+  {
+    const div1 = document.createElement('div').$appendTo( document.body ).$html(`<svg><text y="50%" dy="30%">123</text></svg>`);
+    const div2 = document.createElement('div').$appendTo( document.body ).$html(`<svg></svg>`);
 
-    Hu.render( div )`
-      <svg>${ htmlResult }</svg>
-    `;
-    expect( getComputedStyle( div.querySelector('text') ) ).is.not.include({
-      display: 'block'
-    });
+    div2.firstElementChild.appendChild(
+      document.createElement('text').$appendTo( div2 ).$html('123').$attr({ y: '50%', dy: '30%' })
+    );
 
-    Hu.render( div )`
-      <svg>${ svgResult }</svg>
-    `;
-    expect( getComputedStyle( div.querySelector('text') ) ).is.include({
-      display: 'block'
+    const display1 = getComputedStyle( div1.querySelector('text') ).display;
+    const display2 = getComputedStyle( div2.querySelector('text') ).display;
+
+    div1.$remove();
+    div2.$remove();
+
+    if( display1 !== display2 ) it( 'Hu.html.svg: 创建用于 SVG 标签内部标签的模板', () => {
+      const htmlResult = Hu.html`<text y="50%" dy="30%">123</text>`;
+      const svgResult = Hu.html.svg`<text y="50%" dy="30%">123</text>`;
+
+      Hu.render( div )`
+        <svg>${ htmlResult }</svg>
+      `;
+      expect( getComputedStyle( div.querySelector('text') ) ).is.include({
+        display: display2
+      });
+
+      Hu.render( div )`
+        <svg>${ svgResult }</svg>
+      `;
+      expect( getComputedStyle( div.querySelector('text') ) ).is.include({
+        display: display1
+      });
     });
-  });
+  }
 
   it( 'Hu.render: 方法用于直接渲染一段模板片段', () => {
     const result = Hu.html`
