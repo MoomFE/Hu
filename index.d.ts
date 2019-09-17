@@ -277,6 +277,10 @@ class DirectiveFnClass {
 
 }
 
+const pluginInstall = ( Hu: Hu, privateOptions: {}, ...args: any[] ) => {
+
+}
+
 
 /**
  * Hu 静态对象
@@ -476,7 +480,17 @@ interface Hu{
      */
     uid(): string;
 
-  }
+  },
+
+  /**
+   * 用于给 Hu 安装插件, 提供了一些内部使用的变量
+   * @param plugins 需要安装的插件
+   * @param args 需要传递给插件的选项
+   */
+  use(
+    plugin: pluginInstall | { pluginInstall },
+    ...args: any[]
+  ): Hu;
 
 }
 
