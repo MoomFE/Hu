@@ -680,4 +680,237 @@ describe( 'html.directiveBasic', () => {
     expect( data['ctrl.alt.shift.meta.exact'] ).is.equals( 1 );
   });
 
+  it( '使用 @event 的方式对元素绑定事件监听, 使用 .esc / .tab / .enter / .space / .up / .left / .right / .down / .delete', () => {
+    const data = {
+      esc: 0,
+      tab: 0,
+      enter: 0,
+      space: 0,
+      up: 0,
+      left: 0,
+      right: 0,
+      down: 0,
+      delete: 0
+    };
+
+    render( div )`
+      <div ref="esc" @keydown.esc=${() => data.esc++}>esc</div>
+      <div ref="tab" @keydown.tab=${() => data.tab++}>tab</div>
+      <div ref="enter" @keydown.enter=${() => data.enter++}>enter</div>
+      <div ref="space" @keydown.space=${() => data.space++}>space</div>
+      <div ref="up" @keydown.up=${() => data.up++}>up</div>
+      <div ref="left" @keydown.left=${() => data.left++}>left</div>
+      <div ref="right" @keydown.right=${() => data.right++}>right</div>
+      <div ref="down" @keydown.down=${() => data.down++}>down</div>
+      <div ref="delete" @keydown.delete=${() => data.delete++}>delete</div>
+    `;
+
+    // esc
+    expect( data.esc ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = ' ' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.esc ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="esc"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.esc ).is.equals( 1 );
+
+    // tab
+    expect( data.tab ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.tab ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = ' ' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.tab ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="tab"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.tab ).is.equals( 1 );
+
+    // enter
+    expect( data.enter ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.enter ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.enter ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.enter ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = ' ' );
+    expect( data.enter ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.enter ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.enter ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.enter ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.enter ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.enter ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="enter"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.enter ).is.equals( 1 );
+
+    // space
+    expect( data.space ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.space ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.space ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.space ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = ' ' );
+    expect( data.space ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.space ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.space ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.space ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.space ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.space ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="space"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.space ).is.equals( 1 );
+
+    // up
+    expect( data.up ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.up ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.up ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.up ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = ' ' );
+    expect( data.up ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.up ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.up ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.up ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.up ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.up ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="up"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.up ).is.equals( 1 );
+
+    // left
+    expect( data.left ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.left ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.left ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.left ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = ' ' );
+    expect( data.left ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.left ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.left ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.left ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.left ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.left ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="left"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.left ).is.equals( 1 );
+
+    // right
+    expect( data.right ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.right ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.right ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.right ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = ' ' );
+    expect( data.right ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.right ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.right ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.right ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.right ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.right ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="right"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.right ).is.equals( 1 );
+
+    // down
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = ' ' );
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.down ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.down ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.down ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="down"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.down ).is.equals( 1 );
+
+    // delete - Backspace
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Escape' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Tab' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Enter' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = ' ' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Up' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Left' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Right' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Down' );
+    expect( data.delete ).is.equals( 0 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Backspace' );
+    expect( data.delete ).is.equals( 1 );
+    triggerEvent( div.querySelector('[ref="delete"]'), 'keydown', event => event.key = 'Delete' );
+    expect( data.delete ).is.equals( 2 );
+  });
+
 });
