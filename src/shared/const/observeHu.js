@@ -2,20 +2,12 @@ import isString from "../util/isString";
 import isReserved from "../util/isReserved";
 
 
+const options = {
+  before: ( target, name ) => isString( name ) && isReserved( name ) ? 0 : null
+};
+
 export default {
-  set: {
-    before: ( target, name ) => {
-      return isString( name ) && isReserved( name ) ? 0 : null;
-    }
-  },
-  get: {
-    before: ( target, name ) => {
-      return isString( name ) && isReserved( name ) ? 0 : null;
-    }
-  },
-  deleteProperty: {
-    before: ( target, name ) => {
-      return isString( name ) && isReserved( name ) ? 0 : null;
-    }
-  }
+  set: options,
+  get: options,
+  deleteProperty: options
 };

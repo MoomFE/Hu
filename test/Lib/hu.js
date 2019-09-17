@@ -356,22 +356,14 @@
     return charCode === 0x24;
   });
 
+  const options = {
+    before: ( target, name ) => isString( name ) && isReserved( name ) ? 0 : null
+  };
+
   var observeHu = {
-    set: {
-      before: ( target, name ) => {
-        return isString( name ) && isReserved( name ) ? 0 : null;
-      }
-    },
-    get: {
-      before: ( target, name ) => {
-        return isString( name ) && isReserved( name ) ? 0 : null;
-      }
-    },
-    deleteProperty: {
-      before: ( target, name ) => {
-        return isString( name ) && isReserved( name ) ? 0 : null;
-      }
-    }
+    set: options,
+    get: options,
+    deleteProperty: options
   };
 
   var each = /**
