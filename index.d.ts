@@ -389,6 +389,23 @@ interface Hu{
     each( obj: {}, callback: function ): void;
 
     /**
+     * 创建一个干净的目标对象, 并把传入方法的对象全部浅拷贝到目标对象并返回目标对象
+     *  - 创建出来的对象没有原型对象
+     *  - 相当于 `Object.assign( Object.create( null ), ...args );`
+     * @param args 需要继承到目标对象的一些对象
+     */
+    create( ...args: {}[] ): {},
+
+    /**
+     * 将值转为字符串形式
+     *  - `null` 和 `undefined` 将转为 `''`
+     *  - 数组 `[]` 和对象 `{}` 将使用 `JSON.stringify` 进行转换
+     *  - 其余类型将直接使用 `String( value )` 进行转换
+     * @param value 需要转换的对象
+     */
+    toString( value: any ): string,
+
+    /**
      * 判断传入对象是否是纯粹的对象
      * @param obj 需要判断的对象
      */
@@ -407,12 +424,28 @@ interface Hu{
     isPrimitive( obj: any ): boolean;
 
     /**
+     * 判断传入对象是否可迭代
+     *  - 判断传入对象是否可以使用 `for...of` 进行迭代
+     * @param value 需要判断的对象
+     */
+    isIterable( value ): boolean,
+
+    /**
      * 判断传入的两个值是否相等
      *  - 用于避免 NaN !== NaN 的问题
      * @param value 需要判断的对象
      * @param value2 需要判断的对象
      */
     isEqual( value, value2 ): boolean;
+
+    /**
+     * 判断传入的两个值是否不相等
+     *  - 用于避免 NaN !== NaN 的问题
+     *  - isEqual 的翻转方法
+     * @param value 需要判断的对象
+     * @param value2 需要判断的对象
+     */
+    isNotEqual,
 
     /**
      * 判断传入对象是否是 String 类型
@@ -442,12 +475,6 @@ interface Hu{
      * 返回一个字符串 UID
      */
     uid(): string;
-
-    /**
-     * 创建一个可以缓存方法返回值的方法
-     * @param fn 需要缓存值的方法
-     */
-    cached( fn: ( str: string ) => any ): function;
 
   }
 
