@@ -6,6 +6,8 @@ import isFunction from "../../shared/util/isFunction";
 import { apply, has } from "../../shared/global/Reflect/index";
 import addEventListener from "../../shared/util/addEventListener";
 import removeEventListener from "../../shared/util/removeEventListener";
+import each from "../../shared/util/each";
+import { isArray } from "../../shared/global/Array/index";
 
 
 export default class BasicEventDirective{
@@ -160,5 +162,26 @@ const eventModifiers = {
 [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
   eventModifiers[ key ] = ( elem, event ) => {
     return !!event[ key + 'Key' ];
+  }
+});
+
+/**
+ * 按键码
+ */
+const keyNames = {
+  esc: 'Escape',
+  tab: 'Tab',
+  enter: 'Enter',
+  space: ' ',
+  up: 'Up',
+  left: 'Left',
+  right: 'Right',
+  down: 'Down',
+  delete: [ 'Backspace', 'Delete' ]
+};
+
+each( keyNames, ( key, name ) => {
+  eventModifiers[ key ] = ( elem, event ) => {
+    return isArray( name ) ? name.indexOf( event.key ) > -1 : name === event.key;
   }
 });

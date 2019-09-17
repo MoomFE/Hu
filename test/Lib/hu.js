@@ -2467,6 +2467,27 @@
     };
   });
 
+  /**
+   * 按键码
+   */
+  const keyNames = {
+    esc: 'Escape',
+    tab: 'Tab',
+    enter: 'Enter',
+    space: ' ',
+    up: 'Up',
+    left: 'Left',
+    right: 'Right',
+    down: 'Down',
+    delete: [ 'Backspace', 'Delete' ]
+  };
+
+  each( keyNames, ( key, name ) => {
+    eventModifiers[ key ] = ( elem, event ) => {
+      return isArray( name ) ? name.indexOf( event.key ) > -1 : name === event.key;
+    };
+  });
+
   class BasicBooleanDirective{
 
     constructor( element, name, strings, modifiers ){
