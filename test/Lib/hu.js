@@ -1631,6 +1631,79 @@
     removeEventListener.call( elem, type, listener, options );
   };
 
+  /**
+   * 指令方法合集
+   */
+  const directiveFns = new WeakMap();
+
+  /**
+   * 当前已经被指令激活的指令方法
+   */
+  const activeDirectiveFns = new WeakMap();
+
+  /**
+   * 注册指令方法
+   */
+  function directiveFn( directive ){
+    /** 当前指令方法的 ID */
+    const id = uid$1();
+
+    // 注册指令方法后
+    // 返回方法等待用户调用并传参
+    return ( ...args ) => {
+      // 用户调用并传参后
+      // 返回方法等待渲染时被调用
+      function directiveFn( part ){
+        const options = activeDirectiveFns.get( part );
+        const instance = options.ins || (
+          options.ins = new directive( part )
+        );
+
+        instance.commit( ...options.args );
+      }
+
+      // 将指令方法相关的信息存储起来
+      directiveFns.set( directiveFn, {
+        id,
+        args,
+        directive
+      });
+
+      // 返回方法
+      // 等待下一步调用
+      return directiveFn;
+    };
+  }
+
+  class bind{
+    constructor( part ){
+      this.part = part;
+    }
+    commit( proxy, name ){
+      // 并非首次绑定且绑定的对象和上次不一样了
+      // 那么对上次的绑定解绑
+      if( this.unWatch && ( this.proxy !== proxy || this.name !== name ) ){
+        this.unWatch();
+      }
+
+      this.proxy = proxy;
+      this.name = name;
+      this.unWatch = $watch(
+        () => proxy[ name ],
+        ( value ) => this.part.commit( value ),
+        {
+          immediate: true,
+          deep: true
+        }
+      );
+    }
+    destroy(){
+      this.unWatch();
+    }
+  }
+
+  var bind$1 = directiveFn( bind );
+
   class ModelDirective{
 
     constructor( element, strings, modifiers ){
@@ -1665,7 +1738,12 @@
     }
 
     commit( value, isDirectiveFn ){
-      if( isDirectiveFn || !( isArray( value ) && value.length > 1 ) ){
+      let directiveFnInfo;
+
+      // 支持传入 bind 进行绑定
+      if( isDirectiveFn && ( directiveFnInfo = directiveFns.get( value ) ).directive === bind ){
+        value = directiveFnInfo.args;
+      }else if( isDirectiveFn || !( isArray( value ) && value.length > 1 ) ){
         throw new Error(':model 指令的参数出错, 不支持此种传参 !');
       }
 
@@ -2663,16 +2741,6 @@
 
   };
 
-  /**
-   * 指令方法合集
-   */
-  const directiveFns = new WeakMap();
-
-  /**
-   * 当前已经被指令激活的指令方法
-   */
-  const activeDirectiveFns = new WeakMap();
-
   var commitPart = /**
    * 给指令提交更改所用方法
    * @param {{}} part 需要提交更改的指令
@@ -3264,39 +3332,6 @@
   }
 
   /**
-   * 注册指令方法
-   */
-  function directiveFn( directive ){
-    /** 当前指令方法的 ID */
-    const id = uid$1();
-
-    // 注册指令方法后
-    // 返回方法等待用户调用并传参
-    return ( ...args ) => {
-      // 用户调用并传参后
-      // 返回方法等待渲染时被调用
-      function directiveFn( part ){
-        const options = activeDirectiveFns.get( part );
-        const instance = options.ins || (
-          options.ins = new directive( part )
-        );
-
-        instance.commit( ...options.args );
-      }
-
-      // 将指令方法相关的信息存储起来
-      directiveFns.set( directiveFn, {
-        id,
-        args
-      });
-
-      // 返回方法
-      // 等待下一步调用
-      return directiveFn;
-    };
-  }
-
-  /**
    * lit-html
    * directives/repeat
    * Licensed under the MIT License
@@ -3498,37 +3533,6 @@
 
   );
 
-  var bind = directiveFn(
-
-    class bind{
-      constructor( part ){
-        this.part = part;
-      }
-      commit( proxy, name ){
-        // 并非首次绑定且绑定的对象和上次不一样了
-        // 那么对上次的绑定解绑
-        if( this.unWatch && ( this.proxy !== proxy || this.name !== name ) ){
-          this.unWatch();
-        }
-
-        this.proxy = proxy;
-        this.name = name;
-        this.unWatch = $watch(
-          () => proxy[ name ],
-          ( value ) => this.part.commit( value ),
-          {
-            immediate: true,
-            deep: true
-          }
-        );
-      }
-      destroy(){
-        this.unWatch();
-      }
-    }
-
-  );
-
   function html( strings, ...values ){
     return new TemplateResult( strings, values, 'html' );
   }
@@ -3540,7 +3544,7 @@
   assign( html, {
     unsafe: unsafeHTML,
     repeat,
-    bind,
+    bind: bind$1,
     svg
   });
 

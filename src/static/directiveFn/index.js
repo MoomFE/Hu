@@ -26,7 +26,8 @@ export default function directiveFn( directive ){
     // 将指令方法相关的信息存储起来
     directiveFns.set( directiveFn, {
       id,
-      args
+      args,
+      directive
     });
 
     // 返回方法
