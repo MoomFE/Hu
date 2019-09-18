@@ -1,4 +1,5 @@
   - 💄 事件监听修饰符新增按键码修饰符 `esc,tab,enter,space,up,left,right,down,delete`
+  - 🐞 修复 .native 事件修饰符失效的问题 ( [#22](https://github.com/MoomFE/Hu/issues/22) )
 
 # 1.0.0-bata.16
   - 📅 2019-09-16
