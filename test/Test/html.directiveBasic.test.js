@@ -49,6 +49,118 @@ describe( 'html.directiveBasic', () => {
     expect( div.firstElementChild.disabled ).is.false;
   });
 
+  it( '使用 @event 的方式对自定义元素绑定事件监听, 会监听由自定义元素触发的方法', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName );
+
+    render( div )(
+      [`<${ customName } @click=`, `></${ customName }>`],
+      () => index++
+    );
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.$emit('click');
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 @event 的方式对自定义元素绑定事件监听, 使用 .once 修饰符', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName );
+
+    render( div )(
+      [`<${ customName } @click.once=`, `></${ customName }>`],
+      () => index++
+    );
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.$emit('click');
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 1 );
+  });
+
+  it( '使用 @event 的方式对自定义元素绑定事件监听, 使用 .native 修饰符', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName );
+
+    render( div )(
+      [`<${ customName } @click.native=`, `></${ customName }>`],
+      () => index++
+    );
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 3 );
+
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 3 );
+
+    div.firstElementChild.$emit('click');
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 3 );
+  });
+
+  it( '使用 @event 的方式对自定义元素绑定事件监听, 使用 .native 和 .once 修饰符', () => {
+    const customName = window.customName;
+    let index = 0;
+
+    Hu.define( customName );
+
+    render( div )(
+      [`<${ customName } @click.native.once=`, `></${ customName }>`],
+      () => index++
+    );
+
+    expect( index ).is.equals( 0 );
+
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.click();
+    div.firstElementChild.click();
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 1 );
+
+    div.firstElementChild.$emit('click');
+    div.firstElementChild.$emit('click');
+    expect( index ).is.equals( 1 );
+  });
+
   it( '使用 @event 的方式对元素绑定事件监听', () => {
     let index = 0;
 
