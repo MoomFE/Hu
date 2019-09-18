@@ -1371,6 +1371,58 @@ describe( 'html.directive', () => {
     });
   });
 
+  it( '使用 :model 指令时可以传入 bind 指令方法, 会提取 bind 指令方法的参数进行绑定', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: '1'
+      },
+      render( html ){
+        index++;
+        return html`
+          <input ref="input" :model=${ html.bind( this, 'value' ) }>
+        `;
+      }
+    });
+
+    expect( index ).is.equals( 1 );
+    expect( hu.$refs.input.value ).is.equals('1');
+
+    hu.value = '2';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+      expect( hu.$refs.input.value ).is.equals('2');
+
+      hu.value = '3';
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 1 );
+        expect( hu.$refs.input.value ).is.equals('3');
+
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+        hu.$forceUpdate();
+
+        expect( index ).is.equals( 4 );
+        expect( hu.$refs.input.value ).is.equals('3');
+
+        hu.value = '4';
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 4 );
+          expect( hu.$refs.input.value ).is.equals('4');
+
+          hu.value = '5';
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+            expect( hu.$refs.input.value ).is.equals('5');
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
   it( '使用 :text 指令对元素 textContent 进行绑定', () => {
     const text = '<span>123</span>'
 
