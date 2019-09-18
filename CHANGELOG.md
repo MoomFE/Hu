@@ -1,4 +1,5 @@
   - 💄 事件监听修饰符新增按键码修饰符 `esc,tab,enter,space,up,left,right,down,delete`
+  - 💄 model 指令可以使用 bind 指令方法的结果进行绑定 ( [#15](https://github.com/MoomFE/Hu/issues/15) )
   - 🐞 修复 .native 事件修饰符失效的问题 ( [#22](https://github.com/MoomFE/Hu/issues/22) )
 
 # 1.0.0-bata.16
