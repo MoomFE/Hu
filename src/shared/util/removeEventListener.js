@@ -1,3 +1,9 @@
+/**
+ * 事件移除方法
+ */
+const removeEventListener = HTMLElement.prototype.removeEventListener;
+
+
 export default
 /**
  * 移除事件
@@ -7,5 +13,5 @@ export default
  * @param {boolean|{}} options
  */
 ( elem, type, listener, options ) => {
-  elem.removeEventListener( type, listener, options );
+  removeEventListener.call( elem, type, listener, options );
 }

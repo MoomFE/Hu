@@ -1327,7 +1327,13 @@
 
   }
 
-  var addEventListener = /**
+  /**
+   * 事件绑定方法
+   */
+  const addEventListener = HTMLElement.prototype.addEventListener;
+
+
+  var addEventListener$1 = /**
    * 绑定事件
    * @param {Element} elem
    * @param {string} type
@@ -1335,7 +1341,7 @@
    * @param {boolean|{}} options
    */
   ( elem, type, listener, options ) => {
-    elem.addEventListener( type, listener, options );
+    addEventListener.call( elem, type, listener, options );
   };
 
   const {
@@ -1608,7 +1614,13 @@
     return elem.getAttribute( attr );
   };
 
-  var removeEventListener = /**
+  /**
+   * 事件移除方法
+   */
+  const removeEventListener = HTMLElement.prototype.removeEventListener;
+
+
+  var removeEventListener$1 = /**
    * 移除事件
    * @param {Element} elem
    * @param {string} type
@@ -1616,7 +1628,7 @@
    * @param {boolean|{}} options
    */
   ( elem, type, listener, options ) => {
-    elem.removeEventListener( type, listener, options );
+    removeEventListener.call( elem, type, listener, options );
   };
 
   class ModelDirective{
@@ -1698,7 +1710,7 @@
         this.unWatch();
         // 清除事件绑定
         this.events.forEach( args => {
-          apply( removeEventListener, null, args );
+          apply( removeEventListener$1, null, args );
         });
       }
     }
@@ -1730,7 +1742,7 @@
     // 存储事件
     model.events.push( args );
     // 绑定事件
-    apply( addEventListener, null, args );
+    apply( addEventListener$1, null, args );
   }
 
 
@@ -2356,7 +2368,7 @@
         });
       }
       // 绑定的对象是正常 DOM 元素
-      else addEventListener(
+      else addEventListener$1(
         element, type,
         this.listener = function listener( event ){
           // 修饰符检测
@@ -2365,7 +2377,7 @@
           }
           // 只执行一次
           if( once ){
-            removeEventListener( element, type, listener, options );
+            removeEventListener$1( element, type, listener, options );
           }
           // 修饰符全部检测通过, 执行用户传入方法
           isFunction( self.value ) && apply( self.value, this, arguments );
@@ -4363,9 +4375,9 @@
 
   var util = create$1({
     /** 绑定事件 */
-    addEvent: addEventListener,
+    addEvent: addEventListener$1,
     /** 移除事件 */
-    removeEvent: removeEventListener,
+    removeEvent: removeEventListener$1,
     /** 对象遍历方法 */
     each,
     /** 创建一个干净的目标对象, 并把传入方法的对象全部浅拷贝到目标对象并返回目标对象 */
