@@ -1,13 +1,12 @@
 import isSingleBind from "../util/isSingleBind";
-import { definedCustomElement, activeCustomElement } from "../../static/define/const";
-import { keys } from "../../shared/global/Object/index";
-import { supportsPassive } from "../../shared/const/env";
 import isFunction from "../../shared/util/isFunction";
-import { apply, has } from "../../shared/global/Reflect/index";
 import addEventListener from "../../shared/util/addEventListener";
 import removeEventListener from "../../shared/util/removeEventListener";
-import each from "../../shared/util/each";
+import { keys } from "../../shared/global/Object/index";
+import { supportsPassive } from "../../shared/const/env";
 import { isArray } from "../../shared/global/Array/index";
+import { definedCustomElement, activeCustomElement } from "../../static/define/const";
+import { apply, has } from "../../shared/global/Reflect/index";
 
 
 export default class BasicEventDirective{
@@ -17,46 +16,14 @@ export default class BasicEventDirective{
       throw new Error('@event 指令的传值只允许包含单个表达式 !');
     }
 
-    const options = this.opts = initEventOptions( modifiers );
+    this.elem = element;
+    this.type = type;
+    const options = this.opts = this.init( modifiers );
     const isCE = this.isCE = definedCustomElement.has(
       element.nodeName.toLowerCase()
     );
 
-    this.elem = element;
-    this.type = type;
-
     this.addEvent( element, type, options, isCE, this );
-  }
-
-  addEvent( element, type, { once, native, options, modifiers }, isCE, self ){
-    // 绑定的对象是通过 Hu 注册的自定义元素
-    if( isCE && !native ){
-      const instance = activeCustomElement.get( element );
-      const fn = once ? '$once' : '$on';
-
-      instance[ fn ]( type, this.listener = function( ...args ){
-        isFunction( self.value ) && apply( self.value, this, args );
-      });
-    }
-    // 绑定事件在正常元素上
-    else{
-      addEventListener(
-        element, type,
-        this.listener = function listener( event ){
-          // 修饰符检测
-          for( const modifier of modifiers ){
-            if( modifier( element, event, modifiers ) === false ) return;
-          }
-          // 只执行一次
-          if( once ){
-            removeEventListener( element, type, listener, options );
-          }
-          // 修饰符全部检测通过, 执行用户传入方法
-          isFunction( self.value ) && apply( self.value, this, arguments );
-        },
-        options
-      );
-    }
   }
 
   commit( value, isDirectiveFn ){
@@ -67,30 +34,91 @@ export default class BasicEventDirective{
     this.value = value;
   }
 
-}
+  /**
+   * 事件绑定
+   * @param {Element} element 需要绑定事件的 DOM 元素
+   * @param {String} type 需要绑定的事件名称
+   * @param {{}} options 事件参数
+   * @param {Boolean} isCE 绑定事件的 DOM 元素是否是自定义元素组件
+   * @param {BasicEventDirective} self 当前指令对想
+   */
+  addEvent( element, type, { once, native, options, modifiers }, isCE, self ){
+    // 绑定的对象是注册的自定义元素
+    if( isCE && !native ){
+      const instance = activeCustomElement.get( element );
+      const fn = once ? '$once' : '$on';
 
-
-/**
- * 处理事件相关参数
- */
-function initEventOptions( modifiers ){
-  const usingEventOptions = {};
-  const usingEventModifiers = [];
-  const modifierKeys = usingEventModifiers.keys = keys( modifiers );
-
-  for( let name of modifierKeys ){
-    if( eventOptions[ name ] ) usingEventOptions[ name ] = true;
-    else if( eventModifiers[ name ] ) usingEventModifiers.push( eventModifiers[ name ] );
+      instance[ fn ]( type, this.listener = function( ...args ){
+        isFunction( self.value ) && apply( self.value, this, args );
+      });
+    }
+    // 绑定的对象是正常 DOM 元素
+    else addEventListener(
+      element, type,
+      this.listener = function listener( event ){
+        // 修饰符检测
+        for( const modifier of modifiers ){
+          if( modifier( element, event, modifiers ) === false ) return;
+        }
+        // 只执行一次
+        if( once ){
+          removeEventListener( element, type, listener, options );
+        }
+        // 修饰符全部检测通过, 执行用户传入方法
+        isFunction( self.value ) && apply( self.value, this, arguments );
+      },
+      options
+    );
   }
 
-  const { once, passive, capture, native } = usingEventOptions;
+  /**
+   * 初始化用户传入的修饰符
+   * @param {{}} modifiers 用户传入的所有修饰符
+   */
+  init( modifiers ){
+    /** 使用的事件可选参数 */
+    const usingEventOptions = {};
+    /** 使用的修饰符处理方法 */
+    const usingModifiers = [];
+    /** 使用的按键码修饰符 */
+    const usingKeys = [];
+    /** 所有修饰符的数组 */
+    const modifierKeys = usingModifiers.keys = keys( modifiers );
 
-  return {
-    once,
-    native,
-    options: passive ? { passive, capture } : capture,
-    modifiers: usingEventModifiers
-  };
+    // 寻找相应的修饰符处理方法
+    modifierKeys.forEach( name => {
+      // 事件可选参数
+      if( eventOptions[ name ] ) usingEventOptions[ name ] = true;
+      // 功能性事件修饰符
+      else if( eventModifiers[ name ] ){
+        usingModifiers.push( eventModifiers[ name ] );
+
+        // left / right
+        if( keyNames[ name ] ){
+          usingKeys.push( name );
+        }
+      }
+      // 按键码修饰符
+      else if( keyNames[ name ] ){
+        usingKeys.push( name );
+      }
+    });
+
+    // 处理按键码修饰符
+    if( usingKeys.length ) usingModifiers.push(
+      keysCheck( usingKeys)
+    );
+
+    const { once, capture, passive, native } = usingEventOptions;
+
+    return {
+      once,
+      native,
+      options: passive ? { passive, capture } : capture,
+      modifiers: usingModifiers
+    };
+  }
+
 }
 
 
@@ -104,12 +132,10 @@ const eventOptions = {
   native: true
 };
 
-
 /**
  * 功能性事件修饰符
  */
 const eventModifiers = {
-
   /**
    * 阻止事件冒泡
    */
@@ -144,20 +170,22 @@ const eventModifiers = {
     }
     return true;
   }
-
 };
 
+
 /**
- * 鼠标按钮
+ * 功能性事件修饰符 - 鼠标按钮
  */
 [ 'left', 'middle', 'right' ].forEach(( button, index ) => {
   eventModifiers[ button ] = ( elem, event ) => {
-    return has( event, 'button' ) && event.button === index;
+    if( has( event, 'button' ) ){
+      if( event.button !== index ) return false;
+    }
   }
 });
 
 /**
- * 系统修饰键
+ * 功能性事件修饰符 - 系统修饰键
  */
 [ 'ctrl', 'alt', 'shift', 'meta' ].forEach( key => {
   eventModifiers[ key ] = ( elem, event ) => {
@@ -180,8 +208,18 @@ const keyNames = {
   delete: [ 'Backspace', 'Delete' ]
 };
 
-each( keyNames, ( key, name ) => {
-  eventModifiers[ key ] = ( elem, event ) => {
-    return isArray( name ) ? name.indexOf( event.key ) > -1 : name === event.key;
-  }
-});
+/**
+ * 按键码处理
+ * @param {string[]} keys 
+ */
+function keysCheck( keys ){
+  return ( elem, event ) => {
+    if( !event.type.indexOf('key') ) for( let key of keys ){
+      const value = keyNames[ key ];
+
+      if( isArray( value ) ? value.indexOf( event.key ) === -1 : value !== event.key ){
+        return false;
+      }
+    }
+  };
+}
