@@ -31,8 +31,13 @@ export default function directiveFn( directive ){
 
       instance.commit( ...options.args );
     }
+
+    // 指令方法可能需要代理指令使用步骤
+    const usingProxy = 'using' in directive ? directive.using( using )
+                                            : using;
+
     // 将指令方法相关的信息存储起来
-    directiveFns.set( using, {
+    directiveFns.set( usingProxy, {
       id,
       args,
       directive
@@ -40,7 +45,7 @@ export default function directiveFn( directive ){
 
     // 返回方法
     // 等待下一步调用
-    return using;
+    return usingProxy;
   }
 
   // 指令方法可能需要代理指令创建步骤
