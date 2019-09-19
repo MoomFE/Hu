@@ -34,7 +34,7 @@ export class BindDirectiveFnClass{
       get( target, name ){
         if( args.length === 1 ) return bind( args[0], name );
         return safety(() => {
-          return bind( args[ 0 ][ args[ 1 ] ], name );
+          return bind( args[0][ args[1] ], name );
         });
       }
     });
