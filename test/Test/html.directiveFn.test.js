@@ -619,4 +619,22 @@ describe( 'html.directiveFn', () => {
     });
   });
 
+  it( 'html.bind: 只传入观察者对象时返回值可以用于批量创建对象绑定', ( done ) => {
+    const data = Hu.observable({
+      text1: '10',
+      text2: '20'
+    });
+    const { text1, text2 } = bind( data );
+
+    render( div )`<div>${ text1 }${ text2 }</div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1020</div>`);
+
+    data.text1 = '11';
+    data.text2 = '21';
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1121</div>`);
+      done();
+    });
+  });
+
 });
