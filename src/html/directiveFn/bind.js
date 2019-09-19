@@ -1,5 +1,6 @@
 import directiveFn from '../../static/directiveFn/index';
 import $watch from '../../core/prototype/$watch';
+import { pushTarget, popTarget } from '../../static/observable/const';
 
 
 export class BindDirectiveFnClass{
@@ -27,6 +28,17 @@ export class BindDirectiveFnClass{
   destroy(){
     this.unWatch();
   }
+
+  static proxy( using, args ){
+    return new Proxy( using, {
+      get( target, name ){
+        if( args.length === 1 ) return bind( args[0], name );
+      }
+    });
+  }
 }
 
-export default directiveFn( BindDirectiveFnClass );
+
+const bind = directiveFn( BindDirectiveFnClass );
+
+export default bind;

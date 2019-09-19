@@ -1712,9 +1712,18 @@
     destroy(){
       this.unWatch();
     }
+
+    static proxy( using, args ){
+      return new Proxy( using, {
+        get( target, name ){
+          if( args.length === 1 ) return bind( args[0], name );
+        }
+      });
+    }
   }
 
-  var bind = directiveFn( BindDirectiveFnClass );
+
+  const bind = directiveFn( BindDirectiveFnClass );
 
   class ModelDirective{
 
