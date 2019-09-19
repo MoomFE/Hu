@@ -485,6 +485,12 @@ interface Hu{
      */
     uid(): string;
 
+    /**
+     * 用于防止方法执行时被依赖收集
+     * @param fn 需要执行的方法
+     */
+    safety<T>( fn: () => T ): T;
+
   },
 
   /**
