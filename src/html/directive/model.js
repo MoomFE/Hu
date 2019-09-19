@@ -1,6 +1,6 @@
 import isSingleBind from "../util/isSingleBind";
 import { isArray } from "../../shared/global/Array/index";
-import { pushTarget, popTarget } from "../../static/observable/const";
+import { safety } from "../../static/observable/const";
 import { observe } from "../../static/observable/observe";
 import addEventListener from "../../shared/util/addEventListener";
 import { filter } from "../../shared/global/Array/prototype";
@@ -64,23 +64,17 @@ export default class ModelDirective{
     // 说明在可处理的元素范围内
     if( handler = this.handler ){
 
-      // 需要处理观察者对象, 为了避免被 render 函数捕获
-      // 需要添加一个空的占位符到调用堆栈中
-      pushTarget();
-
-      options = this.options || (
-        this.options = observe([])
-      );
-
-      options.splice( 0, 2, ...value );
-
-      if( init = this.init ){
-        this.set( value[ 0 ][ value[ 1 ] ] );
-      }
-
-      // 处理观察者对象完成
-      // 移除占位符
-      popTarget();
+      safety(() => {
+        options = this.options || (
+          this.options = observe([])
+        );
+  
+        options.splice( 0, 2, ...value );
+  
+        if( init = this.init ){
+          this.set( value[ 0 ][ value[ 1 ] ] );
+        }
+      });
 
       // 若未初始化过监听, 则进行初始化
       if( !init ){

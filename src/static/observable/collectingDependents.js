@@ -1,5 +1,5 @@
 import uid from "../../shared/util/uid";
-import { pushTarget, popTarget } from "./const";
+import { targetCollection } from "./const";
 import { observeProxyMap } from "./observe";
 import defineProperty from "../../shared/util/defineProperty";
 import { queueUpdate } from "./scheduler";
@@ -53,17 +53,15 @@ export class Watcher{
     if( this.isComputed ) this.shouldUpdate = false;
 
     // 开始收集依赖
-    pushTarget( this );
-
-    // 执行方法
-    // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
-    result = this.fn();
-
-    // 需要进行深度监听
-    if( this.isWatchDeep ) this.wd( result );
-
     // 方法执行完成, 则依赖收集完成
-    popTarget();
+    targetCollection( this, () => {
+      // 执行方法
+      // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
+      result = this.fn();
+
+      // 需要进行深度监听
+      if( this.isWatchDeep ) this.wd( result );
+    });
 
     return result;
   }

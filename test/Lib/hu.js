@@ -28,14 +28,31 @@
    */
   const targetStack = [];
 
-  function pushTarget( target ){
+  /**
+   * 用于 Watcher 的依赖收集
+   * @param {*} target 
+   * @param {*} fn 
+   */
+  function targetCollection( target, fn ){
+    let result;
+
     targetStack.push( target);
     targetStack.target = target;
-  }
 
-  function popTarget(){
+    result = fn();
+
     targetStack.pop();
     targetStack.target = targetStack[ targetStack.length - 1 ];
+
+    return result;
+  }
+
+  /**
+   * 用于防止方法执行时被 Watcher 依赖收集
+   * @param {*} fn 
+   */
+  function safety( fn ){
+    return targetCollection( 0, fn );
   }
 
   var isNotEqual = /**
@@ -999,17 +1016,15 @@
       if( this.isComputed ) this.shouldUpdate = false;
 
       // 开始收集依赖
-      pushTarget( this );
-
-      // 执行方法
-      // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
-      result = this.fn();
-
-      // 需要进行深度监听
-      if( this.isWatchDeep ) this.wd( result );
-
       // 方法执行完成, 则依赖收集完成
-      popTarget();
+      targetCollection( this, () => {
+        // 执行方法
+        // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
+        result = this.fn();
+
+        // 需要进行深度监听
+        if( this.isWatchDeep ) this.wd( result );
+      });
 
       return result;
     }
@@ -1717,14 +1732,9 @@
       return new Proxy( using, {
         get( target, name ){
           if( args.length === 1 ) return bind( args[0], name );
-
-          pushTarget();
-
-          const proxy = args[ 0 ][ args[ 1 ] ];
-
-          popTarget();
-
-          return bind( proxy, name );
+          return safety(() => {
+            return bind( args[ 0 ][ args[ 1 ] ], name );
+          });
         }
       });
     }
@@ -1784,23 +1794,17 @@
       // 说明在可处理的元素范围内
       if( handler = this.handler ){
 
-        // 需要处理观察者对象, 为了避免被 render 函数捕获
-        // 需要添加一个空的占位符到调用堆栈中
-        pushTarget();
-
-        options = this.options || (
-          this.options = observe([])
-        );
-
-        options.splice( 0, 2, ...value );
-
-        if( init = this.init ){
-          this.set( value[ 0 ][ value[ 1 ] ] );
-        }
-
-        // 处理观察者对象完成
-        // 移除占位符
-        popTarget();
+        safety(() => {
+          options = this.options || (
+            this.options = observe([])
+          );
+    
+          options.splice( 0, 2, ...value );
+    
+          if( init = this.init ){
+            this.set( value[ 0 ][ value[ 1 ] ] );
+          }
+        });
 
         // 若未初始化过监听, 则进行初始化
         if( !init ){

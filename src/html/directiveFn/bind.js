@@ -1,6 +1,6 @@
 import directiveFn from '../../static/directiveFn/index';
 import $watch from '../../core/prototype/$watch';
-import { pushTarget, popTarget } from '../../static/observable/const';
+import { safety } from '../../static/observable/const';
 
 
 export class BindDirectiveFnClass{
@@ -33,14 +33,9 @@ export class BindDirectiveFnClass{
     return new Proxy( using, {
       get( target, name ){
         if( args.length === 1 ) return bind( args[0], name );
-
-        pushTarget();
-
-        const proxy = args[ 0 ][ args[ 1 ] ];
-
-        popTarget();
-
-        return bind( proxy, name );
+        return safety(() => {
+          return bind( args[ 0 ][ args[ 1 ] ], name );
+        });
       }
     });
   }
