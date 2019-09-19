@@ -1,5 +1,8 @@
+  - 🌟 指令方法注册时可定义 `create` 静态方法用于代理指令创建步骤
+  - 🌟 指令方法注册时可定义 `using` 静态方法用于代理指令使用步骤
+
 # 1.0.0-bata.17
-- 📅 2019-09-18
+  - 📅 2019-09-18
   - 💄 事件监听修饰符新增按键码修饰符 `esc,tab,enter,space,up,left,right,down,delete`
   - 💄 model 指令可以使用 bind 指令方法的结果进行绑定 ( [#15](https://github.com/MoomFE/Hu/issues/15) )
   - 🐞 修复 .native 事件修饰符失效的问题 ( [#22](https://github.com/MoomFE/Hu/issues/22) )
@@ -119,3 +122,12 @@
 # 1.0.0-bata.1
   - 📅 2019-04-15
   - 🌟 基本功能已完成
+
+<br>
+<hr>
+<br>
+🌟: 新增的功能 / 重要更新<br>
+💄: 已有功能优化 / 一般更新<br>
+⚠️: 与上一版本可能不兼容的更新<br>
+🐞: BUG 修复<br>
+📅: 版本更新日期
