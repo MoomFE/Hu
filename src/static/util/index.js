@@ -14,6 +14,7 @@ import isObject from "../../shared/util/isObject";
 import isFunction from "../../shared/util/isFunction";
 import isSymbol from "../../shared/util/isSymbol";
 import uid from "../../shared/util/uid";
+import { safety } from "../observable/const";
 
 
 export default create({
@@ -48,5 +49,7 @@ export default create({
   /** 判断传入对象是否是 Symbol 类型 */
   isSymbol,
   /** 返回一个字符串 UID */
-  uid
+  uid,
+  /** 用于防止方法执行时被依赖收集 */
+  safety
 });

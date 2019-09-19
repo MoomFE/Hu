@@ -48,7 +48,7 @@
   }
 
   /**
-   * 用于防止方法执行时被 Watcher 依赖收集
+   * 用于防止方法执行时被依赖收集
    * @param {*} fn 
    */
   function safety( fn ){
@@ -4442,7 +4442,9 @@
     /** 判断传入对象是否是 Symbol 类型 */
     isSymbol,
     /** 返回一个字符串 UID */
-    uid: uid$1
+    uid: uid$1,
+    /** 用于防止方法执行时被依赖收集 */
+    safety
   });
 
   function directive( name, directive ){
