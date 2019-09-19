@@ -276,14 +276,9 @@ class DirectiveFnClass {
   destroy(): void;
 
   /**
-   * 用于代理指令创建步骤
+   * 用于代理指令方法的使用步骤
    */
-  static create();
-
-  /**
-   * 用于代理指令使用步骤
-   */
-  static using();
+  static proxy();
 
 }
 

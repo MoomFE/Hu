@@ -1980,61 +1980,10 @@ describe( 'Hu.static', () => {
     expect( destroyIndex ).is.equals( 0 );
   });
 
-  it( 'Hu.directiveFn: 注册指令时可以注册 create 静态方法来代理指令创建步骤', () => {
+  it( 'Hu.directiveFn: 注册指令时可以注册 proxy 静态方法来代理指令方法的使用步骤', () => {
     let constructorIndex = 0;
     let commitIndex = 0;
     let destroyIndex = 0;
-    let staticCreateStep1Index = 0, staticCreateStep2Index = 0;
-    const fn = Hu.directiveFn( class{
-      constructor(){
-        constructorIndex++
-      }
-      commit( value ){
-        commitIndex++;
-      }
-      destroy(){
-        destroyIndex++;
-      }
-
-      static create( create ){
-        staticCreateStep1Index++;
-        return ( ...args ) => {
-          staticCreateStep2Index++;
-          return create( ...args );
-        };
-      }
-    });
-
-    expect( constructorIndex ).is.equals( 0 );
-    expect( commitIndex ).is.equals( 0 );
-    expect( destroyIndex ).is.equals( 0 );
-    expect( staticCreateStep1Index ).is.equals( 1 );
-    expect( staticCreateStep2Index ).is.equals( 0 );
-
-    const fn1 = fn( 1, 2, 3 );
-
-    expect( constructorIndex ).is.equals( 0 );
-    expect( commitIndex ).is.equals( 0 );
-    expect( destroyIndex ).is.equals( 0 );
-    expect( staticCreateStep1Index ).is.equals( 1 );
-    expect( staticCreateStep2Index ).is.equals( 1 );
-
-    Hu.render( div )`
-      <div>${ fn1 }</div>
-    `;
-
-    expect( constructorIndex ).is.equals( 1 );
-    expect( commitIndex ).is.equals( 1 );
-    expect( destroyIndex ).is.equals( 0 );
-    expect( staticCreateStep1Index ).is.equals( 1 );
-    expect( staticCreateStep2Index ).is.equals( 1 );
-  });
-
-  it( 'Hu.directiveFn: 注册指令时可以注册 using 静态方法来代理指令使用步骤', () => {
-    let constructorIndex = 0;
-    let commitIndex = 0;
-    let destroyIndex = 0;
-    let staticCreateStep1Index = 0, staticCreateStep2Index = 0;
     let staticUsingStep1Index = 0, staticUsingStep2Index = 0;
     const fn = Hu.directiveFn( class{
       constructor(){
@@ -2047,15 +1996,7 @@ describe( 'Hu.static', () => {
         destroyIndex++;
       }
 
-      static create( create ){
-        staticCreateStep1Index++;
-        return ( ...args ) => {
-          staticCreateStep2Index++;
-          return create( ...args );
-        };
-      }
-
-      static using( using ){
+      static proxy( using ){
         staticUsingStep1Index++;
         return ( part ) => {
           staticUsingStep2Index++;
@@ -2067,8 +2008,6 @@ describe( 'Hu.static', () => {
     expect( constructorIndex ).is.equals( 0 );
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( staticCreateStep1Index ).is.equals( 1 );
-    expect( staticCreateStep2Index ).is.equals( 0 );
     expect( staticUsingStep1Index ).is.equals( 0 );
     expect( staticUsingStep2Index ).is.equals( 0 );
 
@@ -2077,8 +2016,6 @@ describe( 'Hu.static', () => {
     expect( constructorIndex ).is.equals( 0 );
     expect( commitIndex ).is.equals( 0 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( staticCreateStep1Index ).is.equals( 1 );
-    expect( staticCreateStep2Index ).is.equals( 1 );
     expect( staticUsingStep1Index ).is.equals( 1 );
     expect( staticUsingStep2Index ).is.equals( 0 );
 
@@ -2089,8 +2026,6 @@ describe( 'Hu.static', () => {
     expect( constructorIndex ).is.equals( 1 );
     expect( commitIndex ).is.equals( 1 );
     expect( destroyIndex ).is.equals( 0 );
-    expect( staticCreateStep1Index ).is.equals( 1 );
-    expect( staticCreateStep2Index ).is.equals( 1 );
     expect( staticUsingStep1Index ).is.equals( 1 );
     expect( staticUsingStep2Index ).is.equals( 1 );
   });

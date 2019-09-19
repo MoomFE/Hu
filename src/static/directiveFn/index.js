@@ -15,7 +15,7 @@ export default function directiveFn( directive ){
    *  - 返回方法等待用户调用并传参
    * @param  {...any} args 
    */
-  function create( ...args ){
+  return ( ...args ) => {
     /**
      * 指令使用步骤
      *  - 用户调用并传参后
@@ -32,7 +32,7 @@ export default function directiveFn( directive ){
     }
 
     // 指令方法可能需要代理指令使用步骤
-    const usingProxy = 'using' in directive ? directive.using( using )
+    const usingProxy = 'proxy' in directive ? directive.proxy( using, args )
                                             : using;
 
     // 将指令方法相关的信息存储起来
@@ -45,9 +45,5 @@ export default function directiveFn( directive ){
     // 返回方法
     // 等待下一步调用
     return usingProxy;
-  }
-
-  // 指令方法可能需要代理指令创建步骤
-  return 'create' in directive ? directive.create( create )
-                               : create;
+  };
 };
