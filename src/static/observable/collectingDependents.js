@@ -5,7 +5,7 @@ import defineProperty from "../../shared/util/defineProperty";
 import { queueUpdate } from "./scheduler";
 
 
-export class Watcher{
+export default class Watcher{
   /**
    * 
    * @param {function} fn 需要收集依赖的方法

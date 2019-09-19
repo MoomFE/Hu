@@ -1,5 +1,5 @@
 import { optionsMap } from "../../../static/define/initOptions/index";
-import { Watcher } from "../../../static/observable/collectingDependents";
+import Watcher from "../../../static/observable/collectingDependents";
 import { renderWatcherCache } from "./const/index";
 import render from "../../../render/index";
 import html from "../../../html/html";

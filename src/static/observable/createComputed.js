@@ -1,6 +1,6 @@
 import { create } from "../../shared/global/Object/index";
 import { observe, observeMap } from "./observe";
-import { Watcher } from "./collectingDependents";
+import Watcher from "./collectingDependents";
 import noop from "../../shared/util/noop";
 import returnFalse from "../../shared/util/returnFalse";
 import { queueMap, queue, index } from "./scheduler";
