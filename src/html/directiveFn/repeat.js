@@ -20,7 +20,7 @@ import destroyPart from '../util/destroyPart';
 
 export default directiveFn(
 
-  class repeat{
+  class RepeatDirectiveFnClass{
     constructor( part ){
       if( !( part instanceof NodePart ) ){
         throw new Error('Hu.html.repeat 指令方法只能在文本区域中使用 !');

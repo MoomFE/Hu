@@ -1687,7 +1687,7 @@
     };
   }
 
-  class bind{
+  class BindDirectiveFnClass{
     constructor( part ){
       this.part = part;
     }
@@ -1714,7 +1714,7 @@
     }
   }
 
-  var bind$1 = directiveFn( bind );
+  var bind = directiveFn( BindDirectiveFnClass );
 
   class ModelDirective{
 
@@ -1753,7 +1753,7 @@
       let directiveFnInfo;
 
       // 支持传入 bind 进行绑定
-      if( isDirectiveFn && ( directiveFnInfo = directiveFns.get( value ) ).directive === bind ){
+      if( isDirectiveFn && ( directiveFnInfo = directiveFns.get( value ) ).directive === BindDirectiveFnClass ){
         value = directiveFnInfo.args;
       }else if( isDirectiveFn || !( isArray( value ) && value.length > 1 ) ){
         throw new Error(':model 指令的参数出错, 不支持此种传参 !');
@@ -3355,7 +3355,7 @@
 
   var repeat = directiveFn(
 
-    class repeat{
+    class RepeatDirectiveFnClass{
       constructor( part ){
         if( !( part instanceof NodePart ) ){
           throw new Error('Hu.html.repeat 指令方法只能在文本区域中使用 !');
@@ -3517,7 +3517,7 @@
 
   var unsafeHTML = directiveFn(
 
-    class unsafeHTML{
+    class UnsafeHTMLDirectiveFnClass{
       constructor( part ){
         if( !( part instanceof NodePart ) ){
           throw new Error('Hu.html.unsafe 指令方法只能在文本区域中使用 !');
@@ -3556,7 +3556,7 @@
   assign( html, {
     unsafe: unsafeHTML,
     repeat,
-    bind: bind$1,
+    bind,
     svg
   });
 

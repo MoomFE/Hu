@@ -10,7 +10,7 @@ import getAttribute from "../../shared/util/getAttribute";
 import { apply } from "../../shared/global/Reflect/index";
 import removeEventListener from "../../shared/util/removeEventListener";
 import { directiveFns } from "../../static/directiveFn/const/index";
-import { bind } from "../directiveFn/bind";
+import { BindDirectiveFnClass } from "../directiveFn/bind";
 
 
 export default class ModelDirective{
@@ -50,7 +50,7 @@ export default class ModelDirective{
     let directiveFnInfo;
 
     // 支持传入 bind 进行绑定
-    if( isDirectiveFn && ( directiveFnInfo = directiveFns.get( value ) ).directive === bind ){
+    if( isDirectiveFn && ( directiveFnInfo = directiveFns.get( value ) ).directive === BindDirectiveFnClass ){
       value = directiveFnInfo.args;
     }else if( isDirectiveFn || !( isArray( value ) && value.length > 1 ) ){
       throw new Error(':model 指令的参数出错, 不支持此种传参 !');

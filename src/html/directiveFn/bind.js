@@ -2,7 +2,7 @@ import directiveFn from '../../static/directiveFn/index';
 import $watch from '../../core/prototype/$watch';
 
 
-export class bind{
+export class BindDirectiveFnClass{
   constructor( part ){
     this.part = part;
   }
@@ -29,4 +29,4 @@ export class bind{
   }
 }
 
-export default directiveFn( bind );
+export default directiveFn( BindDirectiveFnClass );
