@@ -275,6 +275,16 @@ class DirectiveFnClass {
    */
   destroy(): void;
 
+  /**
+   * 用于代理指令创建步骤
+   */
+  static create();
+
+  /**
+   * 用于代理指令使用步骤
+   */
+  static using();
+
 }
 
 const pluginInstall = ( Hu: Hu, privateOptions: {}, ...args: any[] ) => {
