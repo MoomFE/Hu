@@ -570,6 +570,29 @@ describe( 'Hu.static', () => {
     expect( Hu.util.uid() ).is.not.equals( Hu.util.uid() );
   });
 
+  it( 'Hu.util.safety: 用于防止方法执行时被依赖收集', ( done ) => {
+    const hu = new Hu({
+      el: div,
+      data: {
+        value: 123
+      },
+      render( html ){
+        return Hu.util.safety(() => {
+          return html`<div>${ this.value }</div>`;
+        });
+      }
+    });
+
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>123</div>`);
+
+    hu.value = 1234;
+    hu.$nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>123</div>`);
+
+      done();
+    });
+  });
+
   it( 'Hu.directive: 使用该方法可用于注册自定义指令', () => {
     const args = [];
 
