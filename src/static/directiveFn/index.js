@@ -1,6 +1,5 @@
 import { directiveFns, activeDirectiveFns } from "./const/index";
 import uid from "../../shared/util/uid";
-import { has } from "../../shared/global/Reflect/index";
 
 
 /**
