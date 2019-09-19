@@ -1,4 +1,5 @@
   - 🌟 指令方法注册时可定义 `proxy` 静态方法用于代理指令方法的使用步骤
+  - 🌟 新增 `safety` 工具方法, 用于防止方法执行时被依赖收集
   - 💄 bind 指令方法支持只传入观察者对象时返回值可以用于批量使用 bind 创建对象绑定 ( [#14](https://github.com/MoomFE/Hu/issues/14) )
   - 💄 bind 指令方法支持返回值可以用于批量使用 bind 创建对象绑定 ( [#14](https://github.com/MoomFE/Hu/issues/14#issuecomment-527061535) )
 
