@@ -1717,6 +1717,14 @@
       return new Proxy( using, {
         get( target, name ){
           if( args.length === 1 ) return bind( args[0], name );
+
+          pushTarget();
+
+          const proxy = args[ 0 ][ args[ 1 ] ];
+
+          popTarget();
+
+          return bind( proxy, name );
         }
       });
     }
