@@ -1,10 +1,11 @@
 import each from "../../../shared/util/each";
-import createComputed from "../../observable/createComputed";
+import Computed from "../../observable/computed";
 import { observeProxyMap, observe } from "../../observable/observe";
 import isEmptyObject from "../../../shared/util/isEmptyObject";
 import observeReadonly from "../../../shared/const/observeReadonly";
 import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 import injectionToInstance from "../util/injectionToInstance";
+import emptyObject from "../../../shared/const/emptyObject";
 
 
 /**
@@ -31,25 +32,24 @@ export default function initComputed( isCustomElement, target, root, options, ta
     });
   }
 
-  const computedOptions = createComputed( targetProxy );
-  const [ ,, appendComputed,, computedTargetProxyInterceptor ] = computedOptions;
+  const computedInstance = new Computed( targetProxy );
+  const computedInstanceTargetProxyInterceptor = computedInstance.targetProxyInterceptor;
 
   // 存储当前实例 computed 相关数据
-  computedMap.set( targetProxy, computedOptions );
+  computedMap.set( targetProxy, computedInstance );
 
   // 将拦截器伪造成观察者对象
-  observeProxyMap.set( computedTargetProxyInterceptor, {} );
-
+  observeProxyMap.set( computedInstanceTargetProxyInterceptor, emptyObject );
 
   each( computed, ( name, computed ) => {
-    appendComputed( name, computed );
+    computedInstance.add( name, computed );
     injectionToInstance( isCustomElement, target, root, name, {
-      get: () => computedTargetProxyInterceptor[ name ],
-      set: value => computedTargetProxyInterceptor[ name ] = value
+      get: () => computedInstanceTargetProxyInterceptor[ name ],
+      set: value => computedInstanceTargetProxyInterceptor[ name ] = value
     });
   });
 
   injectionPrivateToInstance( isCustomElement, target, root, {
-    $computed: computedTargetProxyInterceptor
+    $computed: computedInstanceTargetProxyInterceptor
   });
 }

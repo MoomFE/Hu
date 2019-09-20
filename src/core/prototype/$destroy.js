@@ -27,13 +27,5 @@ export default function(){
 }
 
 function removeComputed( optionsMap, self ){
-  const options = optionsMap.get( self );
-
-  if( options ){
-    const [ optionsMap, remove ] = options;
-
-    optionsMap.forEach(( value, name ) => {
-      return remove( name );
-    })
-  }
+  optionsMap.has( self ) && optionsMap.get( self ).clean();
 }
