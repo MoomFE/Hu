@@ -6,6 +6,7 @@ import isFunction from "../../shared/util/isFunction";
 import Computed from "../../static/observable/computed";
 import uid from "../../shared/util/uid";
 import isNotEqual from "../../shared/util/isNotEqual";
+import { safety } from "../../static/observable/const";
 
 
 /**
@@ -67,7 +68,9 @@ export default function $watch( expOrFn, callback, options ){
         if( runCallback ){
           //   首次运行             值不一样      值一样的话, 判断是否是深度监听
           if( immediate || isNotEqual( value, oldValue ) || deep ){
-            callback.call( self, value, oldValue );
+            safety(() => {
+              return callback.call( self, value, oldValue );
+            });
           }
         }
 
