@@ -1401,25 +1401,40 @@
   class Computed{
 
     constructor( self, isWatch ){
-      const optionsMap = this.optionsMap = new Map;
-      const target = this.target = create( null );
-      const targetProxy = this.targetProxy = observe( target );
 
-      this.self = self;
-      this.isComputed = !isWatch;
-      this.observeOptions = !isWatch && observeMap.get( target );
+      /** 当前计算属性容器的子级的一些参数 */
+      const optionsMap = this.optionsMap = new Map;
+      /** 当前计算属性容器对象 */
+      const target = this.target = create( null );
+      /** 当前计算属性容器的观察者对象 */
+      const targetProxy = this.targetProxy = observe( target );
+      /** 当前计算属性容器的获取与修改拦截器 */
       this.targetProxyInterceptor = new Proxy( targetProxy, {
         get: computedTargetProxyInterceptorGet( optionsMap ),
         set: computedTargetProxyInterceptorSet( optionsMap ),
         deleteProperty: returnFalse
       });
+      /** 保存相关参数 */
+      this.self = self;
+      this.isComputed = !isWatch;
+      this.observeOptions = !isWatch && observeMap.get( target );
+      
     }
 
+    /**
+     * 添加计算属性
+     * @param {*} name 计算属性存储的名称
+     * @param {*} computed 计算属性 getter / setter 对象
+     * @param {*} isWatchDeep 当前计算属性是否是用于创建深度监听
+     */
     add( name, computed, isWatchDeep ){
       const { self, isComputed, observeOptions, target, targetProxy, optionsMap } = this;
 
+      /** 计算属性的 setter */
       const set = ( computed.set || noop ).bind( self );
+      /** 计算属性的 getter */
       const get = computed.get.bind( self );
+      /** 计算属性的 watcher */
       const watcher = new Watcher(
         () => {
           if( isComputed ) return targetProxy[ name ] = get( self );
@@ -1431,26 +1446,37 @@
         name
       );
 
+      // 添加占位符
       target[ name ] = void 0;
+      // 存储计算属性参数
       optionsMap.set( name, {
         watcher,
         set
       });
     }
 
+    /**
+     * 移除计算属性
+     * @param {*} name 需要移除的计算属性名称
+     */
     delete( name ){
+      // 获取计算属性的参数
       const optionsMap = this.optionsMap;
       const options = optionsMap.get( name );
 
+      // 有这个计算属性
       if( options ){
         const watcher = options.watcher;
 
+        // 清空依赖
         watcher.clean();
+        // 删除计算属性
         optionsMap.delete( name );
-
+        // 如果当前 ( 计算属性 / watch ) 在异步更新队列中, 则进行删除
         if( queueMap.has( watcher ) ){
+          // 从异步更新队列标记中删除
           queueMap.delete( watcher );
-
+          // 从异步更新队列中删除
           for( let i = index, len = queue.length; i < len; i++ ){
             if( queue[ i ] === watcher ){
               queue.splice( i, 1 );
@@ -1461,6 +1487,9 @@
       }
     }
 
+    /**
+     * 清空计算属性
+     */
     clean(){
       for( let [ name ] of this.optionsMap ){
         this.delete( name );
@@ -1471,11 +1500,14 @@
 
 
   const computedTargetProxyInterceptorGet = optionsMap => ( target, name ) => {
+    // 获取计算属性的参数
     const options = optionsMap.get( name );
 
+    // 防止用户通过 $computed 获取不存在的计算属性
     if( options ){
       const watcher = options.watcher;
 
+      // 计算属性未初始化或需要更新
       if( !watcher.isInit || watcher.shouldUpdate ){
         watcher.get();
       }
@@ -1485,17 +1517,25 @@
   };
 
   const computedTargetProxyInterceptorSet = optionsMap => ( target, name, value ) => {
+    // 获取计算属性的参数
     const options = optionsMap.get( name );
 
+    // 防止用户通过 $computed 设置不存在的计算属性
     if( options ){
       return options.set( value ), true;
     }
     return false;
   };
 
+  /**
+   * 存放每个实例的 watch 数据
+   */
   const watcherMap = new WeakMap();
 
 
+  /**
+   * 监听 Hu 实例对象和观察者对象
+   */
   function $watch( expOrFn, callback, options ){
     // 传入对象的写法
     if( isPlainObject( callback ) ){
@@ -1505,13 +1545,17 @@
     const self = this || emptyObject;
     let computedInstance, computedInstanceTarget, computedInstanceTargetProxyInterceptor;
     let watchFn;
+
     if( !( watchFn = parseExpOrFn( expOrFn, self ) ) ){
       return;
     }
 
+    // 尝试读取当前实例 watch 相关数据
     if( watcherMap.has( self ) ){
       computedInstance = watcherMap.get( self );
-    }else{
+    }
+    // 存储当前实例 watch 相关数据
+    else{
       watcherMap.set(
         self,
         computedInstance = new Computed( self, true )
@@ -1522,11 +1566,16 @@
     computedInstanceTarget = computedInstance.target;
     computedInstanceTargetProxyInterceptor = computedInstance.targetProxyInterceptor;
 
+    /** 当前 watch 的存储名称 */
     const name = uid$1();
+    /** 是否监听对象内部值的变化 */
     const deep = !!options.deep;
+    /** 是否立即执行回调 */
     let immediate;
+    /** 值改变是否执行回调 */
     let runCallback = immediate = !!options.immediate;
 
+    // 添加监听
     computedInstance.add(
       name,
       {
@@ -1535,6 +1584,7 @@
           const value = watchFn();
 
           if( runCallback ){
+            //   首次运行             值不一样      值一样的话, 判断是否是深度监听
             if( immediate || isNotEqual( value, oldValue ) || deep ){
               callback.call( self, value, oldValue );
             }
@@ -1546,24 +1596,31 @@
       deep
     );
 
+    // 首次运行, 以收集依赖
     computedInstanceTargetProxyInterceptor[ name ];
-
+    // 下次值改变时运行回调
     runCallback = true;
     immediate = false;
 
+    // 返回取消监听的方法
     return () => {
       computedInstance.delete( name );
     };
   }
 
-
+  /**
+   * 解析 $watch 首个参数
+   */
   function parseExpOrFn( expOrFn, self ){
+    // 使用键路径表达式
     if( isString( expOrFn ) ){
       return parsePath( expOrFn ).bind( self );
     }
+    // 使用计算属性函数
     else if( isFunction( expOrFn ) ){
       return expOrFn.bind( self );
     }
+    // 不支持其他写法
     return;
   }
 
