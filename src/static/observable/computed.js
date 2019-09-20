@@ -34,9 +34,9 @@ export default class Computed{
    * 添加计算属性
    * @param {*} name 计算属性存储的名称
    * @param {*} computed 计算属性 getter / setter 对象
-   * @param {*} isWatchDeep 当前计算属性是否是用于创建深度监听
+   * @param {*} deep 当前计算属性是否是用于创建深度监听
    */
-  add( name, computed, isWatchDeep ){
+  add( name, computed, deep ){
     const { self, isComputed, observeOptions, target, targetProxy, optionsMap } = this;
 
     /** 计算属性的 setter */
@@ -49,10 +49,8 @@ export default class Computed{
         if( isComputed ) return targetProxy[ name ] = get( self );
         return target[ name ] = get();
       },
-      isComputed,
-      isWatchDeep,
-      observeOptions,
-      name
+      isComputed && { observeOptions, name },
+      !isComputed && { deep }
     );
 
     // 添加占位符

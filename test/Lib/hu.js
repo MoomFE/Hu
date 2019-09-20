@@ -969,16 +969,14 @@
   }
 
   class Watcher{
+
     /**
      * 
-     * @param {function} fn 需要收集依赖的方法
-     * @param {boolean} isComputed true:  计算属性
-     *                             false: 监听方法
-     * @param {boolean} isWatchDeep 是否是用于创建深度监听
-     * @param {*} observeOptions 计算属性的观察者对象选项参数
-     * @param {*} name 计算属性的名称
+     * @param {*} fn 需要收集依赖的方法
+     * @param {*} computedOptions 计算属性参数
+     * @param {*} watchOptions 监听方法参数
      */
-    constructor( fn, isComputed, isWatchDeep, observeOptions, name ){
+    constructor( fn, computedOptions, watchOptions ){
       // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
       this.id = uid$1();
       // 当前 watcher 在运行时收集的依赖集合
@@ -987,25 +985,32 @@
       this.fn = fn;
       // 当订阅的依赖更新后, 会调用当前方法重新计算依赖
       this.get = Watcher.get.bind( this );
-      // 存储其他参数
-      if( isComputed ){
-        let shouldUpdate;
 
-        this.isComputed = isComputed;
-        this.observeOptions = observeOptions;
-        this.name = name;
-        // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
-        defineProperty$1( this, 'shouldUpdate', {
-          get: () => shouldUpdate,
-          set: value => {
-            if( shouldUpdate = value ) this.ssu();
-          }
-        });
-      }else if( isComputed === false ){
-        this.isWatch = true;
-        this.isWatchDeep = isWatchDeep;
-      }
+      // 存储其他参数
+      if( computedOptions ) this.initComputed( computedOptions );
+      else if( watchOptions ) this.initWatch( watchOptions );
     }
+
+    initComputed({ observeOptions, name }){
+      this.isComputed = true;
+      this.observeOptions = observeOptions;
+      this.name = name;
+
+      // 依赖是否需要更新 ( 无依赖时可只在使用时进行更新 )
+      let shouldUpdate;
+      defineProperty$1( this, 'shouldUpdate', {
+        get: () => shouldUpdate,
+        set: value => {
+          if( shouldUpdate = value ) this.ssu();
+        }
+      });
+    }
+
+    initWatch({ deep }){
+      this.isWatch = true;
+      this.deep = deep;
+    }
+
     /** 传入方法的依赖收集包装 */
     static get( result ){
       // 清空依赖
@@ -1023,11 +1028,12 @@
         result = this.fn();
 
         // 需要进行深度监听
-        if( this.isWatchDeep ) this.wd( result );
+        if( this.deep ) this.wd( result );
       });
 
       return result;
     }
+
     /** 标记订阅信息 */
     add( subs, name ){
       let sub = subs[ name ] || (
@@ -1041,6 +1047,7 @@
       // 当依赖方法被重新调用, 会移除订阅的依赖
       this.deps.add( sub );
     }
+
     /** 依赖的重新收集 */
     update(){
       if( this.isComputed ){
@@ -1053,6 +1060,7 @@
 
       queueUpdate( this );
     }
+
     /** 清空之前收集的依赖 */
     clean(){
       // 对之前收集的依赖进行清空
@@ -1060,6 +1068,7 @@
       // 清空依赖
       this.deps.clear();
     }
+
     /** 仅为监听方法时使用 -> 对依赖的最终返回值进行深度监听 ( watch deep ) */
     wd( result ){
       const observeOptions = observeProxyMap.get( result );
@@ -1068,6 +1077,7 @@
         observeOptions.deepSubs.add( this );
       }
     }
+
     /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
     ec( callback ){
       let { subs } = this.observeOptions;
@@ -1078,6 +1088,7 @@
           if( callback( cd ) === false ) break;
       }
     }
+
     /** 仅为计算属性时使用 -> 递归设置当前计算属性的依赖计算属性需要更新 ( set should update ) */
     ssu(){
       this.ec( cd => {
@@ -1086,6 +1097,7 @@
         }
       });
     }
+
     /** 仅为计算属性时使用 -> 判断当前计算属性是否没有依赖 */
     get lazy(){
       let lazy = true;
@@ -1099,6 +1111,7 @@
 
       return lazy;
     }
+
   }
 
   /**
@@ -1425,9 +1438,9 @@
      * 添加计算属性
      * @param {*} name 计算属性存储的名称
      * @param {*} computed 计算属性 getter / setter 对象
-     * @param {*} isWatchDeep 当前计算属性是否是用于创建深度监听
+     * @param {*} deep 当前计算属性是否是用于创建深度监听
      */
-    add( name, computed, isWatchDeep ){
+    add( name, computed, deep ){
       const { self, isComputed, observeOptions, target, targetProxy, optionsMap } = this;
 
       /** 计算属性的 setter */
@@ -1440,10 +1453,8 @@
           if( isComputed ) return targetProxy[ name ] = get( self );
           return target[ name ] = get();
         },
-        isComputed,
-        isWatchDeep,
-        observeOptions,
-        name
+        isComputed && { observeOptions, name },
+        !isComputed && { deep }
       );
 
       // 添加占位符
