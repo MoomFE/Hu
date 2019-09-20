@@ -1633,6 +1633,102 @@ describe( 'Hu.instance', () => {
     });
   });
 
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 回调内使用观察者对象时函数不会被重新触发', ( done ) => {
+    let result;
+    let index = 0;
+    const data = Hu.observable({
+      a: 1
+    });
+
+    const hu = new Hu({
+      data: {
+        b: 2
+      }
+    });
+
+    hu.$watch(
+      function(){
+        index++;
+        return this.b;
+      },
+      function( value, oldValue ){
+        data.a;
+        result = [ value, oldValue ];
+      }
+    );
+
+    expect( result ).is.undefined;
+    expect( index ).is.equals( 1 );
+
+    hu.b = 3;
+    hu.$nextTick(() => {
+      expect( result ).is.deep.equals([ 3, 2 ]);
+      expect( index ).is.equals( 2 );
+
+      hu.b = 4;
+      hu.$nextTick(() => {
+        expect( result ).is.deep.equals([ 4, 3 ]);
+        expect( index ).is.equals( 3 );
+
+        data.a = 2;
+        hu.$nextTick(() => {
+          expect( result ).is.deep.equals([ 4, 3 ]);
+          expect( index ).is.equals( 3 );
+
+          done();
+        });
+      });
+    });
+  });
+
+  it( '使用 $watch 方法对一个函数的返回值进行监听, 回调内使用观察者对象时函数不会被重新触发 ( Vue )', ( done ) => {
+    let result;
+    let index = 0;
+    const data = Vue.observable({
+      a: 1
+    });
+
+    const vm = new Vue({
+      data: {
+        b: 2
+      }
+    });
+
+    vm.$watch(
+      function(){
+        index++;
+        return this.b;
+      },
+      function( value, oldValue ){
+        data.a;
+        result = [ value, oldValue ];
+      }
+    );
+
+    expect( result ).is.undefined;
+    expect( index ).is.equals( 1 );
+
+    vm.b = 3;
+    vm.$nextTick(() => {
+      expect( result ).is.deep.equals([ 3, 2 ]);
+      expect( index ).is.equals( 2 );
+
+      vm.b = 4;
+      vm.$nextTick(() => {
+        expect( result ).is.deep.equals([ 4, 3 ]);
+        expect( index ).is.equals( 3 );
+
+        data.a = 2;
+        vm.$nextTick(() => {
+          expect( result ).is.deep.equals([ 4, 3 ]);
+          expect( index ).is.equals( 3 );
+
+          done();
+        });
+      });
+    });
+  });
+
   it( '使用 $watch 方法会返回取消监听的方法, 运行后, 会立即停止监听', () => {
     let result;
     const hu = new Hu({

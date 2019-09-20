@@ -1600,129 +1600,129 @@ describe( 'options.watch', () => {
     });
   });
 
-  // it( '使用 watch 对实例内的属性进行监听, 对数组内置方法对数组内容进行修改时也会触发回调', ( done ) => {
-  //   let index = 0;
-  //   const hu = new Hu({
-  //     data: () => ({
-  //       a: [ 1, 2 ]
-  //     }),
-  //     watch: {
-  //       a: {
-  //         deep: true,
-  //         immediate: true,
-  //         handler: () => index++
-  //       }
-  //     }
-  //   });
+  it( '使用 watch 对实例内的属性进行监听, 对数组内置方法对数组内容进行修改时也会触发回调', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: [ 1, 2 ]
+      }),
+      watch: {
+        a: {
+          deep: true,
+          immediate: true,
+          handler: () => index++
+        }
+      }
+    });
 
-  //   expect( hu.a ).is.deep.equals([ 1, 2 ]);
-  //   expect( index ).is.equals( 1 );
+    expect( hu.a ).is.deep.equals([ 1, 2 ]);
+    expect( index ).is.equals( 1 );
 
-  //   hu.a.push( 3 );
-  //   hu.$nextTick(() => {
-  //     expect( hu.a ).is.deep.equals([ 1, 2, 3 ]);
-  //     expect( index ).is.equals( 2 );
+    hu.a.push( 3 );
+    hu.$nextTick(() => {
+      expect( hu.a ).is.deep.equals([ 1, 2, 3 ]);
+      expect( index ).is.equals( 2 );
 
-  //     hu.a.pop();
-  //     hu.$nextTick(() => {
-  //       expect( hu.a ).is.deep.equals([ 1, 2 ]);
-  //       expect( index ).is.equals( 3 );
+      hu.a.pop();
+      hu.$nextTick(() => {
+        expect( hu.a ).is.deep.equals([ 1, 2 ]);
+        expect( index ).is.equals( 3 );
 
-  //       hu.a.shift();
-  //       hu.$nextTick(() => {
-  //         expect( hu.a ).is.deep.equals([ 2 ]);
-  //         expect( index ).is.equals( 4 );
+        hu.a.shift();
+        hu.$nextTick(() => {
+          expect( hu.a ).is.deep.equals([ 2 ]);
+          expect( index ).is.equals( 4 );
 
-  //         hu.a.unshift( 4 );
-  //         hu.$nextTick(() => {
-  //           expect( hu.a ).is.deep.equals([ 4, 2 ]);
-  //           expect( index ).is.equals( 5 );
+          hu.a.unshift( 4 );
+          hu.$nextTick(() => {
+            expect( hu.a ).is.deep.equals([ 4, 2 ]);
+            expect( index ).is.equals( 5 );
 
-  //           hu.a.splice( 1, 0, 5 );
-  //           hu.$nextTick(() => {
-  //             expect( hu.a ).is.deep.equals([ 4, 5, 2 ]);
-  //             expect( index ).is.equals( 6 );
+            hu.a.splice( 1, 0, 5 );
+            hu.$nextTick(() => {
+              expect( hu.a ).is.deep.equals([ 4, 5, 2 ]);
+              expect( index ).is.equals( 6 );
 
-  //             hu.a.sort();
-  //             hu.$nextTick(() => {
-  //               expect( hu.a ).is.deep.equals([ 2, 4, 5 ]);
-  //               expect( index ).is.equals( 7 );
+              hu.a.sort();
+              hu.$nextTick(() => {
+                expect( hu.a ).is.deep.equals([ 2, 4, 5 ]);
+                expect( index ).is.equals( 7 );
 
-  //               hu.a.reverse();
-  //               hu.$nextTick(() => {
-  //                 expect( hu.a ).is.deep.equals([ 5, 4, 2 ]);
-  //                 expect( index ).is.equals( 8 );
+                hu.a.reverse();
+                hu.$nextTick(() => {
+                  expect( hu.a ).is.deep.equals([ 5, 4, 2 ]);
+                  expect( index ).is.equals( 8 );
 
-  //                 done();
-  //               });
-  //             });
-  //           });
-  //         });
-  //       });
-  //     });
-  //   });
-  // });
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 
-  // it( '使用 watch 对实例内的属性进行监听, 对数组内置方法对数组内容进行修改时也会触发回调 ( Vue )', ( done ) => {
-  //   let index = 0;
-  //   const vm = new Vue({
-  //     data: () => ({
-  //       a: [ 1, 2 ]
-  //     }),
-  //     watch: {
-  //       a: {
-  //         immediate: true,
-  //         handler: () => index++
-  //       }
-  //     }
-  //   });
+  it( '使用 watch 对实例内的属性进行监听, 对数组内置方法对数组内容进行修改时也会触发回调 ( Vue ) ( 不一致 )', ( done ) => {
+    let index = 0;
+    const vm = new Vue({
+      data: () => ({
+        a: [ 1, 2 ]
+      }),
+      watch: {
+        a: {
+          immediate: true,
+          handler: () => index++
+        }
+      }
+    });
 
-  //   expect( vm.a ).is.deep.equals([ 1, 2 ]);
-  //   expect( index ).is.equals( 1 );
+    expect( vm.a ).is.deep.equals([ 1, 2 ]);
+    expect( index ).is.equals( 1 );
 
-  //   vm.a.push( 3 );
-  //   vm.$nextTick(() => {
-  //     expect( vm.a ).is.deep.equals([ 1, 2, 3 ]);
-  //     expect( index ).is.equals( 2 );
+    vm.a.push( 3 );
+    vm.$nextTick(() => {
+      expect( vm.a ).is.deep.equals([ 1, 2, 3 ]);
+      expect( index ).is.equals( 2 );
 
-  //     vm.a.pop();
-  //     vm.$nextTick(() => {
-  //       expect( vm.a ).is.deep.equals([ 1, 2 ]);
-  //       expect( index ).is.equals( 3 );
+      vm.a.pop();
+      vm.$nextTick(() => {
+        expect( vm.a ).is.deep.equals([ 1, 2 ]);
+        expect( index ).is.equals( 3 );
 
-  //       vm.a.shift();
-  //       vm.$nextTick(() => {
-  //         expect( vm.a ).is.deep.equals([ 2 ]);
-  //         expect( index ).is.equals( 4 );
+        vm.a.shift();
+        vm.$nextTick(() => {
+          expect( vm.a ).is.deep.equals([ 2 ]);
+          expect( index ).is.equals( 4 );
 
-  //         vm.a.unshift( 4 );
-  //         vm.$nextTick(() => {
-  //           expect( vm.a ).is.deep.equals([ 4, 2 ]);
-  //           expect( index ).is.equals( 5 );
+          vm.a.unshift( 4 );
+          vm.$nextTick(() => {
+            expect( vm.a ).is.deep.equals([ 4, 2 ]);
+            expect( index ).is.equals( 5 );
 
-  //           vm.a.splice( 1, 0, 5 );
-  //           vm.$nextTick(() => {
-  //             expect( vm.a ).is.deep.equals([ 4, 5, 2 ]);
-  //             expect( index ).is.equals( 6 );
+            vm.a.splice( 1, 0, 5 );
+            vm.$nextTick(() => {
+              expect( vm.a ).is.deep.equals([ 4, 5, 2 ]);
+              expect( index ).is.equals( 6 );
 
-  //             vm.a.sort();
-  //             vm.$nextTick(() => {
-  //               expect( vm.a ).is.deep.equals([ 2, 4, 5 ]);
-  //               expect( index ).is.equals( 7 );
+              vm.a.sort();
+              vm.$nextTick(() => {
+                expect( vm.a ).is.deep.equals([ 2, 4, 5 ]);
+                expect( index ).is.equals( 7 );
 
-  //               vm.a.reverse();
-  //               vm.$nextTick(() => {
-  //                 expect( vm.a ).is.deep.equals([ 5, 4, 2 ]);
-  //                 expect( index ).is.equals( 8 );
+                vm.a.reverse();
+                vm.$nextTick(() => {
+                  expect( vm.a ).is.deep.equals([ 5, 4, 2 ]);
+                  expect( index ).is.equals( 8 );
 
-  //                 done();
-  //               });
-  //             });
-  //           });
-  //         });
-  //       });
-  //     });
-  //   });
-  // });
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 
 });
