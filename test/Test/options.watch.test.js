@@ -1374,7 +1374,115 @@ describe( 'options.watch', () => {
           hu.$nextTick(() => {
             expect( index2 ).is.equals( 4 );
             expect( index1 ).is.equals( 2 );
-  
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为数字可以设置深度监听几层对象 ( 数组 )', ( done ) => {
+    let index1 = 0;
+    let index2 = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: [
+          [ 1 ],
+          2
+        ]
+      }),
+      watch: {
+        a: [
+          {
+            deep: 2,
+            handler: () => index2++
+          },
+          {
+            deep: 1,
+            handler: () => index1++
+          }
+        ]
+      }
+    });
+
+    expect( index2 ).is.equals( 0 );
+    expect( index1 ).is.equals( 0 );
+
+    hu.a[ 1 ] = 3;
+    hu.$nextTick(() => {
+      expect( index2 ).is.equals( 1 );
+      expect( index1 ).is.equals( 1 );
+
+      hu.a[ 0 ][ 0 ] = 2;
+      hu.$nextTick(() => {
+        expect( index2 ).is.equals( 2 );
+        expect( index1 ).is.equals( 1 );
+
+        hu.a[ 0 ][ 0 ] = 3;
+        hu.$nextTick(() => {
+          expect( index2 ).is.equals( 3 );
+          expect( index1 ).is.equals( 1 );
+
+          hu.a[ 1 ] = 4;
+          hu.$nextTick(() => {
+            expect( index2 ).is.equals( 4 );
+            expect( index1 ).is.equals( 2 );
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为数字可以设置深度监听几层对象 ( 数组及对象 )', ( done ) => {
+    let index1 = 0;
+    let index2 = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: [
+          { b: 1 },
+          2
+        ]
+      }),
+      watch: {
+        a: [
+          {
+            deep: 2,
+            handler: () => index2++
+          },
+          {
+            deep: 1,
+            handler: () => index1++
+          }
+        ]
+      }
+    });
+
+    expect( index2 ).is.equals( 0 );
+    expect( index1 ).is.equals( 0 );
+
+    hu.a[ 1 ] = 3;
+    hu.$nextTick(() => {
+      expect( index2 ).is.equals( 1 );
+      expect( index1 ).is.equals( 1 );
+
+      hu.a[ 0 ].b = 2;
+      hu.$nextTick(() => {
+        expect( index2 ).is.equals( 2 );
+        expect( index1 ).is.equals( 1 );
+
+        hu.a[ 0 ].b = 3;
+        hu.$nextTick(() => {
+          expect( index2 ).is.equals( 3 );
+          expect( index1 ).is.equals( 1 );
+
+          hu.a[ 1 ] = 4;
+          hu.$nextTick(() => {
+            expect( index2 ).is.equals( 4 );
+            expect( index1 ).is.equals( 2 );
+
             done();
           });
         });
@@ -1446,6 +1554,126 @@ describe( 'options.watch', () => {
     });
   });
 
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为 Infinity 可以监听无限层级对象 ( 数组 )', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: [
+          1, [
+            1, [
+              1, [
+                1, [
+                  1, [ 1 ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      }),
+      watch: {
+        a: {
+          deep: Infinity,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a[ 0 ] = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a[ 1 ][ 0 ] = 2;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.a[ 1 ][ 1 ][ 0 ] = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          hu.a[ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+
+            hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 5 );
+
+              hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 6 );
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为 Infinity 可以监听无限层级对象 ( 数组及对象 )', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: [
+          1, [
+            1, [
+              1, [
+                1, [
+                  1, {
+                    b: 1
+                  }
+                ]
+              ]
+            ]
+          ]
+        ]
+      }),
+      watch: {
+        a: {
+          deep: Infinity,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a[ 0 ] = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a[ 1 ][ 0 ] = 2;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.a[ 1 ][ 1 ][ 0 ] = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          hu.a[ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+
+            hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 5 );
+
+              hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 1 ].b = 2;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 6 );
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为 -1 可以监听无限层级对象', ( done ) => {
     let index = 0;
     const hu = new Hu({
@@ -1498,6 +1726,126 @@ describe( 'options.watch', () => {
               expect( index ).is.equals( 5 );
 
               hu.a.b2.c2.d2.e2.f2.g = 2;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 6 );
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为 -1 可以监听无限层级对象 ( 数组 )', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: [
+          1, [
+            1, [
+              1, [
+                1, [
+                  1, [ 1 ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      }),
+      watch: {
+        a: {
+          deep: -1,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a[ 0 ] = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a[ 1 ][ 0 ] = 2;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.a[ 1 ][ 1 ][ 0 ] = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          hu.a[ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+
+            hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 5 );
+
+              hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 6 );
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为 -1 可以监听无限层级对象 ( 数组及对象 )', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: [
+          1, [
+            1, [
+              1, [
+                1, [
+                  1, {
+                    b: 1
+                  }
+                ]
+              ]
+            ]
+          ]
+        ]
+      }),
+      watch: {
+        a: {
+          deep: -1,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a[ 0 ] = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a[ 1 ][ 0 ] = 2;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.a[ 1 ][ 1 ][ 0 ] = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          hu.a[ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+
+            hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 0 ] = 2;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 5 );
+
+              hu.a[ 1 ][ 1 ][ 1 ][ 1 ][ 1 ].b = 2;
               hu.$nextTick(() => {
                 expect( index ).is.equals( 6 );
 
