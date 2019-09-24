@@ -13,7 +13,7 @@ export default class Watcher{
    * @param {*} computedOptions 计算属性参数
    * @param {*} watchOptions 监听方法参数
    */
-  constructor( fn, computedOptions, watchOptions ){
+  constructor( fn, computedOptions, isWatch ){
     // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
     this.id = uid();
     // 当前 watcher 在运行时收集的依赖集合
@@ -25,7 +25,7 @@ export default class Watcher{
 
     // 存储其他参数
     if( computedOptions ) this.initComputed( computedOptions );
-    else if( watchOptions ) this.initWatch( watchOptions );
+    else if( isWatch ) this.initWatch();
   }
 
   initComputed({ observeOptions, name }){
@@ -43,9 +43,8 @@ export default class Watcher{
     });
   }
 
-  initWatch({ deep }){
+  initWatch(){
     this.isWatch = true;
-    this.deep = deep;
   }
 
   /** 传入方法的依赖收集包装 */
@@ -63,9 +62,6 @@ export default class Watcher{
       // 执行方法
       // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
       result = this.fn();
-
-      // 需要进行深度监听
-      if( this.deep ) this.wd( result );
     });
 
     return result;
@@ -104,15 +100,6 @@ export default class Watcher{
     for( let watch of this.deps ) watch.delete( this );
     // 清空依赖
     this.deps.clear();
-  }
-
-  /** 仅为监听方法时使用 -> 对依赖的最终返回值进行深度监听 ( watch deep ) */
-  wd( result ){
-    const observeOptions = observeProxyMap.get( result );
-
-    if( observeOptions ){
-      observeOptions.deepSubs.add( this );
-    }
   }
 
   /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */

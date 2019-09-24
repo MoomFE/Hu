@@ -976,7 +976,7 @@
      * @param {*} computedOptions 计算属性参数
      * @param {*} watchOptions 监听方法参数
      */
-    constructor( fn, computedOptions, watchOptions ){
+    constructor( fn, computedOptions, isWatch ){
       // 当前方法收集依赖的 ID, 用于从 dependentsMap ( 存储 / 读取 ) 依赖项
       this.id = uid$1();
       // 当前 watcher 在运行时收集的依赖集合
@@ -988,7 +988,7 @@
 
       // 存储其他参数
       if( computedOptions ) this.initComputed( computedOptions );
-      else if( watchOptions ) this.initWatch( watchOptions );
+      else if( isWatch ) this.initWatch();
     }
 
     initComputed({ observeOptions, name }){
@@ -1006,9 +1006,8 @@
       });
     }
 
-    initWatch({ deep }){
+    initWatch(){
       this.isWatch = true;
-      this.deep = deep;
     }
 
     /** 传入方法的依赖收集包装 */
@@ -1026,9 +1025,6 @@
         // 执行方法
         // 方法执行的过程中触发响应对象的 getter 而将依赖存储进 deps
         result = this.fn();
-
-        // 需要进行深度监听
-        if( this.deep ) this.wd( result );
       });
 
       return result;
@@ -1067,15 +1063,6 @@
       for( let watch of this.deps ) watch.delete( this );
       // 清空依赖
       this.deps.clear();
-    }
-
-    /** 仅为监听方法时使用 -> 对依赖的最终返回值进行深度监听 ( watch deep ) */
-    wd( result ){
-      const observeOptions = observeProxyMap.get( result );
-
-      if( observeOptions ){
-        observeOptions.deepSubs.add( this );
-      }
     }
 
     /** 仅为计算属性时使用 -> 遍历依赖于当前计算属性的依赖参数 ( each ) */
@@ -1429,7 +1416,7 @@
       });
       /** 保存相关参数 */
       this.self = self;
-      this.isComputed = !isWatch;
+      this.isWatch = isWatch;
       this.observeOptions = !isWatch && observeMap.get( target );
       
     }
@@ -1438,10 +1425,9 @@
      * 添加计算属性
      * @param {*} name 计算属性存储的名称
      * @param {*} computed 计算属性 getter / setter 对象
-     * @param {*} deep 当前计算属性是否是用于创建深度监听
      */
-    add( name, computed, deep ){
-      const { self, isComputed, observeOptions, target, targetProxy, optionsMap } = this;
+    add( name, computed ){
+      const { self, isWatch, observeOptions, target, targetProxy, optionsMap } = this;
 
       /** 计算属性的 setter */
       const set = ( computed.set || noop ).bind( self );
@@ -1450,11 +1436,11 @@
       /** 计算属性的 watcher */
       const watcher = new Watcher(
         () => {
-          if( isComputed ) return targetProxy[ name ] = get( self );
-          return target[ name ] = get();
+          if( isWatch ) return target[ name ] = get();
+          return targetProxy[ name ] = get( self );
         },
-        isComputed && { observeOptions, name },
-        !isComputed && { deep }
+        !isWatch && { observeOptions, name },
+         isWatch
       );
 
       // 添加占位符
@@ -1580,7 +1566,7 @@
     /** 当前 watch 的存储名称 */
     const name = uid$1();
     /** 是否监听对象内部值的变化 */
-    const deep = !!options.deep;
+    const deep = parseDeep( options.deep );
     /** 是否立即执行回调 */
     let immediate;
     /** 值改变是否执行回调 */
@@ -1594,6 +1580,12 @@
           const oldValue = computedInstanceTarget[ name ];
           const value = watchFn();
 
+          // 深度监听
+          if( deep ){
+            watchDeeper( value, deep );
+          }
+
+          // 运行回调
           if( runCallback ){
             //   首次运行             值不一样      值一样的话, 判断是否是深度监听
             if( immediate || isNotEqual( value, oldValue ) || deep ){
@@ -1605,8 +1597,7 @@
 
           return value;
         }
-      },
-      deep
+      }
     );
 
     // 首次运行, 以收集依赖
@@ -1635,6 +1626,41 @@
     }
     // 不支持其他写法
     return;
+  }
+
+  /**
+   * 解析监听参数 deep
+   */
+  function parseDeep( deep ){
+    deep = Number( deep );
+
+    if( !deep ) deep = 0;
+    else if( deep < 0 ) deep = deep === -1 ? Infinity : 0;
+
+    return deep;
+  }
+
+  /**
+   * 深度监听模式
+   */
+  function watchDeeper( value, deep ){
+    // 监听对象的观察者对象选项参数
+    const observeOptions = observeProxyMap.get( value );
+
+    // 只有观察者对象才能响应深度监听
+    if( observeOptions ){
+      deep--;
+
+      if( observeOptions.isArray ){
+        value.forEach( value => {
+          if( deep ) watchDeeper( value, deep );
+        });
+      }else{
+        each( value, ( key, value ) => {
+          if( deep ) watchDeeper( value, deep );
+        });
+      }
+    }
   }
 
   var getAttribute = /**
