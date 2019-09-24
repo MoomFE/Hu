@@ -1858,6 +1858,27 @@ describe( 'options.watch', () => {
     });
   });
 
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 保证在监听无限引用的对象时是正常的', () => {
+    const data1 = Hu.observable({ a: 1 });
+    const data2 = Hu.observable({ b: 2 });
+
+    data1.data2 = data2;
+    data2.data1 = data1;
+
+    new Hu({
+      data: {
+        data1,
+        data2
+      },
+      watch: {
+        data1: {
+          deep: Infinity,
+          handler: () => {}
+        }
+      }
+    });
+  });
+
   it( '使用 watch 对实例内的属性进行监听, 值被删除时也会触发回调', ( done ) => {
     let result;
     const hu = new Hu({
