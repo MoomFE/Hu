@@ -80,7 +80,7 @@ function createObserver(
 /**
  * 创建依赖收集的响应方法
  */
-const createObserverProxyGetter = ({ before } = emptyObject, { subs, lastValue }) => ( target, name, targetProxy ) => {
+const createObserverProxyGetter = ({ before } = emptyObject, { subs, deepSubs, lastValue }) => ( target, name, targetProxy ) => {
 
   // @return 0: 从原始对象放行
   if( before ){
@@ -110,7 +110,8 @@ const createObserverProxyGetter = ({ before } = emptyObject, { subs, lastValue }
   // 当前有正在收集依赖的 watcher
   if( watcher ){
     // 标记订阅信息
-    watcher.add( subs, name );
+    // 如果 watcher 已经通过深度监听标记过依赖了, 那么无需再添加一次依赖
+    deepSubs.has( watcher ) || watcher.add( subs, name );
     // 存储本次值
     lastValue[ name ] = value;
   }
