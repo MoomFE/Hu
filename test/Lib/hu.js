@@ -1553,22 +1553,36 @@
     return deep;
   };
 
-  function watchDeeper( value, deep ){
+  const seen = new Set;
+
+  var traverse = ( value, deep ) => {
+    traverse$1( value, deep );
+    seen.clear();
+  };
+
+  function traverse$1( value, deep ){
     // 监听对象的观察者对象选项参数
     const options = observeProxyMap.get( value );
 
-    // 监听对象的观察者对象选项参数
+    // 只有观察者对象才能响应深度监听
     if( options ){
-      deep--;
 
-      if( options.isArray ){
-        value.forEach( value => {
-          if( deep ) watchDeeper( value, deep );
-        });
+      // 检查当前对象是否已经建立了监听, 防止监听无限引用的对象时的死循环
+      if( seen.has( value ) ){
+        return;
+      }
+      // 保存建立了监听的对象
+      seen.add( value );
+
+      // 标记监听订阅信息
+      if( --deep ){
+        if( options.isArray ){
+          value.forEach( value => traverse$1( value, deep ) );
+        }else{
+          each( value, ( key, value ) => traverse$1( value, deep ) );
+        }
       }else{
-        each( value, ( key, value ) => {
-          if( deep ) watchDeeper( value, deep );
-        });
+        options.deepSubs.add( targetStack.target );
       }
     }
   }
@@ -1631,7 +1645,7 @@
 
           // 深度监听
           if( deep ){
-            watchDeeper( value, deep );
+            traverse( value, deep );
           }
 
           // 运行回调
