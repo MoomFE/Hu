@@ -1328,6 +1328,188 @@ describe( 'options.watch', () => {
     });
   });
 
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为数字可以设置深度监听几层对象', ( done ) => {
+    let index1 = 0;
+    let index2 = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b: { c: 1 },
+          d: 2
+        }
+      }),
+      watch: {
+        a: [
+          {
+            deep: 2,
+            handler: () => index2++
+          },
+          {
+            deep: 1,
+            handler: () => index1++
+          }
+        ]
+      }
+    });
+
+    expect( index2 ).is.equals( 0 );
+    expect( index1 ).is.equals( 0 );
+
+    hu.a.d = 3;
+    hu.$nextTick(() => {
+      expect( index2 ).is.equals( 1 );
+      expect( index1 ).is.equals( 1 );
+
+      hu.a.b.c = 2;
+      hu.$nextTick(() => {
+        expect( index2 ).is.equals( 2 );
+        expect( index1 ).is.equals( 1 );
+
+        hu.a.b.c = 3;
+        hu.$nextTick(() => {
+          expect( index2 ).is.equals( 3 );
+          expect( index1 ).is.equals( 1 );
+
+          hu.a.d = 4;
+          hu.$nextTick(() => {
+            expect( index2 ).is.equals( 4 );
+            expect( index1 ).is.equals( 2 );
+  
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为 Infinity 可以监听无限层级对象', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b1: 1,
+          b2: {
+            c1: 1,
+            c2: {
+              d1: 1,
+              d2: {
+                e1: 1,
+                e2: {
+                  f1: 1,
+                  f2: { g: 1 }
+                }
+              }
+            }
+          }
+        }
+      }),
+      watch: {
+        a: {
+          deep: Infinity,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.b1 = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a.b2.c1 = 2;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.a.b2.c2.d1 = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          hu.a.b2.c2.d2.e1 = 2;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+
+            hu.a.b2.c2.d2.e2.f1 = 2;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 5 );
+
+              hu.a.b2.c2.d2.e2.f2.g = 2;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 6 );
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it( '使用 watch 对实例内的属性进行监听, 使用 deep 选项监听对象时, 将 deep 设置为 -1 可以监听无限层级对象', ( done ) => {
+    let index = 0;
+    const hu = new Hu({
+      data: () => ({
+        a: {
+          b1: 1,
+          b2: {
+            c1: 1,
+            c2: {
+              d1: 1,
+              d2: {
+                e1: 1,
+                e2: {
+                  f1: 1,
+                  f2: { g: 1 }
+                }
+              }
+            }
+          }
+        }
+      }),
+      watch: {
+        a: {
+          deep: -1,
+          handler: () => index++
+        }
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+
+    hu.a.b1 = 2;
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 1 );
+
+      hu.a.b2.c1 = 2;
+      hu.$nextTick(() => {
+        expect( index ).is.equals( 2 );
+
+        hu.a.b2.c2.d1 = 2;
+        hu.$nextTick(() => {
+          expect( index ).is.equals( 3 );
+
+          hu.a.b2.c2.d2.e1 = 2;
+          hu.$nextTick(() => {
+            expect( index ).is.equals( 4 );
+
+            hu.a.b2.c2.d2.e2.f1 = 2;
+            hu.$nextTick(() => {
+              expect( index ).is.equals( 5 );
+
+              hu.a.b2.c2.d2.e2.f2.g = 2;
+              hu.$nextTick(() => {
+                expect( index ).is.equals( 6 );
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   it( '使用 watch 对实例内的属性进行监听, 值被删除时也会触发回调', ( done ) => {
     let result;
     const hu = new Hu({
