@@ -1,15 +1,12 @@
 import isPlainObject from "../../shared/util/isPlainObject";
 import emptyObject from "../../shared/const/emptyObject";
-import isString from "../../shared/util/isString";
-import parsePath from "../../static/define/util/parsePath";
-import isFunction from "../../shared/util/isFunction";
 import Computed from "../../static/observable/computed";
 import uid from "../../shared/util/uid";
 import isNotEqual from "../../shared/util/isNotEqual";
 import { safety } from "../../static/observable/const";
-import { observeProxyMap } from "../../static/observable/observe";
-import { keys } from "../../shared/global/Object/index";
-import each from "../../shared/util/each";
+import parseExpOrFn from "./util/parseExpOrFn";
+import parseDeep from "./util/parseDeep";
+import traverse from "./util/traverse";
 
 
 /**
@@ -70,7 +67,7 @@ export default function $watch( expOrFn, callback, options ){
 
         // 深度监听
         if( deep ){
-          watchDeeper( value, deep );
+          traverse( value, deep );
         }
 
         // 运行回调
@@ -98,55 +95,4 @@ export default function $watch( expOrFn, callback, options ){
   return () => {
     computedInstance.delete( name );
   };
-}
-
-/**
- * 解析 $watch 首个参数
- */
-function parseExpOrFn( expOrFn, self ){
-  // 使用键路径表达式
-  if( isString( expOrFn ) ){
-    return parsePath( expOrFn ).bind( self );
-  }
-  // 使用计算属性函数
-  else if( isFunction( expOrFn ) ){
-    return expOrFn.bind( self );
-  }
-  // 不支持其他写法
-  return;
-}
-
-/**
- * 解析监听参数 deep
- */
-function parseDeep( deep ){
-  deep = Number( deep );
-
-  if( !deep ) deep = 0;
-  else if( deep < 0 ) deep = deep === -1 ? Infinity : 0;
-
-  return deep;
-}
-
-/**
- * 深度监听模式
- */
-function watchDeeper( value, deep ){
-  // 监听对象的观察者对象选项参数
-  const observeOptions = observeProxyMap.get( value );
-
-  // 只有观察者对象才能响应深度监听
-  if( observeOptions ){
-    deep--;
-
-    if( observeOptions.isArray ){
-      value.forEach( value => {
-        if( deep ) watchDeeper( value, deep );
-      });
-    }else{
-      each( value, ( key, value ) => {
-        if( deep ) watchDeeper( value, deep );
-      });
-    }
-  }
 }

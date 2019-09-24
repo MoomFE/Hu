@@ -1,3 +1,7 @@
+import isString from "../../../shared/util/isString";
+import isFunction from "../../../shared/util/isFunction";
+
+
 /**
  * unicode letters used for parsing html tags, component names and property paths.
  * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
@@ -9,7 +13,7 @@ const bail = new RegExp(`[^${ unicodeLetters }.$_\\d]`);
 /**
  * Transplant from Vue
  */
-export default function parsePath( path ){
+function parsePath( path ){
   if( bail.test( path ) ){
     return;
   }
@@ -25,4 +29,21 @@ export default function parsePath( path ){
     }
     return obj;
   }
+}
+
+
+/**
+ * 解析 $watch 首个参数
+ */
+export default ( expOrFn, self ) => {
+  // 使用键路径表达式
+  if( isString( expOrFn ) ){
+    return parsePath( expOrFn ).bind( self );
+  }
+  // 使用函数
+  else if( isFunction( expOrFn ) ){
+    return expOrFn.bind( self );
+  }
+  // 不支持其他写法
+  return;
 }

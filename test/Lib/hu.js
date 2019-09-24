@@ -1364,35 +1364,6 @@
     slice
   } = prototype$1;
 
-  /**
-   * unicode letters used for parsing html tags, component names and property paths.
-   * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
-   * skipping \u10000-\uEFFFF due to it freezing up PhantomJS
-   */
-  const unicodeLetters = 'a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
-  const bail = new RegExp(`[^${ unicodeLetters }.$_\\d]`);
-
-  /**
-   * Transplant from Vue
-   */
-  function parsePath( path ){
-    if( bail.test( path ) ){
-      return;
-    }
-
-    var segments = path.split('.');
-
-    return function(){
-      let obj = this;
-
-      for( let segment of segments ){
-        if( !obj ) return;
-        obj = obj[ segment ];
-      }
-      return obj;
-    }
-  }
-
   var returnFalse = /**
    * 返回 false
    */
@@ -1525,6 +1496,84 @@
   };
 
   /**
+   * unicode letters used for parsing html tags, component names and property paths.
+   * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
+   * skipping \u10000-\uEFFFF due to it freezing up PhantomJS
+   */
+  const unicodeLetters = 'a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
+  const bail = new RegExp(`[^${ unicodeLetters }.$_\\d]`);
+
+  /**
+   * Transplant from Vue
+   */
+  function parsePath( path ){
+    if( bail.test( path ) ){
+      return;
+    }
+
+    var segments = path.split('.');
+
+    return function(){
+      let obj = this;
+
+      for( let segment of segments ){
+        if( !obj ) return;
+        obj = obj[ segment ];
+      }
+      return obj;
+    }
+  }
+
+
+  /**
+   * 解析 $watch 首个参数
+   */
+  var parseExpOrFn = ( expOrFn, self ) => {
+    // 使用键路径表达式
+    if( isString( expOrFn ) ){
+      return parsePath( expOrFn ).bind( self );
+    }
+    // 使用函数
+    else if( isFunction( expOrFn ) ){
+      return expOrFn.bind( self );
+    }
+    // 不支持其他写法
+    return;
+  };
+
+  /**
+   * 解析监听参数 deep
+   */
+  var parseDeep = deep => {
+    deep = Number( deep );
+
+    if( !deep ) deep = 0;
+    else if( deep < 0 ) deep = deep === -1 ? Infinity : 0;
+
+    return deep;
+  };
+
+  function watchDeeper( value, deep ){
+    // 监听对象的观察者对象选项参数
+    const options = observeProxyMap.get( value );
+
+    // 监听对象的观察者对象选项参数
+    if( options ){
+      deep--;
+
+      if( options.isArray ){
+        value.forEach( value => {
+          if( deep ) watchDeeper( value, deep );
+        });
+      }else{
+        each( value, ( key, value ) => {
+          if( deep ) watchDeeper( value, deep );
+        });
+      }
+    }
+  }
+
+  /**
    * 存放每个实例的 watch 数据
    */
   const watcherMap = new WeakMap();
@@ -1610,57 +1659,6 @@
     return () => {
       computedInstance.delete( name );
     };
-  }
-
-  /**
-   * 解析 $watch 首个参数
-   */
-  function parseExpOrFn( expOrFn, self ){
-    // 使用键路径表达式
-    if( isString( expOrFn ) ){
-      return parsePath( expOrFn ).bind( self );
-    }
-    // 使用计算属性函数
-    else if( isFunction( expOrFn ) ){
-      return expOrFn.bind( self );
-    }
-    // 不支持其他写法
-    return;
-  }
-
-  /**
-   * 解析监听参数 deep
-   */
-  function parseDeep( deep ){
-    deep = Number( deep );
-
-    if( !deep ) deep = 0;
-    else if( deep < 0 ) deep = deep === -1 ? Infinity : 0;
-
-    return deep;
-  }
-
-  /**
-   * 深度监听模式
-   */
-  function watchDeeper( value, deep ){
-    // 监听对象的观察者对象选项参数
-    const observeOptions = observeProxyMap.get( value );
-
-    // 只有观察者对象才能响应深度监听
-    if( observeOptions ){
-      deep--;
-
-      if( observeOptions.isArray ){
-        value.forEach( value => {
-          if( deep ) watchDeeper( value, deep );
-        });
-      }else{
-        each( value, ( key, value ) => {
-          if( deep ) watchDeeper( value, deep );
-        });
-      }
-    }
   }
 
   var getAttribute = /**
