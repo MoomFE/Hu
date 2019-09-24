@@ -688,7 +688,7 @@ interface WatchOptions {
   /**
    * 对象内部值变化时也触发回调函数
    */
-  deep?: false;
+  deep?: false | number;
   /**
    * 立即触发回调
    */
