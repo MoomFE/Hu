@@ -1,3 +1,4 @@
+  - 🌟 新增 `$info.props` 来存储当前实例 props 的赋值状态 ( [#9](https://github.com/MoomFE/Hu/issues/9) )
   - 💄 实例选项 watch 的 deep 选项支持传入数字, 用于指定深度监听几层对象 ( [#17](https://github.com/MoomFE/Hu/issues/17) )
 
 # 1.0.0-bata.18
