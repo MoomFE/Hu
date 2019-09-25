@@ -2,9 +2,10 @@ import { create } from "../../../shared/global/Object/index";
 import each from "../../../shared/util/each";
 import isFunction from "../../../shared/util/isFunction";
 import returnArg from "../../../shared/util/returnArg";
-import { observe } from "../../observable/observe";
+import { observe, observeProxyMap } from "../../observable/observe";
 import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 import injectionToInstance from "../util/injectionToInstance";
+import observeReadonly from "../../../shared/const/observeReadonly";
 
 
 /**
@@ -19,6 +20,7 @@ export default function initProps( isCustomElement, target, root, props, targetP
 
   const propsTarget = create( null );
   const propsTargetProxy = observe( propsTarget );
+  const propsState = create( null );
 
   // 尝试从标签上获取 props 属性, 否则取默认值
   each( props, ( name, options ) => {
@@ -30,10 +32,12 @@ export default function initProps( isCustomElement, target, root, props, targetP
 
     // 定义了该属性
     if( value !== null ){
+      propsState[ name ] = true;
       propsTarget[ name ] = ( options.from || returnArg )( value );
     }
     // 使用默认值
     else{
+      propsState[ name ] = false;
       propsTarget[ name ] = isFunction( options.default )
                               ? options.default.call( targetProxy )
                               : options.default;
@@ -44,7 +48,10 @@ export default function initProps( isCustomElement, target, root, props, targetP
   each( props, ( name, options ) => {
     injectionToInstance( isCustomElement, target, root, name, {
       get: () => propsTargetProxy[ name ],
-      set: value => propsTargetProxy[ name ] = value
+      set: value => {
+        propsState[ name ] = true;
+        propsTargetProxy[ name ] = value;
+      }
     });
   });
 
@@ -52,4 +59,5 @@ export default function initProps( isCustomElement, target, root, props, targetP
     $props: propsTargetProxy
   });
 
+  observeProxyMap.get( target.$info ).target.props = observe( propsState, observeReadonly );
 }
