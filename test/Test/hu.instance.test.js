@@ -996,12 +996,14 @@ describe( 'Hu.instance', () => {
     expect( info.isMounted ).is.a('boolean');
     expect( info.isCustomElement ).is.a('boolean');
     expect( info.isConnected ).is.a('boolean');
+    expect( info.props ).is.a('object');
 
     // 值比对
     expect( info.uid ).is.equals( info.name );
     expect( info.isMounted ).is.equals( false );
     expect( info.isCustomElement ).is.equals( false );
     expect( info.isConnected ).is.equals( false );
+    expect( info.props ).is.deep.equals({});
 
     hu.$mount( div );
 
@@ -1010,8 +1012,9 @@ describe( 'Hu.instance', () => {
     expect( info.isMounted ).is.equals( true );
     expect( info.isCustomElement ).is.equals( false );
     expect( info.isConnected ).is.equals( true );
+    expect( info.props ).is.deep.equals({});
 
-    // 不可修改及删除
+    // 不可修改及删除测试
     let run;
 
     Hu.util.each( info, ( key, value ) => {
@@ -1048,6 +1051,7 @@ describe( 'Hu.instance', () => {
     expect( info.isMounted ).is.a('boolean');
     expect( info.isCustomElement ).is.a('boolean');
     expect( info.isConnected ).is.a('boolean');
+    expect( info.props ).is.a('object');
 
     // 值比对
     expect( info.uid ).is.not.equals( info.name );
@@ -1055,6 +1059,7 @@ describe( 'Hu.instance', () => {
     expect( info.isMounted ).is.equals( false );
     expect( info.isCustomElement ).is.equals( true );
     expect( info.isConnected ).is.equals( false );
+    expect( info.props ).is.deep.equals({});
 
     custom.$appendTo( div );
 
@@ -1064,8 +1069,9 @@ describe( 'Hu.instance', () => {
     expect( info.isMounted ).is.equals( true );
     expect( info.isCustomElement ).is.equals( true );
     expect( info.isConnected ).is.equals( true );
+    expect( info.props ).is.deep.equals({});
 
-    // 不可修改及删除
+    // 不可修改及删除测试
     let run;
 
     Hu.util.each( info, ( key, value ) => {
@@ -1081,6 +1087,120 @@ describe( 'Hu.instance', () => {
     });
 
     expect( run ).is.true;
+  });
+
+  it( '实例上的 $info 属性包含了当前实例的各种信息, 且不可更改 ( 三 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        b: {
+          default: 1
+        },
+        c: Boolean,
+        d: Boolean
+      },
+      render( html ){
+        return html`<div></div>`;
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a="1" c></${ customName }>`);
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+    const info = hu.$info;
+
+    // 类型限定
+    expect( info.uid ).is.a('string');
+    expect( info.name ).is.a('string');
+    expect( info.isMounted ).is.a('boolean');
+    expect( info.isCustomElement ).is.a('boolean');
+    expect( info.isConnected ).is.a('boolean');
+    expect( info.props ).is.a('object');
+
+    // 值比对
+    expect( info.uid ).is.not.equals( info.name );
+    expect( info.name ).is.equals( customName );
+    expect( info.isMounted ).is.equals( false );
+    expect( info.isCustomElement ).is.equals( true );
+    expect( info.isConnected ).is.equals( false );
+    expect( info.props ).is.deep.equals({
+      a: true,
+      b: false,
+      c: true,
+      d: false
+    });
+
+    div.$appendTo( document.body );
+
+    // 值比对
+    expect( info.uid ).is.not.equals( info.name );
+    expect( info.name ).is.equals( customName );
+    expect( info.isMounted ).is.equals( true );
+    expect( info.isCustomElement ).is.equals( true );
+    expect( info.isConnected ).is.equals( true );
+    expect( info.props ).is.deep.equals({
+      a: true,
+      b: false,
+      c: true,
+      d: false
+    });
+
+    // 赋值 props
+    hu.a = 1;
+    hu.b = 2;
+    hu.c = 3;
+    hu.d = 4;
+
+    // 值比对
+    expect( info.uid ).is.not.equals( info.name );
+    expect( info.name ).is.equals( customName );
+    expect( info.isMounted ).is.equals( true );
+    expect( info.isCustomElement ).is.equals( true );
+    expect( info.isConnected ).is.equals( true );
+    expect( info.props ).is.deep.equals({
+      a: true,
+      b: true,
+      c: true,
+      d: true
+    });
+
+    // 不可修改及删除测试
+    let run;
+
+    Hu.util.each( info, ( key, value ) => {
+      run = true;
+
+      info[ key ] = 123;
+
+      expect( info[ key ] ).is.equals( value );
+
+      delete info[ key ];
+
+      expect( info[ key ] ).is.equals( value );
+    });
+
+    expect( run ).is.true;
+
+    // 不可修改及删除测试
+    run = false;
+
+    Hu.util.each( info.props, ( key, value ) => {
+      run = true;
+
+      info.props[ key ] = 123;
+
+      expect( info.props[ key ] ).is.equals( value );
+
+      delete info.props[ key ];
+
+      expect( info.props[ key ] ).is.equals( value );
+    });
+
+    expect( run ).is.true;
+
+    div.$remove();
   });
 
   it( '实例上的 $refs 属性是一个包含了当前实例持有注册过 ref 引用特性的所有 DOM 元素的对象', () => {
