@@ -72,9 +72,14 @@ interface $hu {
     isCustomElement: Boolean;
     /**
      * 标识当前自定义元素是否在文档流中
-     * - 如果是使用 new 创建的实例, 则作用和 isMounted 一致
+     *  - 如果是使用 new 创建的实例, 则作用和 isMounted 一致
      */
-    isConnected: Boolean
+    isConnected: Boolean;
+    /**
+     * 标识当前实例的 prop 是否被赋值
+     *  - 使用 props 的 default 选项对 prop 初始化不算做赋值
+     */
+    props: Record< KEYTYPE, boolean >;
   };
   /**
    * 一个持有注册过 ref 引用特性的所有 DOM 元素的对象
