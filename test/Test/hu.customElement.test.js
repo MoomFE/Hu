@@ -325,7 +325,7 @@ describe( 'hu.customElement', () => {
     expect( custom.$options ).is.equals( hu.$options ).is.not.undefined;
   });
 
-  it( '自定义元素上的 $info 方法为当前自定义元素的 Hu 实例上 $info 方法的映射', () => {
+  it( '自定义元素上的 $info 属性为当前自定义元素的 Hu 实例上 $info 属性的映射', () => {
     expect( custom.$info ).is.equals( hu.$info ).is.not.undefined;
   });
 

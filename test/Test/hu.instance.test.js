@@ -1203,6 +1203,201 @@ describe( 'Hu.instance', () => {
     div.$remove();
   });
 
+  it( '实例上的 $info.uid 属性为当前实例的 uid', () => {
+    const hu = new Hu;
+    const hu2 = new Hu;
+
+    expect( hu.$info.uid ).is.a('string');
+    expect( hu2.$info.uid ).is.a('string');
+    expect( hu.$info.uid ).is.not.equals( hu2.$info.uid );
+  });
+
+  it( '实例上的 $info.uid 属性为当前实例的 uid ( 二 )', () => {
+    const customName = window.customName;
+    const customName2 = window.customName;
+
+    Hu.define( customName );
+    Hu.define( customName2 );
+
+    const hu = document.createElement( customName ).$hu;
+    const hu2 = document.createElement( customName2 ).$hu;
+
+    expect( hu.$info.uid ).is.a('string');
+    expect( hu2.$info.uid ).is.a('string');
+    expect( hu.$info.uid ).is.not.equals( hu2.$info.uid );
+  });
+
+  it( '实例上的 $info.name 属性为当前自定义元素名称', () => {
+    const hu = new Hu;
+    const hu2 = new Hu;
+
+    expect( hu.$info.uid ).is.a('string');
+    expect( hu2.$info.uid ).is.a('string');
+    expect( hu.$info.uid ).is.not.equals( hu2.$info.uid );
+
+    expect( hu.$info.name ).is.a('string');
+    expect( hu2.$info.name ).is.a('string');
+    expect( hu.$info.name ).is.not.equals( hu2.$info.name );
+
+    expect( hu.$info.uid ).is.equals( hu.$info.name );
+    expect( hu2.$info.uid ).is.equals( hu2.$info.name );
+  });
+
+  it( '实例上的 $info.name 属性为当前自定义元素名称 ( 二 )', () => {
+    const customName = window.customName;
+    const customName2 = window.customName;
+
+    Hu.define( customName );
+    Hu.define( customName2 );
+
+    const hu = document.createElement( customName ).$hu;
+    const hu2 = document.createElement( customName2 ).$hu;
+
+    expect( hu.$info.uid ).is.a('string');
+    expect( hu2.$info.uid ).is.a('string');
+    expect( hu.$info.uid ).is.includes( customName );
+    expect( hu2.$info.uid ).is.includes( customName2 );
+    expect( hu.$info.uid ).is.not.equals( hu2.$info.uid );
+
+    expect( hu.$info.name ).is.a('string');
+    expect( hu2.$info.name ).is.a('string');
+    expect( hu.$info.name ).is.equals( customName );
+    expect( hu2.$info.name ).is.equals( customName2 );
+    expect( hu.$info.name ).is.not.equals( hu2.$info.name );
+  });
+
+  it( '实例上的 $info.isMounted 属性标识当前实例是否首次挂载完成', () => {
+    const hu = new Hu();
+    expect( hu.$info.isMounted ).is.false;
+    hu.$mount( div );
+    expect( hu.$info.isMounted ).is.true;
+
+    const hu2 = new Hu({
+      el: document.createElement('div')
+    });
+    expect( hu2.$info.isMounted ).is.true;
+  });
+
+  it( '实例上的 $info.isMounted 属性标识当前实例是否首次挂载完成 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName );
+
+    const custom = document.createElement( customName );
+    const hu = custom.$hu;
+
+    expect( hu.$info.isMounted ).is.false;
+
+    custom.$appendTo( div );
+
+    expect( hu.$info.isMounted ).is.true;
+
+    custom.$remove();
+
+    expect( hu.$info.isMounted ).is.true;
+  });
+
+  it( '实例上的 $info.isCustomElement 属性标识当前实例是否自定义元素', () => {
+    const hu = new Hu();
+
+    expect( hu.$info.isCustomElement ).is.false;
+  });
+
+  it( '实例上的 $info.isCustomElement 属性标识当前实例是否自定义元素 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName );
+
+    const hu = document.createElement( customName ).$hu;
+
+    expect( hu.$info.isCustomElement ).is.true;
+  });
+
+  it( '实例上的 $info.isConnected 属性标识当前自定义元素是否在文档流中', () => {
+    // 是使用 new 创建的实例, 则作用和 isMounted 一致
+
+    const hu = new Hu();
+
+    expect( hu.$info.isConnected ).is.false;
+
+    hu.$mount( div );
+
+    expect( hu.$info.isConnected ).is.true;
+  });
+
+  it( '实例上的 $info.isConnected 属性标识当前自定义元素是否在文档流中 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName );
+
+    const custom = document.createElement( customName );
+    const hu = custom.$hu;
+
+    expect( hu.$info.isConnected ).is.false;
+
+    custom.$appendTo( div );
+
+    expect( hu.$info.isConnected ).is.true;
+
+    custom.$remove();
+
+    expect( hu.$info.isConnected ).is.false;
+
+    custom.$appendTo( div );
+
+    expect( hu.$info.isConnected ).is.true;
+  });
+
+  it( '实例上的 $info.props 属性标识当前实例的 prop 是否被赋值', () => {
+    const hu = new Hu({
+      props: {
+        a: null,
+        b: {
+          default: '123'
+        }
+      }
+    });
+
+    expect( hu.$info.props ).is.deep.equals({
+      a: false,
+      b: false
+    });
+  });
+
+  it( '实例上的 $info.props 属性标识当前实例的 prop 是否被赋值 ( 二 )', () => {
+    const customName = window.customName;
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        b: {
+          default: '123'
+        }
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a></${ customName }>`)
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( hu.$props ).is.deep.equals({
+      a: '',
+      b: '123'
+    });
+
+    expect( hu.$info.props ).is.deep.equals({
+      a: true,
+      b: false
+    });
+
+    hu.b = '123';
+
+    expect( hu.$info.props ).is.deep.equals({
+      a: true,
+      b: true
+    });
+  });
+
   it( '实例上的 $refs 属性是一个包含了当前实例持有注册过 ref 引用特性的所有 DOM 元素的对象', () => {
     const hu = new Hu({
       render( html ){
