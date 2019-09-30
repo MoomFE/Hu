@@ -9,3 +9,7 @@ export default {
     before: () => 0
   }
 };
+
+export function setValueByReadonly( obj, name, value ){
+
+}

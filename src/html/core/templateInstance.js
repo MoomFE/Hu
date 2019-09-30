@@ -1,4 +1,3 @@
-import { isCEPolyfill } from "../../shared/const/env";
 import templateProcessor from "./templateProcessor";
 import NodePart from "./node";
 import commitPart from "../util/commitPart";
@@ -94,11 +93,6 @@ export default class TemplateInstance{
       }
 
       partIndex++;
-    }
-
-    if( isCEPolyfill ){
-      document.adoptNode( fragment );
-      customElements.upgrade( fragment );
     }
 
     return fragment;
