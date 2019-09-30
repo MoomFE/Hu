@@ -753,7 +753,7 @@
   const inBrowser = typeof window !== 'undefined';
   const UA = inBrowser && window.navigator.userAgent.toLowerCase();
   const isIOS = UA && /iphone|ipad|ipod|ios/.test( UA );
-  const isFirefox = UA && UA.indexOf('firefox') > -1;
+  // export const isFirefox = UA && UA.indexOf('firefox') > -1;
 
 
   let supportsPassive = false;
@@ -777,9 +777,9 @@
                           && window.ShadyCSS !== void 0
                           && !window.ShadyCSS.nativeShadow;
 
-  const isCEPolyfill = inBrowser
-                           && window.customElements !== void 0
-                           && window.customElements.polyfillWrapFlushCallback !== void 0;
+  // export const isCEPolyfill = inBrowser
+  //                          && window.customElements !== void 0
+  //                          && window.customElements.polyfillWrapFlushCallback !== void 0;
 
   function initOther( isCustomElement, userOptions, options, mixins, isMixin ){
 
