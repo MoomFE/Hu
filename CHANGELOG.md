@@ -1,3 +1,5 @@
+  - 🐞 修复 $info 内的变量更改后不会触发监听的问题 ( [#24](https://github.com/MoomFE/Hu/issues/24) )
+
 # 1.0.0-bata.19
   - 📅 2019-09-26
   - 🌟 新增 `$info.props` 来存储当前实例 props 的赋值状态 ( [#9](https://github.com/MoomFE/Hu/issues/9) )
