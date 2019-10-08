@@ -7,17 +7,17 @@ export class BindDirectiveFnClass{
   constructor( part ){
     this.part = part;
   }
-  commit( proxy, name ){
+  commit( obj, name ){
     // 并非首次绑定且绑定的对象和上次不一样了
     // 那么对上次的绑定解绑
-    if( this.unWatch && ( this.proxy !== proxy || this.name !== name ) ){
+    if( this.unWatch && ( this.obj !== obj || this.name !== name ) ){
       this.unWatch();
     }
 
-    this.proxy = proxy;
+    this.obj = obj;
     this.name = name;
     this.unWatch = $watch(
-      () => proxy[ name ],
+      () => obj[ name ],
       ( value ) => this.part.commit( value ),
       {
         immediate: true,
