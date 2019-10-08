@@ -341,7 +341,11 @@ describe( 'Hu.static', () => {
     expect( Hu.util.toString( Symbol() ) ).is.equals('Symbol()');
     expect( Hu.util.toString( Symbol.iterator ) ).is.equals('Symbol(Symbol.iterator)');
     expect( Hu.util.toString( Symbol(123) ) ).is.equals('Symbol(123)');
-    expect( Hu.util.toString( function(){} ) ).is.equals('function(){}');
+    expect( true ).is.equals(
+      [ 'function(){}', 'function (){}' ].$inArray(
+        Hu.util.toString( function(){} )
+      )
+    );
   });
 
   it( 'Hu.util.isPlainObject: 判断传入对象是否是纯粹的对象', () => {
