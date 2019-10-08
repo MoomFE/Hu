@@ -1,6 +1,5 @@
 import uid from "../../shared/util/uid";
 import { targetCollection } from "./const";
-import { observeProxyMap } from "./observe";
 import defineProperty from "../../shared/util/defineProperty";
 import { queueUpdate } from "./scheduler";
 
