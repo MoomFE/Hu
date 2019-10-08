@@ -3,7 +3,7 @@ import BasicEventDirective from '../directiveBasic/event';
 import BasicBooleanDirective from '../directiveBasic/boolean';
 import BasicPropertyDirective from '../directiveBasic/property';
 import { create } from '../../shared/global/Object/index';
-import { userDirectives, directives } from '../const/index';
+import { userDirectives, directives } from '../const';
 
 
 export default {

@@ -1,11 +1,11 @@
-import ClassDirective from '../directive/class';
-import StyleDirective from '../directive/style';
-import ModelDirective from '../directive/model';
-import TextDirective from '../directive/text';
-import HtmlDirective from '../directive/html';
-import ShowDirective from '../directive/show';
-import create from '../../shared/util/create';
-import { random } from "../../shared/global/Math/index";
+import ClassDirective from './directive/class';
+import StyleDirective from './directive/style';
+import ModelDirective from './directive/model';
+import TextDirective from './directive/text';
+import HtmlDirective from './directive/html';
+import ShowDirective from './directive/show';
+import create from '../shared/util/create';
+import { random } from "../shared/global/Math/index";
 
 
 /**

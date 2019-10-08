@@ -1,4 +1,4 @@
-import { lastAttributeNameRegex, boundAttributeSuffix, marker, nodeMarker, commentMarker } from "../const/index";
+import { lastAttributeNameRegex, boundAttributeSuffix, marker, nodeMarker, commentMarker } from "../const";
 import moveChildNodes from "../../shared/util/moveChildNodes";
 
 

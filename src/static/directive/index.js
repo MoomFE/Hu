@@ -1,4 +1,4 @@
-import { userDirectives, directives } from "../../html/const/index";
+import { userDirectives, directives } from "../../html/const";
 import commitPart from "../../html/util/commitPart";
 import destroyPart from "../../html/util/destroyPart";
 

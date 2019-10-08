@@ -1,4 +1,4 @@
-import { marker, markerRegex, lastAttributeNameRegex, boundAttributeSuffix, boundAttributeSuffixLength, commentMarkerRegex, boundAttributeSuffixRegex } from "../const/index";
+import { marker, markerRegex, lastAttributeNameRegex, boundAttributeSuffix, boundAttributeSuffixLength, commentMarkerRegex, boundAttributeSuffixRegex } from "../const";
 import createMarker from "../util/createMarker";
 import getAttribute from "../../shared/util/getAttribute";
 

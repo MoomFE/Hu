@@ -1,6 +1,6 @@
 import { create } from "../../shared/global/Object/index";
 import Template from "./template";
-import { marker } from "../const/index";
+import { marker } from "../const";
 
 
 /**
