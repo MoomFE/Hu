@@ -9,7 +9,7 @@ import $watch from "../../core/prototype/$watch";
 import getAttribute from "../../shared/util/getAttribute";
 import { apply } from "../../shared/global/Reflect/index";
 import removeEventListener from "../../shared/util/removeEventListener";
-import { directiveFns } from "../../static/directiveFn/const/index";
+import { directiveFns } from "../../static/directiveFn/const";
 import { BindDirectiveFnClass } from "../directiveFn/bind";
 
 

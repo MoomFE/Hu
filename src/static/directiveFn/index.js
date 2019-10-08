@@ -1,4 +1,4 @@
-import { directiveFns, activeDirectiveFns } from "./const/index";
+import { directiveFns, activeDirectiveFns } from "./const";
 import uid from "../../shared/util/uid";
 
 

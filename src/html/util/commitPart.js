@@ -1,4 +1,4 @@
-import { directiveFns, activeDirectiveFns } from "../../static/directiveFn/const/index";
+import { directiveFns, activeDirectiveFns } from "../../static/directiveFn/const";
 
 
 export default
