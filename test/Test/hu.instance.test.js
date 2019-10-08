@@ -1278,6 +1278,30 @@ describe( 'Hu.instance', () => {
     expect( hu2.$info.isMounted ).is.true;
   });
 
+  it( '实例上的 $info.isMounted 属性标识当前实例是否首次挂载完成 - 响应测试', ( done ) => {
+    let result;
+    const hu = new Hu({
+      watch: {
+        '$info.isMounted': value => result = value
+      }
+    });
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isMounted ).is.false;
+
+    hu.$mount( div );
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isMounted ).is.true;
+
+    hu.$nextTick(() => {
+      expect( result ).is.true;
+      expect( hu.$info.isMounted ).is.true;
+
+      done();
+    });
+  });
+
   it( '实例上的 $info.isMounted 属性标识当前实例是否首次挂载完成 ( 二 )', () => {
     const customName = window.customName;
 
@@ -1295,6 +1319,35 @@ describe( 'Hu.instance', () => {
     custom.$remove();
 
     expect( hu.$info.isMounted ).is.true;
+  });
+
+  it( '实例上的 $info.isMounted 属性标识当前实例是否首次挂载完成 ( 二 ) - 响应测试', ( done ) => {
+    const customName = window.customName;
+    let result;
+
+    Hu.define( customName, {
+      watch: {
+        '$info.isMounted': value => result = value
+      }
+    });
+
+    const custom = document.createElement( customName );
+    const hu = custom.$hu;
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isMounted ).is.false;
+
+    custom.$appendTo( div );
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isMounted ).is.true;
+
+    hu.$nextTick(() => {
+      expect( result ).is.true;
+      expect( hu.$info.isMounted ).is.true;
+
+      done();
+    });
   });
 
   it( '实例上的 $info.isCustomElement 属性标识当前实例是否自定义元素', () => {
@@ -1325,6 +1378,32 @@ describe( 'Hu.instance', () => {
     expect( hu.$info.isConnected ).is.true;
   });
 
+  it( '实例上的 $info.isConnected 属性标识当前自定义元素是否在文档流中 - 响应测试', ( done ) => {
+    // 是使用 new 创建的实例, 则作用和 isMounted 一致
+
+    let result;
+    const hu = new Hu({
+      watch: {
+        '$info.isConnected': value => result = value
+      }
+    });
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isConnected ).is.false;
+
+    hu.$mount( div );
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isConnected ).is.true;
+
+    hu.$nextTick(() => {
+      expect( result ).is.true;
+      expect( hu.$info.isConnected ).is.true;
+
+      done();
+    });
+  });
+
   it( '实例上的 $info.isConnected 属性标识当前自定义元素是否在文档流中 ( 二 )', () => {
     const customName = window.customName;
 
@@ -1348,6 +1427,55 @@ describe( 'Hu.instance', () => {
     expect( hu.$info.isConnected ).is.true;
   });
 
+  it( '实例上的 $info.isConnected 属性标识当前自定义元素是否在文档流中 ( 二 ) - 响应测试', ( done ) => {
+    const customName = window.customName;
+    let result;
+
+    Hu.define( customName, {
+      watch: {
+        '$info.isConnected': value => result = value
+      }
+    });
+
+    const custom = document.createElement( customName );
+    const hu = custom.$hu;
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isConnected ).is.false;
+
+    custom.$appendTo( div );
+
+    expect( result ).is.undefined;
+    expect( hu.$info.isConnected ).is.true;
+
+    hu.$nextTick(() => {
+      expect( result ).is.true;
+      expect( hu.$info.isConnected ).is.true;
+
+      custom.$remove();
+
+      expect( result ).is.true;
+      expect( hu.$info.isConnected ).is.false;
+
+      hu.$nextTick(() => {
+        expect( result ).is.false;
+        expect( hu.$info.isConnected ).is.false;
+
+        custom.$appendTo( div );
+
+        expect( result ).is.false;
+        expect( hu.$info.isConnected ).is.true;
+
+        hu.$nextTick(() => {
+          expect( result ).is.true;
+          expect( hu.$info.isConnected ).is.true;
+
+          done();
+        });
+      });
+    });
+  });
+
   it( '实例上的 $info.props 属性标识当前实例的 prop 是否被赋值', () => {
     const hu = new Hu({
       props: {
@@ -1358,9 +1486,116 @@ describe( 'Hu.instance', () => {
       }
     });
 
+    expect( hu.$props ).is.deep.equals({
+      a: undefined,
+      b: '123'
+    });
     expect( hu.$info.props ).is.deep.equals({
       a: false,
       b: false
+    });
+
+    hu.a = '123';
+
+    expect( hu.$props ).is.deep.equals({
+      a: '123',
+      b: '123'
+    });
+    expect( hu.$info.props ).is.deep.equals({
+      a: true,
+      b: false
+    });
+
+    hu.b = '123';
+
+    expect( hu.$props ).is.deep.equals({
+      a: '123',
+      b: '123'
+    });
+    expect( hu.$info.props ).is.deep.equals({
+      a: true,
+      b: true
+    });
+  });
+
+  it( '实例上的 $info.props 属性标识当前实例的 prop 是否被赋值 - 响应测试', ( done ) => {
+    let resultA, resultB;
+    const hu = new Hu({
+      props: {
+        a: null,
+        b: {
+          default: '123'
+        }
+      },
+      watch: {
+        '$info.props.a': value => resultA = value,
+        '$info.props.b': value => resultB = value
+      }
+    });
+
+    expect( resultA ).is.undefined;
+    expect( resultB ).is.undefined;
+    expect( hu.$props ).is.deep.equals({
+      a: undefined,
+      b: '123'
+    });
+    expect( hu.$info.props ).is.deep.equals({
+      a: false,
+      b: false
+    });
+
+    hu.a = '123';
+
+    expect( resultA ).is.undefined;
+    expect( resultB ).is.undefined;
+    expect( hu.$props ).is.deep.equals({
+      a: '123',
+      b: '123'
+    });
+    expect( hu.$info.props ).is.deep.equals({
+      a: true,
+      b: false
+    });
+
+    hu.$nextTick(() => {
+      expect( resultA ).is.true;
+      expect( resultB ).is.undefined;
+      expect( hu.$props ).is.deep.equals({
+        a: '123',
+        b: '123'
+      });
+      expect( hu.$info.props ).is.deep.equals({
+        a: true,
+        b: false
+      });
+
+      hu.b = '123';
+
+      expect( resultA ).is.true;
+      expect( resultB ).is.undefined;
+      expect( hu.$props ).is.deep.equals({
+        a: '123',
+        b: '123'
+      });
+      expect( hu.$info.props ).is.deep.equals({
+        a: true,
+        b: true
+      });
+
+      hu.$nextTick(() => {
+        expect( resultA ).is.true;
+        expect( resultB ).is.true;
+        expect( hu.$props ).is.deep.equals({
+          a: '123',
+          b: '123'
+        });
+        expect( hu.$info.props ).is.deep.equals({
+          a: true,
+          b: true
+        });
+
+        done();
+      });
     });
   });
 
@@ -1384,7 +1619,6 @@ describe( 'Hu.instance', () => {
       a: '',
       b: '123'
     });
-
     expect( hu.$info.props ).is.deep.equals({
       a: true,
       b: false
@@ -1392,9 +1626,74 @@ describe( 'Hu.instance', () => {
 
     hu.b = '123';
 
+    expect( hu.$props ).is.deep.equals({
+      a: '',
+      b: '123'
+    });
     expect( hu.$info.props ).is.deep.equals({
       a: true,
       b: true
+    });
+  });
+
+  it( '实例上的 $info.props 属性标识当前实例的 prop 是否被赋值 ( 二 ) - 响应测试', ( done ) => {
+    const customName = window.customName;
+    let resultA, resultB;
+
+    Hu.define( customName, {
+      props: {
+        a: null,
+        b: {
+          default: '123'
+        }
+      },
+      watch: {
+        '$info.props.a': value => resultA = value,
+        '$info.props.b': value => resultB = value
+      }
+    });
+
+    const div = document.createElement('div').$html(`<${ customName } a></${ customName }>`)
+    const custom = div.firstElementChild;
+    const hu = custom.$hu;
+
+    expect( resultA ).is.undefined;
+    expect( resultB ).is.undefined;
+    expect( hu.$props ).is.deep.equals({
+      a: '',
+      b: '123'
+    });
+    expect( hu.$info.props ).is.deep.equals({
+      a: true,
+      b: false
+    });
+
+    hu.b = '123';
+
+    expect( resultA ).is.undefined;
+    expect( resultB ).is.undefined;
+    expect( hu.$props ).is.deep.equals({
+      a: '',
+      b: '123'
+    });
+    expect( hu.$info.props ).is.deep.equals({
+      a: true,
+      b: true
+    });
+
+    hu.$nextTick(() => {
+      expect( resultA ).is.undefined;
+      expect( resultB ).is.true;
+      expect( hu.$props ).is.deep.equals({
+        a: '',
+        b: '123'
+      });
+      expect( hu.$info.props ).is.deep.equals({
+        a: true,
+        b: true
+      });
+
+      done();
     });
   });
 
