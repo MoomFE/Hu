@@ -5,7 +5,7 @@ import returnArg from "../../../shared/util/returnArg";
 import { observe, observeProxyMap } from "../../observable/observe";
 import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 import injectionToInstance from "../util/injectionToInstance";
-import observeReadonly from "../../../shared/const/observeReadonly";
+import observeReadonly, { setValueByReadonly } from "../../../shared/const/observeReadonly";
 
 
 /**
@@ -49,7 +49,7 @@ export default function initProps( isCustomElement, target, root, props, targetP
     injectionToInstance( isCustomElement, target, root, name, {
       get: () => propsTargetProxy[ name ],
       set: value => {
-        propsState[ name ] = true;
+        setValueByReadonly( propsState, name, true );
         propsTargetProxy[ name ] = value;
       }
     });

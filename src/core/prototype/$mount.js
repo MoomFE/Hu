@@ -3,6 +3,7 @@ import { observeProxyMap } from "../../static/observable/observe";
 import { optionsMap } from "../../static/define/initOptions/index";
 import callLifecycle from "../../static/define/util/callLifecycle";
 import { activeHu } from "../../static/define/const";
+import { setValueByReadonly } from "../../shared/const/observeReadonly";
 
 
 /**
@@ -44,7 +45,8 @@ export default function( selectors ){
     this.$forceUpdate();
 
     // 标记首次实例挂载已完成
-    infoTarget.isMounted = infoTarget.isConnected = true;
+    setValueByReadonly( infoTarget, 'isMounted', true );
+    setValueByReadonly( infoTarget, 'isConnected', true );
 
     // 运行 mounted 生命周期方法
     callLifecycle( this, 'mounted', options );

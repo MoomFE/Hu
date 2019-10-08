@@ -246,26 +246,11 @@
       return true;
     }
 
-    // 旧值
-    const oldValue = has( lastValue, name ) ? lastValue[ name ] : target[ name ];
-
-    // 值完全相等, 不进行修改
-    if( isEqual( oldValue, value ) ){
-      return true;
-    }
-
-    // 改变值
-    target[ name ] = value;
-
-    if( isArray && name === 'length' ){
-      value = target[ name ];
-      arrayLengthHook( targetProxy, value, oldValue );
-    }
-
-    // 触发更新
-    if( !isArray || value !== oldValue ){
-      triggerUpdate( subs, deepSubs, lastValue, set, name, value );
-    }
+    // 尝试写入值并触发更新
+    observerProxySetValue(
+      subs, deepSubs, lastValue, isArray,
+      target, name, value, targetProxy
+    );
 
     return true;
   };
@@ -317,6 +302,36 @@
 
     return isDelete;
   };
+
+  /**
+   * 尝试向观察者对象写入值
+   * 并在写入值后触发更新
+   */
+  function observerProxySetValue(
+    subs, deepSubs, lastValue, isArray,
+    target, name, value, targetProxy
+  ){
+    // 旧值
+    const oldValue = has( lastValue, name ) ? lastValue[ name ] : target[ name ];
+
+    // 值完全相等, 不进行修改
+    if( isEqual( oldValue, value ) ){
+      return true;
+    }
+
+    // 改变值
+    target[ name ] = value;
+
+    if( isArray && name === 'length' ){
+      value = target[ name ];
+      arrayLengthHook( targetProxy, value, oldValue );
+    }
+
+    // 触发更新
+    if( !isArray || value !== oldValue ){
+      triggerUpdate( subs, deepSubs, lastValue, set, name, value );
+    }
+  }
 
   /**
    * 存储值的改变
@@ -3731,6 +3746,37 @@
   };
 
   /**
+   * 使观察者对象只读 ( 不可删, 不可写 )
+   */
+  var observeReadonly = {
+    set: {
+      before: () => 0
+    },
+    deleteProperty: {
+      before: () => 0
+    }
+  };
+
+  /**
+   * 内部修改只读对象后触发更新
+   * @param {Object|Array} target 
+   * @param {String} name 
+   * @param {any} value 
+   */
+  function setValueByReadonly( target, name, value ){
+    // 是只读观察者对象
+    if( observeMap.has( target ) ){
+      const { subs, deepSubs, lastValue, isArray, proxy: targetProxy } = observeMap.get( target );
+
+      // 尝试写入值并触发更新
+      observerProxySetValue(
+        subs, deepSubs, lastValue, isArray,
+        target, name, value, targetProxy
+      );
+    }
+  }
+
+  /**
    * 挂载实例
    * - 只在使用 new 创建的实例中可用
    */
@@ -3769,7 +3815,8 @@
       this.$forceUpdate();
 
       // 标记首次实例挂载已完成
-      infoTarget.isMounted = infoTarget.isConnected = true;
+      setValueByReadonly( infoTarget, 'isMounted', true );
+      setValueByReadonly( infoTarget, 'isConnected', true );
 
       // 运行 mounted 生命周期方法
       callLifecycle( this, 'mounted', options );
@@ -3869,18 +3916,6 @@
   value => {
     for( let item in value ) return false;
     return true;
-  };
-
-  /**
-   * 使观察者对象只读 ( 不可删, 不可写 )
-   */
-  var observeReadonly = {
-    set: {
-      before: () => 0
-    },
-    deleteProperty: {
-      before: () => 0
-    }
   };
 
   var injectionPrivateToInstance = /**
@@ -4105,7 +4140,7 @@
       injectionToInstance( isCustomElement, target, root, name, {
         get: () => propsTargetProxy[ name ],
         set: value => {
-          propsState[ name ] = true;
+          setValueByReadonly( propsState, name, true );
           propsTargetProxy[ name ] = value;
         }
       });
@@ -4220,7 +4255,7 @@
       {
         /** 当前实例的 UID - 在由 new 创建的实例中, uid 和 name 是相同的 */
         uid,
-        /** 当前自定义元素的名称 - 在由 new 创建的实例中, name 是自动生成的名称*/
+        /** 当前自定义元素的名称 - 在由 new 创建的实例中, name 是自动生成的名称 */
         name,
         /** 标识当前实例的首次挂载是否已完成 */
         isMounted: false,
@@ -4374,7 +4409,7 @@
     const $hu = activeCustomElement.get( this );
     const infoTarget = observeProxyMap.get( $hu.$info ).target;
 
-    infoTarget.isConnected = false;
+    setValueByReadonly( infoTarget, 'isConnected', false );
 
     destroyRender( $hu.$el );
     removeRenderDeps( $hu );
@@ -4394,7 +4429,7 @@
     const isMounted = $info.isMounted;
     const infoTarget = observeProxyMap.get( $info ).target;
 
-    infoTarget.isConnected = true;
+    setValueByReadonly( infoTarget, 'isConnected', true );
 
     // 是首次挂载
     if( !isMounted ){
@@ -4408,7 +4443,7 @@
     // 如果是首次挂载, 需要运行 mounted 生命周期方法
     if( !isMounted ){
       // 标记首次实例挂载已完成
-      infoTarget.isMounted = true;
+      setValueByReadonly( infoTarget, 'isMounted', true );
 
       // 运行 mounted 生命周期方法
       callLifecycle( $hu, 'mounted', options );

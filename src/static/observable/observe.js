@@ -141,26 +141,11 @@ const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, l
     return true;
   }
 
-  // 旧值
-  const oldValue = has( lastValue, name ) ? lastValue[ name ] : target[ name ];
-
-  // 值完全相等, 不进行修改
-  if( isEqual( oldValue, value ) ){
-    return true;
-  }
-
-  // 改变值
-  target[ name ] = value;
-
-  if( isArray && name === 'length' ){
-    value = target[ name ];
-    arrayLengthHook( targetProxy, value, oldValue );
-  }
-
-  // 触发更新
-  if( !isArray || value !== oldValue ){
-    triggerUpdate( subs, deepSubs, lastValue, set, name, value );
-  }
+  // 尝试写入值并触发更新
+  observerProxySetValue(
+    subs, deepSubs, lastValue, isArray,
+    target, name, value, targetProxy
+  );
 
   return true;
 };
@@ -211,6 +196,36 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { subs, dee
   }
 
   return isDelete;
+}
+
+/**
+ * 尝试向观察者对象写入值
+ * 并在写入值后触发更新
+ */
+export function observerProxySetValue(
+  subs, deepSubs, lastValue, isArray,
+  target, name, value, targetProxy
+){
+  // 旧值
+  const oldValue = has( lastValue, name ) ? lastValue[ name ] : target[ name ];
+
+  // 值完全相等, 不进行修改
+  if( isEqual( oldValue, value ) ){
+    return true;
+  }
+
+  // 改变值
+  target[ name ] = value;
+
+  if( isArray && name === 'length' ){
+    value = target[ name ];
+    arrayLengthHook( targetProxy, value, oldValue );
+  }
+
+  // 触发更新
+  if( !isArray || value !== oldValue ){
+    triggerUpdate( subs, deepSubs, lastValue, set, name, value );
+  }
 }
 
 /**

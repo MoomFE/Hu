@@ -1,6 +1,7 @@
 import callLifecycle from "../util/callLifecycle";
 import { observeProxyMap } from "../../observable/observe";
 import { activeCustomElement } from "../const";
+import { setValueByReadonly } from "../../../shared/const/observeReadonly";
 
 
 export default options => function(){
@@ -9,7 +10,7 @@ export default options => function(){
   const isMounted = $info.isMounted;
   const infoTarget = observeProxyMap.get( $info ).target;
 
-  infoTarget.isConnected = true;
+  setValueByReadonly( infoTarget, 'isConnected', true );
 
   // 是首次挂载
   if( !isMounted ){
@@ -23,7 +24,7 @@ export default options => function(){
   // 如果是首次挂载, 需要运行 mounted 生命周期方法
   if( !isMounted ){
     // 标记首次实例挂载已完成
-    infoTarget.isMounted = true;
+    setValueByReadonly( infoTarget, 'isMounted', true );
 
     // 运行 mounted 生命周期方法
     callLifecycle( $hu, 'mounted', options );
