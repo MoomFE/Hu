@@ -1,4 +1,4 @@
-import { renderStack, renderParts } from './const/index';
+import { renderStack, renderParts } from './const';
 import NodePart from '../html/core/node';
 import removeNodes from '../shared/util/removeNodes';
 import commitPart from '../html/util/commitPart';

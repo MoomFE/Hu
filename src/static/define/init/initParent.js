@@ -1,4 +1,4 @@
-import { renderStack } from "../../../render/const/index";
+import { renderStack } from "../../../render/const";
 import { activeHu } from "../const";
 import injectionPrivateToInstance from "../util/injectionPrivateToInstance";
 

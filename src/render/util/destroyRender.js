@@ -1,4 +1,4 @@
-import { renderParts } from "../const/index";
+import { renderParts } from "../const";
 
 
 export default
