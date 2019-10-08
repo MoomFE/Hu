@@ -1,4 +1,4 @@
-import { renderWatcherCache } from "../const/index";
+import { renderWatcherCache } from "../const";
 
 
 /**
