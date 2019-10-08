@@ -4525,14 +4525,14 @@
   const privateOptions = create$1({
 
     // 基础指令
-    directiveBasic: {
+    directiveBasic: create$1({
       Node: NodePart,
       Attr: AttributeCommitter,
       AttrPart: AttributePart,
       Boolean: BasicBooleanDirective,
       Event: BasicEventDirective,
       Prop: BasicPropertyDirective
-    },
+    }),
 
     // 内置功能指令
     directive: create$1({

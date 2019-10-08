@@ -19,14 +19,14 @@ const installed = new Set;
 const privateOptions = create({
 
   // 基础指令
-  directiveBasic: {
+  directiveBasic: create({
     Node: NodePart,
     Attr: AttributeCommitter,
     AttrPart: AttributePart,
     Boolean: BasicBooleanDirective,
     Event: BasicEventDirective,
     Prop: BasicPropertyDirective
-  },
+  }),
 
   // 内置功能指令
   directive: create({
