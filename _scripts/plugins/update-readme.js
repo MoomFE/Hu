@@ -1,6 +1,6 @@
 const { resolve } = require('path');
 const { gzipSync } = require('zlib');
-const { readFileSync, writeFileSync } = require('fs-extra');
+const { readFileSync, writeFileSync } = require('./fs-extra');
 
 const dirname = resolve( __dirname, '../../' );
 const readmePath = resolve( dirname, 'README.md' );

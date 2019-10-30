@@ -1,5 +1,5 @@
-const { resolve } = require('path');
-const { writeFileSync } = require('fs-extra');
+sconst { resolve } = require('path');
+const { writeFileSync } = require('./fs-extra');
 
 const dirname = resolve( __dirname, '../../' );
 const path = resolve( dirname, 'test/Lib/hu.js' );
