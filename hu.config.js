@@ -1,8 +1,7 @@
-// const pluginFixErrorInFirefox = require('./scripts/plugins/Fix-SyntaxError-error-in-Firefox-51-and-below');
-// const pluginUpdateReadme = require('./scripts/plugins/update-readme');
-// const pluginFixWebcomponentsjs = require('./scripts/plugins/Fix-webcomponentsjs-window-is-not-defined');
-
-
+require('./scripts/extras/copy-polyfill');
+const pluginFixErrorInFirefox = require('./scripts/plugins/Fix-SyntaxError-error-in-Firefox-51-and-below');
+const pluginFixWebcomponentsjs = require('./scripts/plugins/Fix-webcomponentsjs-window-is-not-defined');
+const pluginCopyToTest = require('./scripts/plugins/copy-to-test');
 const HU_RUNNING_COMMAND = process.env.HU_RUNNING_COMMAND;
 const packages = require('./package.json');
 const banner = `${ packages.title } v${ packages.version }\n${ packages.homepage }\n\n(c) 2018-present ${ packages.author }\nReleased under the MIT License.`;
@@ -61,9 +60,9 @@ module.exports = {
     '__VERSION__': packages.version
   },
   plugins: ( config ) => [
-    // pluginFixErrorInFirefox,
-    // pluginUpdateReadme,
-    // /\.polyfill\./.test( config.output ) && pluginFixWebcomponentsjs
+    pluginFixErrorInFirefox,
+    pluginCopyToTest,
+    /\.polyfill\./.test( config.output ) && pluginFixWebcomponentsjs
   ],
 
   pipe

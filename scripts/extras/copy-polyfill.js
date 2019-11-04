@@ -1,5 +1,5 @@
 const { resolve } = require('path');
-const { copy, readdir } = require('./fs-extra');
+const { copy, readdir } = require('fs-extra');
 
 const dirname = resolve( __dirname, '../../' );
 const from = resolve( dirname, 'node_modules/@webcomponents/webcomponentsjs' );

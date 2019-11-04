@@ -10,7 +10,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = global || self, global.Hu = factory());
-}(this, function () { 'use strict';
+}(this, (function () { 'use strict';
 
   const {
     prototype,
@@ -1244,8 +1244,7 @@
             return classes[ name ] = true;
           });
           break;
-        }
-        case 'object': {
+        }      case 'object': {
           if( isArray( value ) ){
             value.forEach( name => {
               return this.parse( name, classes );
@@ -1256,8 +1255,7 @@
                             : delete classes[ name ];
             });
           }
-        }
-      }
+        }    }
 
       return classes;
     }
@@ -2255,7 +2253,6 @@
             }
             break;
           }
-
           // TextNode
           case 3: {
             const data = node.data;
@@ -2306,7 +2303,6 @@
             }
             break;
           }
-
           // CommentNode
           case 8: {
             // 当前注释是插值绑定生成的注释标记
@@ -2356,7 +2352,6 @@
             }
             break;
           }
-
         }
       }
 
@@ -4614,4 +4609,4 @@
 
   return Hu$1;
 
-}));
+})));

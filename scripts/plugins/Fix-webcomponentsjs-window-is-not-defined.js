@@ -1,4 +1,4 @@
-const { readFile } = require('./fs-extra');
+const { readFile } = require('fs-extra');
 const rSearch = /\\node_modules\\@webcomponents\\webcomponentsjs\\webcomponents-(bundle|loader)\.js$/;
 
 
