@@ -26,17 +26,5 @@ Hu 使用了和 Vue 相似的 API, 大大减少了学习成本
 
 <br>
 
-## 大小 - 版本详解
-| Description | UMD | CommonJS | ES Module |
-| :- | :- | :- | :- |
-| 正常版 | **hu.js**<br>*111.93KB / 31KB* | **hu.common.js**<br>*102.92KB / 30KB* | **hu.esm.js**<br>*102.90KB / 30KB* |
-| 正常版 ( 生产环境 ) | **hu.min.js**<br>*28.20KB / 11KB* | **hu.common.min.js**<br>*36.34KB / 12KB* | **hu.esm.min.js**<br>*28.03KB / 11KB* |
-| 正常版 + Polyfill | **hu.polyfill.js**<br>*218.69KB / 62KB* | **hu.polyfill.common.js**<br>*210.43KB / 62KB* | **hu.polyfill.esm.js**<br>*210.41KB / 62KB* |
-| 正常版 + Polyfill ( 生产环境 ) | **hu.polyfill.min.js**<br>*127.91KB / 41KB* | **hu.polyfill.common.min.js**<br>*136.05KB / 42KB* | **hu.polyfill.esm.min.js**<br>*127.74KB / 41KB* |
-| 正常版 + Polyfill ( 按需加载 ) | **hu.polyfill.async.js**<br>*117.36KB / 32KB* | **hu.polyfill.async.common.js**<br>*109.25KB / 32KB* | **hu.polyfill.async.esm.js**<br>*109.23KB / 32KB* |
-| 正常版 + Polyfill ( 按需加载 ) ( 生产环境 ) | **hu.polyfill.async.min.js**<br>*30.53KB / 12KB* | **hu.polyfill.async.common.min.js**<br>*38.68KB / 13KB* | **hu.polyfill.async.esm.min.js**<br>*30.36KB / 12KB* |
-
-<br>
-
 ## Include
   - [Lit-HTML](https://github.com/Polymer/lit-html) \- [LICENSE](https://github.com/Polymer/lit-html/blob/master/LICENSE)
