@@ -64,11 +64,6 @@ module.exports = {
     pluginCopyToTest,
     /\.polyfill\./.test( config.output ) && pluginFixWebcomponentsjs
   ],
-  pluginOptions: {
-    terser: {
-      compress: { passes: 3 }
-    }
-  },
 
   pipe
 };
