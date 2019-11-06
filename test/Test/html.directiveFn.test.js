@@ -760,7 +760,12 @@ describe( 'html.directiveFn', () => {
     data.html = unsafe('<span>123</span>');
     nextTick(() => {
       expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div><span>123</span></div>`);
-      done();
+
+      data.html = 123;
+      nextTick(() => {
+        expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>123</div>`);
+        done();
+      });
     });
   });
 
