@@ -18,7 +18,9 @@ part => {
   if( activeOptions ){
     const instance = activeOptions.ins;
 
-    // 那么将上一次提交的指令方法进行销毁
+    // 将上一次提交的指令方法调用的子指令方法进行销毁
+    activeDirectiveFns.child && activeDirectiveFns.child.destroy && activeDirectiveFns.child.destroy();
+    // 将上一次提交的指令方法进行销毁
     instance && instance.destroy && instance.destroy();
     // 删除缓存信息
     activeDirectiveFns.delete( part );

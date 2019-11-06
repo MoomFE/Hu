@@ -8,6 +8,7 @@ import uid from "../../shared/util/uid";
 export default function directiveFn( directive ){
   /** 当前指令方法的 ID */
   const id = uid();
+  let isRun = false;
 
   /**
    * 指令创建步骤
@@ -24,11 +25,21 @@ export default function directiveFn( directive ){
      */
     function using( part ){
       const options = activeDirectiveFns.get( part );
-      const instance = options.ins || (
-        options.ins = new directive( part )
-      );
 
-      instance.commit( ...options.args );
+      // 指令方法调用的子指令方法
+      if( isRun ){
+        (options.child = new directive( part )).commit( ...args );
+      }
+      // 指令方法本身被调用
+      else{
+        const instance = options.ins || (
+          options.ins = new directive( part )
+        );
+
+        isRun = true;
+        instance.commit( ...options.args );
+        isRun = false;
+      }
     }
 
     // 指令方法可能需要代理指令使用步骤

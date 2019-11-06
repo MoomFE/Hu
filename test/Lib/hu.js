@@ -1732,6 +1732,7 @@
   function directiveFn( directive ){
     /** 当前指令方法的 ID */
     const id = uid$1();
+    let isRun = false;
 
     /**
      * 指令创建步骤
@@ -1748,11 +1749,21 @@
        */
       function using( part ){
         const options = activeDirectiveFns.get( part );
-        const instance = options.ins || (
-          options.ins = new directive( part )
-        );
 
-        instance.commit( ...options.args );
+        // 指令方法调用的子指令方法
+        if( isRun ){
+          (options.child = new directive( part )).commit( ...args );
+        }
+        // 指令方法本身被调用
+        else{
+          const instance = options.ins || (
+            options.ins = new directive( part )
+          );
+
+          isRun = true;
+          instance.commit( ...options.args );
+          isRun = false;
+        }
       }
 
       // 指令方法可能需要代理指令使用步骤
@@ -1772,6 +1783,10 @@
     };
   }
 
+  var isDirectiveFn = value => {
+    return directiveFns.has( value );
+  };
+
   class BindDirectiveFnClass{
     constructor( part ){
       this.part = part;
@@ -1787,7 +1802,7 @@
       this.name = name;
       this.unWatch = $watch(
         () => obj[ name ],
-        ( value ) => this.part.commit( value ),
+        ( value ) => this.part.commit( value, isDirectiveFn( value ) ),
         {
           immediate: true,
           deep: true
@@ -2909,7 +2924,9 @@
     if( activeOptions ){
       const instance = activeOptions.ins;
 
-      // 那么将上一次提交的指令方法进行销毁
+      // 将上一次提交的指令方法调用的子指令方法进行销毁
+      activeDirectiveFns.child && activeDirectiveFns.child.destroy && activeDirectiveFns.child.destroy();
+      // 将上一次提交的指令方法进行销毁
       instance && instance.destroy && instance.destroy();
       // 删除缓存信息
       activeDirectiveFns.delete( part );

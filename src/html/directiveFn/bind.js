@@ -1,6 +1,7 @@
 import directiveFn from '../../static/directiveFn/index';
 import $watch from '../../core/prototype/$watch';
 import { safety } from '../../static/observable/const';
+import isDirectiveFn from '../util/isDirectiveFn';
 
 
 export class BindDirectiveFnClass{
@@ -18,7 +19,7 @@ export class BindDirectiveFnClass{
     this.name = name;
     this.unWatch = $watch(
       () => obj[ name ],
-      ( value ) => this.part.commit( value ),
+      ( value ) => this.part.commit( value, isDirectiveFn( value ) ),
       {
         immediate: true,
         deep: true
