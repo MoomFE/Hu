@@ -748,6 +748,22 @@ describe( 'html.directiveFn', () => {
     });
   });
 
+  it( 'html.bind: 使用该指令方法绑定其他的指令方法', ( done ) => {
+    const data = Hu.observable({
+      html: '10'
+    });
+    const html = bind( data, 'html' );
+
+    render( div )`<div>${ html }</div>`;
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>10</div>`);
+
+    data.html = unsafe('<span>123</span>');
+    nextTick(() => {
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div><span>123</span></div>`);
+      done();
+    });
+  });
+
   it( 'html.bind: 只传入观察者对象时返回值可以用于批量创建对象绑定', ( done ) => {
     const data = Hu.observable({
       text1: '10',
