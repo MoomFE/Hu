@@ -60,7 +60,7 @@ module.exports = {
   },
   plugins: ( config ) => [
     pluginFixErrorInFirefox,
-    pluginCopyToTest,
+    config._originConfig.output === 'hu.js' && pluginCopyToTest,
     /\.polyfill\./.test( config.output ) && pluginFixWebcomponentsjs
   ],
 
