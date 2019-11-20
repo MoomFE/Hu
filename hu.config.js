@@ -30,11 +30,10 @@ if( HU_RUNNING_COMMAND === 'build' ){
   // Other
   pipe.$each( config => {
     // CommonJS + CommonJS Minify
-    pipe.push(
+    config.mode || pipe.push(
       Object.$assign( null, config, {
         format: 'cjs',
-        output: config.mode ? config.output.replace( /\.min\.js$/, '.common.min.js' )
-                            : config.output.replace( /\.js$/, '.common.js' )
+        output: config.output.replace( /\.js$/, '.common.js' )
       })
     );
     // ES Module + ES Module Minify
