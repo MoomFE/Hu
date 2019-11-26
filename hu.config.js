@@ -29,7 +29,7 @@ if( HU_RUNNING_COMMAND === 'build' ){
   });
   // Other
   pipe.$each( config => {
-    // CommonJS + CommonJS Minify
+    // CommonJS
     config.mode || pipe.push(
       Object.$assign( null, config, {
         format: 'cjs',
