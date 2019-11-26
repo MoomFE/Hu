@@ -65,6 +65,12 @@ module.exports = {
     'process.env.NODE_ENV': JSON.stringify( HU_RUNNING_COMMAND === 'build' ? 'production' : 'development' ),
     '__VERSION__': packages.version
   },
+  externals: {
+    '@webcomponents/webcomponentsjs/webcomponents-bundle': {
+      'cjs': '@webcomponents/webcomponentsjs/webcomponents-bundle',
+      'esm': '@webcomponents/webcomponentsjs/webcomponents-bundle'
+    }
+  },
   plugins: ( config ) => [
     pluginFixErrorInFirefox,
     config._originConfig.output === 'hu.js' && pluginCopyToTest,
