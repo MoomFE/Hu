@@ -43,6 +43,14 @@ if( HU_RUNNING_COMMAND === 'build' ){
         output: config.output.replace( /\.js$/, '.esm.js' )
       })
     );
+    // ES Module Browser + ES Module Browser Minify
+    pipe.push(
+      Object.$assign( null, config, {
+        format: 'esm.browser',
+        output: config.mode ? config.output.replace( /\.min\.js$/, '.esm.browser.min.js' )
+                            : config.output.replace( /\.js$/, '.esm.browser.js' )
+      })
+    );
   });
 }
 
