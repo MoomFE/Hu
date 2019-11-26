@@ -36,12 +36,11 @@ if( HU_RUNNING_COMMAND === 'build' ){
         output: config.output.replace( /\.js$/, '.common.js' )
       })
     );
-    // ES Module + ES Module Minify
-    pipe.push(
+    // ES Module
+    config.mode || pipe.push(
       Object.$assign( null, config, {
         format: 'esm',
-        output: config.mode ? config.output.replace( /\.min\.js$/, '.esm.min.js' )
-                            : config.output.replace( /\.js$/, '.esm.js' )
+        output: config.output.replace( /\.js$/, '.esm.js' )
       })
     );
   });
