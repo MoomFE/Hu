@@ -2913,6 +2913,22 @@ describe( 'Hu.instance', () => {
     });
   });
 
+  it( '实例上的 $destroy 方法用于手动注销实例, 调用后会销毁已渲染的节点', () => {
+    const hu = new Hu({
+      el: div,
+      render( html ){
+        return html`<div>123</div>`;
+      }
+    });
+
+    expect( div.firstElementChild ).is.not.null;
+    expect( div.firstElementChild.innerHTML ).is.equals('123');
+
+    hu.$destroy();
+
+    expect( div.firstElementChild ).is.null;
+  });
+
   it( '实例上的 $destroy 方法用于手动注销实例, 调用后触发 beforeDestroy, destroyed 生命周期', () => {
     const steps = [];
     const hu = new Hu({
