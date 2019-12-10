@@ -1766,9 +1766,13 @@
         }
       }
 
+      // 最终的指令使用步骤方法
+      let usingProxy = using;
+
       // 指令方法可能需要代理指令使用步骤
-      const usingProxy = 'proxy' in directive ? directive.proxy( using, args )
-                                              : using;
+      if( isFunction( directive.proxy ) && !isFunction( usingProxy = directive.proxy( using, args ) ) ){
+        usingProxy = using;
+      }
 
       // 将指令方法相关的信息存储起来
       directiveFns.set( usingProxy, {
