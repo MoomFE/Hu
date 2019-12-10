@@ -67,11 +67,8 @@ module.exports = {
   },
   externals: {
     '@webcomponents/webcomponentsjs/webcomponents-bundle': {
-      'cjs': '@webcomponents/webcomponentsjs/webcomponents-bundle',
-      'esm': '@webcomponents/webcomponentsjs/webcomponents-bundle',
-      'esm.browser': {
-        path: 'https://unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-bundle.js'
-      }
+      'cjs': null,
+      'esm': null
     }
   },
   plugins: ( config ) => [
