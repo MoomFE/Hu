@@ -99,17 +99,12 @@ export default class TemplateInstance{
   }
 
   /**
-   * 
-   * @param {boolean} onlyDirective 是否只注销指令
+   * 注销模板片段
    */
-  destroy( onlyDirective ){
+  destroy(){
     this.parts.forEach( part => {
       if( part ){
-        if( onlyDirective && part instanceof NodePart ){
-          part.destroyPart( onlyDirective );
-        }else{
-          destroyPart( part );
-        }
+        destroyPart( part );
       }
     });
   }

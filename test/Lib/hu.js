@@ -3035,17 +3035,12 @@
     }
 
     /**
-     * 
-     * @param {boolean} onlyDirective 是否只注销指令
+     * 注销模板片段
      */
-    destroy( onlyDirective ){
+    destroy(){
       this.parts.forEach( part => {
         if( part ){
-          if( onlyDirective && part instanceof NodePart ){
-            part.destroyPart( onlyDirective );
-          }else{
-            destroyPart( part );
-          }
+          destroyPart( part );
         }
       });
     }
@@ -3208,20 +3203,18 @@
     }
     /**
      * 销毁当前插值绑定内的所有指令及 NodePart
-     * @param {boolean} onlyDirective 是否只注销指令
      */
-    destroyPart( onlyDirective ){
+    destroyPart(){
       // 注销模板片段对象 ( 如果有 )
       if( this.instance ){
-        this.instance.destroy( onlyDirective );
+        this.instance.destroy();
         this.instance = void 0;
       }
       // 注销数组类型的写入值
       else if( isArray( this.value ) ){
         for( let part of this.value ){
           if( part ){
-            if( onlyDirective && part instanceof NodePart ) part.destroyPart( onlyDirective );
-            else destroyPart( part );
+            destroyPart( part );
           }
         }
       }
@@ -4051,18 +4044,13 @@
   var destroyRender = /**
    * 注销某个已渲染的节点
    * @param {Element} container 已渲染的根节点
-   * @param {Boolean} onlyDirective 是否只注销指令
    */
-  ( container, onlyDirective ) => {
+  ( container ) => {
     /** 获取在传入节点渲染时使用的 NodePart */
     const nodePart = renderParts.get( container );
 
     if( nodePart ){
-      if( onlyDirective ){
-        nodePart.destroyPart( onlyDirective );
-      }else{
-        nodePart.destroy();
-      }
+      nodePart.destroy();
       renderParts.delete( container );
     }
   };
@@ -4076,7 +4064,7 @@
     removeComputed( watcherMap, this );
 
     // 注销 render 时创建的指令及指令方法
-    destroyRender( this.$el, true );
+    destroyRender( this.$el );
 
     // 清空 render 方法收集到的依赖
     removeRenderDeps( this );

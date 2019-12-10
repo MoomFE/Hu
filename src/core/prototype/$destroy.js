@@ -14,7 +14,7 @@ export default function(){
   removeComputed( watcherMap, this );
 
   // 注销 render 时创建的指令及指令方法
-  destroyRender( this.$el, true );
+  destroyRender( this.$el );
 
   // 清空 render 方法收集到的依赖
   removeRenderDeps( this );
