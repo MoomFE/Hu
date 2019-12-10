@@ -68,7 +68,7 @@ describe( 'Hu.static.directiveFn', () => {
     expect( result ).is.equals( 123 );
   });
 
-  it( 'Hu.directiveFn: 注册的指令方法可以在 constructor 接受到使用该指令方法的指令', () => {
+  it( 'Hu.directiveFn: 注册的指令方法可以定义 constructor 接收使用该指令方法的指令', () => {
     let result;
     const fn = Hu.directiveFn( class {
       constructor( part ){
@@ -150,7 +150,7 @@ describe( 'Hu.static.directiveFn', () => {
     expect( result ).is.instanceOf( TextDirective );
   });
 
-  it( 'Hu.directiveFn: 注册的指令方法可以在 commit 接受到使用该指令方法时传的值', () => {
+  it( 'Hu.directiveFn: 注册的指令方法可以定义 commit 接收使用该指令方法时传的值', () => {
     let result;
     const fn = Hu.directiveFn( class {
       commit( value ){
@@ -230,6 +230,10 @@ describe( 'Hu.static.directiveFn', () => {
     `;
     expect( result ).is.equals( 11 );
   });
+
+  // it( 'Hu.directiveFn: 注册的指令方法可以定义 destroy 在模板被注销时响应一些操作', () => {
+
+  // });
 
   it( 'Hu.directiveFn: 注册的指令方法可以定义 proxy 静态方法以拦截指令使用步骤, 方法首个参数为原本指令使用步骤的方法', () => {
     let usingResult;
