@@ -807,4 +807,8 @@ describe( 'html.directiveFn', () => {
     });
   });
 
+  it( 'html.bind: 实例注销后, bind 指令方法会被注销', ( done ) => {
+    
+  });
+
 });

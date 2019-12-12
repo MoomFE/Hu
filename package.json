@@ -27,11 +27,12 @@
   "scripts": {
     "build": "node_modules\\.bin\\hu build",
     "watch": "node_modules\\.bin\\hu watch",
+    "watch-test": "node_modules\\.bin\\hu watch -c ./test/test/hu.config.js",
     "test": "node_modules\\.bin\\karma start",
     "publish-master": "npm run build && npm publish"
   },
   "devDependencies": {
-    "@moomfe/hu-cli": "^1.7.0",
+    "@moomfe/hu-cli": "^1.8.0",
     "@moomfe/zenjs": "^5.0.0-beta.5",
     "chai": "^4.2.0",
     "fs-extra": "^8.0.1",
