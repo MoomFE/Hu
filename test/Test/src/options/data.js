@@ -1,3 +1,6 @@
+import { expect } from 'chai';
+
+
 describe( 'options.data', () => {
 
   it( '定义自定义元素实例时, data 选项必须是 function 类型', () => {
