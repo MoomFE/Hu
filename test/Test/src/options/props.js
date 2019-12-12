@@ -1,3 +1,6 @@
+import { expect } from 'chai';
+
+
 describe( 'options.props', () => {
 
   it( '使用数组的方式定义 props', () => {

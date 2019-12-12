@@ -1,11 +1,6 @@
 declare function describe( name: string, fn: () => {} ): void;
 declare function it( name: string, fn: () => {} ): void;
 
-interface Window{
-  describe( name: string, fn: () => {} ): void;
-  it( name: string, fn: () => {} ): void;
-}
-
 // ------
 
 declare const should: Chai.Should;
