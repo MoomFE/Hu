@@ -1,8 +1,9 @@
+const { resolve } = require('path');
 
 
 module.exports = {
-  inputDir: './',
-  outputDir: '../',
+  inputDir: __dirname,
+  outputDir: resolve( __dirname, '../' ),
   externals: {
     chai: 'chai'
   }

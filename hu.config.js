@@ -4,6 +4,7 @@ const pluginFixWebcomponentsjs = require('./scripts/plugins/Fix-webcomponentsjs-
 const HU_RUNNING_COMMAND = process.env.HU_RUNNING_COMMAND;
 const packages = require('./package.json');
 const banner = `${ packages.title } v${ packages.version }\n${ packages.homepage }\n\n(c) 2018-present ${ packages.author }\nReleased under the MIT License.`;
+const configs = [];
 const pipe = [
   { output: 'hu.js' }
 ];
@@ -53,8 +54,7 @@ if( HU_RUNNING_COMMAND === 'build' ){
   });
 }
 
-
-module.exports = {
+configs.push({
   mode: false,
   input: 'build/index.js',
   format: 'umd',
@@ -76,4 +76,12 @@ module.exports = {
   ],
 
   pipe
-};
+});
+
+if( HU_RUNNING_COMMAND === 'watch' ){
+  configs.push(
+    require('./test/Test/hu.config')
+  );
+}
+
+module.exports = configs;
