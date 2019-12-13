@@ -11732,4 +11732,877 @@
 
   });
 
+  describe( 'options.lifecycle', () => {
+
+    const options = {
+      props: {
+        a: { default: 1 }
+      },
+      data: () => ({
+        b: 2
+      }),
+      methods: {
+        c: () => 3
+      },
+      computed: {
+        d: () => 4
+      }
+    };
+
+    it( 'beforeCreate 生命周期回调: 实例初始化后被调用, 计算属性 computed 和数据监听 watch 还未初始化', () => {
+      let isBeforeCreateRun = false;
+      let isWatchRun = false;
+
+      new Hu({
+        mixins: [ options ],
+        beforeCreate(){
+          isBeforeCreateRun = true;
+
+          chai.expect( this ).has.property('a').is.equals( 1 );
+          chai.expect( this ).has.property('b').is.equals( 2 );
+          chai.expect( this ).has.property('c').is.a('function'); chai.expect( this.c() ).is.equals( 3 );
+          chai.expect( this ).not.has.property('d');
+          chai.expect( isWatchRun ).is.false;
+        },
+        watch: {
+          a: {
+            immediate: true,
+            handler: () => isWatchRun = true
+          }
+        }
+      });
+
+      chai.expect( isBeforeCreateRun ).is.true;
+      chai.expect( isWatchRun ).is.true;
+    });
+
+    it( 'beforeCreate 生命周期回调: 实例初始化后被调用, 计算属性 computed 和数据监听 watch 还未初始化 ( Vue ) ( 细节不一致 )', () => {
+      let isBeforeCreateRun = false;
+      let isWatchRun = false;
+
+      new Vue({
+        el: document.createElement('div'),
+        mixins: [ options ],
+        beforeCreate(){
+          isBeforeCreateRun = true;
+
+          chai.expect( this ).not.has.property('a');
+          chai.expect( this ).not.has.property('b');
+          chai.expect( this ).not.has.property('c');
+          chai.expect( this ).not.has.property('d');
+          chai.expect( isWatchRun ).is.false;
+        },
+        watch: {
+          a: {
+            immediate: true,
+            handler: () => isWatchRun = true
+          }
+        }
+      });
+
+      chai.expect( isBeforeCreateRun ).is.true;
+      chai.expect( isWatchRun ).is.true;
+    });
+
+    it( 'beforeCreate 生命周期回调: 实例初始化后被调用, 计算属性 computed 和数据监听 watch 还未初始化 ( 自定义元素 )', () => {
+      const customName = window.customName;
+      let isBeforeCreateRun = false;
+      let isWatchRun = false;
+
+      Hu.define( customName, {
+        mixins: [ options ],
+        beforeCreate(){
+          isBeforeCreateRun = true;
+
+          chai.expect( this ).has.property('a').is.equals( 1 );
+          chai.expect( this ).has.property('b').is.equals( 2 );
+          chai.expect( this ).has.property('c').is.a('function'); chai.expect( this.c() ).is.equals( 3 );
+          chai.expect( this ).not.has.property('d');
+          chai.expect( isWatchRun ).is.false;
+        },
+        watch: {
+          a: {
+            immediate: true,
+            handler: () => isWatchRun = true
+          }
+        }
+      });
+
+      chai.expect( isBeforeCreateRun ).is.false;
+      chai.expect( isWatchRun ).is.false;
+
+      document.createElement( customName );
+
+      chai.expect( isBeforeCreateRun ).is.true;
+      chai.expect( isWatchRun ).is.true;
+    });
+
+    it( 'created 生命周期回调: 实例创建完成后被调用, 但是挂载还未开始', () => {
+      let isCreatedRun = false;
+      let isMountedRun = false;
+      let isWatchRun = false;
+
+      new Hu({
+        el: document.createElement('div'),
+        mixins: [ options ],
+        created(){
+          isCreatedRun = true;
+
+          chai.expect( this ).has.property('a').is.equals( 1 );
+          chai.expect( this ).has.property('b').is.equals( 2 );
+          chai.expect( this ).has.property('c').is.a('function'); chai.expect( this.c() ).is.equals( 3 );
+          chai.expect( this ).has.property('d').is.equals( 4 );
+          chai.expect( isMountedRun ).is.false;
+          chai.expect( isWatchRun ).is.true;
+        },
+        mounted: () => isMountedRun = true,
+        watch: {
+          a: {
+            immediate: true,
+            handler: () => isWatchRun = true
+          }
+        }
+      });
+
+      chai.expect( isCreatedRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+      chai.expect( isWatchRun ).is.true;
+    });
+
+    it( 'created 生命周期回调: 实例创建完成后被调用, 但是挂载还未开始 ( 自定义元素 )', () => {
+      const customName = window.customName;
+      let isCreatedRun = false;
+      let isMountedRun = false;
+      let isWatchRun = false;
+
+      Hu.define( customName, {
+        mixins: [ options ],
+        created(){
+          isCreatedRun = true;
+
+          chai.expect( this ).has.property('a').is.equals( 1 );
+          chai.expect( this ).has.property('b').is.equals( 2 );
+          chai.expect( this ).has.property('c').is.a('function'); chai.expect( this.c() ).is.equals( 3 );
+          chai.expect( this ).has.property('d').is.equals( 4 );
+          chai.expect( isMountedRun ).is.false;
+          chai.expect( isWatchRun ).is.true;
+        },
+        mounted: () => isMountedRun = true,
+        watch: {
+          a: {
+            immediate: true,
+            handler: () => isWatchRun = true
+          }
+        }
+      });
+
+      chai.expect( isCreatedRun ).is.false;
+      chai.expect( isMountedRun ).is.false;
+      chai.expect( isWatchRun ).is.false;
+
+      document.createElement( customName ).$appendTo( document.body ).$remove();
+
+      chai.expect( isCreatedRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+      chai.expect( isWatchRun ).is.true;
+    });
+
+    it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用', () => {
+      let isBeforeMountRun = false;
+      let isRenderRun = false;
+
+      new Hu({
+        el: document.createElement('div'),
+        render: () => {
+          isRenderRun = true;
+
+          chai.expect( isBeforeMountRun ).is.true;
+        },
+        beforeMount: () => {
+          isBeforeMountRun = true;
+
+          chai.expect( isRenderRun ).is.false;
+        }
+      });
+
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+    });
+
+    it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用 ( Vue )', () => {
+      let isBeforeMountRun = false;
+      let isRenderRun = false;
+
+      new Vue({
+        el: document.createElement('div'),
+        render: () => {
+          isRenderRun = true;
+
+          chai.expect( isBeforeMountRun ).is.true;
+        },
+        beforeMount: () => {
+          isBeforeMountRun = true;
+
+          chai.expect( isRenderRun ).is.false;
+        }
+      });
+
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+    });
+
+    it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用 ( use $mount )', () => {
+      let isBeforeMountRun = false;
+      let isRenderRun = false;
+      let index = 0;
+
+      const hu = new Hu({
+        render: () => {
+          isRenderRun = true;
+
+          chai.expect( isBeforeMountRun ).is.true;
+        },
+        beforeMount: () => {
+          isBeforeMountRun = true;
+          index++;
+
+          chai.expect( isRenderRun ).is.false;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isBeforeMountRun ).is.false;
+
+      hu.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+
+      hu.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+    });
+
+    it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用 ( use $mount ) ( Vue ) ( 细节不一致 )', () => {
+      let isBeforeMountRun = false;
+      let isRenderRun = false;
+      let index = 0;
+
+      const vm = new Vue({
+        render: () => {
+          isRenderRun = true;
+
+          chai.expect( isBeforeMountRun ).is.true;
+        },
+        beforeMount: () => {
+          isBeforeMountRun = true;
+          index++;
+
+          chai.expect( isRenderRun ).is.equals( !!( index - 1 ) );
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isBeforeMountRun ).is.false;
+
+      vm.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+
+      vm.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 2 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+    });
+
+    it( 'beforeMount 生命周期回调: 首次挂载开始之前被调用 ( 自定义元素 )', () => {
+      const customName = window.customName;
+      let isBeforeMountRun = false;
+      let isRenderRun = false;
+      let index = 0;
+
+      Hu.define( customName, {
+        render: () => {
+          isRenderRun = true;
+
+          chai.expect( isBeforeMountRun ).is.true;
+        },
+        beforeMount: () => {
+          isBeforeMountRun = true;
+          index++;
+
+          chai.expect( isRenderRun ).is.false;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isBeforeMountRun ).is.false;
+
+      const custom = document.createElement( customName );
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isBeforeMountRun ).is.false;
+
+      custom.$appendTo( document.body );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+
+      custom.$remove();
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+
+      custom.$appendTo( document.body );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isBeforeMountRun ).is.true;
+
+      custom.$remove();
+    });
+
+    it( 'mounted 生命周期回调: 首次挂载之后被调用', () => {
+      let isMountedRun = false;
+      let isRenderRun = false;
+
+      new Hu({
+        el: document.createElement('div'),
+        render(){
+          isRenderRun = true;
+
+          chai.expect( isMountedRun ).is.false;
+        },
+        mounted(){
+          isMountedRun = true;
+
+          chai.expect( isRenderRun ).is.true;
+        }
+      });
+
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+    });
+
+    it( 'mounted 生命周期回调: 首次挂载之后被调用 ( Vue )', () => {
+      let isMountedRun = false;
+      let isRenderRun = false;
+
+      new Vue({
+        el: document.createElement('div'),
+        render(){
+          isRenderRun = true;
+
+          chai.expect( isMountedRun ).is.false;
+        },
+        mounted(){
+          isMountedRun = true;
+
+          chai.expect( isRenderRun ).is.true;
+        }
+      });
+
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+    });
+
+    it( 'mounted 生命周期回调: 首次挂载之后被调用 ( use $mount )', () => {
+      let isMountedRun = false;
+      let isRenderRun = false;
+      let index = 0;
+
+      const hu = new Hu({
+        render(){
+          isRenderRun = true;
+
+          chai.expect( isMountedRun ).is.false;
+        },
+        mounted(){
+          isMountedRun = true;
+          index++;
+
+          chai.expect( isRenderRun ).is.true;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isMountedRun ).is.false;
+
+      hu.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+
+      hu.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+    });
+
+    it( 'mounted 生命周期回调: 首次挂载之后被调用 ( use $mount ) ( Vue ) ( 细节不一致 )', () => {
+      let isMountedRun = false;
+      let isRenderRun = false;
+      let index = 0;
+
+      const vm = new Vue({
+        render(){
+          isRenderRun = true;
+
+          chai.expect( isMountedRun ).is.equals( !!index );
+        },
+        mounted(){
+          isMountedRun = true;
+          index++;
+
+          chai.expect( isRenderRun ).is.true;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isMountedRun ).is.false;
+
+      vm.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+
+      vm.$mount(
+        document.createElement('div')
+      );
+
+      chai.expect( index ).is.equals( 2 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+    });
+
+    it( 'mounted 生命周期回调: 首次挂载之后被调用 ( 自定义元素 )', () => {
+      const customName = window.customName;
+      let isMountedRun = false;
+      let isRenderRun = false;
+      let index = 0;
+
+      Hu.define( customName, {
+        render(){
+          chai.expect( isMountedRun ).is.equals( isRenderRun );
+
+          isRenderRun = true;
+        },
+        mounted(){
+          index++;
+          isMountedRun = true;
+
+          chai.expect( isRenderRun ).is.true;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isMountedRun ).is.false;
+
+      const custom = document.createElement( customName );
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( isRenderRun ).is.false;
+      chai.expect( isMountedRun ).is.false;
+
+      custom.$appendTo( document.body );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+
+      custom.$remove();
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+
+      custom.$appendTo( document.body );
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( isRenderRun ).is.true;
+      chai.expect( isMountedRun ).is.true;
+
+      custom.$remove();
+    });
+
+    it( 'beforeDestroy 生命周期回调: 实例销毁之前调用, 在这一步, 实例仍然完全可用', () => {
+      let index = 0;
+      const hu = new Hu({
+        data: {
+          a: 1
+        },
+        computed: {
+          b(){
+            return this.a * 2;
+          }
+        },
+        beforeDestroy(){
+          index++;
+          chai.expect( this.b ).is.equals( 2 );
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+
+      hu.$destroy();
+
+      chai.expect( index ).is.equals( 1 );
+    });
+
+    it( 'beforeDestroy 生命周期回调: 实例销毁之前调用, 在这一步, 实例仍然完全可用 ( Vue )', () => {
+      let index = 0;
+      const vm = new Vue({
+        data: {
+          a: 1
+        },
+        computed: {
+          b(){
+            return this.a * 2;
+          }
+        },
+        beforeDestroy(){
+          index++;
+          chai.expect( this.b ).is.equals( 2 );
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+
+      vm.$destroy();
+
+      chai.expect( index ).is.equals( 1 );
+    });
+
+    it( 'beforeDestroy 生命周期回调: 实例销毁之前调用, 在这一步, 实例仍然完全可用 ( 自定义元素 )', () => {
+      const customName = window.customName;
+      let index = 0;
+
+      Hu.define( customName, {
+        data: () => ({
+          a: 1
+        }),
+        computed: {
+          b(){
+            return this.a * 2;
+          }
+        },
+        beforeDestroy(){
+          index++;
+          chai.expect( this.b ).is.equals( 2 );
+        }
+      });
+
+      const custom = document.createElement( customName );
+      const hu = custom.$hu;
+
+      chai.expect( index ).is.equals( 0 );
+
+      hu.$destroy();
+
+      chai.expect( index ).is.equals( 1 );
+    });
+
+    it( 'destroyed 生命周期回调: 实例销毁后调用', () => {
+      let index = 0;
+      const hu = new Hu({
+        data: {
+          a: 1
+        },
+        computed: {
+          b(){
+            return this.a * 2;
+          }
+        },
+        destroyed(){
+          index++;
+          chai.expect( this.b ).is.equals( undefined );
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+
+      hu.$destroy();
+
+      chai.expect( index ).is.equals( 1 );
+    });
+
+    it( 'destroyed 生命周期回调: 实例销毁后调用 ( Vue ) ( 细节不一致 )', () => {
+      let index = 0;
+      const vm = new Vue({
+        data: {
+          a: 1
+        },
+        computed: {
+          b(){
+            return this.a * 2;
+          }
+        },
+        destroyed(){
+          index++;
+          chai.expect( this.b ).is.equals( 2 );
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+
+      vm.$destroy();
+
+      chai.expect( index ).is.equals( 1 );
+    });
+
+    it( 'destroyed 生命周期回调: 实例销毁后调用 ( 自定义元素 )', () => {
+      const customName = window.customName;
+      let index = 0;
+
+      Hu.define( customName, {
+        data: () => ({
+          a: 1
+        }),
+        computed: {
+          b(){
+            return this.a * 2;
+          }
+        },
+        destroyed(){
+          index++;
+          chai.expect( this.b ).is.equals( undefined );
+        }
+      });
+
+      const custom = document.createElement( customName );
+      const hu = custom.$hu;
+
+      chai.expect( index ).is.equals( 0 );
+
+      hu.$destroy();
+
+      chai.expect( index ).is.equals( 1 );
+    });
+
+    it( 'connected 生命周期回调: 自定义元素被添加到文档流', () => {
+      const customName = window.customName;
+      let index = 0;
+
+      Hu.define( customName, {
+        connected(){
+          index++;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+
+      const custom = document.createElement( customName );
+
+      chai.expect( index ).is.equals( 0 );
+
+      custom.$appendTo( document.body );
+      chai.expect( index ).is.equals( 1 );
+
+      custom.$remove();
+      chai.expect( index ).is.equals( 1 );
+
+      custom.$appendTo( document.body );
+      chai.expect( index ).is.equals( 2 );
+
+      custom.$remove();
+      chai.expect( index ).is.equals( 2 );
+
+      custom.$appendTo( document.body );
+      chai.expect( index ).is.equals( 3 );
+
+      custom.$remove();
+      chai.expect( index ).is.equals( 3 );
+
+      custom.$appendTo( document.body );
+      chai.expect( index ).is.equals( 4 );
+
+      custom.$remove();
+    });
+
+    if( customElements.polyfillWrapFlushCallback === undefined ){
+
+      it( 'adopted 生命周期回调: 自定义元素被移动到新文档时调用', () => {
+        const customName = window.customName;
+        let index = 0;
+        let result;
+
+        Hu.define( customName, {
+          adopted(){
+            result = [ ...arguments ];
+            index++;
+          }
+        });
+
+        chai.expect( index ).is.equals( 0 );
+        chai.expect( result ).is.undefined;
+
+        const custom = document.createElement( customName );
+
+        chai.expect( index ).is.equals( 0 );
+        chai.expect( result ).is.undefined;
+
+        document.body.appendChild( custom );
+
+        chai.expect( index ).is.equals( 0 );
+        chai.expect( result ).is.undefined;
+
+        const iframe = document.createElement('iframe').$appendTo( document.body );
+        const iframeDocument = iframe.contentWindow.document;
+        const iframeBody = iframeDocument.body;
+
+        iframeBody.appendChild( custom );
+
+        chai.expect( index ).is.equals( 1 );
+        chai.expect( result ).is.deep.equals([ iframeDocument, document ]);
+
+        document.body.appendChild( custom );
+        chai.expect( result ).is.deep.equals([ document, iframeDocument ]);
+
+        chai.expect( index ).is.equals( 2 );
+
+        custom.$remove();
+        iframe.$remove();
+      });
+
+    }
+
+    it( 'disconnected 生命周期回调: 自定义元素被从文档流移除', () => {
+      const customName = window.customName;
+      let index = 0;
+
+      Hu.define( customName, {
+        disconnected(){
+          index++;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+
+      const custom = document.createElement( customName );
+
+      chai.expect( index ).is.equals( 0 );
+
+      custom.$appendTo( document.body );
+
+      chai.expect( index ).is.equals( 0 );
+
+      custom.$remove();
+
+      chai.expect( index ).is.equals( 1 );
+
+      custom.$appendTo( document.body );
+
+      chai.expect( index ).is.equals( 1 );
+
+      custom.$remove();
+
+      chai.expect( index ).is.equals( 2 );
+    });
+
+    it( 'disconnected 生命周期回调: 自定义元素被从文档流移除后, Shadow DOM 也会被清空', () => {
+      const customName = window.customName;
+      let index = 0;
+
+      Hu.define( customName, {
+        render( html ){
+          return html`<div>123</div>`
+        },
+        disconnected(){
+          index++;
+        }
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+
+      chai.expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals('<div>123</div>');
+      chai.expect( index ).is.equals( 0 );
+
+      custom.$remove();
+
+      chai.expect( stripExpressionMarkers( hu.$el.innerHTML ) ).is.equals('');
+      chai.expect( index ).is.equals( 1 );
+    });
+
+    it( '生命周期回调的 this 指向的都是当前实例', () => {
+      const result = [];
+      const returnSelf = function(){
+        result.push( this );
+      };
+
+      const hu = new Hu({
+        beforeCreate: returnSelf,
+        created: returnSelf,
+        beforeMount: returnSelf,
+        mounted: returnSelf,
+        beforeDestroy: returnSelf,
+        destroyed: returnSelf
+      });
+
+      hu.$mount(
+        document.createElement('div')
+      );
+      hu.$destroy();
+
+      chai.expect( result.length ).is.equals( 6 );
+      chai.expect([ ...new Set( result ) ]).is.deep.equals([ hu ]);
+    });
+
+    it( '生命周期回调触发后会同时触发 hook:name 的自定义事件', () => {
+      const result = [];
+
+      const hu = new Hu({
+        beforeCreate(){
+          this.$on('hook:beforeCreate', () => result.push('beforeCreate'));
+          this.$on('hook:created', () => result.push('created'));
+          this.$on('hook:beforeMount', () => result.push('beforeMount'));
+          this.$on('hook:mounted', () => result.push('mounted'));
+          this.$on('hook:beforeDestroy', () => result.push('beforeDestroy'));
+          this.$on('hook:destroyed', () => result.push('destroyed'));
+        }
+      });
+
+      hu.$mount(
+        document.createElement('div')
+      );
+      hu.$destroy();
+
+      chai.expect( result.length ).is.equals( 6 );
+      chai.expect( result ).is.deep.equals([ 'beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeDestroy', 'destroyed' ]);
+    });
+
+  });
+
 }(chai));

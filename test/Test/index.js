@@ -7,3 +7,4 @@ import './src/options/methods';
 import './src/options/watch';
 import './src/options/styles';
 import './src/options/render';
+import './src/options/lifecycle';
