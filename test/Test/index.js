@@ -20,3 +20,4 @@ import './src/customElement/index';
 
 import './src/html/index';
 import './src/html/directiveBasic';
+import './src/html/directiveFn';
