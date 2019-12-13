@@ -6,5 +6,8 @@ module.exports = {
   outputDir: resolve( __dirname, '../' ),
   externals: {
     chai: 'chai'
+  },
+  configureRollup( rollupConfig, config ){
+    rollupConfig.input.treeshake = false;
   }
 }
