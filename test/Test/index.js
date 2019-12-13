@@ -16,4 +16,6 @@ import './src/static/directiveFn';
 
 import './src/instance/index';
 
+import './src/customElement/index';
+
 import './src/html/index';
