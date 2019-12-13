@@ -1,3 +1,6 @@
+import Hu from '../../../src/build/index';
+
+
 // ------
 
 Reflect.defineProperty( window, 'customName', {

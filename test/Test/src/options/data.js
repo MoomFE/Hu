@@ -1,3 +1,4 @@
+import Hu from '../../../../src/build/index';
 import { expect } from 'chai';
 
 

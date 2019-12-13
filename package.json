@@ -27,7 +27,7 @@
   "scripts": {
     "build": "node_modules\\.bin\\hu build",
     "watch": "node_modules\\.bin\\hu watch",
-    "watch-test": "node_modules\\.bin\\hu watch -c ./test/test/hu.config.js",
+    "watch.test": "node_modules\\.bin\\hu watch -c ./test/test/hu.config.js",
     "test": "node_modules\\.bin\\karma start",
     "publish-master": "npm run build && npm publish"
   },
