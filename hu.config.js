@@ -1,7 +1,6 @@
 require('./scripts/extras/copy-polyfill');
 const pluginFixErrorInFirefox = require('./scripts/plugins/Fix-SyntaxError-error-in-Firefox-51-and-below');
 const pluginFixWebcomponentsjs = require('./scripts/plugins/Fix-webcomponentsjs-window-is-not-defined');
-const pluginCopyToTest = require('./scripts/plugins/copy-to-test');
 const HU_RUNNING_COMMAND = process.env.HU_RUNNING_COMMAND;
 const packages = require('./package.json');
 const banner = `${ packages.title } v${ packages.version }\n${ packages.homepage }\n\n(c) 2018-present ${ packages.author }\nReleased under the MIT License.`;
@@ -73,7 +72,6 @@ module.exports = {
   },
   plugins: ( config ) => [
     pluginFixErrorInFirefox,
-    config._originConfig.output === 'hu.js' && pluginCopyToTest,
     /\.polyfill\./.test( config.output ) && pluginFixWebcomponentsjs
   ],
 
