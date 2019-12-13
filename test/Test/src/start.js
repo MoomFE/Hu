@@ -3,6 +3,10 @@ import Hu from '../../../src/build/index';
 
 // ------
 
+window.Hu = Hu;
+
+// ------
+
 Reflect.defineProperty( window, 'customName', {
   get: () => `custom-element-${ ZenJS.guid }`
 });

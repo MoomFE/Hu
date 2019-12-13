@@ -4613,6 +4613,10 @@
 
   // ------
 
+  window.Hu = Hu;
+
+  // ------
+
   Reflect.defineProperty( window, 'customName', {
     get: () => `custom-element-${ ZenJS.guid }`
   });
