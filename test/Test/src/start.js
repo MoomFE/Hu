@@ -78,30 +78,6 @@ window.stripExpressionMarkers = html => {
 // ------
 
 {
-  let supportsPassive = false;
-
-  try{
-    
-    const options = {};
-
-    Reflect.defineProperty( options, 'passive', {
-      get: () => {
-        return supportsPassive = true;
-      }
-    });
-
-    window.addEventListener( 'test-passive', null, options );
-
-  }catch( error ){
-    
-  }
-
-  window.supportsPassive = supportsPassive;
-}
-
-// ------
-
-{
   let supportsForInTriggerProxyOwnKeys = false;
 
   const proxyObj = new Proxy({}, {

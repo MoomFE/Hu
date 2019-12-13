@@ -92,20 +92,6 @@ interface Window{
 // ------
 
 /**
- * 判断当前环境是否支持绑定事件时传递 passive 选项
- */
-declare const supportsPassive: boolean;
-
-interface Window{
-  /**
-   * 判断当前环境是否支持绑定事件时传递 passive 选项
-   */
-  supportsPassive: boolean;
-}
-
-// ------
-
-/**
  * 判断当前环境是否在使用 for...in 循环时触发 Proxy 的 ownKeys 拦截
  */
 declare const supportsForInTriggerProxyOwnKeys: boolean;

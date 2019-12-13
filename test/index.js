@@ -760,7 +760,7 @@
   // export const isFirefox = UA && UA.indexOf('firefox') > -1;
 
 
-  let supportsPassive$1 = false;
+  let supportsPassive = false;
 
   try{
 
@@ -768,7 +768,7 @@
 
     defineProperty( options, 'passive', {
       get: () => {
-        return supportsPassive$1 = true;
+        return supportsPassive = true;
       }
     });
 
@@ -2634,7 +2634,7 @@
   const eventOptions = {
     once: true,
     capture: true,
-    passive: supportsPassive$1,
+    passive: supportsPassive,
     native: true
   };
 
@@ -4683,30 +4683,6 @@
         return expect( msgs[0] ).is.equals( msg );
       }
     };
-  }
-
-  // ------
-
-  {
-    let supportsPassive = false;
-
-    try{
-      
-      const options = {};
-
-      Reflect.defineProperty( options, 'passive', {
-        get: () => {
-          return supportsPassive = true;
-        }
-      });
-
-      window.addEventListener( 'test-passive', null, options );
-
-    }catch( error ){
-      
-    }
-
-    window.supportsPassive = supportsPassive;
   }
 
   // ------

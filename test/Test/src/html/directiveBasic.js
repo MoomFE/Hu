@@ -1,4 +1,5 @@
 import Hu from '../../../../src/build/index';
+import { supportsPassive } from '../../../../src/shared/const/env';
 import { expect } from 'chai';
 
 
