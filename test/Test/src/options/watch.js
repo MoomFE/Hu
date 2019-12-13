@@ -1,3 +1,7 @@
+import Hu from '../../../../src/build/index';
+import { expect } from 'chai';
+
+
 describe( 'options.watch', () => {
 
   it( '使用 watch 对实例内的属性进行监听', ( done ) => {
