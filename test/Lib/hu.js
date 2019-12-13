@@ -236,7 +236,7 @@
       const beforeResult = before( target, name, value, targetProxy );
 
       if( beforeResult === 0 ){
-        return false;
+        return true;
       }
     }
 
@@ -289,7 +289,7 @@
       const beforeResult = before( target, name );
 
       if( beforeResult === 0 ){
-        return false;
+        return true;
       }
     }
 
@@ -1379,10 +1379,10 @@
     slice
   } = prototype$1;
 
-  var returnFalse = /**
-   * 返回 false
+  var returnTrue = /**
+   * 返回 true
    */
-  () => false;
+  () => true;
 
   class Computed{
 
@@ -1398,7 +1398,7 @@
       this.targetProxyInterceptor = new Proxy( targetProxy, {
         get: computedTargetProxyInterceptorGet( optionsMap ),
         set: computedTargetProxyInterceptorSet( optionsMap ),
-        deleteProperty: returnFalse
+        deleteProperty: returnTrue
       });
       /** 保存相关参数 */
       this.self = self;
@@ -1507,7 +1507,7 @@
     if( options ){
       return options.set( value ), true;
     }
-    return false;
+    return true;
   };
 
   /**

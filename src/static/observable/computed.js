@@ -1,6 +1,6 @@
 import { create } from "../../shared/global/Object/index";
 import { observe, observeMap } from "./observe";
-import returnFalse from "../../shared/util/returnFalse";
+import returnTrue from "../../shared/util/returnTrue";
 import noop from "../../shared/util/noop";
 import Watcher from "./collectingDependents";
 import { queueMap, queue, index } from "./scheduler";
@@ -21,7 +21,7 @@ export default class Computed{
     this.targetProxyInterceptor = new Proxy( targetProxy, {
       get: computedTargetProxyInterceptorGet( optionsMap ),
       set: computedTargetProxyInterceptorSet( optionsMap ),
-      deleteProperty: returnFalse
+      deleteProperty: returnTrue
     });
     /** 保存相关参数 */
     this.self = self;
@@ -130,5 +130,5 @@ const computedTargetProxyInterceptorSet = optionsMap => ( target, name, value ) 
   if( options ){
     return options.set( value ), true;
   }
-  return false;
+  return true;
 };

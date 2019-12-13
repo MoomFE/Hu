@@ -131,7 +131,7 @@ const createObserverProxySetter = ({ before } = emptyObject, { subs, deepSubs, l
     const beforeResult = before( target, name, value, targetProxy );
 
     if( beforeResult === 0 ){
-      return false;
+      return true;
     }
   }
 
@@ -184,7 +184,7 @@ const createObserverProxyDeleteProperty = ({ before } = emptyObject, { subs, dee
     const beforeResult = before( target, name );
 
     if( beforeResult === 0 ){
-      return false;
+      return true;
     }
   }
 
