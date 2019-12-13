@@ -1,6 +1,7 @@
 import { ownKeys, defineProperty } from "../../../shared/global/Reflect/index"
 import isReserved from "../../../shared/util/isReserved";
 import each from "../../../shared/util/each";
+import Hu from "../../../core/hu";
 
 
 export default ( root, target, targetProxy ) => {
