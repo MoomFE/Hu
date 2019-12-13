@@ -1,3 +1,7 @@
+import Hu from '../../../../src/build/index';
+import { expect } from 'chai';
+
+
 describe( 'options.render', () => {
 
   it( '使用 html 创建的模板进行渲染', () => {
