@@ -19,3 +19,4 @@ import './src/instance/index';
 import './src/customElement/index';
 
 import './src/html/index';
+import './src/html/directiveBasic';
