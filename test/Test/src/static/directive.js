@@ -1,3 +1,7 @@
+import Hu from '../../../../src/build/index';
+import { expect } from 'chai';
+
+
 describe( 'Hu.static.directive', () => {
 
   /** @type {Element} */
