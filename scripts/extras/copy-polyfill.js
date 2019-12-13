@@ -1,7 +1,6 @@
 const { resolve } = require('path');
 const { copy, readdir } = require('fs-extra');
 
-
 const dirname = resolve( __dirname, '../../' );
 const node_modules = resolve( dirname, 'node_modules' );
 const to = resolve( dirname, 'test/Lib' );
@@ -9,6 +8,7 @@ const js = /\.js$/;
 const writeOptions = {
   overwrite: true
 };
+
 
 // 拷贝测试所需的类库文件到测试文件夹中
 [
