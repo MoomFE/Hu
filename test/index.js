@@ -12605,4 +12605,702 @@
 
   });
 
+  describe( 'options.mixins', () => {
+
+    it( '使用 mixins 选项对当前实例生命周期回调进行混入', () => {
+      const result = [];
+      const hu = new Hu({
+        mixins: [
+          {
+            created(){ result.push( 1 ); }
+          }
+        ],
+        created(){ result.push( 2 ); }
+      });
+
+      chai.expect( result ).is.deep.equals([ 1, 2 ]);
+    });
+
+    it( '使用 mixins 选项对当前实例生命周期回调进行混入 ( Vue )', () => {
+      const result = [];
+      const vm = new Vue({
+        mixins: [
+          {
+            created(){ result.push( 1 ); }
+          }
+        ],
+        created(){ result.push( 2 ); }
+      });
+
+      chai.expect( result ).is.deep.equals([ 1, 2 ]);
+    });
+
+    it( '使用 mixins 选项对当前实例生命周期回调进行混入, 当前实例定义的生命周期回调最晚执行', () => {
+      const result = [];
+      const hu = new Hu({
+        mixins: [
+          { created(){ result.push( 1 ); } },
+          { created(){ result.push( 2 ); } },
+          { created(){ result.push( 3 ); } }
+        ],
+        created(){ result.push( 4 ); }
+      });
+
+      chai.expect( result ).is.deep.equals([ 1, 2, 3, 4 ]);
+    });
+
+    it( '使用 mixins 选项对当前实例生命周期回调进行混入, 当前实例定义的生命周期回调最晚执行 ( Vue )', () => {
+      const result = [];
+      const vm = new Vue({
+        mixins: [
+          { created(){ result.push( 1 ); } },
+          { created(){ result.push( 2 ); } },
+          { created(){ result.push( 3 ); } }
+        ],
+        created(){ result.push( 4 ); }
+      });
+
+      chai.expect( result ).is.deep.equals([ 1, 2, 3, 4 ]);
+    });
+
+    it( '使用 mixins 选项对当前实例生命周期回调进行混入, 多个 mixin 时, 越后定义的 mixin 内的生命周期回调越晚执行', () => {
+      const result = [];
+      const hu = new Hu({
+        mixins: [
+          { created(){ result.push( 1 ); } },
+          { created(){ result.push( 2 ); } },
+          { created(){ result.push( 3 ); } }
+        ]
+      });
+
+      chai.expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    });
+
+    it( '使用 mixins 选项对当前实例生命周期回调进行混入, 多个 mixin 时, 越后定义的 mixin 内的生命周期回调越晚执行 ( Vue )', () => {
+      const result = [];
+      const vm = new Vue({
+        mixins: [
+          { created(){ result.push( 1 ); } },
+          { created(){ result.push( 2 ); } },
+          { created(){ result.push( 3 ); } }
+        ]
+      });
+
+      chai.expect( result ).is.deep.equals([ 1, 2, 3 ]);
+    });
+
+    it( '使用 mixins 选项对当前实例 props 选项进行混入', () => {
+      const hu = new Hu({
+        mixins: [
+          { props: { b: String } },
+          { props: { c: String } }
+        ],
+        props: {
+          a: String
+        }
+      });
+
+      chai.expect( hu.$props ).is.deep.equals({
+        a: undefined,
+        b: undefined,
+        c: undefined
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 props 选项进行混入 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { props: { b: String } },
+          { props: { c: String } }
+        ],
+        props: {
+          a: String
+        }
+      });
+
+      chai.expect( vm.$props ).is.deep.equals({
+        a: undefined,
+        b: undefined,
+        c: undefined
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 props 选项进行混入, 当前实例定义的 prop 优先级比较高', () => {
+      const hu = new Hu({
+        mixins: [
+          { props: { a: { default: 'aaa' } } },
+          { props: { b: { default: 'bbb' } } },
+          { props: { c: { default: 'ccc' } } }
+        ],
+        props: {
+          a: { default: 'a' }
+        }
+      });
+
+      chai.expect( hu.$props ).is.deep.equals({
+        a: 'a',
+        b: 'bbb',
+        c: 'ccc'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 props 选项进行混入, 当前实例定义的 prop 优先级比较高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { props: { a: { default: 'aaa' } } },
+          { props: { b: { default: 'bbb' } } },
+          { props: { c: { default: 'ccc' } } }
+        ],
+        props: {
+          a: { default: 'a' }
+        }
+      });
+
+      chai.expect( vm.$props ).is.deep.equals({
+        a: 'a',
+        b: 'bbb',
+        c: 'ccc'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 props 选项进行混入, 多个 mixin 时, 越后定义的 prop 优先级越高', () => {
+      const hu = new Hu({
+        mixins: [
+          { props: { a: { default: 'a1' } } },
+          { props: { a: { default: 'a2' } } },
+          { props: { a: { default: 'a3' } } }
+        ]
+      });
+
+      chai.expect( hu.$props ).is.deep.equals({
+        a: 'a3'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 props 选项进行混入, 多个 mixin 时, 越后定义的 prop 优先级越高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { props: { a: { default: 'a1' } } },
+          { props: { a: { default: 'a2' } } },
+          { props: { a: { default: 'a3' } } }
+        ]
+      });
+
+      chai.expect( vm.$props ).is.deep.equals({
+        a: 'a3'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 methods 选项进行混入', () => {
+      const hu = new Hu({
+        mixins: [
+          { methods: { a: () => 'a' } }
+        ],
+        methods: {
+          b: () => 'b'
+        }
+      });
+
+      chai.expect( hu ).is.include.keys([ 'a', 'b' ]);
+      chai.expect( hu.a() ).is.equals( 'a' );
+      chai.expect( hu.b() ).is.equals( 'b' );
+
+      chai.expect( hu.$methods ).have.keys([ 'a', 'b' ]);
+      chai.expect( hu.$methods.a() ).is.equals( 'a' );
+      chai.expect( hu.$methods.b() ).is.equals( 'b' );
+    });
+
+    it( '使用 mixins 选项对当前实例 methods 选项进行混入 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { methods: { a: () => 'a' } }
+        ],
+        methods: {
+          b: () => 'b'
+        }
+      });
+
+      chai.expect( vm ).is.include.keys([ 'a', 'b' ]);
+      chai.expect( vm.a() ).is.equals( 'a' );
+      chai.expect( vm.b() ).is.equals( 'b' );
+    });
+
+    it( '使用 mixins 选项对当前实例 methods 选项进行混入, 当前实例定义的 method 优先级比较高', () => {
+      const hu = new Hu({
+        mixins: [
+          { methods: { a: () => 'aaa' } },
+          { methods: { b: () => 'bbb' } },
+          { methods: { c: () => 'ccc' } }
+        ],
+        methods: {
+          a: () => 'a',
+          b: () => 'b'
+        }
+      });
+
+      chai.expect( hu ).is.include.keys([ 'a', 'b', 'c' ]);
+      chai.expect( hu.a() ).is.equals( 'a' );
+      chai.expect( hu.b() ).is.equals( 'b' );
+      chai.expect( hu.c() ).is.equals( 'ccc' );
+
+      chai.expect( hu.$methods ).have.keys([ 'a', 'b', 'c' ]);
+      chai.expect( hu.$methods.a() ).is.equals( 'a' );
+      chai.expect( hu.$methods.b() ).is.equals( 'b' );
+      chai.expect( hu.$methods.c() ).is.equals( 'ccc' );
+    });
+
+    it( '使用 mixins 选项对当前实例 methods 选项进行混入, 当前实例定义的 method 优先级比较高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { methods: { a: () => 'aaa' } },
+          { methods: { b: () => 'bbb' } },
+          { methods: { c: () => 'ccc' } }
+        ],
+        methods: {
+          a: () => 'a',
+          b: () => 'b'
+        }
+      });
+
+      chai.expect( vm ).is.include.keys([ 'a', 'b', 'c' ]);
+      chai.expect( vm.a() ).is.equals( 'a' );
+      chai.expect( vm.b() ).is.equals( 'b' );
+      chai.expect( vm.c() ).is.equals( 'ccc' );
+    });
+
+    it( '使用 mixins 选项对当前实例 methods 选项进行混入, 多个 mixin 时, 越后定义的 method 优先级越高', () => {
+      const hu = new Hu({
+        mixins: [
+          { methods: { a: () => 'aaa' } },
+          { methods: { a: () => 'bbb' } },
+          { methods: { a: () => 'ccc' } }
+        ]
+      });
+
+      chai.expect( hu ).is.include.keys([ 'a' ]);
+      chai.expect( hu.a() ).is.equals( 'ccc' );
+
+      chai.expect( hu.$methods ).have.keys([ 'a' ]);
+      chai.expect( hu.$methods.a() ).is.equals( 'ccc' );
+    });
+
+    it( '使用 mixins 选项对当前实例 methods 选项进行混入, 多个 mixin 时, 越后定义的 method 优先级越高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { methods: { a: () => 'aaa' } },
+          { methods: { a: () => 'bbb' } },
+          { methods: { a: () => 'ccc' } }
+        ]
+      });
+
+      chai.expect( vm ).is.include.keys([ 'a' ]);
+      chai.expect( vm.a() ).is.equals( 'ccc' );
+    });
+
+    it( '使用 mixins 选项对当前实例 data 选项进行混入', () => {
+      const hu = new Hu({
+        mixins: [
+          { data: { a: 'a' } },
+          { data: () => ({ b: 'b' }) }
+        ],
+        data: {
+          c: 'c'
+        }
+      });
+
+      chai.expect( hu.$data ).is.deep.equals({
+        a: 'a',
+        b: 'b',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 data 选项进行混入 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { data: { a: 'a' } },
+          { data: () => ({ b: 'b' }) }
+        ],
+        data: {
+          c: 'c'
+        }
+      });
+
+      chai.expect( vm.$data ).is.deep.equals({
+        a: 'a',
+        b: 'b',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 data 选项进行混入, 当前实例定义的 data 优先级比较高', () => {
+      const hu = new Hu({
+        mixins: [
+          { data: { a: 'aaa' } },
+          { data: () => ({ b: 'bbb' }) }
+        ],
+        data: {
+          a: 'a',
+          c: 'c'
+        }
+      });
+
+      chai.expect( hu.$data ).is.deep.equals({
+        a: 'a',
+        b: 'bbb',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 data 选项进行混入, 当前实例定义的 data 优先级比较高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { data: { a: 'aaa' } },
+          { data: () => ({ b: 'bbb' }) }
+        ],
+        data: {
+          a: 'a',
+          c: 'c'
+        }
+      });
+
+      chai.expect( vm.$data ).is.deep.equals({
+        a: 'a',
+        b: 'bbb',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 data 选项进行混入, 多个 mixin 时, 越后定义的 data 优先级越高', () => {
+      const hu = new Hu({
+        mixins: [
+          { data: { a: 'aaa', b: 'b' } },
+          { data: () => ({ b: 'bbb', c: 'ccc' }) },
+          { data: { a: 'a' } }
+        ]
+      });
+
+      chai.expect( hu.$data ).is.deep.equals({
+        a: 'a',
+        b: 'bbb',
+        c: 'ccc'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 data 选项进行混入, 多个 mixin 时, 越后定义的 data 优先级越高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { data: { a: 'aaa', b: 'b' } },
+          { data: () => ({ b: 'bbb', c: 'ccc' }) },
+          { data: { a: 'a' } }
+        ]
+      });
+
+      chai.expect( vm.$data ).is.deep.equals({
+        a: 'a',
+        b: 'bbb',
+        c: 'ccc'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 computed 选项进行混入', () => {
+      const hu = new Hu({
+        mixins: [
+          { computed: { a: () => 'a' } },
+          { computed: { b: { get: () => 'b' } } }
+        ],
+        computed: {
+          c: () => 'c'
+        }
+      });
+
+      chai.expect( hu.$computed ).is.deep.equals({
+        a: 'a',
+        b: 'b',
+        c: 'c'
+      });
+
+      chai.expect( hu ).is.deep.include({
+        a: 'a',
+        b: 'b',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 computed 选项进行混入 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { computed: { a: () => 'a' } },
+          { computed: { b: { get: () => 'b' } } }
+        ],
+        computed: {
+          c: () => 'c'
+        }
+      });
+
+      chai.expect( vm ).is.deep.include({
+        a: 'a',
+        b: 'b',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 computed 选项进行混入, 当前实例定义的 computed 优先级比较高', () => {
+      const hu = new Hu({
+        mixins: [
+          { computed: { a: () => 'aaa' } },
+          { computed: { b: { get: () => 'bbb' } } }
+        ],
+        computed: {
+          a: () => 'a',
+          c: () => 'c'
+        }
+      });
+
+      chai.expect( hu.$computed ).is.deep.equals({
+        a: 'a',
+        b: 'bbb',
+        c: 'c'
+      });
+
+      chai.expect( hu ).is.deep.include({
+        a: 'a',
+        b: 'bbb',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 computed 选项进行混入, 当前实例定义的 computed 优先级比较高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { computed: { a: () => 'aaa' } },
+          { computed: { b: { get: () => 'bbb' } } }
+        ],
+        computed: {
+          a: () => 'a',
+          c: () => 'c'
+        }
+      });
+
+      chai.expect( vm ).is.deep.include({
+        a: 'a',
+        b: 'bbb',
+        c: 'c'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 computed 选项进行混入, 多个 mixin 时, 越后定义的 computed 优先级越高', () => {
+      const hu = new Hu({
+        mixins: [
+          { computed: { a: () => 'a', c: () => 'c' } },
+          { computed: { b: { get: () => 'bbb' }, c: () => 'ccc' } },
+          { computed: { a: () => 'aaa' } }
+        ]
+      });
+
+      chai.expect( hu.$computed ).is.deep.equals({
+        a: 'aaa',
+        b: 'bbb',
+        c: 'ccc'
+      });
+
+      chai.expect( hu ).is.deep.include({
+        a: 'aaa',
+        b: 'bbb',
+        c: 'ccc'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 computed 选项进行混入, 多个 mixin 时, 越后定义的 computed 优先级越高 ( Vue )', () => {
+      const vm = new Vue({
+        mixins: [
+          { computed: { a: () => 'a', c: () => 'c' } },
+          { computed: { b: { get: () => 'bbb' }, c: () => 'ccc' } },
+          { computed: { a: () => 'aaa' } }
+        ]
+      });
+
+      chai.expect( vm ).is.deep.include({
+        a: 'aaa',
+        b: 'bbb',
+        c: 'ccc'
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 watch 选项进行混入', ( done ) => {
+      const step = [];
+      const hu = new Hu({
+        mixins: [
+          { watch: { a: () => step.push( 1 ) } },
+          { watch: { a: () => step.push( 2 ) } }
+        ],
+        data: { a: 1 },
+        watch: {
+          a: () => step.push( 3 )
+        }
+      });
+
+      hu.a = 2;
+      hu.$nextTick(() => {
+        chai.expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+        done();
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 watch 选项进行混入 ( Vue )', ( done ) => {
+      const step = [];
+      const vm = new Vue({
+        mixins: [
+          { watch: { a: () => step.push( 1 ) } },
+          { watch: { a: () => step.push( 2 ) } }
+        ],
+        data: { a: 1 },
+        watch: {
+          a: () => step.push( 3 )
+        }
+      });
+
+      vm.a = 2;
+      vm.$nextTick(() => {
+        chai.expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+        done();
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 watch 选项进行混入, 当前实例定义的 watch 最晚执行', ( done ) => {
+      const step = [];
+      const hu = new Hu({
+        mixins: [
+          { watch: { a: () => step.push( 1 ) } },
+          { watch: { a: () => step.push( 2 ) } }
+        ],
+        data: { a: 1 },
+        watch: {
+          a: () => step.push( 3 )
+        }
+      });
+
+      hu.a = 2;
+      hu.$nextTick(() => {
+        chai.expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+        done();
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 watch 选项进行混入, 当前实例定义的 watch 最晚执行 ( Vue )', ( done ) => {
+      const step = [];
+      const vm = new Vue({
+        mixins: [
+          { watch: { a: () => step.push( 1 ) } },
+          { watch: { a: () => step.push( 2 ) } }
+        ],
+        data: { a: 1 },
+        watch: {
+          a: () => step.push( 3 )
+        }
+      });
+
+      vm.a = 2;
+      vm.$nextTick(() => {
+        chai.expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+        done();
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 watch 选项进行混入, 多个 mixin 时, 越后定义的 watch 越晚执行', ( done ) => {
+      const step = [];
+      const hu = new Hu({
+        mixins: [
+          { watch: { a: () => step.push( 1 ) } },
+          { watch: { a: () => step.push( 2 ) } },
+          { watch: { a: () => step.push( 3 ) } }
+        ],
+        data: { a: 1 }
+      });
+
+      hu.a = 2;
+      hu.$nextTick(() => {
+        chai.expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+        done();
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 watch 选项进行混入, 多个 mixin 时, 越后定义的 watch 越晚执行 ( Vue )', ( done ) => {
+      const step = [];
+      const vm = new Vue({
+        mixins: [
+          { watch: { a: () => step.push( 1 ) } },
+          { watch: { a: () => step.push( 2 ) } },
+          { watch: { a: () => step.push( 3 ) } }
+        ],
+        data: { a: 1 }
+      });
+
+      vm.a = 2;
+      vm.$nextTick(() => {
+        chai.expect( step ).is.deep.equals([ 1, 2, 3 ]);
+
+        done();
+      });
+    });
+
+    it( '使用 mixins 选项对当前实例 styles 选项进行混入', () => {
+      const customName = window.customName;
+
+      Hu.define( customName, {
+        mixins: [
+          { styles: `:host > div{ position: fixed }` },
+          { styles: `:host > div{ top: 0 }` }
+        ],
+        styles: `
+        :host > div{ left: 0 }
+      `,
+        render( html ){
+          return html`<div ref="div"></div>`;
+        }
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+
+      chai.expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+      chai.expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
+      chai.expect( getComputedStyle( hu.$refs.div ).left ).is.equals( '0px' );
+
+      custom.$remove();
+    });
+
+    it( '使用 mixins 选项对当前实例 styles 选项进行混入, 使用数组传参', () => {
+      const customName = window.customName;
+
+      Hu.define( customName, {
+        mixins: [
+          { styles: [ `:host > div{ position: fixed }` ] },
+          { styles: [ `:host > div{ top: 0 }` ] }
+        ],
+        styles: [
+          `:host > div{ left: 0 }`
+        ],
+        render( html ){
+          return html`<div ref="div"></div>`;
+        }
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+
+      chai.expect( getComputedStyle( hu.$refs.div ).position ).is.equals( 'fixed' );
+      chai.expect( getComputedStyle( hu.$refs.div ).top ).is.equals( '0px' );
+      chai.expect( getComputedStyle( hu.$refs.div ).left ).is.equals( '0px' );
+
+      custom.$remove();
+    });
+
+  });
+
 }(chai));

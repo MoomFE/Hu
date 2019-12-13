@@ -1,3 +1,7 @@
+import Hu from '../../../../src/build/index';
+import { expect } from 'chai';
+
+
 describe( 'options.mixins', () => {
 
   it( '使用 mixins 选项对当前实例生命周期回调进行混入', () => {
