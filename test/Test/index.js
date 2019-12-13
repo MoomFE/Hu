@@ -15,3 +15,5 @@ import './src/static/directive';
 import './src/static/directiveFn';
 
 import './src/instance/index';
+
+import './src/html/index';
