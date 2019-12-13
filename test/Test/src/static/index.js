@@ -1,3 +1,10 @@
+import Hu from '../../../../src/build/index';
+import { expect, should as chaiShould } from 'chai';
+
+
+const should = chaiShould();
+
+
 describe( 'Hu.static', () => {
 
   /** @type {Element} */
