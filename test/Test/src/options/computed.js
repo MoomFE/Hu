@@ -1,3 +1,7 @@
+import Hu from '../../../../src/build/index';
+import { expect } from 'chai';
+
+
 describe( 'options.computed', () => {
 
   it( '使用方法类型定义计算属性', () => {
