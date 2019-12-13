@@ -12,3 +12,4 @@ import './src/options/mixins';
 
 import './src/static/index';
 import './src/static/directive';
+import './src/static/directiveFn';
