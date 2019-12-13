@@ -21818,4 +21818,1975 @@
 
   });
 
+  describe( 'html.directive', () => {
+
+    const render = Hu.render;
+    const html = Hu.html;
+    const nextTick = Hu.nextTick;
+
+    /** @type {Element} */
+    let div;
+    beforeEach(() => {
+      div = document.createElement('div');
+    });
+    afterEach(() => {
+      div.$remove();
+    });
+
+
+    it( '正常对元素属性 ( Attribute ) 进行绑定', () => {
+      // 1
+      render( div )`
+      <div name=${ 123 }></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div name="123"></div>
+    `);
+
+      // 2
+      render( div )`
+      <div style="width: ${ 100 }px; height: ${ 200 }px; opacity: ${ 0.5 }"></div>
+    `;
+      chai.expect( div.firstElementChild.style ).is.include({
+        width: '100px',
+        height: '200px',
+        opacity: '0.5'
+      });
+    });
+
+    it( '使用 :class 指令对元素 className 进行绑定 ( 字符串方式 )', () => {
+      // 1
+      render( div )`
+      <div :class=${ 'a b c' }></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+      // 2
+      render( div )`
+      <div class="a" :class=${ 'b c' }></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+    });
+
+    it( '使用 :class 指令对元素 className 进行绑定 ( JSON 方式 )', () => {
+      // 1
+      render( div )`
+      <div :class=${{ a: true, b: true, c: true }}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+      // 2
+      render( div )`
+      <div :class=${{ a: true, b: false, c: true }}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'c' ]);
+
+      // 3
+      render( div )`
+      <div class="a" :class=${{ b: true, c: true }}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+      // 4
+      render( div )`
+      <div class="a" :class=${{ b: false, c: true }}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'c' ]);
+    });
+
+    it( '使用 :class 指令对元素 className 进行绑定 ( 数组方式 )', () => {
+      // 1
+      render( div )`
+      <div :class=${[ 'a', 'b', 'c' ]}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+      // 2
+      render( div )`
+      <div :class=${[ { a: true }, 'b', { c: true } ]}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+      // 3
+      render( div )`
+      <div :class=${[ 'a b', { c: false } ]}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b' ]);
+
+      // 4
+      render( div )`
+      <div class="a" :class=${[ 'b', 'c' ]}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+      // 5
+      render( div )`
+      <div class="a" :class=${[ 'b', { c: true } ]}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b', 'c' ]);
+
+      // 6
+      render( div )`
+      <div class="a" :class=${[ 'b', { c: false } ]}></div>
+    `;
+      chai.expect(
+        Array.from( div.firstElementChild.classList )
+      ).is.deep.equals([ 'a', 'b' ]);
+    });
+
+    it( '使用 :style 指令对元素 style 进行绑定 ( 字符串方式 )', () => {
+      // 1
+      render( div )`
+      <div :style=${ 'width: 100px; height: 120px' }></div>
+    `;
+      chai.expect( div.firstElementChild.style ).is.deep.include({
+        width: '100px',
+        height: '120px'
+      });
+
+      // 2
+      render( div )`
+      <div style="width: 100px" :style=${ 'height: 120px' }></div>
+    `;
+      chai.expect( div.firstElementChild.style ).is.deep.include({
+        width: '100px',
+        height: '120px'
+      });
+    });
+
+    it( '使用 :style 指令对元素 style 进行绑定 ( JSON 方式 )', () => {
+      // 1
+      render( div )`
+      <div :style=${{ width: '100px', height: '120px' }}></div>
+    `;
+      chai.expect( div.firstElementChild.style ).is.deep.include({
+        width: '100px',
+        height: '120px'
+      });
+
+      // 2
+      render( div )`
+      <div style="width: 100px" :style=${{ height: '120px' }}></div>
+    `;
+      chai.expect( div.firstElementChild.style ).is.deep.include({
+        width: '100px',
+        height: '120px'
+      });
+    });
+
+    it( '使用 :style 指令对元素 style 进行绑定 ( 数组方式 )', () => {
+      // 1
+      render( div )`
+      <div :style=${[ 'width: 100px', { height: '120px' } ]}></div>
+    `;
+      chai.expect( div.firstElementChild.style ).is.deep.include({
+        width: '100px',
+        height: '120px'
+      });
+
+      // 2
+      render( div )`
+      <div style="width: 100px" :style=${[ { height: '120px' } ]}></div>
+    `;
+      chai.expect( div.firstElementChild.style ).is.deep.include({
+        width: '100px',
+        height: '120px'
+      });
+    });
+
+    it( '使用 :model 指令对 select 表单控件进行双向绑定', ( done ) => {
+      const data = Hu.observable({
+        value: '12'
+      });
+
+      render( div )`
+      <select ref="select" :model=${[ data, 'value' ]}>
+        <option value="1">11</option>
+        <option value="12">1212</option>
+        <option value="123">123123</option>
+      </select>
+    `;
+
+      const select = div.querySelector('[ref="select"]');
+
+      // 指令首次绑定会进行赋值
+      chai.expect( data.value ).is.equals('12');
+      chai.expect( select.value ).is.equals('12');
+      chai.expect( select.options[1].selected ).is.true;
+
+      // 控件值发生改变, 绑定值也会发生更改
+      select.options[0].selected = true;
+      triggerEvent( select, 'change' );
+      chai.expect( data.value ).is.equals('1');
+      chai.expect( select.value ).is.equals('1');
+      chai.expect( select.options[0].selected ).is.true;
+
+      select.options[1].selected = true;
+      triggerEvent( select, 'change' );
+      chai.expect( data.value ).is.equals('12');
+      chai.expect( select.value ).is.equals('12');
+      chai.expect( select.options[1].selected ).is.true;
+
+      select.options[2].selected = true;
+      triggerEvent( select, 'change' );
+      chai.expect( data.value ).is.equals('123');
+      chai.expect( select.value ).is.equals('123');
+      chai.expect( select.options[2].selected ).is.true;
+
+      // 绑定值发生改变, 控件值也会发生更改
+      data.value = '1';
+      nextTick(() => {
+        chai.expect( data.value ).is.equals('1');
+        chai.expect( select.value ).is.equals('1');
+        chai.expect( select.options[0].selected ).is.true;
+
+        data.value = '12';
+        nextTick(() => {
+          chai.expect( data.value ).is.equals('12');
+          chai.expect( select.value ).is.equals('12');
+          chai.expect( select.options[1].selected ).is.true;
+
+          data.value = '123';
+          nextTick(() => {
+            chai.expect( data.value ).is.equals('123');
+            chai.expect( select.value ).is.equals('123');
+            chai.expect( select.options[2].selected ).is.true;
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 v-model 指令对 select 表单控件进行双向绑定 ( Vue )', ( done ) => {
+      const vm = new Vue({
+        el: div,
+        data: {
+          value: '12'
+        },
+        template: `
+        <select ref="select" v-model="value">
+          <option value="1">11</option>
+          <option value="12">1212</option>
+          <option value="123">123123</option>
+        </select>
+      `
+      });
+
+      // 指令首次绑定会进行赋值
+      chai.expect( vm.value ).is.equals( '12' );
+      chai.expect( vm.$refs.select.value ).is.equals( '12' );
+      chai.expect( vm.$refs.select.options[1].selected ).is.true;
+
+      // 控件值发生改变, 绑定值也会发生更改
+      vm.$refs.select.options[ 0 ].selected = true;
+      triggerEvent( vm.$refs.select, 'change' );
+      chai.expect( vm.value ).is.equals( '1' );
+      chai.expect( vm.$refs.select.value ).is.equals( '1' );
+      chai.expect( vm.$refs.select.options[0].selected ).is.true;
+
+      vm.$refs.select.options[ 1 ].selected = true;
+      triggerEvent( vm.$refs.select, 'change' );
+      chai.expect( vm.value ).is.equals( '12' );
+      chai.expect( vm.$refs.select.value ).is.equals( '12' );
+      chai.expect( vm.$refs.select.options[1].selected ).is.true;
+
+      vm.$refs.select.options[ 2 ].selected = true;
+      triggerEvent( vm.$refs.select, 'change' );
+      chai.expect( vm.value ).is.equals( '123' );
+      chai.expect( vm.$refs.select.value ).is.equals( '123' );
+      chai.expect( vm.$refs.select.options[2].selected ).is.true;
+
+      // 绑定值发生改变, 控件值也会发生更改
+      vm.value = '1';
+      vm.$nextTick(() => {
+        chai.expect( vm.value ).is.equals( '1' );
+        chai.expect( vm.$refs.select.value ).is.equals( '1' );
+        chai.expect( vm.$refs.select.options[0].selected ).is.true;
+
+        vm.value = '12';
+        vm.$nextTick(() => {
+          chai.expect( vm.value ).is.equals( '12' );
+          chai.expect( vm.$refs.select.value ).is.equals( '12' );
+          chai.expect( vm.$refs.select.options[1].selected ).is.true;
+
+          vm.value = '123';
+          vm.$nextTick(() => {
+            chai.expect( vm.value ).is.equals( '123' );
+            chai.expect( vm.$refs.select.value ).is.equals( '123' );
+            chai.expect( vm.$refs.select.options[2].selected ).is.true;
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 input[type="checkbox"] 表单控件进行双向绑定', ( done ) => {
+      const data = Hu.observable({
+        value: true
+      });
+
+      render( div )`
+      <input ref="checkbox" type="checkbox" :model=${[ data, 'value' ]}>
+    `;
+
+      const checkbox = div.querySelector('[ref="checkbox"]');
+
+      // 指令首次绑定会进行赋值
+      chai.expect( data.value ).is.equals( true );
+      chai.expect( checkbox.checked ).is.true;
+
+      // 控件值发生改变, 绑定值也会发生更改
+      checkbox.checked = false;
+      triggerEvent( checkbox, 'change' );
+      chai.expect( data.value ).is.equals( false );
+      chai.expect( checkbox.checked ).is.false;
+
+      checkbox.checked = true;
+      triggerEvent( checkbox, 'change' );
+      chai.expect( data.value ).is.equals( true );
+      chai.expect( checkbox.checked ).is.true;
+
+      // 绑定值发生改变, 控件值也会发生更改
+      data.value = false;
+        nextTick(() => {
+        chai.expect( checkbox.checked ).is.false;
+
+        data.value = true;
+          nextTick(() => {
+          chai.expect( checkbox.checked ).is.true;
+
+          done();
+        });
+      });
+    });
+
+    it( '使用 v-model 指令对 input[type="checkbox"] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+      const vm = new Vue({
+        el: div,
+        data: {
+          value: true
+        },
+        template: `
+        <input ref="checkbox" type="checkbox" v-model="value">
+      `
+      });
+
+      // 指令首次绑定会进行赋值
+      chai.expect( vm.value ).is.equals( true );
+      chai.expect( vm.$refs.checkbox.checked ).is.true;
+
+      // 控件值发生改变, 绑定值也会发生更改
+      vm.$refs.checkbox.checked = false;
+      triggerEvent( vm.$refs.checkbox, 'change' );
+      chai.expect( vm.value ).is.equals( false );
+      chai.expect( vm.$refs.checkbox.checked ).is.false;
+
+      vm.$refs.checkbox.checked = true;
+      triggerEvent( vm.$refs.checkbox, 'change' );
+      chai.expect( vm.value ).is.equals( true );
+      chai.expect( vm.$refs.checkbox.checked ).is.true;
+
+      // 绑定值发生改变, 控件值也会发生更改
+      vm.value = false;
+      vm.$nextTick(() => {
+        chai.expect( vm.$refs.checkbox.checked ).is.false;
+
+        vm.value = true;
+        vm.$nextTick(() => {
+          chai.expect( vm.$refs.checkbox.checked ).is.true;
+
+          done();
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 input[type="radio"] 表单控件进行双向绑定', ( done ) => {
+      const data = Hu.observable({
+        value: '12'
+      });
+
+      render( div )`
+      <input type="radio" value="1" :model=${[ data, 'value' ]}>
+      <input type="radio" value="12" :model=${[ data, 'value' ]}>
+      <input type="radio" value="123" :model=${[ data, 'value' ]}>
+    `;
+
+      // 指令首次绑定会进行赋值
+      chai.expect( data.value ).is.equals( '12' );
+      chai.expect( div.querySelector(':nth-child(1)').checked ).is.false;
+      chai.expect( div.querySelector(':nth-child(2)').checked ).is.true;
+      chai.expect( div.querySelector(':nth-child(3)').checked ).is.false;
+
+      // 控件值发生改变, 绑定值也会发生更改
+      div.querySelector(':nth-child(1)').checked = true;
+      triggerEvent( div.querySelector(':nth-child(1)'), 'change' );
+      chai.expect( data.value ).is.equals( '1' );
+      chai.expect( div.querySelector(':nth-child(1)').checked ).is.true;
+      chai.expect( div.querySelector(':nth-child(2)').checked ).is.true;
+      chai.expect( div.querySelector(':nth-child(3)').checked ).is.false;
+      nextTick(() => {
+        chai.expect( data.value ).is.equals( '1' );
+        chai.expect( div.querySelector(':nth-child(1)').checked ).is.true;
+        chai.expect( div.querySelector(':nth-child(2)').checked ).is.false;
+        chai.expect( div.querySelector(':nth-child(3)').checked ).is.false;
+
+        div.querySelector(':nth-child(2)').checked = true;
+        triggerEvent( div.querySelector(':nth-child(2)'), 'change' );
+        chai.expect( data.value ).is.equals( '12' );
+        chai.expect( div.querySelector(':nth-child(1)').checked ).is.true;
+        chai.expect( div.querySelector(':nth-child(2)').checked ).is.true;
+        chai.expect( div.querySelector(':nth-child(3)').checked ).is.false;
+        nextTick(() => {
+          chai.expect( data.value ).is.equals( '12' );
+          chai.expect( div.querySelector(':nth-child(1)').checked ).is.false;
+          chai.expect( div.querySelector(':nth-child(2)').checked ).is.true;
+          chai.expect( div.querySelector(':nth-child(3)').checked ).is.false;
+
+          div.querySelector(':nth-child(3)').checked = true;
+          triggerEvent( div.querySelector(':nth-child(3)'), 'change' );
+          chai.expect( data.value ).is.equals( '123' );
+          chai.expect( div.querySelector(':nth-child(1)').checked ).is.false;
+          chai.expect( div.querySelector(':nth-child(2)').checked ).is.true;
+          chai.expect( div.querySelector(':nth-child(3)').checked ).is.true;
+          nextTick(() => {
+            chai.expect( data.value ).is.equals( '123' );
+            chai.expect( div.querySelector(':nth-child(1)').checked ).is.false;
+            chai.expect( div.querySelector(':nth-child(2)').checked ).is.false;
+            chai.expect( div.querySelector(':nth-child(3)').checked ).is.true;
+
+            // 绑定值发生改变, 控件值也会发生更改
+            data.value = '1';
+            nextTick(() => {
+              chai.expect( div.querySelector(':nth-child(1)').checked ).is.true;
+              chai.expect( div.querySelector(':nth-child(2)').checked ).is.false;
+              chai.expect( div.querySelector(':nth-child(3)').checked ).is.false;
+
+              data.value = '12';
+              nextTick(() => {
+                chai.expect( div.querySelector(':nth-child(1)').checked ).is.false;
+                chai.expect( div.querySelector(':nth-child(2)').checked ).is.true;
+                chai.expect( div.querySelector(':nth-child(3)').checked ).is.false;
+
+                data.value = '123';
+                nextTick(() => {
+                  chai.expect( div.querySelector(':nth-child(1)').checked ).is.false;
+                  chai.expect( div.querySelector(':nth-child(2)').checked ).is.false;
+                  chai.expect( div.querySelector(':nth-child(3)').checked ).is.true;
+
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it( '使用 v-model 指令对 input[type="radio"] 表单控件进行双向绑定 ( Vue )', ( done ) => {
+      const vm = new Vue({
+        el: div,
+        data: {
+          value: '12'
+        },
+        template: `
+        <div>
+          <input type="radio" value="1" v-model="value">
+          <input type="radio" value="12" v-model="value">
+          <input type="radio" value="123" v-model="value">
+        </div>
+      `
+      });
+
+      // 指令首次绑定会进行赋值
+      chai.expect( vm.value ).is.equals( '12' );
+      chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+      chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+      chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+      // 控件值发生改变, 绑定值也会发生更改
+      vm.$el.querySelector(':nth-child(1)').checked = true;
+      triggerEvent( vm.$el.querySelector(':nth-child(1)'), 'change' );
+      chai.expect( vm.value ).is.equals( '1' );
+      chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+      chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+      chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+      vm.$nextTick(() => {
+        chai.expect( vm.value ).is.equals( '1' );
+        chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+        chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+        chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+        vm.$el.querySelector(':nth-child(2)').checked = true;
+        triggerEvent( vm.$el.querySelector(':nth-child(2)'), 'change' );
+        chai.expect( vm.value ).is.equals( '12' );
+        chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+        chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+        chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+        vm.$nextTick(() => {
+          chai.expect( vm.value ).is.equals( '12' );
+          chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+          chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+          chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+          vm.$el.querySelector(':nth-child(3)').checked = true;
+          triggerEvent( vm.$el.querySelector(':nth-child(3)'), 'change' );
+          chai.expect( vm.value ).is.equals( '123' );
+          chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+          chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+          chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+          vm.$nextTick(() => {
+            chai.expect( vm.value ).is.equals( '123' );
+            chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+            chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+            chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+            // 绑定值发生改变, 控件值也会发生更改
+            vm.value = '1';
+            vm.$nextTick(() => {
+              chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.true;
+              chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+              chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+              vm.value = '12';
+              vm.$nextTick(() => {
+                chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+                chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.true;
+                chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.false;
+
+                vm.value = '123';
+                vm.$nextTick(() => {
+                  chai.expect( vm.$el.querySelector(':nth-child(1)').checked ).is.false;
+                  chai.expect( vm.$el.querySelector(':nth-child(2)').checked ).is.false;
+                  chai.expect( vm.$el.querySelector(':nth-child(3)').checked ).is.true;
+
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 input 表单控件进行双向绑定', ( done ) => {
+      const data = Hu.observable({
+        value: '12'
+      });
+
+      render( div )`
+      <input ref="text" type="text" :model=${[ data, 'value' ]} />
+    `;
+
+      const text = div.querySelector('[ref="text"]');
+
+      // 指令首次绑定会进行赋值
+      chai.expect( data.value ).is.equals( '12' );
+      chai.expect( text.value ).is.equals( '12' );
+
+      // 控件值发生改变, 绑定值也会发生更改
+      text.value = '123';
+      triggerEvent( text, 'input' );
+      chai.expect( data.value ).is.equals( '123' );
+
+      text.value = '1234';
+      triggerEvent( text, 'input' );
+      chai.expect( data.value ).is.equals( '1234' );
+
+      // 绑定值发生改变, 控件值也会发生更改
+      data.value = '12345';
+      nextTick(() => {
+        chai.expect( text.value ).is.equals( '12345' );
+
+        done();
+      });
+    });
+
+    it( '使用 v-model 指令对 input 表单控件进行双向绑定 ( Vue )', ( done ) => {
+      const vm = new Vue({
+        el: div,
+        data: {
+          value: '12'
+        },
+        template: `
+        <input ref="text" type="text" v-model="value" />
+      `
+      });
+
+      // 指令首次绑定会进行赋值
+      chai.expect( vm.value ).is.equals( '12' );
+      chai.expect( vm.$refs.text.value ).is.equals( '12' );
+
+      // 控件值发生改变, 绑定值也会发生更改
+      vm.$refs.text.value = '123';
+      triggerEvent( vm.$refs.text, 'input' );
+      chai.expect( vm.value ).is.equals( '123' );
+
+      vm.$refs.text.value = '1234';
+      triggerEvent( vm.$refs.text, 'input' );
+      chai.expect( vm.value ).is.equals( '1234' );
+
+      // 绑定值发生改变, 控件值也会发生更改
+      vm.value = '12345';
+      vm.$nextTick(() => {
+        chai.expect( vm.$refs.text.value ).is.equals( '12345' );
+
+        done();
+      });
+    });
+
+    it( '使用 :model 指令对 textarea 表单控件进行双向绑定', ( done ) => {
+      const data = Hu.observable({
+        value: '12'
+      });
+
+      render( div )`
+      <textarea ref="textarea" :model=${[ data, 'value' ]}></textarea>
+    `;
+
+      const textarea = div.querySelector('[ref="textarea"]');
+
+      // 指令首次绑定会进行赋值
+      chai.expect( data.value ).is.equals( '12' );
+      chai.expect( textarea.value ).is.equals( '12' );
+
+      // 控件值发生改变, 绑定值也会发生更改
+      textarea.value = '123';
+      triggerEvent( textarea, 'input' );
+      chai.expect( data.value ).is.equals( '123' );
+
+      textarea.value = '1234';
+      triggerEvent( textarea, 'input' );
+      chai.expect( data.value ).is.equals( '1234' );
+
+      // 绑定值发生改变, 控件值也会发生更改
+      data.value = '12345';
+      nextTick(() => {
+        chai.expect( textarea.value ).is.equals( '12345' );
+
+        done();
+      });
+    });
+
+    it( '使用 v-model 指令对 textarea 表单控件进行双向绑定 ( Vue )', ( done ) => {
+      const vm = new Vue({
+        el: div,
+        data: {
+          value: '12'
+        },
+        template: `
+        <textarea ref="textarea" v-model="value"></textarea>
+      `
+      });
+
+      // 指令首次绑定会进行赋值
+      chai.expect( vm.value ).is.equals( '12' );
+      chai.expect( vm.$refs.textarea.value ).is.equals( '12' );
+
+      // 控件值发生改变, 绑定值也会发生更改
+      vm.$refs.textarea.value = '123';
+      triggerEvent( vm.$refs.textarea, 'input' );
+      chai.expect( vm.value ).is.equals( '123' );
+
+      vm.$refs.textarea.value = '1234';
+      triggerEvent( vm.$refs.textarea, 'input' );
+      chai.expect( vm.value ).is.equals( '1234' );
+
+      // 绑定值发生改变, 控件值也会发生更改
+      vm.value = '12345';
+      vm.$nextTick(() => {
+        chai.expect( vm.$refs.textarea.value ).is.equals( '12345' );
+
+        done();
+      });
+    });
+
+    it( '使用 :model 指令对 input 表单控件进行双向绑定时, 不会受到输入法影响', () => {
+      const data = Hu.observable({
+        value: '12'
+      });
+
+      render( div )`
+      <input ref="text" type="text" :model=${[ data, 'value' ]} />
+    `;
+
+      const text = div.querySelector('[ref="text"]');
+
+      chai.expect( data.value ).is.equals( '12' );
+      chai.expect( text.value ).is.equals( '12' );
+
+      text.value = '1';
+      triggerEvent( text, 'input' );
+      chai.expect( data.value ).is.equals( '1' );
+
+      text.value = '2';
+      triggerEvent( text, 'input' );
+      chai.expect( data.value ).is.equals( '2' );
+
+      triggerEvent( text, 'compositionstart' );
+
+      text.value = '3';
+      triggerEvent( text, 'input' );
+      chai.expect( data.value ).is.equals( '2' );
+
+      text.value = '4';
+      triggerEvent( text, 'input' );
+      chai.expect( data.value ).is.equals( '2' );
+
+      triggerEvent( text, 'compositionend' );
+      chai.expect( data.value ).is.equals( '4' );
+    });
+
+    it( '使用 v-model 指令对 input 表单控件进行双向绑定时, 不会受到输入法影响 ( Vue )', () => {
+      const vm = new Vue({
+        el: div,
+        data: {
+          value: '12'
+        },
+        template: `
+        <input ref="text" type="text" v-model="value" />
+      `
+      });
+
+      chai.expect( vm.value ).is.equals( '12' );
+      chai.expect( vm.$refs.text.value ).is.equals( '12' );
+
+      vm.$refs.text.value = '1';
+      triggerEvent( vm.$refs.text, 'input' );
+      chai.expect( vm.value ).is.equals( '1' );
+
+      vm.$refs.text.value = '2';
+      triggerEvent( vm.$refs.text, 'input' );
+      chai.expect( vm.value ).is.equals( '2' );
+
+      triggerEvent( vm.$refs.text, 'compositionstart' );
+
+      vm.$refs.text.value = '3';
+      triggerEvent( vm.$refs.text, 'input' );
+      chai.expect( vm.value ).is.equals( '2' );
+
+      vm.$refs.text.value = '4';
+      triggerEvent( vm.$refs.text, 'input' );
+      chai.expect( vm.value ).is.equals( '2' );
+
+      triggerEvent( vm.$refs.text, 'compositionend' );
+      chai.expect( vm.value ).is.equals( '4' );
+    });
+
+    it( '使用 :model 指令对 textarea 表单控件进行双向绑定时, 不会受到输入法影响', () => {
+      const data = Hu.observable({
+        value: '12'
+      });
+
+      render( div )`
+      <textarea ref="textarea" :model=${[ data, 'value' ]}></textarea>
+    `;
+
+      const textarea = div.querySelector('[ref="textarea"]');
+
+      chai.expect( data.value ).is.equals( '12' );
+      chai.expect( textarea.value ).is.equals( '12' );
+
+      textarea.value = '1';
+      triggerEvent( textarea, 'input' );
+      chai.expect( data.value ).is.equals( '1' );
+
+      textarea.value = '2';
+      triggerEvent( textarea, 'input' );
+      chai.expect( data.value ).is.equals( '2' );
+
+      triggerEvent( textarea, 'compositionstart' );
+
+      textarea.value = '3';
+      triggerEvent( textarea, 'input' );
+      chai.expect( data.value ).is.equals( '2' );
+
+      textarea.value = '4';
+      triggerEvent( textarea, 'input' );
+      chai.expect( data.value ).is.equals( '2' );
+
+      triggerEvent( textarea, 'compositionend' );
+      chai.expect( data.value ).is.equals( '4' );
+    });
+
+    it( '使用 v-model 指令对 textarea 表单控件进行双向绑定时, 不会受到输入法影响 ( Vue )', () => {
+      const vm = new Vue({
+        el: div,
+        data: {
+          value: '12'
+        },
+        template: `
+        <textarea ref="textarea" v-model="value"></textarea>
+      `
+      });
+
+      chai.expect( vm.value ).is.equals( '12' );
+      chai.expect( vm.$refs.textarea.value ).is.equals( '12' );
+
+      vm.$refs.textarea.value = '1';
+      triggerEvent( vm.$refs.textarea, 'input' );
+      chai.expect( vm.value ).is.equals( '1' );
+
+      vm.$refs.textarea.value = '2';
+      triggerEvent( vm.$refs.textarea, 'input' );
+      chai.expect( vm.value ).is.equals( '2' );
+
+      triggerEvent( vm.$refs.textarea, 'compositionstart' );
+
+      vm.$refs.textarea.value = '3';
+      triggerEvent( vm.$refs.textarea, 'input' );
+      chai.expect( vm.value ).is.equals( '2' );
+
+      vm.$refs.textarea.value = '4';
+      triggerEvent( vm.$refs.textarea, 'input' );
+      chai.expect( vm.value ).is.equals( '2' );
+
+      triggerEvent( vm.$refs.textarea, 'compositionend' );
+      chai.expect( vm.value ).is.equals( '4' );
+    });
+
+    it( '使用 :model 指令产生的绑定会在下次 render 时进行解绑', ( done ) => {
+      const steps = [];
+      const customDataProxy = new Proxy({
+        value: '10',
+        value2: '20'
+      }, {
+        get: ( target, name ) => {
+          Hu.util.isString( name ) && steps.push( name );
+          return target[ name ];
+        }
+      });
+      const data = Hu.observable(
+        customDataProxy
+      );
+
+      render( div )`
+      <input ref="input" :model=${[ data, 'value' ]} />
+    `;
+
+      const input = div.querySelector('[ref="input"]');
+
+      // 首次读取
+      chai.expect( input.value ).is.equals('10');
+      chai.expect( steps ).is.deep.equals([ 'value' ]);
+
+      // 修改 'value' 时, 会重新读取值
+      data.value = '11';
+      nextTick(() => {
+        chai.expect( input.value ).is.equals('11');
+        chai.expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+        // 绑定到 'value2', 那么 'value' 就应该被解绑了
+        render( div )`
+        <textarea ref="textarea" :model=${[ data, 'value2' ]}></textarea>
+      `;
+
+        const textarea = div.querySelector('[ref="textarea"]');
+
+        // 首次读取
+        chai.expect( input.value ).is.equals('11');
+        chai.expect( textarea.value ).is.equals('20');
+        chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value2' ]);
+
+        // 修改 'value2' 时, 会重新读取值
+        data.value2 = '21';
+        nextTick(() => {
+          chai.expect( input.value ).is.equals('11');
+          chai.expect( textarea.value ).is.equals('21');
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value2', 'value2' ]);
+
+          // 修改 'value' 时, 因为已经解绑了, 那么不会触发新的读取了
+          data.value = '12';
+          nextTick(() => {
+            chai.expect( input.value ).is.equals('11');
+            chai.expect( textarea.value ).is.equals('21');
+            chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value2', 'value2' ]);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 v-model 指令产生的绑定会在下次 render 时进行解绑 ( Vue )', ( done ) => {
+      const steps = [];
+      const customDataProxy = new Proxy({
+        renderInput: true,
+        value: '10',
+        value2: '20'
+      }, {
+        get: ( target, name ) => {
+          Hu.util.isString( name ) && steps.push( name );
+          return target[ name ];
+        }
+      });
+
+      const vm = new Vue({
+        data: customDataProxy,
+        template: `
+        <input v-if="renderInput" ref="input" v-model="value" />
+        <textarea v-else ref="textarea" v-model="value2"></textarea>
+      `
+      });
+
+      // 清除 Vue 初始化对象时产生的读取
+      steps.$delete( 0, 666 );
+
+      // 执行渲染
+      vm.$mount( div );
+
+      const input = vm.$refs.input;
+
+      // 首次读取
+      chai.expect( input.value ).is.equals('10');
+      chai.expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value' ]);
+
+      // 修改 'value' 时, 会重新读取值
+      vm.value = '11';
+      vm.$nextTick(() => {
+        chai.expect( input.value ).is.equals('11');
+        chai.expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value' ]);
+
+        // 绑定到 'value2', 那么 'value' 就应该被解绑了
+        vm.renderInput = false;
+        vm.$nextTick(() => {
+          const textarea = vm.$refs.textarea;
+
+          // 首次读取
+          chai.expect( input.value ).is.equals('11');
+          chai.expect( textarea.value ).is.equals('20');
+          chai.expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value', 'renderInput', 'value2', 'value2' ]);
+
+          // 修改 'value2' 时, 会重新读取值
+          vm.value2 = '21';
+          vm.$nextTick(() => {
+            chai.expect( input.value ).is.equals('11');
+            chai.expect( textarea.value ).is.equals('21');
+            chai.expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value', 'renderInput', 'value2', 'value2', 'renderInput', 'value2', 'value2' ]);
+
+            // 修改 'value' 时, 因为已经解绑了, 那么不会触发新的读取了
+            vm.value = '12';
+            vm.$nextTick(() => {
+              chai.expect( input.value ).is.equals('11');
+              chai.expect( textarea.value ).is.equals('21');
+              chai.expect( steps ).is.deep.equals([ 'renderInput', 'value', 'value', 'renderInput', 'value', 'value', 'renderInput', 'value2', 'value2', 'renderInput', 'value2', 'value2' ]);
+
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令产生的对观察者对象的依赖不会被 render 收集, 所以不会触发重新渲染', ( done ) => {
+      let index = 0;
+      const hu = new Hu({
+        el: div,
+        data: {
+          value: '1'
+        },
+        render( html ){
+          index++;
+          return html`
+          <input ref="input" :model=${[ this, 'value' ]}>
+        `;
+        }
+      });
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( hu.$refs.input.value ).is.equals('1');
+
+      hu.value = '2';
+      hu.$nextTick(() => {
+        chai.expect( index ).is.equals( 1 );
+        chai.expect( hu.$refs.input.value ).is.equals('2');
+
+        hu.value = '3';
+        hu.$nextTick(() => {
+          chai.expect( index ).is.equals( 1 );
+          chai.expect( hu.$refs.input.value ).is.equals('3');
+
+          hu.$forceUpdate();
+          hu.$forceUpdate();
+          hu.$forceUpdate();
+
+          chai.expect( index ).is.equals( 4 );
+          chai.expect( hu.$refs.input.value ).is.equals('3');
+
+          hu.value = '4';
+          hu.$nextTick(() => {
+            chai.expect( index ).is.equals( 4 );
+            chai.expect( hu.$refs.input.value ).is.equals('4');
+
+            hu.value = '5';
+            hu.$nextTick(() => {
+              chai.expect( index ).is.equals( 4 );
+              chai.expect( hu.$refs.input.value ).is.equals('5');
+
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 select 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
+      const steps = [];
+      const customDataProxy = new Proxy({
+        value: '1'
+      }, {
+        get: ( target, name ) => {
+          Hu.util.isString( name ) && steps.push( name );
+          return target[ name ];
+        }
+      });
+      const data = Hu.observable(
+        customDataProxy
+      );
+      const customName = window.customName;
+      let isConnected = false;
+
+      Hu.define( customName, {
+        render( html ){
+          return html`
+          <select ref="select" :model=${[ data, 'value' ]}>
+            <option value="1">11</option>
+            <option value="12">1212</option>
+            <option value="123">123123</option>
+          </select>
+        `;
+        },
+        connected: () => isConnected = true,
+        disconnected: () => isConnected = false
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+      const select = hu.$refs.select;
+
+      chai.expect( isConnected ).is.true;
+      chai.expect( select.value ).is.equals('1');
+      chai.expect( steps ).is.deep.equals([ 'value' ]);
+
+      data.value = '12';
+      nextTick(() => {
+        chai.expect( isConnected ).is.true;
+        chai.expect( select.value ).is.equals('12');
+        chai.expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+        data.value = '123';
+        nextTick(() => {
+          chai.expect( isConnected ).is.true;
+          chai.expect( select.value ).is.equals('123');
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          custom.$remove();
+
+          chai.expect( isConnected ).is.false;
+          chai.expect( select.value ).is.equals('123');
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          data.value = '1';
+          nextTick(() => {
+            chai.expect( isConnected ).is.false;
+            chai.expect( select.value ).is.equals('123');
+            chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 input[type="checkbox"] 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
+      const steps = [];
+      const customDataProxy = new Proxy({
+        value: true
+      }, {
+        get: ( target, name ) => {
+          Hu.util.isString( name ) && steps.push( name );
+          return target[ name ];
+        }
+      });
+      const data = Hu.observable(
+        customDataProxy
+      );
+      const customName = window.customName;
+      let isConnected = false;
+
+      Hu.define( customName, {
+        render( html ){
+          return html`
+          <input ref="checkbox" type="checkbox" :model=${[ data, 'value' ]} />
+        `;
+        },
+        connected: () => isConnected = true,
+        disconnected: () => isConnected = false
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+      const checkbox = hu.$refs.checkbox;
+
+      chai.expect( isConnected ).is.true;
+      chai.expect( checkbox.checked ).is.true;
+      chai.expect( steps ).is.deep.equals([ 'value' ]);
+
+      data.value = false;
+      nextTick(() => {
+        chai.expect( isConnected ).is.true;
+        chai.expect( checkbox.checked ).is.false;
+        chai.expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+        data.value = true;
+        nextTick(() => {
+          chai.expect( isConnected ).is.true;
+          chai.expect( checkbox.checked ).is.true;
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          custom.$remove();
+
+          chai.expect( isConnected ).is.false;
+          chai.expect( checkbox.checked ).is.true;
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          data.value = '1';
+          nextTick(() => {
+            chai.expect( isConnected ).is.false;
+            chai.expect( checkbox.checked ).is.true;
+            chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 input[type="radio"] 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
+      const steps = [];
+      const customDataProxy = new Proxy({
+        value: '1'
+      }, {
+        get: ( target, name ) => {
+          Hu.util.isString( name ) && steps.push( name );
+          return target[ name ];
+        }
+      });
+      const data = Hu.observable(
+        customDataProxy
+      );
+      const customName = window.customName;
+      let isConnected = false;
+
+      Hu.define( customName, {
+        render( html ){
+          return html`
+          <input ref="radio1" type="radio" value="1" :model=${[ data, 'value' ]}>
+          <input ref="radio2" type="radio" value="12" :model=${[ data, 'value' ]}>
+          <input ref="radio3" type="radio" value="123" :model=${[ data, 'value' ]}>
+        `;
+        },
+        connected: () => isConnected = true,
+        disconnected: () => isConnected = false
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+      const radio1 = hu.$refs.radio1;
+      const radio2 = hu.$refs.radio2;
+      const radio3 = hu.$refs.radio3;
+
+      chai.expect( isConnected ).is.true;
+      chai.expect( radio1.checked ).is.equals( true );
+      chai.expect( radio2.checked ).is.equals( false );
+      chai.expect( radio3.checked ).is.equals( false );
+      chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+      data.value = '12';
+      nextTick(() => {
+        chai.expect( isConnected ).is.true;
+        chai.expect( radio1.checked ).is.equals( false );
+        chai.expect( radio2.checked ).is.equals( true );
+        chai.expect( radio3.checked ).is.equals( false );
+        chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+        data.value = '123';
+        nextTick(() => {
+          chai.expect( isConnected ).is.true;
+          chai.expect( radio1.checked ).is.equals( false );
+          chai.expect( radio2.checked ).is.equals( false );
+          chai.expect( radio3.checked ).is.equals( true );
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+          custom.$remove();
+
+          chai.expect( isConnected ).is.false;
+          chai.expect( radio1.checked ).is.equals( false );
+          chai.expect( radio2.checked ).is.equals( false );
+          chai.expect( radio3.checked ).is.equals( true );
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+          data.value = '1';
+          nextTick(() => {
+            chai.expect( isConnected ).is.false;
+            chai.expect( radio1.checked ).is.equals( false );
+            chai.expect( radio2.checked ).is.equals( false );
+            chai.expect( radio3.checked ).is.equals( true );
+            chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value', 'value' ]);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 input 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
+      const steps = [];
+      const customDataProxy = new Proxy({
+        value: '1'
+      }, {
+        get: ( target, name ) => {
+          Hu.util.isString( name ) && steps.push( name );
+          return target[ name ];
+        }
+      });
+      const data = Hu.observable(
+        customDataProxy
+      );
+      const customName = window.customName;
+      let isConnected = false;
+
+      Hu.define( customName, {
+        render( html ){
+          return html`
+          <input ref="input" :model=${[ data, 'value' ]}>
+        `;
+        },
+        connected: () => isConnected = true,
+        disconnected: () => isConnected = false
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+      const input = hu.$refs.input;
+
+      chai.expect( isConnected ).is.true;
+      chai.expect( input.value ).is.equals('1');
+      chai.expect( steps ).is.deep.equals([ 'value' ]);
+
+      data.value = '12';
+      nextTick(() => {
+        chai.expect( isConnected ).is.true;
+        chai.expect( input.value ).is.equals('12');
+        chai.expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+        data.value = '123';
+        nextTick(() => {
+          chai.expect( isConnected ).is.true;
+          chai.expect( input.value ).is.equals('123');
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          custom.$remove();
+
+          chai.expect( isConnected ).is.false;
+          chai.expect( input.value ).is.equals('123');
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          data.value = '1';
+          nextTick(() => {
+            chai.expect( isConnected ).is.false;
+            chai.expect( input.value ).is.equals('123');
+            chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令对 textarea 表单控件在自定义元素中建立的双向绑定, 会在自定义元素从文档流移除时进行解绑', ( done ) => {
+      const steps = [];
+      const customDataProxy = new Proxy({
+        value: '1'
+      }, {
+        get: ( target, name ) => {
+          Hu.util.isString( name ) && steps.push( name );
+          return target[ name ];
+        }
+      });
+      const data = Hu.observable(
+        customDataProxy
+      );
+      const customName = window.customName;
+      let isConnected = false;
+
+      Hu.define( customName, {
+        render( html ){
+          return html`
+          <textarea ref="textarea" :model=${[ data, 'value' ]}></textarea>
+        `;
+        },
+        connected: () => isConnected = true,
+        disconnected: () => isConnected = false
+      });
+
+      const custom = document.createElement( customName ).$appendTo( document.body );
+      const hu = custom.$hu;
+      const textarea = hu.$refs.textarea;
+
+      chai.expect( isConnected ).is.true;
+      chai.expect( textarea.value ).is.equals('1');
+      chai.expect( steps ).is.deep.equals([ 'value' ]);
+
+      data.value = '12';
+      nextTick(() => {
+        chai.expect( isConnected ).is.true;
+        chai.expect( textarea.value ).is.equals('12');
+        chai.expect( steps ).is.deep.equals([ 'value', 'value' ]);
+
+        data.value = '123';
+        nextTick(() => {
+          chai.expect( isConnected ).is.true;
+          chai.expect( textarea.value ).is.equals('123');
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          custom.$remove();
+
+          chai.expect( isConnected ).is.false;
+          chai.expect( textarea.value ).is.equals('123');
+          chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+          data.value = '1';
+          nextTick(() => {
+            chai.expect( isConnected ).is.false;
+            chai.expect( textarea.value ).is.equals('123');
+            chai.expect( steps ).is.deep.equals([ 'value', 'value', 'value' ]);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it( '使用 :model 指令时可以传入 bind 指令方法, 会提取 bind 指令方法的参数进行绑定', ( done ) => {
+      let index = 0;
+      const hu = new Hu({
+        el: div,
+        data: {
+          value: '1'
+        },
+        render( html ){
+          index++;
+          return html`
+          <input ref="input" :model=${ html.bind( this, 'value' ) }>
+        `;
+        }
+      });
+
+      chai.expect( index ).is.equals( 1 );
+      chai.expect( hu.$refs.input.value ).is.equals('1');
+
+      hu.value = '2';
+      hu.$nextTick(() => {
+        chai.expect( index ).is.equals( 1 );
+        chai.expect( hu.$refs.input.value ).is.equals('2');
+
+        hu.value = '3';
+        hu.$nextTick(() => {
+          chai.expect( index ).is.equals( 1 );
+          chai.expect( hu.$refs.input.value ).is.equals('3');
+
+          hu.$forceUpdate();
+          hu.$forceUpdate();
+          hu.$forceUpdate();
+
+          chai.expect( index ).is.equals( 4 );
+          chai.expect( hu.$refs.input.value ).is.equals('3');
+
+          hu.value = '4';
+          hu.$nextTick(() => {
+            chai.expect( index ).is.equals( 4 );
+            chai.expect( hu.$refs.input.value ).is.equals('4');
+
+            hu.value = '5';
+            hu.$nextTick(() => {
+              chai.expect( index ).is.equals( 4 );
+              chai.expect( hu.$refs.input.value ).is.equals('5');
+
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it( '使用 :text 指令对元素 textContent 进行绑定', () => {
+      const text = '<span>123</span>';
+
+      render( div )`
+      <div :text=${ text }></div>
+    `;
+
+      chai.expect( div.firstElementChild.innerHTML ).is.equals(
+        text.$replaceAll('<','&lt;')
+            .$replaceAll('>','&gt;')
+      );
+    });
+
+    it( '使用 :text 指令对元素 textContent 进行绑定, 传入 JSON 将会使用 JSON.stringify 进行格式化输出', () => {
+      render( div )`
+      <div :text=${{}}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{}</div>
+    `);
+
+      render( div )`
+      <div :text=${{ asd: 123 }}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": 123\n}</div>
+    `);
+
+      render( div )`
+      <div :text=${{ asd: [ 123 ] }}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": [\n    123\n  ]\n}</div>
+    `);
+    });
+
+    it( '使用 :text 指令对元素 textContent 进行绑定, 传入数组将会使用 JSON.stringify 进行格式化输出', () => {
+      render( div )`
+      <div :text=${[]}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[]</div>
+    `);
+
+      render( div )`
+      <div :text=${[ 1, 2, 3 ]}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  2,\n  3\n]</div>
+    `);
+
+      render( div )`
+      <div :text=${[ 1, { asd: 123 }, 3 ]}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  {\n    "asd": 123\n  },\n  3\n]</div>
+    `);
+    });
+
+    it( '使用 :text 指令对元素 textContent 进行绑定, 传入 null 或 undefined 时将会转为空字符串', () => {
+      render( div )`
+      <div :text=${ null }></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+      render( div )`
+      <div :text=${ undefined }></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+    });
+
+    it( '使用 :text 指令对元素 textContent 进行绑定, 首次传入 null 或 undefined 时, 元素的内容应该被清空', () => {
+      render( div )`
+      <div :text=${ null }>123</div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+      render( div )`
+      <div :text=${ undefined }>123</div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+    });
+
+    it( '使用 :html 指令对元素 innerHTML 进行绑定', () => {
+      const text = '<span>123</span>';
+
+      render( div )`
+      <div :html=${ text }></div>
+    `;
+
+      chai.expect( div.firstElementChild.innerHTML ).is.equals(
+        text
+      );
+    });
+
+    it( '使用 :html 指令对元素 innerHTML 进行绑定, 传入 JSON 将会使用 JSON.stringify 进行格式化输出', () => {
+      render( div )`
+      <div :html=${{}}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{}</div>
+    `);
+
+      render( div )`
+      <div :html=${{ asd: 123 }}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": 123\n}</div>
+    `);
+
+      render( div )`
+      <div :html=${{ asd: [ 123 ] }}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>{\n  "asd": [\n    123\n  ]\n}</div>
+    `);
+    });
+
+    it( '使用 :html 指令对元素 textContent 进行绑定, 传入数组将会使用 JSON.stringify 进行格式化输出', () => {
+      render( div )`
+      <div :html=${[]}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[]</div>
+    `);
+
+      render( div )`
+      <div :html=${[ 1, 2, 3 ]}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  2,\n  3\n]</div>
+    `);
+
+      render( div )`
+      <div :html=${[ 1, { asd: 123 }, 3 ]}></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div>[\n  1,\n  {\n    "asd": 123\n  },\n  3\n]</div>
+    `);
+    });
+
+    it( '使用 :html 指令对元素 innerHTML 进行绑定, 传入 null 或 undefined 时将会转为空字符串', () => {
+      render( div )`
+      <div :html=${ null }></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+      render( div )`
+      <div :html=${ undefined }></div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+    });
+
+    it( '使用 :html 指令对元素 innerHTML 进行绑定, 首次传入 null 或 undefined 时, 元素的内容应该被清空', () => {
+      render( div )`
+      <div :html=${ null }>123</div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+
+      render( div )`
+      <div :html=${ undefined }>123</div>
+    `;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`
+      <div></div>
+    `);
+    });
+
+    it( '使用 :show 指令对元素的显示隐藏进行控制', () => {
+      render( div )`
+      <div :show=${ false }></div>
+    `;
+      chai.expect( div.firstElementChild.style.display ).is.equals('none');
+
+      render( div )`
+      <div :show=${ true }></div>
+    `;
+      chai.expect( div.firstElementChild.style.display ).is.equals('');
+
+      render( div )`
+      <div :show=${ false }></div>
+    `;
+      chai.expect( div.firstElementChild.style.display ).is.equals('none');
+    });
+
+    it( '使用 :show 指令对元素的显示隐藏进行控制, 首次传入 null 或 undefined 时, 元素应该被隐藏', () => {
+      render( div )`
+      <div :show=${ undefined }></div>
+    `;
+      chai.expect( div.firstElementChild.style.display ).is.equals('none');
+    });
+
+    it( '使用不存在的指令, 将会被当做普通属性处理', () => {
+      render( div )`
+      <div :zhang-wei=${ 666 }></div>
+    `;
+      chai.expect( div.firstElementChild.getAttribute(':zhang-wei') ).equals('666');
+
+      render( div )`
+      <div :toString=${ 666 }></div>
+    `;
+      chai.expect( div.firstElementChild.getAttribute(':tostring') ).equals('666');
+    });
+
+  });
+
+  describe( 'Issues', () => {
+
+    it( '#1', () => {
+      const customName = window.customName;
+
+      Hu.define( customName, {
+        data: () => ({
+          someDiv: [
+            Hu.html`<div>1</div>`,
+            Hu.html`<div>2</div>`
+          ]
+        }),
+        render( html ){
+          return html`<div>${ this.someDiv }</div>`
+        }
+      });
+
+      document.createElement('div').$html(`<${ customName }></${ customName }>`).$appendTo( document.body ).$remove();
+    });
+
+    it( '#2', ( done ) => {
+      const iframe = document.createElement('iframe').$appendTo( document.body );
+      const iframeDocument = iframe.contentWindow.document;
+      const guid = ZenJS.guid;
+
+      window.addEventListener( 'message', function message({ data }){
+        if( data.guid === guid ){
+          iframe.$remove();
+          window.removeEventListener( 'message', message );
+
+          chai.expect(`{}`).is.equals(
+            stripExpressionMarkers( data.html ).trim()
+          );
+
+          done();
+        }
+      });
+
+      iframeDocument.open().write(`
+      <body>
+        <div></div>
+
+        <script src="./Lib/hu.js"></script>
+        <script src="./Lib/bundles/webcomponents-sd-ce-pf.js"></script>
+        <script>
+          const div = document.body.firstElementChild;
+
+          Hu.render( div )\`
+            \${{}}
+          \`;
+
+          window.parent.postMessage({
+            guid: ${ guid },
+            html: div.innerHTML
+          });
+        </script>
+      </body>
+    `);
+      iframeDocument.close();
+    });
+
+    it( '#3', () => {
+      const div = document.createElement('div');
+
+      Hu.render( div )`
+      <!-- <img src=${ 123 }> -->
+　　  <span>${ 456 }</span>
+    `;
+
+      chai.expect( '456' ).is.equals(
+        stripExpressionMarkers( div.firstElementChild.innerHTML )
+      );
+    });
+
+    it( '#4', ( done ) => {
+      Promise.all([
+        // Vue
+        new Promise(( resolve ) => {
+          let result;
+          let index = 0;
+          const vm = new Vue({
+            data: {
+              a: {
+                aa: 1,
+                b: {
+                  bb: 2,
+                  c: {
+                    cc: 3
+                  }
+                }
+              }
+            },
+            watch: {
+              a: {
+                deep: true,
+                handler: value => {
+                  result = JSON.stringify( value );
+                  index++;
+                }
+              }
+            }
+          });
+
+          vm.a.aa = 2;
+          vm.$nextTick(() => {
+            chai.expect( result ).is.equals(`{"aa":2,"b":{"bb":2,"c":{"cc":3}}}`);
+            chai.expect( index ).is.equals( 1 );
+
+            vm.a.b.bb = 2;
+            vm.$nextTick(() => {
+              chai.expect( result ).is.equals(`{"aa":2,"b":{"bb":2,"c":{"cc":3}}}`);
+              chai.expect( index ).is.equals( 1 );
+
+              resolve();
+            });
+          });
+        }),
+        // Hu
+        new Promise(( resolve ) => {
+          let result;
+          let index = 0;
+          const hu = new Hu({
+            data: {
+              a: {
+                aa: 1,
+                b: {
+                  bb: 2,
+                  c: {
+                    cc: 3
+                  }
+                }
+              }
+            },
+            watch: {
+              a: {
+                deep: true,
+                handler: value => {
+                  result = JSON.stringify( value );
+                  index++;
+                }
+              }
+            }
+          });
+
+          hu.a.aa = 2;
+          hu.$nextTick(() => {
+            chai.expect( result ).is.equals(`{"aa":2,"b":{"bb":2,"c":{"cc":3}}}`);
+            chai.expect( index ).is.equals( 1 );
+
+            hu.a.b.bb = 2;
+            hu.$nextTick(() => {
+              chai.expect( result ).is.equals(`{"aa":2,"b":{"bb":2,"c":{"cc":3}}}`);
+              chai.expect( index ).is.equals( 1 );
+
+              resolve();
+            });
+          });
+        })
+      ]).then(() => done());
+    });
+
+    it( '#7', () => {
+      const customName = window.customName;
+      const div = document.createElement('div').$appendTo( document.body ).$prop({
+        id: customName
+      });
+
+      new Hu({
+        el: div,
+        styles: `
+        #${ customName }{
+          color: #FFF
+        }
+      `
+      });
+
+      chai.expect( true ).is.equals(
+        [ '#FFF', '#fff', 'rgb(255, 255, 255)' ].$inArray(
+          div.$css('color')
+        )
+      );
+
+      div.$remove();
+    });
+
+    it( '#11', () => {
+      const customName = window.customName;
+
+      Hu.define( customName );
+
+      const custom = document.createElement( customName );
+      const hu = custom.$hu;
+
+      let index = 0;
+      let result, result1;
+
+      function fn(){
+        index++;
+        result = [ ...arguments ];
+      }
+
+      function fn1(){
+        index++;
+        result1 = [ ...arguments ];
+      }
+
+      custom.$on( [ 'test', 'test1' ], fn );
+      custom.$on( [ 'test', 'test1' ], fn1 );
+
+      // 解绑某个事件的某个回调
+      hu.$emit( 'test', 1, 2, 3 );
+      chai.expect( index ).is.equals( 2 );
+      chai.expect( result ).is.deep.equals([ 1, 2, 3 ]);
+      chai.expect( result1 ).is.deep.equals([ 1, 2, 3 ]);
+
+      custom.$off( 'test', fn );
+      hu.$emit( 'test', 4, 5, 6 );
+      chai.expect( index ).is.equals( 3 );
+      chai.expect( result ).is.deep.equals([ 1, 2, 3 ]);
+      chai.expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+      // 解绑某个事件的全部回调
+      hu.$emit( 'test1', 7, 8, 9 );
+      chai.expect( index ).is.equals( 5 );
+      chai.expect( result ).is.deep.equals([ 7, 8, 9 ]);
+      chai.expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+      custom.$off( 'test1' );
+      hu.$emit( 'test1', 1, 2, 3 );
+      chai.expect( index ).is.equals( 5 );
+      chai.expect( result ).is.deep.equals([ 7, 8, 9 ]);
+      chai.expect( result1 ).is.deep.equals([ 7, 8, 9 ]);
+
+      // 解绑所有事件
+      hu.$emit( 'test', 4, 5, 6 );
+      chai.expect( index ).is.equals( 6 );
+      chai.expect( result ).is.deep.equals([ 7, 8, 9 ]);
+      chai.expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+
+      custom.$off();
+      hu.$emit( 'test', 1, 2, 3 );
+      chai.expect( index ).is.equals( 6 );
+      chai.expect( result ).is.deep.equals([ 7, 8, 9 ]);
+      chai.expect( result1 ).is.deep.equals([ 4, 5, 6 ]);
+    });
+
+    it( '#16', () => {
+      chai.expect( Hu.util.isIterable( 'undefined' ) ).is.true;
+      chai.expect( Hu.util.isIterable( 'null' ) ).is.true;
+      chai.expect( Hu.util.isIterable( 'asd' ) ).is.true;
+      chai.expect( Hu.util.isIterable( '' ) ).is.true;
+    });
+
+    it( '#19', ( done ) => {
+      const div = document.createElement('div');
+      const {
+        render, html, observable,
+        nextTick,
+        directive, directiveFn
+      } = Hu;
+
+      const data = observable({
+        text: 1
+      });
+
+      const outputMap = new Map();
+      const hu = new Hu();
+      const output = directiveFn( class{
+        constructor( part ){
+          this.part = part;
+        }
+        commit( prefix ){
+          if( outputMap.get( this.part ) && this.prefix !== prefix ){
+            this.destroy();
+          }
+
+          outputMap.set(
+            this.part,
+            hu.$watch(
+              () => data.text,
+              {
+                immediate: true,
+                handler: ( value ) => this.part.commit( `${ prefix }: ${ value }` )
+              }
+            )
+          );
+        }
+        destroy(){
+          outputMap.get( this.part )();
+        }
+      });
+
+      render( div )`${
+      output('asd')
+    }`;
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`asd: 1`);
+
+      data.text++;
+      nextTick(() => {
+        chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`asd: 2`);
+
+        render( div )`${
+        output('fgh')
+      }`;
+        chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`fgh: 2`);
+
+        data.text++;
+        nextTick(() => {
+          chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`fgh: 3`);
+
+          render( div )`${
+          null
+        }`;
+          chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+          data.text++;
+          nextTick(() => {
+            chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+            done();
+          });
+        });
+      });
+    });
+
+  });
+
 }(chai));
