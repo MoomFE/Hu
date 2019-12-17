@@ -31,7 +31,7 @@
     "publish-master": "npm run build && npm publish"
   },
   "devDependencies": {
-    "@moomfe/hu-cli": "^1.8.1",
+    "@moomfe/hu-cli": "^1.8.3",
     "@moomfe/zenjs": "^5.0.0-beta.5",
     "chai": "^4.2.0",
     "fs-extra": "^8.0.1",
