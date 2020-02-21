@@ -18419,73 +18419,6 @@
       chai.expect( index ).is.equals( 12 );
     });
 
-    it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的 bind 指令的绑定', ( done ) => {
-      const steps = [];
-      const customDataProxy = new Proxy({
-        name: '1'
-      }, {
-        get: ( target, name ) => {
-          Hu.util.isString( name ) && steps.push( name );
-          return target[ name ];
-        }
-      });
-      const data = Hu.observable(
-        customDataProxy
-      );
-      const customName = window.customName;
-      let isConnected = false;
-
-      Hu.define( customName, {
-        render( html ){
-          const name = html.bind( data, 'name' );
-
-          return html`
-          <div name=${ name }></div>
-        `;
-        },
-        connected: () => isConnected = true,
-        disconnected: () => isConnected = false
-      });
-
-      const custom = document.createElement( customName ).$appendTo( document.body );
-      const hu = custom.$hu;
-
-      chai.expect( isConnected ).is.true;
-      chai.expect( hu.$el.firstElementChild.$attr('name') ).is.equals('1');
-      chai.expect( steps ).is.deep.equals([ 'name' ]);
-
-      data.name = '2';
-      hu.$nextTick(() => {
-        chai.expect( isConnected ).is.true;
-        chai.expect( hu.$el.firstElementChild.$attr('name') ).is.equals('2');
-        chai.expect( steps ).is.deep.equals([ 'name', 'name' ]);
-
-        data.name = '3';
-        hu.$nextTick(() => {
-          chai.expect( isConnected ).is.true;
-          chai.expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
-          chai.expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
-
-          hu.$destroy();
-
-          chai.expect( isConnected ).is.true;
-          chai.expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
-          chai.expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
-
-          data.name = '4';
-          hu.$nextTick(() => {
-            chai.expect( isConnected ).is.true;
-            chai.expect( hu.$el.firstElementChild.$attr('name') ).is.equals('3');
-            chai.expect( steps ).is.deep.equals([ 'name', 'name', 'name' ]);
-
-            custom.$remove();
-
-            done();
-          });
-        });
-      });
-    });
-
     it( '实例上的 $destroy 方法用于手动注销实例, 调用后会解除所有的双向数据绑定', ( done ) => {
       const steps = [];
       const customDataProxy = new Proxy({
@@ -21080,7 +21013,6 @@
     });
 
     it( 'html.repeat: 该指令方法只能在文本区域中使用', () => {
-
       const arr = [
         { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
         { text: '4', key: 4 }, { text: '5', key: 5 }, { text: '6', key: 6 }
@@ -21796,7 +21728,40 @@
     });
 
     it( 'html.bind: 实例注销后, bind 指令方法会被注销', ( done ) => {
-      
+      const destroy = BindDirectiveFnClass.prototype.destroy;
+      let index = 0;
+
+      BindDirectiveFnClass.prototype.destroy = function(){
+        destroy.call(this);
+        index++;
+      };
+
+      const hu = new Hu({
+        el: div,
+        data: {
+          innerHTML: '123'
+        },
+        render( html ){
+          return html`<div>${ html.bind( this, 'innerHTML' ) }</div>`;
+        }
+      });
+
+      chai.expect( index ).is.equals( 0 );
+      chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>123</div>`);
+
+      hu.innerHTML = '1234';
+      hu.$nextTick(() => {
+        chai.expect( index ).is.equals( 0 );
+        chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1234</div>`);
+
+        hu.$destroy();
+        chai.expect( index ).is.equals( 1 );
+        chai.expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+        BindDirectiveFnClass.prototype.destroy = destroy;
+
+        done();
+      });
     });
 
   });

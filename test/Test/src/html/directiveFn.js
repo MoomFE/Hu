@@ -1,5 +1,6 @@
 import Hu from '../../../../src/build/index';
 import { expect, should as chaiShould } from 'chai';
+import { BindDirectiveFnClass } from '../../../../src/html/directiveFn/bind';
 
 
 const should = chaiShould();
@@ -99,7 +100,6 @@ describe( 'html.directiveFn', () => {
   });
 
   it( 'html.repeat: 该指令方法只能在文本区域中使用', () => {
-
     const arr = [
       { text: '1', key: 1 }, { text: '2', key: 2 }, { text: '3', key: 3 },
       { text: '4', key: 4 }, { text: '5', key: 5 }, { text: '6', key: 6 }
@@ -815,7 +815,40 @@ describe( 'html.directiveFn', () => {
   });
 
   it( 'html.bind: 实例注销后, bind 指令方法会被注销', ( done ) => {
-    
+    const destroy = BindDirectiveFnClass.prototype.destroy
+    let index = 0;
+
+    BindDirectiveFnClass.prototype.destroy = function(){
+      destroy.call(this);
+      index++;
+    }
+
+    const hu = new Hu({
+      el: div,
+      data: {
+        innerHTML: '123'
+      },
+      render( html ){
+        return html`<div>${ html.bind( this, 'innerHTML' ) }</div>`;
+      }
+    });
+
+    expect( index ).is.equals( 0 );
+    expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>123</div>`);
+
+    hu.innerHTML = '1234';
+    hu.$nextTick(() => {
+      expect( index ).is.equals( 0 );
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(`<div>1234</div>`);
+
+      hu.$destroy();
+      expect( index ).is.equals( 1 );
+      expect( stripExpressionMarkers( div.innerHTML ) ).is.equals(``);
+
+      BindDirectiveFnClass.prototype.destroy = destroy;
+
+      done();
+    })
   });
 
 });
