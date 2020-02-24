@@ -2,6 +2,7 @@
   - 🌟 移除指令的注销方法 `Hu.directive.destroy`
   - 🌟 `render` 方法的首个参数支持传入 `null` 或 `undefined` 来销某个已渲染的节点
   - 🌟 支持使用 `bind` 指令方法绑定另一个指令方法 ( [#20](https://github.com/MoomFE/Hu/issues/20) )
+  - 💄 允许指令方法向指令提交另一个指令方法, 例如 `bind` 指令方法
   - 🐞 修复 $info 内的变量更改后不会触发监听的问题 ( [#24](https://github.com/MoomFE/Hu/issues/24) )
   - 🐞 修复在非浏览器环境下使用会报 `Hu is not defined` 错误的问题
   - 🐞 修复在某些情况下删除或修改只读对象时报错的问题
