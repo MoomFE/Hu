@@ -3403,7 +3403,26 @@
     nodePart.value = parts;
   }
 
+  var destroyRender = /**
+   * 注销某个已渲染的节点
+   * @param {Element} container 已渲染的根节点
+   */
+  ( container ) => {
+    /** 获取在传入节点渲染时使用的 NodePart */
+    const nodePart = renderParts.get( container );
+
+    if( nodePart ){
+      destroyPart( nodePart );
+      renderParts.delete( container );
+    }
+  };
+
   function basicRender( result, container ){
+    // 传入 null 或 undefined 可以注销某个已渲染的节点
+    if( result == null ){
+      destroyRender( container );
+    }
+
     // 尝试获取上次创建的节点对象
     let part = renderParts.get( container );
 
@@ -4033,20 +4052,6 @@
 
     if( watcher ){
       watcher.clean();
-    }
-  };
-
-  var destroyRender = /**
-   * 注销某个已渲染的节点
-   * @param {Element} container 已渲染的根节点
-   */
-  ( container ) => {
-    /** 获取在传入节点渲染时使用的 NodePart */
-    const nodePart = renderParts.get( container );
-
-    if( nodePart ){
-      nodePart.destroy();
-      renderParts.delete( container );
     }
   };
 
@@ -15107,9 +15112,134 @@
       chai.expect( result ).is.equals( 11 );
     });
 
-    // it( 'Hu.directiveFn: 注册的指令方法可以定义 destroy 在模板被注销时响应一些操作', () => {
+    it( 'Hu.directiveFn: 注册的指令方法可以定义 destroy 响应指令方法被注销的操作', () => {
+      let result;
+      let index = 0;
+      const fn = Hu.directiveFn( class {
+        commit( value ){
+          result = value;
+        }
+        destroy(){
+          index++;
+        }
+      });
 
-    // });
+      // 在 Node 指令中使用
+      render(
+        fn(0),
+        div
+      );
+      chai.expect( result ).is.equals( 0 );
+      chai.expect( index ).is.equals( 0 );
+      render( null, div );
+      chai.expect( result ).is.equals( 0 );
+      chai.expect( index ).is.equals( 1 );
+
+      // 在 Attr 指令中使用
+      render( div )`
+      <div class=${ fn( 1 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 1 );
+      chai.expect( index ).is.equals( 1 );
+      render( null, div );
+      chai.expect( result ).is.equals( 1 );
+      chai.expect( index ).is.equals( 2 );
+      // 在 Attr 指令中使用
+      render( div )`
+      <div class="a ${ fn( 2 ) } b"></div>
+    `;
+      chai.expect( result ).is.equals( 2 );
+      chai.expect( index ).is.equals( 2 );
+      render( null, div );
+      chai.expect( result ).is.equals( 2 );
+      chai.expect( index ).is.equals( 3 );
+
+      // 在 Boolean 指令中使用
+      render( div )`
+      <div ?disabled=${ fn( 3 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 3 );
+      chai.expect( index ).is.equals( 3 );
+      render( null, div );
+      chai.expect( result ).is.equals( 3 );
+      chai.expect( index ).is.equals( 4 );
+
+      // 在 Event 指令中使用
+      render( div )`
+      <div @click=${ fn( 4 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 4 );
+      chai.expect( index ).is.equals( 4 );
+      render( null, div );
+      chai.expect( result ).is.equals( 4 );
+      chai.expect( index ).is.equals( 5 );
+
+      // 在 Prop 指令中使用
+      render( div )`
+      <div .title=${ fn( 5 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 5 );
+      chai.expect( index ).is.equals( 5 );
+      render( null, div );
+      chai.expect( result ).is.equals( 5 );
+      chai.expect( index ).is.equals( 6 );
+      
+      // 在 Class 指令中使用
+      render( div )`
+      <div :class=${ fn( 6 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 6 );
+      chai.expect( index ).is.equals( 6 );
+      render( null, div );
+      chai.expect( result ).is.equals( 6 );
+      chai.expect( index ).is.equals( 7 );
+      
+      // 在 Html 指令中使用
+      render( div )`
+      <div :html=${ fn( 7 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 7 );
+      chai.expect( index ).is.equals( 7 );
+      render( null, div );
+      chai.expect( result ).is.equals( 7 );
+      chai.expect( index ).is.equals( 8 );
+      
+      // // 在 Model 指令中使用
+      // render( div )`
+      //   <div :model=${ fn( 8 ) }></div>
+      // `;
+      // expect( result ).is.equals( 8 );
+      
+      // 在 Show 指令中使用
+      render( div )`
+      <div :show=${ fn( 9 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 9 );
+      chai.expect( index ).is.equals( 8 );
+      render( null, div );
+      chai.expect( result ).is.equals( 9 );
+      chai.expect( index ).is.equals( 9 );
+      
+      // 在 Style 指令中使用
+      render( div )`
+      <div :style=${ fn( 10 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 10 );
+      chai.expect( index ).is.equals( 9 );
+      render( null, div );
+      chai.expect( result ).is.equals( 10 );
+      chai.expect( index ).is.equals( 10 );
+      
+      // 在 Text 指令中使用
+      render( div )`
+      <div :text=${ fn( 11 ) }></div>
+    `;
+      chai.expect( result ).is.equals( 11 );
+      chai.expect( index ).is.equals( 10 );
+      render( null, div );
+      chai.expect( result ).is.equals( 11 );
+      chai.expect( index ).is.equals( 11 );
+    });
 
     it( 'Hu.directiveFn: 注册的指令方法可以定义 proxy 静态方法以拦截指令使用步骤, 方法首个参数为原本指令使用步骤的方法', () => {
       let usingResult;

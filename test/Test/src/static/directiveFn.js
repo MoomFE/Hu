@@ -235,9 +235,134 @@ describe( 'Hu.static.directiveFn', () => {
     expect( result ).is.equals( 11 );
   });
 
-  // it( 'Hu.directiveFn: 注册的指令方法可以定义 destroy 在模板被注销时响应一些操作', () => {
+  it( 'Hu.directiveFn: 注册的指令方法可以定义 destroy 响应指令方法被注销的操作', () => {
+    let result;
+    let index = 0
+    const fn = Hu.directiveFn( class {
+      commit( value ){
+        result = value;
+      }
+      destroy(){
+        index++;
+      }
+    });
 
-  // });
+    // 在 Node 指令中使用
+    render(
+      fn(0),
+      div
+    );
+    expect( result ).is.equals( 0 );
+    expect( index ).is.equals( 0 );
+    render( null, div )
+    expect( result ).is.equals( 0 );
+    expect( index ).is.equals( 1 );
+
+    // 在 Attr 指令中使用
+    render( div )`
+      <div class=${ fn( 1 ) }></div>
+    `;
+    expect( result ).is.equals( 1 );
+    expect( index ).is.equals( 1 );
+    render( null, div )
+    expect( result ).is.equals( 1 );
+    expect( index ).is.equals( 2 );
+    // 在 Attr 指令中使用
+    render( div )`
+      <div class="a ${ fn( 2 ) } b"></div>
+    `;
+    expect( result ).is.equals( 2 );
+    expect( index ).is.equals( 2 );
+    render( null, div )
+    expect( result ).is.equals( 2 );
+    expect( index ).is.equals( 3 );
+
+    // 在 Boolean 指令中使用
+    render( div )`
+      <div ?disabled=${ fn( 3 ) }></div>
+    `;
+    expect( result ).is.equals( 3 );
+    expect( index ).is.equals( 3 );
+    render( null, div )
+    expect( result ).is.equals( 3 );
+    expect( index ).is.equals( 4 );
+
+    // 在 Event 指令中使用
+    render( div )`
+      <div @click=${ fn( 4 ) }></div>
+    `;
+    expect( result ).is.equals( 4 );
+    expect( index ).is.equals( 4 );
+    render( null, div )
+    expect( result ).is.equals( 4 );
+    expect( index ).is.equals( 5 );
+
+    // 在 Prop 指令中使用
+    render( div )`
+      <div .title=${ fn( 5 ) }></div>
+    `;
+    expect( result ).is.equals( 5 );
+    expect( index ).is.equals( 5 );
+    render( null, div )
+    expect( result ).is.equals( 5 );
+    expect( index ).is.equals( 6 );
+    
+    // 在 Class 指令中使用
+    render( div )`
+      <div :class=${ fn( 6 ) }></div>
+    `;
+    expect( result ).is.equals( 6 );
+    expect( index ).is.equals( 6 );
+    render( null, div )
+    expect( result ).is.equals( 6 );
+    expect( index ).is.equals( 7 );
+    
+    // 在 Html 指令中使用
+    render( div )`
+      <div :html=${ fn( 7 ) }></div>
+    `;
+    expect( result ).is.equals( 7 );
+    expect( index ).is.equals( 7 );
+    render( null, div )
+    expect( result ).is.equals( 7 );
+    expect( index ).is.equals( 8 );
+    
+    // // 在 Model 指令中使用
+    // render( div )`
+    //   <div :model=${ fn( 8 ) }></div>
+    // `;
+    // expect( result ).is.equals( 8 );
+    
+    // 在 Show 指令中使用
+    render( div )`
+      <div :show=${ fn( 9 ) }></div>
+    `;
+    expect( result ).is.equals( 9 );
+    expect( index ).is.equals( 9 );
+    render( null, div )
+    expect( result ).is.equals( 9 );
+    expect( index ).is.equals( 10 );
+    
+    // 在 Style 指令中使用
+    render( div )`
+      <div :style=${ fn( 10 ) }></div>
+    `;
+    expect( result ).is.equals( 10 );
+    expect( index ).is.equals( 10 );
+    render( null, div )
+    expect( result ).is.equals( 10 );
+    expect( index ).is.equals( 11 );
+    
+    // 在 Text 指令中使用
+    render( div )`
+      <div :text=${ fn( 11 ) }></div>
+    `;
+    expect( result ).is.equals( 11 );
+    expect( index ).is.equals( 11 );
+    render( null, div )
+    expect( result ).is.equals( 11 );
+    expect( index ).is.equals( 12 );
+  });
 
   it( 'Hu.directiveFn: 注册的指令方法可以定义 proxy 静态方法以拦截指令使用步骤, 方法首个参数为原本指令使用步骤的方法', () => {
     let usingResult;
