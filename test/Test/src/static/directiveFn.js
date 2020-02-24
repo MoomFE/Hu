@@ -116,37 +116,37 @@ describe( 'Hu.static.directiveFn', () => {
       <div .title=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( BasicPropertyDirective );
-    
+
     // 在 Class 指令中使用
     render( div )`
       <div :class=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( ClassDirective );
-    
+
     // 在 Html 指令中使用
     render( div )`
       <div :html=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( HtmlDirective );
-    
+
     // // 在 Model 指令中使用
     // render( div )`
     //   <div :model=${ fn() }></div>
     // `;
     // expect( result ).is.instanceOf( ModelDirective );
-    
+
     // 在 Show 指令中使用
     render( div )`
       <div :show=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( ShowDirective );
-    
+
     // 在 Style 指令中使用
     render( div )`
       <div :style=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( StyleDirective );
-    
+
     // 在 Text 指令中使用
     render( div )`
       <div :text=${ fn() }></div>
@@ -197,37 +197,37 @@ describe( 'Hu.static.directiveFn', () => {
       <div .title=${ fn( 5 ) }></div>
     `;
     expect( result ).is.equals( 5 );
-    
+
     // 在 Class 指令中使用
     render( div )`
       <div :class=${ fn( 6 ) }></div>
     `;
     expect( result ).is.equals( 6 );
-    
+
     // 在 Html 指令中使用
     render( div )`
       <div :html=${ fn( 7 ) }></div>
     `;
     expect( result ).is.equals( 7 );
-    
+
     // // 在 Model 指令中使用
     // render( div )`
     //   <div :model=${ fn( 8 ) }></div>
     // `;
     // expect( result ).is.equals( 8 );
-    
+
     // 在 Show 指令中使用
     render( div )`
       <div :show=${ fn( 9 ) }></div>
     `;
     expect( result ).is.equals( 9 );
-    
+
     // 在 Style 指令中使用
     render( div )`
       <div :style=${ fn( 10 ) }></div>
     `;
     expect( result ).is.equals( 10 );
-    
+
     // 在 Text 指令中使用
     render( div )`
       <div :text=${ fn( 11 ) }></div>
@@ -306,7 +306,7 @@ describe( 'Hu.static.directiveFn', () => {
     render( null, div )
     expect( result ).is.equals( 5 );
     expect( index ).is.equals( 6 );
-    
+
     // 在 Class 指令中使用
     render( div )`
       <div :class=${ fn( 6 ) }></div>
@@ -316,7 +316,7 @@ describe( 'Hu.static.directiveFn', () => {
     render( null, div )
     expect( result ).is.equals( 6 );
     expect( index ).is.equals( 7 );
-    
+
     // 在 Html 指令中使用
     render( div )`
       <div :html=${ fn( 7 ) }></div>
@@ -326,13 +326,13 @@ describe( 'Hu.static.directiveFn', () => {
     render( null, div )
     expect( result ).is.equals( 7 );
     expect( index ).is.equals( 8 );
-    
+
     // // 在 Model 指令中使用
     // render( div )`
     //   <div :model=${ fn( 8 ) }></div>
     // `;
     // expect( result ).is.equals( 8 );
-    
+
     // 在 Show 指令中使用
     render( div )`
       <div :show=${ fn( 9 ) }></div>
@@ -342,7 +342,7 @@ describe( 'Hu.static.directiveFn', () => {
     render( null, div )
     expect( result ).is.equals( 9 );
     expect( index ).is.equals( 10 );
-    
+
     // 在 Style 指令中使用
     render( div )`
       <div :style=${ fn( 10 ) }></div>
@@ -352,7 +352,7 @@ describe( 'Hu.static.directiveFn', () => {
     render( null, div )
     expect( result ).is.equals( 10 );
     expect( index ).is.equals( 11 );
-    
+
     // 在 Text 指令中使用
     render( div )`
       <div :text=${ fn( 11 ) }></div>
@@ -451,37 +451,37 @@ describe( 'Hu.static.directiveFn', () => {
       <div .title=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( BasicPropertyDirective );
-    
+
     // 在 Class 指令中使用
     render( div )`
       <div :class=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( ClassDirective );
-    
+
     // 在 Html 指令中使用
     render( div )`
       <div :html=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( HtmlDirective );
-    
+
     // // 在 Model 指令中使用
     // render( div )`
     //   <div :model=${ fn() }></div>
     // `;
     // expect( result ).is.instanceOf( ModelDirective );
-    
+
     // 在 Show 指令中使用
     render( div )`
       <div :show=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( ShowDirective );
-    
+
     // 在 Style 指令中使用
     render( div )`
       <div :style=${ fn() }></div>
     `;
     expect( result ).is.instanceOf( StyleDirective );
-    
+
     // 在 Text 指令中使用
     render( div )`
       <div :text=${ fn() }></div>

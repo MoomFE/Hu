@@ -4544,7 +4544,7 @@
   });
 
   function directive( name, directive ){
-    
+
     // 获取已注册的指令
     if( !directive ){
       return userDirectives[ name ] || directives[ name ];
@@ -4554,11 +4554,6 @@
     userDirectives[ name ] = directive;
 
   }
-
-  // 指令提交更改方法
-  directive.commit = commitPart;
-  // 指令注销方法
-  directive.destroy = destroyPart;
 
   const installed = new Set;
   const privateOptions = create$1({
@@ -14993,37 +14988,37 @@
       <div .title=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( BasicPropertyDirective );
-      
+
       // 在 Class 指令中使用
       render( div )`
       <div :class=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( ClassDirective );
-      
+
       // 在 Html 指令中使用
       render( div )`
       <div :html=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( HtmlDirective );
-      
+
       // // 在 Model 指令中使用
       // render( div )`
       //   <div :model=${ fn() }></div>
       // `;
       // expect( result ).is.instanceOf( ModelDirective );
-      
+
       // 在 Show 指令中使用
       render( div )`
       <div :show=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( ShowDirective );
-      
+
       // 在 Style 指令中使用
       render( div )`
       <div :style=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( StyleDirective );
-      
+
       // 在 Text 指令中使用
       render( div )`
       <div :text=${ fn() }></div>
@@ -15074,37 +15069,37 @@
       <div .title=${ fn( 5 ) }></div>
     `;
       chai.expect( result ).is.equals( 5 );
-      
+
       // 在 Class 指令中使用
       render( div )`
       <div :class=${ fn( 6 ) }></div>
     `;
       chai.expect( result ).is.equals( 6 );
-      
+
       // 在 Html 指令中使用
       render( div )`
       <div :html=${ fn( 7 ) }></div>
     `;
       chai.expect( result ).is.equals( 7 );
-      
+
       // // 在 Model 指令中使用
       // render( div )`
       //   <div :model=${ fn( 8 ) }></div>
       // `;
       // expect( result ).is.equals( 8 );
-      
+
       // 在 Show 指令中使用
       render( div )`
       <div :show=${ fn( 9 ) }></div>
     `;
       chai.expect( result ).is.equals( 9 );
-      
+
       // 在 Style 指令中使用
       render( div )`
       <div :style=${ fn( 10 ) }></div>
     `;
       chai.expect( result ).is.equals( 10 );
-      
+
       // 在 Text 指令中使用
       render( div )`
       <div :text=${ fn( 11 ) }></div>
@@ -15183,7 +15178,7 @@
       render( null, div );
       chai.expect( result ).is.equals( 5 );
       chai.expect( index ).is.equals( 6 );
-      
+
       // 在 Class 指令中使用
       render( div )`
       <div :class=${ fn( 6 ) }></div>
@@ -15193,7 +15188,7 @@
       render( null, div );
       chai.expect( result ).is.equals( 6 );
       chai.expect( index ).is.equals( 7 );
-      
+
       // 在 Html 指令中使用
       render( div )`
       <div :html=${ fn( 7 ) }></div>
@@ -15203,42 +15198,42 @@
       render( null, div );
       chai.expect( result ).is.equals( 7 );
       chai.expect( index ).is.equals( 8 );
-      
+
       // // 在 Model 指令中使用
       // render( div )`
       //   <div :model=${ fn( 8 ) }></div>
       // `;
       // expect( result ).is.equals( 8 );
-      
+
       // 在 Show 指令中使用
       render( div )`
       <div :show=${ fn( 9 ) }></div>
     `;
       chai.expect( result ).is.equals( 9 );
-      chai.expect( index ).is.equals( 8 );
+      chai.expect( index ).is.equals( 9 );
       render( null, div );
       chai.expect( result ).is.equals( 9 );
-      chai.expect( index ).is.equals( 9 );
-      
+      chai.expect( index ).is.equals( 10 );
+
       // 在 Style 指令中使用
       render( div )`
       <div :style=${ fn( 10 ) }></div>
     `;
       chai.expect( result ).is.equals( 10 );
-      chai.expect( index ).is.equals( 9 );
+      chai.expect( index ).is.equals( 10 );
       render( null, div );
       chai.expect( result ).is.equals( 10 );
-      chai.expect( index ).is.equals( 10 );
-      
+      chai.expect( index ).is.equals( 11 );
+
       // 在 Text 指令中使用
       render( div )`
       <div :text=${ fn( 11 ) }></div>
     `;
       chai.expect( result ).is.equals( 11 );
-      chai.expect( index ).is.equals( 10 );
+      chai.expect( index ).is.equals( 11 );
       render( null, div );
       chai.expect( result ).is.equals( 11 );
-      chai.expect( index ).is.equals( 11 );
+      chai.expect( index ).is.equals( 12 );
     });
 
     it( 'Hu.directiveFn: 注册的指令方法可以定义 proxy 静态方法以拦截指令使用步骤, 方法首个参数为原本指令使用步骤的方法', () => {
@@ -15328,37 +15323,37 @@
       <div .title=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( BasicPropertyDirective );
-      
+
       // 在 Class 指令中使用
       render( div )`
       <div :class=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( ClassDirective );
-      
+
       // 在 Html 指令中使用
       render( div )`
       <div :html=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( HtmlDirective );
-      
+
       // // 在 Model 指令中使用
       // render( div )`
       //   <div :model=${ fn() }></div>
       // `;
       // expect( result ).is.instanceOf( ModelDirective );
-      
+
       // 在 Show 指令中使用
       render( div )`
       <div :show=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( ShowDirective );
-      
+
       // 在 Style 指令中使用
       render( div )`
       <div :style=${ fn() }></div>
     `;
       chai.expect( result ).is.instanceOf( StyleDirective );
-      
+
       // 在 Text 指令中使用
       render( div )`
       <div :text=${ fn() }></div>
