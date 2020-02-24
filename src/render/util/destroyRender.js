@@ -1,4 +1,5 @@
 import { renderParts } from "../const";
+import destroyPart from "../../html/util/destroyPart";
 
 
 export default
@@ -11,7 +12,7 @@ export default
   const nodePart = renderParts.get( container );
 
   if( nodePart ){
-    nodePart.destroy();
+    destroyPart( nodePart );
     renderParts.delete( container );
   }
 }

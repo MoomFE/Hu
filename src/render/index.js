@@ -2,9 +2,15 @@ import { renderStack, renderParts } from './const';
 import NodePart from '../html/core/node';
 import removeNodes from '../shared/util/removeNodes';
 import commitPart from '../html/util/commitPart';
+import destroyRender from './util/destroyRender';
 
 
 function basicRender( result, container ){
+  // 传入 null 或 undefined 可以注销某个已渲染的节点
+  if( result == null ){
+    destroyRender( container );
+  }
+
   // 尝试获取上次创建的节点对象
   let part = renderParts.get( container );
 
