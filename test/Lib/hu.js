@@ -4549,7 +4549,7 @@
   });
 
   function directive( name, directive ){
-    
+
     // 获取已注册的指令
     if( !directive ){
       return userDirectives[ name ] || directives[ name ];
@@ -4559,11 +4559,6 @@
     userDirectives[ name ] = directive;
 
   }
-
-  // 指令提交更改方法
-  directive.commit = commitPart;
-  // 指令注销方法
-  directive.destroy = destroyPart;
 
   const installed = new Set;
   const privateOptions = create$1({
