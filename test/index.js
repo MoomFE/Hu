@@ -13933,6 +13933,9 @@
 
   describe( 'Hu.static.directive', () => {
 
+    const render = Hu.render;
+    const html = Hu.html;
+
     /** @type {Element} */
     let div;
     beforeEach(() => {
@@ -13940,127 +13943,251 @@
     });
     afterEach(() => {
       div.$remove();
+      ownKeys( userDirectives ).forEach( key => {
+        deleteProperty( userDirectives, key );
+      });
     });
 
-    // it( 'Hu.directive: 使用该方法可用于注册自定义指令', () => {
-    //   const args = [];
+    it( 'Hu.directive: 使用该方法可用于注册自定义指令', () => {
+      Hu.directive( 'html', class {
+        constructor( element, strings, modifires ){
+          this.elm = element;
+        }
+        commit( value ){
+          this.elm.innerHTML = value;
+        }
+      });
 
-    //   Hu.directive( 'test', class {
-    //     constructor( element, strings, modifiers ){
-    //       args.splice( 0, Infinity, ...arguments );
-    //     }
-    //     commit(){
+      render( div )`
+      <div :html=${ 123 }></div>
+    `;
+      chai.expect( div.firstElementChild.innerHTML ).is.equals('123');
+    });
 
-    //     }
-    //   });
+    it( 'Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第一个参数为绑定了指令的 DOM 元素', () => {
+      let result;
 
-    //   // 综合测试
-    //   Hu.render( div )`
-    //     <div :test=${ 1 }></div>
-    //   `;
-    //   expect( args ).is.deep.equals([
-    //     div.firstElementChild,
-    //     [ '', '' ],
-    //     {}
-    //   ]);
+      Hu.directive( 'test', class {
+        constructor ( element ){
+          result = element;
+        }
+        commit(){}
+      });
 
-    //   // 第一个参数为绑定了指令的 DOM 元素
-    //   Hu.render( div )`
-    //     <span></span>
-    //     <div :test=${ 1 }></div>
-    //     <b></b>
-    //   `;
-    //   expect( args[0] ).is.equals( div.querySelector('div') );
+      render( div )`
+      <div :test=${ 0 }></div>
+    `;
+      chai.expect( result ).is.equals( div.firstElementChild ).includes({
+        nodeName: 'DIV'
+      });
 
-    //   // 第二个参数为使用了指令时, 该指令除了插值绑定的其他部分
-    //   Hu.render( div )`
-    //     <div :test="I am ${ 'Hu' }.js"></div>
-    //   `;
-    //   expect( args[1] ).is.deep.equals([
-    //     'I am ', '.js'
-    //   ]);
+      render( div )`
+      <span :test=${ 0 }></span>
+    `;
+      chai.expect( result ).is.equals( div.firstElementChild ).includes({
+        nodeName: 'SPAN'
+      });
 
-    //   // 第三个参数为使用指令时使用的修饰符
-    //   Hu.render( div )`
-    //     <div :test.a.b.d=${ 123 }></div>
-    //   `;
-    //   expect( args[2] ).is.deep.equals({
-    //     a: true,
-    //     b: true,
-    //     d: true
-    //   });
-    // });
+      render( div )`
+      <b :test=${ 0 }></b>
+    `;
+      chai.expect( result ).is.equals( div.firstElementChild ).includes({
+        nodeName: 'B'
+      });
+    });
 
-    // it( 'Hu.directive: 注册的指令使用 commit 接受用户传递的值', () => {
-    //   const result = [];
+    it( 'Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第二个参数为使用指令时除了插值绑定的其他部分', () => {
+      let result;
 
-    //   Hu.directive( 'test', class {
-    //     commit( value ){
-    //       result.push( value );
-    //     }
-    //   });
+      Hu.directive( 'test', class {
+        constructor ( element, strings ){
+          result = strings;
+        }
+        commit(){}
+      });
 
-    //   Hu.render( div )`
-    //     <div :test=${ 1 }></div>
-    //     <div :test=${ '2' }></div>
-    //     <div :test=${ true }></div>
-    //     <div :test=${ false }></div>
-    //     <div :test=${ [] }></div>
-    //     <div :test=${ {} }></div>
-    //   `;
+      render( div )`
+      <div :test=${ 'Hu' }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ '', '' ]);
 
-    //   expect( result ).is.deep.equals([
-    //     1, '2',
-    //     true, false,
-    //     [], {}
-    //   ]);
-    // });
+      render( div )`
+      <div :test="${ 'Hu' }"></div>
+    `;
+      chai.expect( result ).is.deep.equals([ '', '' ]);
 
-    // it( 'Hu.directive: 注册的指令使用 commit 接受用户传递的值, 第二个参数用于判断用户传递的值是否是指令方法', () => {
-    //   const result = [];
-    //   let directiveFn;
-    //   let fn;
+      render( div )`
+      <span :test="I am ${ 'Hu' }.js"></span>
+    `;
+      chai.expect( result ).is.deep.equals([ 'I am ', '.js' ]);
 
-    //   Hu.directive( 'test', class {
-    //     commit( value, isDirectiveFn ){
-    //       result.splice( 0, Infinity, value, isDirectiveFn );
-    //     }
-    //   });
+      render( div )`
+      <span :test="${ 'I' } am ${ 'Hu' }.js"></span>
+    `;
+      chai.expect( result ).is.deep.equals([ '', ' am ', '.js' ]);
 
-    //   Hu.render( div )`
-    //     <div :test=${ 123 }></div>
-    //   `;
-    //   expect( result ).is.deep.equals([ 123, false ]);
+      render( div )`
+      <span :test="${ 'I' } am ${ 'Hu' }.${ 'js' }"></span>
+    `;
+      chai.expect( result ).is.deep.equals([ '', ' am ', '.', '' ]);
+    });
 
-    //   Hu.render( div )`
-    //     <div :test=${ directiveFn = Hu.html.unsafe('') }></div>
-    //   `;
-    //   expect( result ).is.deep.equals([ directiveFn, true ]);
+    it( 'Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第二个参数为使用指令时除了插值绑定的其他部分', () => {
+      let result;
 
-    //   Hu.render( div )`
-    //     <div :test=${ fn = () => {} }></div>
-    //   `;
-    //   expect( result ).is.deep.equals([ fn, false ]);
-    // });
+      Hu.directive( 'test', class {
+        constructor ( element, strings, modifires ){
+          result = modifires;
+        }
+        commit(){}
+      });
 
-    // it( 'Hu.directive: 注册的指令只能在 DOM 元素上使用', () => {
-    //   const result = [];
+      render( div )`
+      <div :test=${ 'Hu' }></div>
+    `;
+      chai.expect( result ).is.deep.equals({});
 
-    //   Hu.directive( 'test', class {
-    //     commit( value ){
-    //       result.push( value );
-    //     }
-    //   });
+      render( div )`
+      <div :test.a=${ 'Hu' }></div>
+    `;
+      chai.expect( result ).is.deep.equals({
+        a: true
+      });
 
-    //   Hu.render( div )`
-    //     <div :test=${ 1 }>:test=${ 2 }</div>
-    //     <div :test=${ 3 }>:test=${ 4 }</div>
-    //   `;
+      render( div )`
+      <div :test.a.b=${ 'Hu' }></div>
+    `;
+      chai.expect( result ).is.deep.equals({
+        a: true,
+        b: true
+      });
 
-    //   expect( result ).is.deep.equals([
-    //     1, 3
-    //   ]);
-    // });
+      render( div )`
+      <div :test.a.b.c=${ 'Hu' }></div>
+    `;
+      chai.expect( result ).is.deep.equals({
+        a: true,
+        b: true,
+        c: true
+      });
+    });
+
+    it( 'Hu.directive: 注册的指令可以定义 commit 接收用户传递的值, 第一个参数为传递进来的值', () => {
+      let result;
+
+      Hu.directive( 'test', class {
+        commit( value ){
+          result = value;
+        }
+      });
+
+      render( div )`
+      <div :test=${ 1 }></div>
+    `;
+      chai.expect( result ).is.equals( 1 );
+
+      render( div )`
+      <div :test=${ '2' }></div>
+    `;
+      chai.expect( result ).is.equals( '2' );
+
+      render( div )`
+      <div :test=${ true }></div>
+    `;
+      chai.expect( result ).is.equals( true );
+
+      render( div )`
+      <div :test=${ false }></div>
+    `;
+      chai.expect( result ).is.equals( false );
+
+      render( div )`
+      <div :test=${ [] }></div>
+    `;
+      chai.expect( result ).is.deep.equals( [] );
+
+      render( div )`
+      <div :test=${ {} }></div>
+    `;
+      chai.expect( result ).is.deep.equals( {} );
+    });
+
+    it( 'Hu.directive: 注册的指令可以定义 commit 接收用户传递的值, 第二个参数用于判断用户传递的值是否是指令方法', () => {
+      let result;
+      let directiveFn;
+      let fn;
+
+      Hu.directive( 'test', class {
+        commit( value, isDirectiveFn ){
+          result = [ value, isDirectiveFn ];
+        }
+      });
+
+      render( div )`
+      <div :test=${ 1 }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ 1, false ]);
+
+      render( div )`
+      <div :test=${ '2' }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ '2', false ]);
+
+      render( div )`
+      <div :test=${ true }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ true, false ]);
+
+      render( div )`
+      <div :test=${ false }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ false, false ]);
+
+      render( div )`
+      <div :test=${ [] }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ [], false ]);
+
+      render( div )`
+      <div :test=${ {} }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ {}, false ]);
+
+      render( div )`
+      <div :test=${ fn = () => {} }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ fn, false ]);
+
+      render( div )`
+      <div :test=${ directiveFn = html.unsafe('') }></div>
+    `;
+      chai.expect( result ).is.deep.equals([ directiveFn, true ]);
+    });
+
+    it( 'Hu.directive: 注册的指令只能在 DOM 元素上使用', () => {
+      let result;
+
+      Hu.directive( 'test', class {
+        commit( value ){
+          result = value;
+        }
+      });
+
+      render( div )`
+      <div :test=${ 1 }></div>
+    `;
+      chai.expect( result ).is.equals( 1 );
+
+      render( div )`
+      <div :test=${ 2 }></div>
+    `;
+      chai.expect( result ).is.equals( 2 );
+
+      render( div )`
+      <div>:test=${ 3 }</div>
+    `;
+      chai.expect( result ).is.equals( 2 );
+    });
 
     // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 切换模板 )', () => {
     //   let constructorIndex = 0;
@@ -15210,30 +15337,30 @@
       <div :show=${ fn( 9 ) }></div>
     `;
       chai.expect( result ).is.equals( 9 );
-      chai.expect( index ).is.equals( 9 );
+      chai.expect( index ).is.equals( 8 );
       render( null, div );
       chai.expect( result ).is.equals( 9 );
-      chai.expect( index ).is.equals( 10 );
+      chai.expect( index ).is.equals( 9 );
 
       // 在 Style 指令中使用
       render( div )`
       <div :style=${ fn( 10 ) }></div>
     `;
       chai.expect( result ).is.equals( 10 );
-      chai.expect( index ).is.equals( 10 );
+      chai.expect( index ).is.equals( 9 );
       render( null, div );
       chai.expect( result ).is.equals( 10 );
-      chai.expect( index ).is.equals( 11 );
+      chai.expect( index ).is.equals( 10 );
 
       // 在 Text 指令中使用
       render( div )`
       <div :text=${ fn( 11 ) }></div>
     `;
       chai.expect( result ).is.equals( 11 );
-      chai.expect( index ).is.equals( 11 );
+      chai.expect( index ).is.equals( 10 );
       render( null, div );
       chai.expect( result ).is.equals( 11 );
-      chai.expect( index ).is.equals( 12 );
+      chai.expect( index ).is.equals( 11 );
     });
 
     it( 'Hu.directiveFn: 注册的指令方法可以定义 proxy 静态方法以拦截指令使用步骤, 方法首个参数为原本指令使用步骤的方法', () => {

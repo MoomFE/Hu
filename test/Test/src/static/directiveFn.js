@@ -338,30 +338,30 @@ describe( 'Hu.static.directiveFn', () => {
       <div :show=${ fn( 9 ) }></div>
     `;
     expect( result ).is.equals( 9 );
-    expect( index ).is.equals( 9 );
+    expect( index ).is.equals( 8 );
     render( null, div )
     expect( result ).is.equals( 9 );
-    expect( index ).is.equals( 10 );
+    expect( index ).is.equals( 9 );
 
     // 在 Style 指令中使用
     render( div )`
       <div :style=${ fn( 10 ) }></div>
     `;
     expect( result ).is.equals( 10 );
-    expect( index ).is.equals( 10 );
+    expect( index ).is.equals( 9 );
     render( null, div )
     expect( result ).is.equals( 10 );
-    expect( index ).is.equals( 11 );
+    expect( index ).is.equals( 10 );
 
     // 在 Text 指令中使用
     render( div )`
       <div :text=${ fn( 11 ) }></div>
     `;
     expect( result ).is.equals( 11 );
-    expect( index ).is.equals( 11 );
+    expect( index ).is.equals( 10 );
     render( null, div )
     expect( result ).is.equals( 11 );
-    expect( index ).is.equals( 12 );
+    expect( index ).is.equals( 11 );
   });
 
   it( 'Hu.directiveFn: 注册的指令方法可以定义 proxy 静态方法以拦截指令使用步骤, 方法首个参数为原本指令使用步骤的方法', () => {
