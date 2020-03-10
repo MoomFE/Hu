@@ -484,7 +484,7 @@
           initProps( mixin, options, null, true );
         }
       }
-    }else{
+    }else {
       return;
     }
 
@@ -525,7 +525,7 @@
         options.from = prop;
       }
       // 高级用法
-      else{
+      else {
         initPropType( prop, options );
         initPropDefault( prop, options );
       }
@@ -888,7 +888,7 @@
     callbacks.push(() => {
       if( callback ){
         callback.call( ctx );
-      }else{
+      }else {
         resolve( ctx );
       }
     });
@@ -934,7 +934,7 @@
       }
       // 当前异步更新队列已经启动
       // 则将当前更新请求按照 id 排列好
-      else{
+      else {
         let i = queue.length - 1;
         while( i > index && queue[ i ].id > watcher.id ){
           i--;
@@ -1222,7 +1222,7 @@
         });
       }
       // 首次运行
-      else{
+      else {
         each( classes, name => {
           return classList.add( name );
         });
@@ -1249,7 +1249,7 @@
             value.forEach( name => {
               return this.parse( name, classes );
             });
-          }else{
+          }else {
             each( value, ( name, truthy ) => {
               return truthy ? this.parse( name, classes )
                             : delete classes[ name ];
@@ -1344,7 +1344,7 @@
             value.forEach( value => {
               return this.parse( value, styles );
             });
-          }else{
+          }else {
             each( value, ( name, value ) => {
               return styles[ hyphenate( name ) ] = value;
             });
@@ -1593,10 +1593,10 @@
       if( --deep ){
         if( options.isArray ){
           value.forEach( value => traverse$1( value, deep ) );
-        }else{
+        }else {
           each( value, ( key, value ) => traverse$1( value, deep ) );
         }
-      }else{
+      }else {
         options.deepSubs.add( targetStack.target );
       }
     }
@@ -1630,7 +1630,7 @@
       computedInstance = watcherMap.get( self );
     }
     // 存储当前实例 watch 相关数据
-    else{
+    else {
       watcherMap.set(
         self,
         computedInstance = new Computed( self, true )
@@ -1755,7 +1755,7 @@
           (options.child = new directive( part )).commit( ...args );
         }
         // 指令方法本身被调用
-        else{
+        else {
           const instance = options.ins || (
             options.ins = new directive( part )
           );
@@ -2310,7 +2310,7 @@
               if( strings[ lastIndex ] !== '' ) node.data = strings[ lastIndex ];
               // 如果当前节点不可作为结束标记
               // 那么需要添加一个空注释节点作为结束标记
-              else{
+              else {
                 nodesToRemove.push( node );
                 parent.insertBefore(
                   createMarker(),
@@ -2348,7 +2348,7 @@
               if( node.nextSibling === null ) node.data = '';
               // 如果有可以作为结束标记的节点
               // 那么可以删除掉当前注释节点
-              else{
+              else {
                 nodesToRemove.push( node );
                 index--;
               }
@@ -2356,7 +2356,7 @@
               partIndex++;
             }
             // 正常注释
-            else{
+            else {
               const data = node.data = node.data.replace( commentMarkerRegex, marker ).replace( boundAttributeSuffixRegex, '' );
               let markerIndex = -1;
 
@@ -2758,7 +2758,7 @@
         // 更新属性值
         if( value ){
           this.elem.setAttribute( this.name, '' );
-        }else{
+        }else {
           this.elem.removeAttribute( this.name );
         }
       }
@@ -3022,7 +3022,7 @@
         }
         // 如果不是文本区域的插值绑定, 那么就是元素属性的插值绑定
         // 使用元素属性处理方法判断该如何处理当前插值绑定
-        else{
+        else {
           this.parts.push(
             ...templateProcessor.attr( node, part.name, part.strings )
           );
@@ -3115,7 +3115,7 @@
         // 　　       注释节点中的类元素属性绑定最终不会被解析
         if( attributeMatch === null ){
           html += string + ( isCommentBinding ? commentMarker : nodeMarker );
-        }else{
+        }else {
           html += string.substr( 0, attributeMatch.index )
                 + attributeMatch[ 1 ]
                 + attributeMatch[ 2 ]
@@ -3191,7 +3191,7 @@
           commitIterable( this, value, oldValue );
         }
         // 其它类型
-        else{
+        else {
           commitText( this, value );
         }
       }
@@ -3297,7 +3297,7 @@
     }
     // 否则需要将原插值绑定内的所有东西进行清除
     // 插入创建的文本节点
-    else{
+    else {
       commitNode(
         nodePart,
         document.createTextNode( valueAsString )
@@ -3334,7 +3334,7 @@
       instance.update( value.values );
     }
     // 新模板和旧模板不一致
-    else{
+    else {
       // 删除插值绑定之前的内容
       nodePart.clear();
 
@@ -3385,7 +3385,7 @@
         // 将新创建的 NodePart 添加到父级去
         if( partIndex === 0 ){
           part.appendIntoPart( nodePart );
-        }else{
+        }else {
           part.insertAfterPart( parts[ partIndex - 1 ] );
         }
       }
@@ -3534,7 +3534,7 @@
             oldTail--;
             newHead++;
           }
-          else{
+          else {
             if( newKeyToIndexMap === void 0 ){
               newKeyToIndexMap = generateMap( newKeys, newHead, newTail );
               oldKeyToIndexMap = generateMap( oldKeys, oldHead, oldTail );
@@ -3547,7 +3547,7 @@
               removePart( oldParts[ oldTail ] );
               oldTail--;
             }
-            else{
+            else {
               const oldIndex = oldKeyToIndexMap.get( newKeys[ newHead ] );
               const oldPart = oldIndex !== void 0 ? oldParts[ oldIndex ] : null;
     
@@ -3556,7 +3556,7 @@
     
                 updatePart( newPart, newValues[ newHead ] );
                 newParts[ newHead ] = newPart;
-              }else{
+              }else {
                 newParts[ newHead ] = updatePart( oldPart, newValues[ newHead ] );
                 insertPartBefore( containerPart, oldPart, oldParts[ oldHead ] );
                 oldParts[oldIndex] = null;
@@ -3824,7 +3824,7 @@
       // 不允许挂载到 body 和 html 下
       if( !el || el === document.body || el === document.documentElement ){
         return this;
-      }else{
+      }else {
         // 将挂载对象保存到实例
         observeProxyMap.get( this ).target.$el = el;
         // 标识 $el 选项与实例的引用
@@ -3865,7 +3865,7 @@
   function $on( type, fn ){
     if( isArray( type ) ){
       for( let event of type ) this.$on( event, fn );
-    }else{
+    }else {
       const events = eventMap.get( this );
       const fns = events[ type ] || (
         events[ type ] = []
@@ -4136,7 +4136,7 @@
         propsTarget[ name ] = ( options.from || returnArg )( value );
       }
       // 使用默认值
-      else{
+      else {
         propsState[ name ] = false;
         propsTarget[ name ] = isFunction( options.default )
                                 ? options.default.call( targetProxy )
@@ -4211,7 +4211,7 @@
           has( dataTarget, name ) || ( dataTarget[ name ] = value );
         });
       }
-    }else{
+    }else {
       dataTarget = create( null );
     }
 
