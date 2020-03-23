@@ -1,6 +1,5 @@
 require('./scripts/extras/copy-polyfill');
 const pluginFixErrorInFirefox = require('./scripts/plugins/Fix-SyntaxError-error-in-Firefox-51-and-below');
-const pluginFixWebcomponentsjs = require('./scripts/plugins/Fix-webcomponentsjs-window-is-not-defined');
 const pluginCopyToTest = require('./scripts/plugins/copy-to-test');
 const HU_RUNNING_COMMAND = process.env.HU_RUNNING_COMMAND;
 const packages = require('./package.json');
@@ -12,13 +11,6 @@ const pipe = [
 
 
 if( HU_RUNNING_COMMAND === 'build' ){
-  // UMD
-  pipe.$concat([
-    { input: 'build/polyfill.js', output: 'hu.polyfill.js', configureRollup( rollupConfig){
-      rollupConfig.input.context = 'window';
-    }},
-    { input: 'build/polyfill.async.js', output: 'hu.polyfill.async.js' }
-  ]);
   // UMD Minify
   pipe.$each( config => {
     pipe.push(
@@ -65,16 +57,9 @@ configs.push({
     'process.env.NODE_ENV': JSON.stringify( HU_RUNNING_COMMAND === 'build' ? 'production' : 'development' ),
     '__VERSION__': packages.version
   },
-  externals: {
-    '@webcomponents/webcomponentsjs/webcomponents-bundle': {
-      'cjs': null,
-      'esm': null
-    }
-  },
   plugins: ( config ) => [
     pluginFixErrorInFirefox,
-    config._originConfig.output === 'hu.js' && pluginCopyToTest,
-    /\.polyfill\./.test( config.output ) && pluginFixWebcomponentsjs
+    config._originConfig.output === 'hu.js' && pluginCopyToTest
   ],
 
   pipe
