@@ -13,7 +13,7 @@ import directiveFn from '../static/directiveFn/index';
 import use from '../static/use/index';
 
 
-assign( Hu, {
+assign(Hu, {
   define,
   render: staticRender,
   html,
