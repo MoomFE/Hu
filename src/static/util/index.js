@@ -1,20 +1,20 @@
-import addEventListener from "../../shared/util/addEventListener";
-import removeEventListener from "../../shared/util/removeEventListener";
-import each from "../../shared/util/each";
-import create from "../../shared/util/create";
-import toString from "../../shared/util/toString";
-import isPlainObject from "../../shared/util/isPlainObject";
-import isEmptyObject from "../../shared/util/isEmptyObject";
-import isPrimitive from "../../shared/util/isPrimitive";
-import isIterable from "../../shared/util/isIterable";
-import isEqual from "../../shared/util/isEqual";
-import isNotEqual from "../../shared/util/isNotEqual";
-import isString from "../../shared/util/isString";
-import isObject from "../../shared/util/isObject";
-import isFunction from "../../shared/util/isFunction";
-import isSymbol from "../../shared/util/isSymbol";
-import uid from "../../shared/util/uid";
-import { safety } from "../observable/const";
+import addEventListener from '../../shared/util/addEventListener';
+import removeEventListener from '../../shared/util/removeEventListener';
+import each from '../../shared/util/each';
+import create from '../../shared/util/create';
+import toString from '../../shared/util/toString';
+import isPlainObject from '../../shared/util/isPlainObject';
+import isEmptyObject from '../../shared/util/isEmptyObject';
+import isPrimitive from '../../shared/util/isPrimitive';
+import isIterable from '../../shared/util/isIterable';
+import isEqual from '../../shared/util/isEqual';
+import isNotEqual from '../../shared/util/isNotEqual';
+import isString from '../../shared/util/isString';
+import isObject from '../../shared/util/isObject';
+import isFunction from '../../shared/util/isFunction';
+import isSymbol from '../../shared/util/isSymbol';
+import uid from '../../shared/util/uid';
+import { safety } from '../observable/const';
 
 
 export default create({

@@ -1,17 +1,17 @@
-import html from "../../html/html";
-import render from "../../render/index";
-import { apply } from "../../shared/global/Reflect/index";
+import html from '../../html/html';
+import render from '../../render/index';
+import { apply } from '../../shared/global/Reflect/index';
 
 
-export default function staticRender( result, container ){
-  if( arguments.length > 1 ){
-    return render( result, container );
+export default function staticRender(templateResult, container) {
+  if (arguments.length > 1) {
+    return render(templateResult, container);
   }
 
-  container = result;
+  container = templateResult;
 
-  return function(){
-    const result = apply( html, null, arguments );
-    return render( result, container );
-  }
+  return function (...args) {
+    const result = apply(html, null, args);
+    return render(result, container);
+  };
 }
