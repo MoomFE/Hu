@@ -25,18 +25,20 @@
   },
   "homepage": "https://github.com/MoomFE/Hu",
   "scripts": {
-    "build": "node_modules\\.bin\\hu build",
-    "watch": "node_modules\\.bin\\hu watch",
+    "build": "hu build",
+    "watch": "hu watch",
+    "lint": "eslint src",
     "publish-master": "npm run build && npm publish"
   },
   "devDependencies": {
-    "@moomfe/hu-cli": "^1.8.5",
+    "@moomfe/hu-cli": "^1.8.6",
     "@moomfe/zenjs": "^5.0.0-beta.5",
+    "@webcomponents/webcomponentsjs": "^2.4.3",
     "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
     "fs-extra": "^8.0.1",
     "mocha": "^7.1.1"
-  },
-  "dependencies": {
-    "@webcomponents/webcomponentsjs": "^2.4.2"
   }
 }
