@@ -5,7 +5,7 @@ import TextDirective from './directive/text';
 import HtmlDirective from './directive/html';
 import ShowDirective from './directive/show';
 import create from '../shared/util/create';
-import { random } from "../shared/global/Math/index";
+import { random } from '../shared/global/Math/index';
 
 
 /**
@@ -53,15 +53,15 @@ export const userDirectives = create({
  *    * (") then any non-("), or
  *    * (') then any non-(')
  */
-export const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+export const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;// eslint-disable-line no-control-regex
 
 export const boundAttributeSuffix = '$hu$';
 export const boundAttributeSuffixLength = boundAttributeSuffix.length;
 export const boundAttributeSuffixRegex = /\$hu\$/g;
 
-export const marker = `{{hu-${ String( random() ).slice(2) }}}`;
-export const nodeMarker = `<!--${ marker }-->`;
-export const markerRegex = new RegExp(`${ marker }|${ nodeMarker }`);
+export const marker = `{{hu-${String(random()).slice(2)}}}`;
+export const nodeMarker = `<!--${marker}-->`;
+export const markerRegex = new RegExp(`${marker}|${nodeMarker}`);
 
-export const commentMarker = ` ${ marker } `;
-export const commentMarkerRegex = new RegExp( commentMarker, 'g' );
+export const commentMarker = ` ${marker} `;
+export const commentMarkerRegex = new RegExp(commentMarker, 'g');
