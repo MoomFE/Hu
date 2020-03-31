@@ -1,10 +1,9 @@
 
-
-export default ( container, start, end = null, before = null ) => {
-  while( start !== end ){
+export default (container, start, end = null, before = null) => {
+  while (start !== end) {
     const node = start.nextSibling;
 
-    container.insertBefore( start, before );
+    container.insertBefore(start, before);
     start = node;
   }
-}
+};

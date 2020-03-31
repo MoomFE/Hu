@@ -5,13 +5,14 @@ export default
  * @param {Node} startNode
  * @param {Node} endNode
  */
-( container, startNode, endNode = null ) => {
+(container, startNode, endNode = null) => {
   let node = startNode;
 
-  while( node != endNode ){
+  // eslint-disable-next-line eqeqeq
+  while (node != endNode) {
     const next = node.nextSibling;
 
-    container.removeChild( node );
+    container.removeChild(node);
     node = next;
   }
-}
+};

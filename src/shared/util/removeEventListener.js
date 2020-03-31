@@ -12,6 +12,6 @@ export default
  * @param {function} listener
  * @param {boolean|{}} options
  */
-( elem, type, listener, options ) => {
-  removeEventListener.call( elem, type, listener, options );
-}
+(elem, type, listener, options) => {
+  removeEventListener.call(elem, type, listener, options);
+};
