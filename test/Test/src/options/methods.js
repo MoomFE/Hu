@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+
+
 import { expect } from 'chai';
 import Hu from '../../../../src/build/index';
 
