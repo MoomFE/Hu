@@ -355,7 +355,7 @@ describe('Hu.static', () => {
     expect(Hu.util.toString(Symbol.iterator)).is.equals('Symbol(Symbol.iterator)');
     expect(Hu.util.toString(Symbol(123))).is.equals('Symbol(123)');
     expect(true).is.equals(
-      ['function(){}', 'function (){}'].$inArray(
+      ['function(){}', 'function (){}', '() => {}'].$inArray(
         Hu.util.toString(() => {})
       )
     );
