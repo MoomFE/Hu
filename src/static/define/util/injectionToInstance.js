@@ -1,37 +1,36 @@
-import isString from "../../../shared/util/isString";
-import isReserved from "../../../shared/util/isReserved";
-import { has } from "../../../shared/global/Reflect/index";
-import defineProperty from "../../../shared/util/defineProperty";
-import isPrivate from "../../../shared/util/isPrivate";
+import isString from '../../../shared/util/isString';
+import isReserved from '../../../shared/util/isReserved';
+import { has } from '../../../shared/global/Reflect/index';
+import defineProperty from '../../../shared/util/defineProperty';
+import isPrivate from '../../../shared/util/isPrivate';
 
 
 export default
 /**
  * 在实例和自定义元素上建立对象的引用
  */
-( isCustomElement, target, root, key, attributes ) => {
-
+(isCustomElement, target, root, key, attributes) => {
   /** 对象名称是否是字符串 */
-  let keyIsString = isString( key );
+  const keyIsString = isString(key);
 
   // 对象名称首字母如果为 $ 那么则不允许添加到实例中去
-  if( keyIsString && isReserved( key ) ){
+  if (keyIsString && isReserved(key)) {
     return;
   }
   // 实例中有同名变量, 则删除
-  has( target, key ) && delete target[ key ];
+  has(target, key) && delete target[key];
   // 在实例中对变量添加映射
-  defineProperty( target, key, attributes );
+  defineProperty(target, key, attributes);
 
   // 在自定义元素上建立对象的引用
-  if( isCustomElement ){
+  if (isCustomElement) {
     // 对象名称首字母如果为 _ 那么则不允许添加到自定义元素中去
-    if( keyIsString && isPrivate( key ) ){
+    if (keyIsString && isPrivate(key)) {
       return;
     }
     // 自定义元素中有同名变量, 则删除
-    has( root, key ) && delete root[ key ];
+    has(root, key) && delete root[key];
     // 在自定义元素中对变量添加映射
-    defineProperty( root, key, attributes );
+    defineProperty(root, key, attributes);
   }
-}
+};

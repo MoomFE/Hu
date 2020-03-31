@@ -19,12 +19,12 @@ export default function (selectors) {
   if (!isCustomElement && !isMounted) {
     /** 当前实例挂载目标对象 */
     const el = selectors && (
-      isString(selectors) ? document.querySelector(selectors)// eslint-disable-line no-undef
+      isString(selectors) ? document.querySelector(selectors)
         : selectors
     );
 
     // 不允许挂载到 body 和 html 下
-    if (!el || el === document.body || el === document.documentElement) { // eslint-disable-line no-undef
+    if (!el || el === document.body || el === document.documentElement) {
       return this;
     }
     // 将挂载对象保存到实例

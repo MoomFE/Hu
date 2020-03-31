@@ -1,14 +1,12 @@
-import { userDirectives, directives } from "../../html/const";
+import { userDirectives, directives } from '../../html/const';
 
 
-export default function directive( name, directive ){
-
+export default function directive(name, directive) {
   // 获取已注册的指令
-  if( !directive ){
-    return userDirectives[ name ] || directives[ name ];
+  if (!directive) {
+    return userDirectives[name] || directives[name];
   }
 
   // 注册指令
-  userDirectives[ name ] = directive;
-
+  userDirectives[name] = directive;
 }

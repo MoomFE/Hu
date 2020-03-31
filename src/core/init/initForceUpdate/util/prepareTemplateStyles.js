@@ -11,14 +11,11 @@ export default (style, name) => {
 
   styleRendered.add(name);
 
-  // eslint-disable-next-line no-undef
   const root = document.createElement('div');
-  // eslint-disable-next-line no-undef
   const content = document.createElement('div');
 
   root.content = content;
   content.appendChild(style);
 
-  // eslint-disable-next-line no-undef
   window.ShadyCSS.ScopingShim.prepareTemplateStyles(root, name);
 };
