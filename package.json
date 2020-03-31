@@ -31,13 +31,13 @@
     "publish-master": "npm run build && npm publish"
   },
   "devDependencies": {
-    "@moomfe/hu-cli": "^1.8.9",
+    "@moomfe/hu-cli": "^1.8.10",
     "@moomfe/zenjs": "^5.0.0-beta.5",
     "@webcomponents/webcomponentsjs": "^2.4.3",
     "chai": "^4.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-import": "^2.20.2",
     "fs-extra": "^8.0.1",
     "mocha": "^7.1.1"
   }
