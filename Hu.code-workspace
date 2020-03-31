@@ -25,6 +25,7 @@
       ".eslintrc.js": true,
       ".gitignore": true,
       "bin": true,
+      "dist": true,
       "Hu.code-workspace": true,
       "jsconfig.json": true,
       "LICENSE": true,
