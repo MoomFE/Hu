@@ -27,7 +27,7 @@
   "scripts": {
     "build": "hu build",
     "watch": "hu watch",
-    "lint": "eslint src",
+    "lint": "eslint src test/Test/src",
     "publish-master": "npm run build && npm publish"
   },
   "devDependencies": {
