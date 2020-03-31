@@ -5,15 +5,15 @@ import unsafeHTML from './directiveFn/unsafeHTML';
 import bind from './directiveFn/bind';
 
 
-export default function html( strings, ...values ){
-  return new TemplateResult( strings, values, 'html' );
+export default function html(strings, ...values) {
+  return new TemplateResult(strings, values, 'html');
 }
 
-function svg( strings, ...values ){
-  return new SVGTemplateResult( strings, values, 'svg' );
+function svg(strings, ...values) {
+  return new SVGTemplateResult(strings, values, 'svg');
 }
 
-assign( html, {
+assign(html, {
   unsafe: unsafeHTML,
   repeat,
   bind,
