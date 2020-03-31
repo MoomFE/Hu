@@ -8,7 +8,6 @@ module.exports = {
     './node_modules/@moomfe/hu-cli/.eslintrc.js'
   ],
   rules: {
-
+    'import/no-extraneous-dependencies': 'off'
   }
-
 };
