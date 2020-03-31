@@ -9,8 +9,8 @@ export default function () {
   callLifecycle(this, 'beforeDestroy');
 
   // 注销实例所有计算属性和 watch 数据
-  removeComputed(computedMap, this);// eslint-disable-line no-use-before-define
-  removeComputed(watcherMap, this);// eslint-disable-line no-use-before-define
+  removeComputed(computedMap, this);
+  removeComputed(watcherMap, this);
 
   // 注销 render 时创建的指令及指令方法
   destroyRender(this.$el);

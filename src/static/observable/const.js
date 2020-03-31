@@ -7,27 +7,25 @@ export const targetStack = [];
 
 /**
  * 用于 Watcher 的依赖收集
- * @param {*} target 
- * @param {*} fn 
+ * @param {*} target
+ * @param {*} fn
  */
-export function targetCollection( target, fn ){
-  let result;
-
-  targetStack.push( target);
+export function targetCollection(target, fn) {
+  targetStack.push(target);
   targetStack.target = target;
 
-  result = fn();
+  const result = fn();
 
   targetStack.pop();
-  targetStack.target = targetStack[ targetStack.length - 1 ];
+  targetStack.target = targetStack[targetStack.length - 1];
 
   return result;
 }
 
 /**
  * 用于防止方法执行时被依赖收集
- * @param {*} fn 
+ * @param {*} fn
  */
-export function safety( fn ){
-  return targetCollection( 0, fn );
+export function safety(fn) {
+  return targetCollection(0, fn);
 }
