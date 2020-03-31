@@ -1,7 +1,7 @@
-import isFunction from "../../../shared/util/isFunction";
+import isFunction from '../../../shared/util/isFunction';
 
 
-export default function initLifecycle( userOptions, options, mixins, isMixin ){
+export default function initLifecycle(userOptions, options, mixins, isMixin) {
   [
     /**
      * 实例初始化后被调用
@@ -50,19 +50,19 @@ export default function initLifecycle( userOptions, options, mixins, isMixin ){
      *  - 此时实例完全可用
      */
     'disconnected'
-  ].forEach( name => {
-    const lifecycle = userOptions[ name ];
+  ].forEach((name) => {
+    const lifecycle = userOptions[name];
 
-    if( isFunction( lifecycle ) ){
-      const lifecycles = options[ name ] || ( options[ name ] = [] );
+    if (isFunction(lifecycle)) {
+      const lifecycles = options[name] || (options[name] = []);
 
-      lifecycles.splice( 0, 0, lifecycle );
+      lifecycles.splice(0, 0, lifecycle);
     }
   });
 
-  if( !isMixin && mixins ){
-    for( let mixin of mixins ){
-      initLifecycle( mixin, options, null, true );
+  if (!isMixin && mixins) {
+    for (const mixin of mixins) {
+      initLifecycle(mixin, options, null, true);
     }
   }
 }

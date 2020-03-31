@@ -1,17 +1,15 @@
-import isFunction from "../../../shared/util/isFunction";
-import { inBrowser } from "../../../shared/const/env";
+import isFunction from '../../../shared/util/isFunction';
+import { inBrowser } from '../../../shared/const/env';
 
 
-export default function initOther( isCustomElement, userOptions, options, mixins, isMixin ){
-
+export default function initOther(isCustomElement, userOptions, options, mixins, isMixin) {
   const { render } = userOptions;
 
   // 渲染方法
-  options.render = isFunction( render ) ? render : null;
+  options.render = isFunction(render) ? render : null;
 
-  if( inBrowser && !isCustomElement ){
+  if (inBrowser && !isCustomElement) {
     // 挂载目标
-    options.el = userOptions.el || void 0;
+    options.el = userOptions.el || undefined;
   }
-
 }

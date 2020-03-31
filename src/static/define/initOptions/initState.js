@@ -1,14 +1,13 @@
-import each from "../../../shared/util/each";
-import isFunction from "../../../shared/util/isFunction";
-import noop from "../../../shared/util/noop";
-import isPlainObject from "../../../shared/util/isPlainObject";
-import isObject from "../../../shared/util/isObject";
-import isString from "../../../shared/util/isString";
-import { isArray } from "../../../shared/global/Array/index";
+import each from '../../../shared/util/each';
+import isFunction from '../../../shared/util/isFunction';
+import noop from '../../../shared/util/noop';
+import isPlainObject from '../../../shared/util/isPlainObject';
+import isObject from '../../../shared/util/isObject';
+import isString from '../../../shared/util/isString';
+import { isArray } from '../../../shared/global/Array/index';
 
 
-export default function initState( isCustomElement, userOptions, options, mixins, isMixin ){
-
+export default function initState(isCustomElement, userOptions, options, mixins, isMixin) {
   const {
     methods,
     data,
@@ -16,21 +15,21 @@ export default function initState( isCustomElement, userOptions, options, mixins
     watch
   } = userOptions;
 
-  initMethods( methods, options );
-  initData( isCustomElement, data, options );
-  initComputed( computed, options );
-  initWatch( watch, options );
-  initStyles( userOptions.styles, options );
+  initMethods(methods, options);
+  initData(isCustomElement, data, options);
+  initComputed(computed, options);
+  initWatch(watch, options);
+  initStyles(userOptions.styles, options);
 
-  if( !isMixin ){
+  if (!isMixin) {
     // 处理 Mixins
-    if( mixins ){
-      for( let mixin of mixins ){
-        initState( isCustomElement, mixin, options, null, true );
+    if (mixins) {
+      for (const mixin of mixins) {
+        initState(isCustomElement, mixin, options, null, true);
       }
     }
     // 处理自定义元素的样式
-    if( options.styles ){
+    if (options.styles) {
       const style = document.createElement('style');
 
       style.textContent = options.styles.join('');
@@ -40,37 +39,37 @@ export default function initState( isCustomElement, userOptions, options, mixins
 }
 
 
-function initMethods( userMethods, options ){
-  if( userMethods ){
-    const methods = options.methods || ( options.methods = {} );
+function initMethods(userMethods, options) {
+  if (userMethods) {
+    const methods = options.methods || (options.methods = {});
 
-    each( userMethods, ( key, method ) => {
-      if( !methods[ key ] && isFunction( method ) ){
-        methods[ key ] = method;
+    each(userMethods, (key, method) => {
+      if (!methods[key] && isFunction(method)) {
+        methods[key] = method;
       }
     });
   }
 }
 
-function initData( isCustomElement, userData, options ){
-  if( isFunction( userData ) || !isCustomElement && isPlainObject( userData ) ){
-    const dataList = options.dataList || ( options.dataList = [] );
+function initData(isCustomElement, userData, options) {
+  if (isFunction(userData) || (!isCustomElement && isPlainObject(userData))) {
+    const dataList = options.dataList || (options.dataList = []);
 
-    dataList.push( userData );
+    dataList.push(userData);
   }
 }
 
-function initComputed( userComputed, options ){
-  if( userComputed ){
-    const computed = options.computed || ( options.computed = {} );
+function initComputed(userComputeds, options) {
+  if (userComputeds) {
+    const computed = options.computed || (options.computed = {});
 
-    each( userComputed, ( key, userComputed ) => {
-      if( !computed[ key ] && userComputed ){
-        const isFn = isFunction( userComputed );
-        const get = isFn ? userComputed : ( userComputed.get || noop );
-        const set = isFn ? noop : ( userComputed.set || noop );
+    each(userComputeds, (key, userComputed) => {
+      if (!computed[key] && userComputed) {
+        const isFn = isFunction(userComputed);
+        const get = isFn ? userComputed : (userComputed.get || noop);
+        const set = isFn ? noop : (userComputed.set || noop);
 
-        computed[ key ] = {
+        computed[key] = {
           get,
           set
         };
@@ -79,7 +78,7 @@ function initComputed( userComputed, options ){
   }
 }
 
-function initWatch( userWatch, options ){
+function initWatch(userWatch, options) {
   // 保证 watch 始终被初始化
   // 防止其他地方使用 watch 时且在 Firefox 57 版本之前读取到 Object.prototype.watch
   const watches = options.watch || (
@@ -87,22 +86,22 @@ function initWatch( userWatch, options ){
   );
 
   // 同上, 防止用户未定义 watch 时读取到的是 Object.prototype.watch
-  if( isObject( userWatch ) ){
-    each( userWatch, ( key, value ) => {
-      const watch = watches[ key ] || ( watches[ key ] = [] );
+  if (isObject(userWatch)) {
+    each(userWatch, (key, value) => {
+      const watch = watches[key] || (watches[key] = []);
 
-      watch.splice( 0, 0, value );
+      watch.splice(0, 0, value);
     });
   }
 }
 
-function initStyles( userStyles, options ){
-  let stylesIsString = isString( userStyles );
+function initStyles(userStyles, options) {
+  const stylesIsString = isString(userStyles);
 
-  if( stylesIsString || isArray( userStyles ) ){
-    const styles = options.styles || ( options.styles = [] );
+  if (stylesIsString || isArray(userStyles)) {
+    const styles = options.styles || (options.styles = []);
 
-    if( stylesIsString ) styles.splice( 0, 0, userStyles );
-    else styles.splice( 0, 0, ...userStyles );
+    if (stylesIsString) styles.splice(0, 0, userStyles);
+    else styles.splice(0, 0, ...userStyles);
   }
 }
