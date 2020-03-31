@@ -17,8 +17,6 @@ export default {
     let sliceNum = 0;
     /** 属性对应的处理指令 */
     let directive;
-    /** 属性对应的处理指令实例 */
-    let directiveInstance;
     /** 指令前缀 */
     const prefix = name[0];
 
@@ -63,8 +61,8 @@ export default {
       args.splice(1, 1);
     }
 
-    // 实例化指令
-    directiveInstance = new (directive || AttributeCommitter)(...args);
+    /** 属性对应的处理指令实例 */
+    const directiveInstance = new (directive || AttributeCommitter)(...args);
 
     // 单个属性使用了多个插值绑定的情况下
     // 需要返回多个指令类

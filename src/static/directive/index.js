@@ -1,7 +1,7 @@
 import { userDirectives, directives } from '../../html/const';
 
 
-export default function directive(name, directive) {
+export default function (name, directive) {
   // 获取已注册的指令
   if (!directive) {
     return userDirectives[name] || directives[name];

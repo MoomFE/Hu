@@ -30,6 +30,7 @@ export default function initProps(userOptions, options, mixins, isMixin) {
     for (const name of userProps) {
       props[name] = props[name] || initProp(name, null);
     }
+    // eslint-disable-next-line brace-style
   }
   // 格式化 JSON 参数
   else if (isPlainObject(userProps)) {
@@ -83,6 +84,7 @@ function initProp(name, prop) {
     // 单纯设置变量类型
     if (isFunction(prop)) {
       options.from = prop;
+      // eslint-disable-next-line brace-style
     }
     // 高级用法
     else {
@@ -106,7 +108,7 @@ function initPropAttribute(name, prop, options) {
   // 当前 prop 是否是 Symbol 类型的
   options.isSymbol = isSymbol(name);
   // 当前 prop 的取值 attribute
-  options.attr = prop && prop.attr || (
+  options.attr = (prop && prop.attr) || (
     options.isSymbol
       // 没有定义 attr 名称且是 symbol 类型的 attr 名称, 则不设置 attr 名称
       ? null
@@ -125,6 +127,7 @@ function initPropType(prop, options) {
     // String || Number || Boolean || function( value ){ return value };
     if (isFunction(type)) {
       options.from = type;
+      // eslint-disable-next-line brace-style
     }
     // {
     //   from(){}

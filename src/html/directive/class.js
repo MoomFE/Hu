@@ -42,6 +42,7 @@ export default class ClassDirective {
       each(classes, (name) => {
         has(oldClasses, name) || classList.add(name);
       });
+      // eslint-disable-next-line brace-style
     }
     // 首次运行
     else {
