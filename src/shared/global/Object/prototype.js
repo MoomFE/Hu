@@ -1,4 +1,4 @@
-import { prototype } from "./index";
+import { prototype } from './index';
 
 
 export const {

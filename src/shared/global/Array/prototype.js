@@ -1,7 +1,7 @@
-import { prototype } from "./index";
+import { prototype } from './index';
 
 
 export const {
   filter,
   slice
-} = prototype
+} = prototype;

@@ -1,4 +1,4 @@
-import { freeze } from "../global/Object/index";
+import { freeze } from '../global/Object/index';
 
 
 export default freeze({});

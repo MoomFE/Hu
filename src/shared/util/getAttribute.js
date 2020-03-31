@@ -4,6 +4,6 @@ export default
  * @param {Element} elem
  * @param {string} attr
  */
-( elem, attr ) => {
-  return elem.getAttribute( attr );
-}
+(elem, attr) => {
+  return elem.getAttribute(attr);
+};

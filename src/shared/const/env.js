@@ -1,33 +1,27 @@
-import { defineProperty } from "../global/Reflect/index";
+import { defineProperty } from '../global/Reflect/index';
 
 
 export const inBrowser = typeof window !== 'undefined';
 export const UA = inBrowser && window.navigator.userAgent.toLowerCase();
-export const isIOS = UA && /iphone|ipad|ipod|ios/.test( UA );
+export const isIOS = UA && /iphone|ipad|ipod|ios/.test(UA);
 // export const isFirefox = UA && UA.indexOf('firefox') > -1;
 
 
-export let supportsPassive = false;
+export let supportsPassive = false; // eslint-disable-line import/no-mutable-exports
 
-try{
-
+try {
   const options = {};
 
-  defineProperty( options, 'passive', {
+  defineProperty(options, 'passive', {
     get: () => {
-      return supportsPassive = true;
+      return (supportsPassive = true);
     }
   });
 
-  window.addEventListener( 'test-passive', null, options );
-
-}catch(e){}
+  window.addEventListener('test-passive', null, options);
+} catch (e) {} // eslint-disable-line no-empty
 
 
 export const hasShadyCss = inBrowser
-                        && window.ShadyCSS !== void 0
+                        && window.ShadyCSS !== undefined
                         && !window.ShadyCSS.nativeShadow;
-
-// export const isCEPolyfill = inBrowser
-//                          && window.customElements !== void 0
-//                          && window.customElements.polyfillWrapFlushCallback !== void 0;
