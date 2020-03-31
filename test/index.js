@@ -13932,7 +13932,7 @@
     });
   });
 
-  /* eslint-disable no-unused-expressions */
+  /* eslint-disable symbol-description */
 
 
   describe('Hu.static.directive', () => {
@@ -14171,6 +14171,25 @@
       chai.expect(result).is.deep.equals([directiveFn, true]);
     });
 
+    it('Hu.directive: 注册的指令可以定义 destroy 接收指令被注销事件', () => {
+      let index = 0;
+
+      Hu.directive('test', class {
+        commit() {}
+
+        destroy() {
+          index++;
+        }
+      });
+
+      render(div)`
+      <div :test=${'test'}></div>
+    `;
+      chai.expect(index).is.equals(0);
+      render(null, div);
+      chai.expect(index).is.equals(1);
+    });
+
     it('Hu.directive: 注册的指令只能在 DOM 元素上使用', () => {
       let result;
 
@@ -14196,302 +14215,213 @@
       chai.expect(result).is.equals(2);
     });
 
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 切换模板 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
+    it('------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------ ------');
 
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
+    it('Hu.directive: 指令在被弃用时会触发 destroy 方法 ( 切换模板 )', () => {
+      let destroyIndex = 0;
 
+      Hu.directive('test', class {
+        commit() {}
 
-    //   Hu.render( div )`
-    //     <div :test=${ null }></div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div></div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-
-    //   Hu.render( div )`
-    //     <div :test=${ null }></div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div></div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 切换数组内的模板 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
+        destroy() {
+          destroyIndex++;
+        }
+      });
 
 
-    //   Hu.render( div )`${
-    //     [ 1, 2, 3 ].map(( num, index ) => {
-    //       return Hu.html`<div :test=${ null }></div>`;
-    //     })
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 3 );
-    //   expect( commitIndex ).is.equals( 3 );
-    //   expect( destroyIndex ).is.equals( 0 );
+      render(div)`
+      <div :test=${null}></div>
+    `;
+      chai.expect(destroyIndex).is.equals(0);
 
-    //   Hu.render( div )`${
-    //     [ 1, 2, 3 ].map(( num, index ) => {
-    //       return Hu.html`<div></div>`;
-    //     })
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 3 );
-    //   expect( commitIndex ).is.equals( 3 );
-    //   expect( destroyIndex ).is.equals( 3 );
+      render(div)`
+      <div></div>
+    `;
+      chai.expect(destroyIndex).is.equals(1);
 
-    //   // ------
+      // --
 
-    //   Hu.render( div )`${
-    //     [ 1, 2, 3 ].map(( num, index ) => {
-    //       return Hu.html`<div :test=${ null }></div>`;
-    //     })
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 6 );
-    //   expect( commitIndex ).is.equals( 6 );
-    //   expect( destroyIndex ).is.equals( 3 );
+      render(div)`
+      <div :test=${null}></div>
+    `;
+      chai.expect(destroyIndex).is.equals(1);
 
-    //   Hu.render( div )`${
-    //     [ 1, 2, 3 ].map(( num, index ) => {
-    //       return Hu.html`<div></div>`;
-    //     })
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 6 );
-    //   expect( commitIndex ).is.equals( 6 );
-    //   expect( destroyIndex ).is.equals( 6 );
-    // });
+      render(div)`
+      <div></div>
+    `;
+      chai.expect(destroyIndex).is.equals(2);
+    });
 
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 切换数组的数量 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
+    it('Hu.directive: 指令在被弃用时会触发 destroy 方法 ( 切换数组内的模板 )', () => {
+      let destroyIndex = 0;
 
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
+      Hu.directive('test', class {
+        commit() {}
+
+        destroy() {
+          destroyIndex++;
+        }
+      });
 
 
-    //   Hu.render( div )`${
-    //     [ 1, 2, 3 ].map(( num, index ) => {
-    //       return Hu.html`<div :test=${ null }></div>`;
-    //     })
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 3 );
-    //   expect( commitIndex ).is.equals( 3 );
-    //   expect( destroyIndex ).is.equals( 0 );
+      render(div)`${
+      [1, 2, 3].map(() => {
+        return html`<div :test=${null}></div>`;
+      })
+    }`;
+      chai.expect(destroyIndex).is.equals(0);
 
-    //   Hu.render( div )`${
-    //     [ 1, 2, 3, 4, 5, 6 ].map(( num, index ) => {
-    //       return Hu.html`<div :test=${ null }></div>`;
-    //     })
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 6 );
-    //   expect( commitIndex ).is.equals( 9 );
-    //   expect( destroyIndex ).is.equals( 0 );
+      render(div)`
+      <div></div>
+    `;
+      chai.expect(destroyIndex).is.equals(3);
 
-    //   Hu.render( div )`${
-    //     [ 1, 2 ].map(( num, index ) => {
-    //       return Hu.html`<div :test=${ null }></div>`;
-    //     })
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 6 );
-    //   expect( commitIndex ).is.equals( 11 );
-    //   expect( destroyIndex ).is.equals( 4 );
+      // --
 
-    //   Hu.render( div )`${
-    //     null
-    //   }`;
-    //   expect( constructorIndex ).is.equals( 6 );
-    //   expect( commitIndex ).is.equals( 11 );
-    //   expect( destroyIndex ).is.equals( 6 );
-    // });
+      render(div)`${
+      [1, 2, 3].map(() => {
+        return html`<div :test=${null}></div>`;
+      })
+    }`;
+      chai.expect(destroyIndex).is.equals(3);
 
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
+      render(div)`
+      <div></div>
+    `;
+      chai.expect(destroyIndex).is.equals(6);
+    });
 
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
+    it('Hu.directive: 指令在被弃用时会触发 destroy 方法 ( 切换数组内的模板 )', () => {
+      let destroyIndex = 0;
+
+      Hu.directive('test', class {
+        commit() {}
+
+        destroy() {
+          destroyIndex++;
+        }
+      });
 
 
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
+      render(div)`${
+      [1, 2, 3].map(() => {
+        return html`<div :test=${null}></div>`;
+      })
+    }`;
+      chai.expect(destroyIndex).is.equals(0);
 
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
+      render(div)`${
+      [1, 2, 3, 4, 5, 6, 7].map(() => {
+        return html`<div :test=${null}></div>`;
+      })
+    }`;
+      chai.expect(destroyIndex).is.equals(0);
 
-    //   // ------
+      // --
 
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
+      render(div)`${
+      [1, 2, 3].map(() => {
+        return html`<div :test=${null}></div>`;
+      })
+    }`;
+      chai.expect(destroyIndex).is.equals(4);
 
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
+      render(div)`
+      <div></div>
+    `;
+      chai.expect(destroyIndex).is.equals(7);
+    });
 
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板切换为原始对象 )', ( done ) => {
-    //   const types = [
-    //     undefined, null, NaN, Infinity,
-    //     'undefined', 'null', 'asd', '',
-    //     true, false,
-    //     0, 1, 2,
-    //     Symbol(), Symbol.iterator, Symbol(123)
-    //   ];
-    //   const promises = [];
+    it('Hu.directive: 指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板 )', () => {
+      let destroyIndex = 0;
 
-    //   for( let index = 0, types1 = Array.$copy( types ); index < types1.length - 1; index++ ) promises.push(
-    //     new Promise( resolve => {
-    //       let constructorIndex = 0;
-    //       let commitIndex = 0;
-    //       let destroyIndex = 0;
+      Hu.directive('test', class {
+        commit() {}
 
-    //       Hu.directive( 'test', class {
-    //         constructor(){ constructorIndex++ }
-    //         commit(){ commitIndex++ }
-    //         destroy(){ destroyIndex++ }
-    //       });
+        destroy() {
+          destroyIndex++;
+        }
+      });
 
 
-    //       Hu.render( div )`
-    //         <div>${
-    //           Hu.html`<div :test=${ null }></div>`
-    //         }</div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 0 );
+      render(div)`${
+      html`<div :test=${null}></div>`
+    }`;
+      chai.expect(destroyIndex).is.equals(0);
 
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ types1[ index ] }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 1 );
+      render(div)`${
+      html`<div></div>`
+    }`;
+      chai.expect(destroyIndex).is.equals(1);
 
-    //       // ------
+      // --
 
-    //       Hu.render( div )`
-    //         <div>${
-    //           Hu.html`<div :test=${ null }></div>`
-    //         }</div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 2 );
-    //       expect( commitIndex ).is.equals( 2 );
-    //       expect( destroyIndex ).is.equals( 1 );
+      render(div)`${
+      html`<div :test=${null}></div>`
+    }`;
+      chai.expect(destroyIndex).is.equals(1);
 
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ types1[ index ] }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 2 );
-    //       expect( commitIndex ).is.equals( 2 );
-    //       expect( destroyIndex ).is.equals( 2 );
+      render(div)`${
+      html`<div></div>`
+    }`;
+      chai.expect(destroyIndex).is.equals(2);
+    });
 
-    //       resolve();
-    //     })
-    //   );
+    it('Hu.directive: 指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板 <-> 基本类型 )', () => {
+      const types = [
+        'undefined', 'null', 'Hu', '',
+        Number.MIN_SAFE_INTEGER, -1, 0, 1, Number.MAX_VALUE,
+        true, false,
+        undefined, null,
+        Symbol(), Symbol.iterator, Symbol(123)
+      ];
 
-    //   for( let index = 0, types1 = Array.$copy( types ).reverse(); index < types1.length - 1; index++ ) promises.push(
-    //     new Promise( resolve => {
-    //       let constructorIndex = 0;
-    //       let commitIndex = 0;
-    //       let destroyIndex = 0;
+      if (typeof BigInt === 'function') {
+        types.push(
+          BigInt(Number.MIN_SAFE_INTEGER), // eslint-disable-line no-undef
+          BigInt(-1), // eslint-disable-line no-undef
+          BigInt(0), // eslint-disable-line no-undef
+          BigInt(1), // eslint-disable-line no-undef
+          BigInt(Number.MAX_VALUE) // eslint-disable-line no-undef
+        );
+      }
 
-    //       Hu.directive( 'test', class {
-    //         constructor(){ constructorIndex++ }
-    //         commit(){ commitIndex++ }
-    //         destroy(){ destroyIndex++ }
-    //       });
+      for (let index = 0; index < types.length; index++) {
+        let destroyIndex = 0;
 
+        Hu.directive('test', class {
+          commit() {}
 
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ Hu.html`<div :test=${ null }></div>` }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 0 );
+          destroy() {
+            destroyIndex++;
+          }
+        });
 
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ types1[ index ] }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 1 );
+        chai.expect(destroyIndex).is.equals(0);
 
-    //       resolve();
-    //     })
-    //   );
+        render(div)`${
+        html`<div :test=${null}></div>`
+      }`;
+        chai.expect(destroyIndex).is.equals(0);
 
-    //   Promise.all( promises ).then(() => {
-    //     done();
-    //   });
-    // });
+        render(div)`${
+        types[index]
+      }`;
+        chai.expect(destroyIndex).is.equals(1);
+
+        // ---
+
+        render(div)`${
+        html`<div :test=${null}></div>`
+      }`;
+        chai.expect(destroyIndex).is.equals(1);
+
+        render(div)`${
+        types[index]
+      }`;
+        chai.expect(destroyIndex).is.equals(2);
+      }
+    });
 
     // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板切换为数组 )', () => {
     //   let constructorIndex = 0;
