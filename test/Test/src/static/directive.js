@@ -1,265 +1,272 @@
-import Hu from '../../../../src/build/index';
+/* eslint-disable no-unused-expressions */
+/* eslint-disable max-classes-per-file */
+
+
 import { expect } from 'chai';
+import Hu from '../../../../src/build/index';
 import { userDirectives } from '../../../../src/html/const';
 import { ownKeys, deleteProperty } from '../../../../src/shared/global/Reflect/index';
 
 
-describe( 'Hu.static.directive', () => {
-
+describe('Hu.static.directive', () => {
   const render = Hu.render;
   const html = Hu.html;
 
   /** @type {Element} */
   let div;
   beforeEach(() => {
-    div = document.createElement('div').$appendTo( document.body );
+    div = document.createElement('div').$appendTo(document.body);
   });
   afterEach(() => {
     div.$remove();
-    ownKeys( userDirectives ).forEach( key => {
-      deleteProperty( userDirectives, key )
-    })
+    ownKeys(userDirectives).forEach((key) => {
+      deleteProperty(userDirectives, key);
+    });
   });
 
-  it( 'Hu.directive: 使用该方法可用于注册自定义指令', () => {
-    Hu.directive( 'html', class {
-      constructor( element, strings, modifires ){
-        this.elm = element
+  it('Hu.directive: 使用该方法可用于注册自定义指令', () => {
+    Hu.directive('html', class {
+      constructor(element, strings, modifires) {
+        this.elm = element;
       }
-      commit( value ){
-        this.elm.innerHTML = value
+
+      commit(value) {
+        this.elm.innerHTML = value;
       }
     });
 
-    render( div )`
-      <div :html=${ 123 }></div>
+    render(div)`
+      <div :html=${123}></div>
     `;
-    expect( div.firstElementChild.innerHTML ).is.equals('123');
+    expect(div.firstElementChild.innerHTML).is.equals('123');
   });
 
-  it( 'Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第一个参数为绑定了指令的 DOM 元素', () => {
+  it('Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第一个参数为绑定了指令的 DOM 元素', () => {
     let result;
 
-    Hu.directive( 'test', class {
-      constructor ( element ){
+    Hu.directive('test', class {
+      constructor(element) {
         result = element;
       }
-      commit(){}
+
+      commit() {}
     });
 
-    render( div )`
-      <div :test=${ 0 }></div>
+    render(div)`
+      <div :test=${0}></div>
     `;
-    expect( result ).is.equals( div.firstElementChild ).includes({
+    expect(result).is.equals(div.firstElementChild).includes({
       nodeName: 'DIV'
     });
 
-    render( div )`
-      <span :test=${ 0 }></span>
+    render(div)`
+      <span :test=${0}></span>
     `;
-    expect( result ).is.equals( div.firstElementChild ).includes({
+    expect(result).is.equals(div.firstElementChild).includes({
       nodeName: 'SPAN'
     });
 
-    render( div )`
-      <b :test=${ 0 }></b>
+    render(div)`
+      <b :test=${0}></b>
     `;
-    expect( result ).is.equals( div.firstElementChild ).includes({
+    expect(result).is.equals(div.firstElementChild).includes({
       nodeName: 'B'
     });
   });
 
-  it( 'Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第二个参数为使用指令时除了插值绑定的其他部分', () => {
+  it('Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第二个参数为使用指令时除了插值绑定的其他部分', () => {
     let result;
 
-    Hu.directive( 'test', class {
-      constructor ( element, strings ){
+    Hu.directive('test', class {
+      constructor(element, strings) {
         result = strings;
       }
-      commit(){}
+
+      commit() {}
     });
 
-    render( div )`
-      <div :test=${ 'Hu' }></div>
+    render(div)`
+      <div :test=${'Hu'}></div>
     `;
-    expect( result ).is.deep.equals([ '', '' ]);
+    expect(result).is.deep.equals(['', '']);
 
-    render( div )`
-      <div :test="${ 'Hu' }"></div>
+    render(div)`
+      <div :test="${'Hu'}"></div>
     `;
-    expect( result ).is.deep.equals([ '', '' ]);
+    expect(result).is.deep.equals(['', '']);
 
-    render( div )`
-      <span :test="I am ${ 'Hu' }.js"></span>
+    render(div)`
+      <span :test="I am ${'Hu'}.js"></span>
     `;
-    expect( result ).is.deep.equals([ 'I am ', '.js' ]);
+    expect(result).is.deep.equals(['I am ', '.js']);
 
-    render( div )`
-      <span :test="${ 'I' } am ${ 'Hu' }.js"></span>
+    render(div)`
+      <span :test="${'I'} am ${'Hu'}.js"></span>
     `;
-    expect( result ).is.deep.equals([ '', ' am ', '.js' ]);
+    expect(result).is.deep.equals(['', ' am ', '.js']);
 
-    render( div )`
-      <span :test="${ 'I' } am ${ 'Hu' }.${ 'js' }"></span>
+    render(div)`
+      <span :test="${'I'} am ${'Hu'}.${'js'}"></span>
     `;
-    expect( result ).is.deep.equals([ '', ' am ', '.', '' ]);
+    expect(result).is.deep.equals(['', ' am ', '.', '']);
   });
 
-  it( 'Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第二个参数为使用指令时除了插值绑定的其他部分', () => {
+  it('Hu.directive: 注册的指令可以定义 constructor 接收指令使用时的相关参数, 第二个参数为使用指令时除了插值绑定的其他部分', () => {
     let result;
 
-    Hu.directive( 'test', class {
-      constructor ( element, strings, modifires ){
+    Hu.directive('test', class {
+      constructor(element, strings, modifires) {
         result = modifires;
       }
-      commit(){}
+
+      commit() {}
     });
 
-    render( div )`
-      <div :test=${ 'Hu' }></div>
+    render(div)`
+      <div :test=${'Hu'}></div>
     `;
-    expect( result ).is.deep.equals({});
+    expect(result).is.deep.equals({});
 
-    render( div )`
-      <div :test.a=${ 'Hu' }></div>
+    render(div)`
+      <div :test.a=${'Hu'}></div>
     `;
-    expect( result ).is.deep.equals({
+    expect(result).is.deep.equals({
       a: true
     });
 
-    render( div )`
-      <div :test.a.b=${ 'Hu' }></div>
+    render(div)`
+      <div :test.a.b=${'Hu'}></div>
     `;
-    expect( result ).is.deep.equals({
+    expect(result).is.deep.equals({
       a: true,
       b: true
     });
 
-    render( div )`
-      <div :test.a.b.c=${ 'Hu' }></div>
+    render(div)`
+      <div :test.a.b.c=${'Hu'}></div>
     `;
-    expect( result ).is.deep.equals({
+    expect(result).is.deep.equals({
       a: true,
       b: true,
       c: true
     });
   });
 
-  it( 'Hu.directive: 注册的指令可以定义 commit 接收用户传递的值, 第一个参数为传递进来的值', () => {
+  it('Hu.directive: 注册的指令可以定义 commit 接收用户传递的值, 第一个参数为传递进来的值', () => {
     let result;
 
-    Hu.directive( 'test', class {
-      commit( value ){
+    Hu.directive('test', class {
+      commit(value) {
         result = value;
       }
     });
 
-    render( div )`
-      <div :test=${ 1 }></div>
+    render(div)`
+      <div :test=${1}></div>
     `;
-    expect( result ).is.equals( 1 );
+    expect(result).is.equals(1);
 
-    render( div )`
-      <div :test=${ '2' }></div>
+    render(div)`
+      <div :test=${'2'}></div>
     `;
-    expect( result ).is.equals( '2' );
+    expect(result).is.equals('2');
 
-    render( div )`
-      <div :test=${ true }></div>
+    render(div)`
+      <div :test=${true}></div>
     `;
-    expect( result ).is.equals( true );
+    expect(result).is.equals(true);
 
-    render( div )`
-      <div :test=${ false }></div>
+    render(div)`
+      <div :test=${false}></div>
     `;
-    expect( result ).is.equals( false );
+    expect(result).is.equals(false);
 
-    render( div )`
-      <div :test=${ [] }></div>
+    render(div)`
+      <div :test=${[]}></div>
     `;
-    expect( result ).is.deep.equals( [] );
+    expect(result).is.deep.equals([]);
 
-    render( div )`
-      <div :test=${ {} }></div>
+    render(div)`
+      <div :test=${{}}></div>
     `;
-    expect( result ).is.deep.equals( {} );
+    expect(result).is.deep.equals({});
   });
 
-  it( 'Hu.directive: 注册的指令可以定义 commit 接收用户传递的值, 第二个参数用于判断用户传递的值是否是指令方法', () => {
+  it('Hu.directive: 注册的指令可以定义 commit 接收用户传递的值, 第二个参数用于判断用户传递的值是否是指令方法', () => {
     let result;
     let directiveFn;
     let fn;
 
-    Hu.directive( 'test', class {
-      commit( value, isDirectiveFn ){
-        result = [ value, isDirectiveFn ];
+    Hu.directive('test', class {
+      commit(value, isDirectiveFn) {
+        result = [value, isDirectiveFn];
       }
     });
 
-    render( div )`
-      <div :test=${ 1 }></div>
+    render(div)`
+      <div :test=${1}></div>
     `;
-    expect( result ).is.deep.equals([ 1, false ]);
+    expect(result).is.deep.equals([1, false]);
 
-    render( div )`
-      <div :test=${ '2' }></div>
+    render(div)`
+      <div :test=${'2'}></div>
     `;
-    expect( result ).is.deep.equals([ '2', false ]);
+    expect(result).is.deep.equals(['2', false]);
 
-    render( div )`
-      <div :test=${ true }></div>
+    render(div)`
+      <div :test=${true}></div>
     `;
-    expect( result ).is.deep.equals([ true, false ]);
+    expect(result).is.deep.equals([true, false]);
 
-    render( div )`
-      <div :test=${ false }></div>
+    render(div)`
+      <div :test=${false}></div>
     `;
-    expect( result ).is.deep.equals([ false, false ]);
+    expect(result).is.deep.equals([false, false]);
 
-    render( div )`
-      <div :test=${ [] }></div>
+    render(div)`
+      <div :test=${[]}></div>
     `;
-    expect( result ).is.deep.equals([ [], false ]);
+    expect(result).is.deep.equals([[], false]);
 
-    render( div )`
-      <div :test=${ {} }></div>
+    render(div)`
+      <div :test=${{}}></div>
     `;
-    expect( result ).is.deep.equals([ {}, false ]);
+    expect(result).is.deep.equals([{}, false]);
 
-    render( div )`
-      <div :test=${ fn = () => {} }></div>
+    render(div)`
+      <div :test=${fn = () => {}}></div>
     `;
-    expect( result ).is.deep.equals([ fn, false ]);
+    expect(result).is.deep.equals([fn, false]);
 
-    render( div )`
-      <div :test=${ directiveFn = html.unsafe('') }></div>
+    render(div)`
+      <div :test=${directiveFn = html.unsafe('')}></div>
     `;
-    expect( result ).is.deep.equals([ directiveFn, true ]);
+    expect(result).is.deep.equals([directiveFn, true]);
   });
 
-  it( 'Hu.directive: 注册的指令只能在 DOM 元素上使用', () => {
+  it('Hu.directive: 注册的指令只能在 DOM 元素上使用', () => {
     let result;
 
-    Hu.directive( 'test', class {
-      commit( value ){
+    Hu.directive('test', class {
+      commit(value) {
         result = value;
       }
     });
 
-    render( div )`
-      <div :test=${ 1 }></div>
+    render(div)`
+      <div :test=${1}></div>
     `;
-    expect( result ).is.equals( 1 );
+    expect(result).is.equals(1);
 
-    render( div )`
-      <div :test=${ 2 }></div>
+    render(div)`
+      <div :test=${2}></div>
     `;
-    expect( result ).is.equals( 2 );
+    expect(result).is.equals(2);
 
-    render( div )`
-      <div>:test=${ 3 }</div>
+    render(div)`
+      <div>:test=${3}</div>
     `;
-    expect( result ).is.equals( 2 );
+    expect(result).is.equals(2);
   });
 
   // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 切换模板 )', () => {
@@ -1071,5 +1078,4 @@ describe( 'Hu.static.directive', () => {
   //   expect( commitIndex ).is.equals( 2 );
   //   expect( destroyIndex ).is.equals( 2 );
   // });
-
 });

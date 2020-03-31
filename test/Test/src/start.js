@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import Hu from '../../../src/build/index';
 
 
@@ -7,13 +8,13 @@ window.Hu = Hu;
 
 // ------
 
-Reflect.defineProperty( window, 'customName', {
-  get: () => `custom-element-${ ZenJS.guid }`
+Reflect.defineProperty(window, 'customName', {
+  get: () => `custom-element-${ZenJS.guid}`
 });
 
 // ------
 
-window.triggerEvent = function( target, type, process ){
+window.triggerEvent = function (target, type, process) {
   /**
    * 创建事件对象
    */
@@ -22,30 +23,30 @@ window.triggerEvent = function( target, type, process ){
   // 如果想设置 initEvent 方法的 bubbles, cancelable 参数
   // 可以将 type 替换为数组
   // 数组内依次是 type, bubbles, cancelable
-  if( !Array.isArray( type ) ){
-    type = [ type, true, true ];
+  if (!Array.isArray(type)) {
+    type = [type, true, true];
   }
 
   // 初始化事件对象
-  event.initEvent( ...type );
+  event.initEvent(...type);
 
   // 可传入方法对事件对象做其它处理
-  if( process ) process( event, target );
+  if (process) process(event, target);
 
   // 触发事件
-  target.dispatchEvent( event );
+  target.dispatchEvent(event);
 };
 
 // ------
 
-window.stripExpressionMarkers = html => {
-  return html.replace( /<!---->/g, '' );
-}
+window.stripExpressionMarkers = (html) => {
+  return html.replace(/<!---->/g, '');
+};
 
 // ------
 
 {
-  const templateResult = Hu.html`<!--${ null }-->`;
+  const templateResult = Hu.html`<!--${null}-->`;
   const template = templateResult.getTemplateElement();
 
   window.templateMarker = template.content.firstChild.data.trim();
@@ -56,22 +57,22 @@ window.stripExpressionMarkers = html => {
 {
   const error = console.error;
 
-  window.watchError = function( fn, msg ){
+  window.watchError = function (fn, msg) {
     const msgs = [];
 
-    console.error = msg => {
-      msgs.push( msg );
+    // eslint-disable-next-line no-shadow
+    console.error = (msg) => {
+      msgs.push(msg);
     };
 
     fn();
 
     console.error = error;
 
-    if( Array.isArray( msg ) ){
-      return expect( msgs ).is.deep.equals( msg );
-    }else{
-      return expect( msgs[0] ).is.equals( msg );
+    if (Array.isArray(msg)) {
+      return expect(msgs).is.deep.equals(msg);
     }
+    return expect(msgs[0]).is.equals(msg);
   };
 }
 
@@ -81,13 +82,14 @@ window.stripExpressionMarkers = html => {
   let supportsForInTriggerProxyOwnKeys = false;
 
   const proxyObj = new Proxy({}, {
-    ownKeys(){
+    ownKeys() {
       supportsForInTriggerProxyOwnKeys = true;
       return [];
     }
   });
 
-  for( let item in proxyObj );
+  // eslint-disable-next-line no-unused-vars
+  for (const item in proxyObj);
 
   window.supportsForInTriggerProxyOwnKeys = supportsForInTriggerProxyOwnKeys;
 }

@@ -1,6 +1,6 @@
+/* global stripExpressionMarkers, Vue */
 /* eslint-disable prefer-rest-params */
 /* eslint-disable no-new */
-/* global stripExpressionMarkers, Vue */
 /* eslint-disable no-unused-expressions */
 
 
