@@ -1,12 +1,14 @@
-import templateProcessor from "./templateProcessor";
-import NodePart from "./node";
-import commitPart from "../util/commitPart";
-import destroyPart from "../util/destroyPart";
+/* eslint-disable import/no-cycle */
 
 
-export default class TemplateInstance{
+import templateProcessor from './templateProcessor';
+import NodePart from './node';
+import commitPart from '../util/commitPart';
+import destroyPart from '../util/destroyPart';
 
-  constructor( template ){
+
+export default class TemplateInstance {
+  constructor(template) {
     this.parts = [];
     this.template = template;
   }
@@ -14,12 +16,12 @@ export default class TemplateInstance{
   /**
    * 更新模板片段中插值绑定中的值
    */
-  update( values ){
+  update(values) {
     let index = 0;
 
-    this.parts.forEach( part => {
-      if( part ){
-        commitPart( part, values[ index ] );
+    this.parts.forEach((part) => {
+      if (part) {
+        commitPart(part, values[index]);
       }
       index++;
     });
@@ -28,33 +30,33 @@ export default class TemplateInstance{
   /**
    * 初始化模板片段
    */
-  init(){
+  init() {
     const template = this.template;
     const templateParts = template.parts;
     const templatePartsLength = templateParts.length;
     const templateContent = template.element.content;
-    const fragment = document.importNode( templateContent, true );
-    const walker = document.createTreeWalker( fragment, 133, null, false );
+    const fragment = document.importNode(templateContent, true);
+    const walker = document.createTreeWalker(fragment, 133, null, false);
     const templateStack = [];
     let partIndex = 0;
     let nodeIndex = 0;
     let node = walker.nextNode();
 
     // 遍历模板上的所有插值绑定
-    while( partIndex < templatePartsLength ){
+    while (partIndex < templatePartsLength) {
       /** 插值绑定参数 */
-      let part = templateParts[ partIndex ];
+      const part = templateParts[partIndex];
 
       // 注释节点中的插值绑定将被忽略
-      if( part.index === -1 ){
-        this.parts.push( void 0 );
+      if (part.index === -1) {
+        this.parts.push(undefined);
         partIndex++;
         continue;
       }
 
       // 如果插值绑定的目标节点 index 小于当前节点 index
       // 那么使用循环快速定位到目标节点
-      while( nodeIndex < part.index ){
+      while (nodeIndex < part.index) {
         nodeIndex++;
 
         // 当前解析的节点是 template 元素
@@ -62,8 +64,8 @@ export default class TemplateInstance{
         // 所以将当前节点保存到堆栈, 然后手动将当前节点重定向至 template 的内容根节点, 开始解析 template 元素的子节点
         // 如果在当前 template 元素的子节点中又遇到了新的 template 元素, 那么重复上述两个操作
         // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
-        if( node.nodeName === 'TEMPLATE' ){
-          templateStack.push( node );
+        if (node.nodeName === 'TEMPLATE') {
+          templateStack.push(node);
           walker.currentNode = node.content;
         }
 
@@ -71,7 +73,7 @@ export default class TemplateInstance{
 
         // 当前解析的节点是 template 元素的子节点
         // 如果 template 元素的子节点解析完成后, 会从堆栈中取出最后解析的 template 元素, 然后继续解析下面的内容
-        if( node === null ){
+        if (node === null) {
           walker.currentNode = templateStack.pop();
           node = walker.nextNode();
         }
@@ -79,16 +81,17 @@ export default class TemplateInstance{
 
       // 如果是文本区域的插值绑定
       // 创建 NodePart 对当前插值绑定进行管理
-      if( part.type === 'node' ){
-        const part = new NodePart();
-              part.insertAfterNode( node.previousSibling );
-        this.parts.push( part );
+      if (part.type === 'node') {
+        const part = new NodePart(); // eslint-disable-line no-shadow
+        part.insertAfterNode(node.previousSibling);
+        this.parts.push(part);
+        // eslint-disable-next-line brace-style
       }
       // 如果不是文本区域的插值绑定, 那么就是元素属性的插值绑定
       // 使用元素属性处理方法判断该如何处理当前插值绑定
-      else{
+      else {
         this.parts.push(
-          ...templateProcessor.attr( node, part.name, part.strings )
+          ...templateProcessor.attr(node, part.name, part.strings)
         );
       }
 
@@ -101,12 +104,11 @@ export default class TemplateInstance{
   /**
    * 注销模板片段
    */
-  destroy(){
-    this.parts.forEach( part => {
-      if( part ){
-        destroyPart( part );
+  destroy() {
+    this.parts.forEach((part) => {
+      if (part) {
+        destroyPart(part);
       }
     });
   }
-
 }
