@@ -1,15 +1,15 @@
-import HuConstructor from "../../../core/hu";
-import initProps from "./initProps";
-import initMethods from "./initMethods";
-import initData from "./initData";
-import initComputed from "./initComputed";
-import initWatch from "./initWatch";
-import initOptions from "./initOptions";
-import initParent from "./initParent";
-import { observeMap } from "../../observable/observe";
-import callLifecycle from "../util/callLifecycle";
-import { activeCustomElement, activeHu } from "../const";
-import moveHuPrototypeToCE from "../util/moveHuPrototypeToCE";
+import HuConstructor from '../../../core/hu';
+import initProps from './initProps';
+import initMethods from './initMethods';
+import initData from './initData';
+import initComputed from './initComputed';
+import initWatch from './initWatch';
+import initOptions from './initOptions';
+import initParent from './initParent';
+import { observeMap } from '../../observable/observe';
+import callLifecycle from '../util/callLifecycle';
+import { activeCustomElement, activeHu } from '../const';
+import moveHuPrototypeToCE from '../util/moveHuPrototypeToCE';
 
 
 /**
@@ -20,45 +20,44 @@ import moveHuPrototypeToCE from "../util/moveHuPrototypeToCE";
  * @param {{}} options 组件配置
  * @param {{}} userOptions 用户组件配置
  */
-export default function init( isCustomElement, root, name, options, userOptions ){
-
+export default function init(isCustomElement, root, name, options, userOptions) {
   /** 当前实例对象 */
-  const target = new HuConstructor( name, isCustomElement );
+  const target = new HuConstructor(name, isCustomElement);
   /** 当前实例观察者对象 */
-  const targetProxy = observeMap.get( target ).proxy;
+  const targetProxy = observeMap.get(target).proxy;
 
   // 使用自定义元素创建的实例
-  if( isCustomElement ){
+  if (isCustomElement) {
     target.$el = root.attachShadow({ mode: 'open' });
     target.$customElement = root;
 
     // 标识当前自定义元素实例已激活, 保存自定义元素和实例的引用
-    activeCustomElement.set( root, targetProxy );
+    activeCustomElement.set(root, targetProxy);
     // 标识 $el 选项与实例的引用
-    activeHu.set( target.$el, targetProxy );
+    activeHu.set(target.$el, targetProxy);
     // 将实例方法添加到自定义元素上
-    moveHuPrototypeToCE( root, target, targetProxy );
+    moveHuPrototypeToCE(root, target, targetProxy);
   }
 
-  initParent( isCustomElement, target, root, targetProxy );
-  initOptions( isCustomElement, target, root, name, userOptions );
-  initProps( isCustomElement, target, root, options.props, targetProxy );
-  initMethods( isCustomElement, target, root, options.methods, targetProxy );
-  initData( isCustomElement, target, root, options, targetProxy );
+  initParent(isCustomElement, target, root, targetProxy);
+  initOptions(isCustomElement, target, root, name, userOptions);
+  initProps(isCustomElement, target, root, options.props, targetProxy);
+  initMethods(isCustomElement, target, root, options.methods, targetProxy);
+  initData(isCustomElement, target, root, options, targetProxy);
 
   // 运行 beforeCreate 生命周期方法
-  callLifecycle( targetProxy, 'beforeCreate', options );
+  callLifecycle(targetProxy, 'beforeCreate', options);
 
-  initComputed( isCustomElement, target, root, options, targetProxy );
-  initWatch( options, target, targetProxy );
+  initComputed(isCustomElement, target, root, options, targetProxy);
+  initWatch(options, target, targetProxy);
 
   // 运行 created 生命周期方法
-  callLifecycle( targetProxy, 'created', options );
+  callLifecycle(targetProxy, 'created', options);
 
   // 使用 new 创建的实例可以在创建完成后立即进行挂载
   // 使用自定义元素创建的实例会在首次添加到文档流后进行挂载
-  if( !isCustomElement && options.el ){
-    targetProxy.$mount( options.el );
+  if (!isCustomElement && options.el) {
+    targetProxy.$mount(options.el);
   }
 
   return targetProxy;
