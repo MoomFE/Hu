@@ -344,6 +344,8 @@ describe('Hu.static', () => {
     expect(Hu.util.toString('')).is.equals('');
     expect(Hu.util.toString({})).is.equals('{}');
     expect(Hu.util.toString({ asd: 123 })).is.equals('{\n  "asd": 123\n}');
+    expect(Hu.util.toString(Object.create(null))).is.equals('{}');
+    expect(Hu.util.toString(Object.assign(Object.create(null), { asd: 123 }))).is.equals('{\n  "asd": 123\n}');
     expect(Hu.util.toString([])).is.equals('[]');
     expect(Hu.util.toString([1])).is.equals('[\n  1\n]');
     expect(Hu.util.toString(true)).is.equals('true');
@@ -372,6 +374,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isPlainObject('')).is.false;
     expect(Hu.util.isPlainObject({})).is.true;
     expect(Hu.util.isPlainObject({ asd: 123 })).is.true;
+    expect(Hu.util.isPlainObject(Object.create(null))).is.true;
+    expect(Hu.util.isPlainObject(Object.assign(Object.create(null), { asd: 123 }))).is.true;
     expect(Hu.util.isPlainObject([])).is.false;
     expect(Hu.util.isPlainObject([1])).is.false;
     expect(Hu.util.isPlainObject(true)).is.false;
@@ -387,7 +391,9 @@ describe('Hu.static', () => {
 
   it('Hu.util.isEmptyObject: 判断传入对象是否是一个空对象', () => {
     expect(Hu.util.isEmptyObject({})).is.true;
-    expect(Hu.util.isEmptyObject({ a: 1 })).is.false;
+    expect(Hu.util.isEmptyObject({ asd: 123 })).is.false;
+    expect(Hu.util.isEmptyObject(Object.create(null))).is.true;
+    expect(Hu.util.isEmptyObject(Object.assign(Object.create(null), { asd: 123 }))).is.false;
   });
 
   it('Hu.util.isPrimitive: 判断传入对象是否是原始对象', () => {
@@ -401,6 +407,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isPrimitive('')).is.true;
     expect(Hu.util.isPrimitive({})).is.false;
     expect(Hu.util.isPrimitive({ asd: 123 })).is.false;
+    expect(Hu.util.isPrimitive(Object.create(null))).is.false;
+    expect(Hu.util.isPrimitive(Object.assign(Object.create(null), { asd: 123 }))).is.false;
     expect(Hu.util.isPrimitive([])).is.false;
     expect(Hu.util.isPrimitive([1])).is.false;
     expect(Hu.util.isPrimitive(true)).is.true;
@@ -425,6 +433,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isIterable('')).is.true;
     expect(Hu.util.isIterable({})).is.false;
     expect(Hu.util.isIterable({ asd: 123 })).is.false;
+    expect(Hu.util.isIterable(Object.create(null))).is.false;
+    expect(Hu.util.isIterable(Object.assign(Object.create(null), { asd: 123 }))).is.false;
     expect(Hu.util.isIterable([])).is.true;
     expect(Hu.util.isIterable([1])).is.true;
     expect(Hu.util.isIterable(true)).is.false;
@@ -449,6 +459,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isEqual('', '')).is.true;
     expect(Hu.util.isEqual({}, {})).is.false;
     expect(Hu.util.isEqual({ asd: 123 }, { asd: 123 })).is.false;
+    expect(Hu.util.isEqual(Object.create(null), Object.create(null))).is.false;
+    expect(Hu.util.isEqual(Object.assign(Object.create(null), { asd: 123 }), Object.assign(Object.create(null), { asd: 123 }))).is.false;
     expect(Hu.util.isEqual([], [])).is.false;
     expect(Hu.util.isEqual([1], [1])).is.false;
     expect(Hu.util.isEqual(true, true)).is.true;
@@ -473,6 +485,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isNotEqual('', '')).is.false;
     expect(Hu.util.isNotEqual({}, {})).is.true;
     expect(Hu.util.isNotEqual({ asd: 123 }, { asd: 123 })).is.true;
+    expect(Hu.util.isNotEqual(Object.create(null), Object.create(null))).is.true;
+    expect(Hu.util.isNotEqual(Object.assign(Object.create(null), { asd: 123 }), Object.assign(Object.create(null), { asd: 123 }))).is.true;
     expect(Hu.util.isNotEqual([], [])).is.true;
     expect(Hu.util.isNotEqual([1], [1])).is.true;
     expect(Hu.util.isNotEqual(true, true)).is.false;
@@ -497,6 +511,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isString('')).is.true;
     expect(Hu.util.isString({})).is.false;
     expect(Hu.util.isString({ asd: 123 })).is.false;
+    expect(Hu.util.isString(Object.create(null))).is.false;
+    expect(Hu.util.isString(Object.assign(Object.create(null), { asd: 123 }))).is.false;
     expect(Hu.util.isString([])).is.false;
     expect(Hu.util.isString([1])).is.false;
     expect(Hu.util.isString(true)).is.false;
@@ -521,6 +537,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isObject('')).is.false;
     expect(Hu.util.isObject({})).is.true;
     expect(Hu.util.isObject({ asd: 123 })).is.true;
+    expect(Hu.util.isObject(Object.create(null))).is.true;
+    expect(Hu.util.isObject(Object.assign(Object.create(null), { asd: 123 }))).is.true;
     expect(Hu.util.isObject([])).is.true;
     expect(Hu.util.isObject([1])).is.true;
     expect(Hu.util.isObject(true)).is.false;
@@ -545,6 +563,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isFunction('')).is.false;
     expect(Hu.util.isFunction({})).is.false;
     expect(Hu.util.isFunction({ asd: 123 })).is.false;
+    expect(Hu.util.isFunction(Object.create(null))).is.false;
+    expect(Hu.util.isFunction(Object.assign(Object.create(null), { asd: 123 }))).is.false;
     expect(Hu.util.isFunction([])).is.false;
     expect(Hu.util.isFunction([1])).is.false;
     expect(Hu.util.isFunction(true)).is.false;
@@ -569,6 +589,8 @@ describe('Hu.static', () => {
     expect(Hu.util.isSymbol('')).is.false;
     expect(Hu.util.isSymbol({})).is.false;
     expect(Hu.util.isSymbol({ asd: 123 })).is.false;
+    expect(Hu.util.isSymbol(Object.create(null))).is.false;
+    expect(Hu.util.isSymbol(Object.assign(Object.create(null), { asd: 123 }))).is.false;
     expect(Hu.util.isSymbol([])).is.false;
     expect(Hu.util.isSymbol([1])).is.false;
     expect(Hu.util.isSymbol(true)).is.false;
