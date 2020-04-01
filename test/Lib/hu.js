@@ -14,7 +14,7 @@
 
   const {
     prototype,
-
+    getPrototypeOf,
     assign,
     create,
     keys,
@@ -2036,7 +2036,7 @@
     if (isString(value)) return value;
     // [] -> '[]'
     // {} -> '{}'
-    if (isArray(value) || (isPlainObject(value) && value.toString === emptyObject.toString)) {
+    if (isArray(value) || (isPlainObject(value) && (value.toString === emptyObject.toString || !getPrototypeOf(value)))) {
       return JSON.stringify(value, null, 2);
     }
     // true -> 'true'
