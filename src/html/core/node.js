@@ -273,7 +273,11 @@ function commitIterable(nodePart, value, oldValue) {
       part.destroy && part.destroy();
     }
     // 弃用无用节点
-    nodePart.clear(part && part.endNode);
+    if (part && part.endNode) {
+      nodePart.clear(part.endNode);
+    } else {
+      nodePart.clear();
+    }
   }
 
   nodePart.value = parts;
