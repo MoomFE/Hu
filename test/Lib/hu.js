@@ -3659,7 +3659,7 @@
 
       commit(value) {
         // 这次设置的值和上次是一样的
-        if (value === this.value) {
+        if (isEqual(value, this.value)) {
           return;
         }
 

@@ -1,5 +1,6 @@
 import directiveFn from '../../static/directiveFn/index';
 import NodePart from '../core/node';
+import isEqual from '../../shared/util/isEqual';
 
 
 export default directiveFn(
@@ -15,7 +16,7 @@ export default directiveFn(
 
     commit(value) {
       // 这次设置的值和上次是一样的
-      if (value === this.value) {
+      if (isEqual(value, this.value)) {
         return;
       }
 
