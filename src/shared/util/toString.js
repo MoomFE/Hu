@@ -2,7 +2,7 @@ import { isArray } from '../global/Array/index';
 import isPlainObject from './isPlainObject';
 import isString from './isString';
 import emptyObject from '../const/emptyObject';
-import { getPrototypeOf } from '../global/Object/index';
+import { getPrototypeOf } from '../global/Reflect/index';
 
 
 export default

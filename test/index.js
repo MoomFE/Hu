@@ -3,7 +3,6 @@
 
   const {
     prototype,
-    getPrototypeOf,
     assign,
     create,
     keys,
@@ -68,7 +67,7 @@
     // enumerate,
     // get,
     getOwnPropertyDescriptor,
-    // getPrototypeOf,
+    getPrototypeOf,
     has,
     // isExtensible,
     ownKeys,
