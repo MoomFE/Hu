@@ -3,7 +3,7 @@
 
   const {
     prototype,
-
+    getPrototypeOf,
     assign,
     create,
     keys,
@@ -2025,7 +2025,7 @@
     if (isString(value)) return value;
     // [] -> '[]'
     // {} -> '{}'
-    if (isArray(value) || (isPlainObject(value) && value.toString === emptyObject.toString)) {
+    if (isArray(value) || (isPlainObject(value) && (value.toString === emptyObject.toString || !getPrototypeOf(value)))) {
       return JSON.stringify(value, null, 2);
     }
     // true -> 'true'
@@ -3409,7 +3409,11 @@
         part.destroy && part.destroy();
       }
       // 弃用无用节点
-      nodePart.clear(part && part.endNode);
+      if (part && part.endNode) {
+        nodePart.clear(part.endNode);
+      } else {
+        nodePart.clear();
+      }
     }
 
     nodePart.value = parts;
@@ -13621,6 +13625,8 @@
       chai.expect(Hu.util.toString('')).is.equals('');
       chai.expect(Hu.util.toString({})).is.equals('{}');
       chai.expect(Hu.util.toString({ asd: 123 })).is.equals('{\n  "asd": 123\n}');
+      chai.expect(Hu.util.toString(Object.create(null))).is.equals('{}');
+      chai.expect(Hu.util.toString(Object.assign(Object.create(null), { asd: 123 }))).is.equals('{\n  "asd": 123\n}');
       chai.expect(Hu.util.toString([])).is.equals('[]');
       chai.expect(Hu.util.toString([1])).is.equals('[\n  1\n]');
       chai.expect(Hu.util.toString(true)).is.equals('true');
@@ -13649,6 +13655,8 @@
       chai.expect(Hu.util.isPlainObject('')).is.false;
       chai.expect(Hu.util.isPlainObject({})).is.true;
       chai.expect(Hu.util.isPlainObject({ asd: 123 })).is.true;
+      chai.expect(Hu.util.isPlainObject(Object.create(null))).is.true;
+      chai.expect(Hu.util.isPlainObject(Object.assign(Object.create(null), { asd: 123 }))).is.true;
       chai.expect(Hu.util.isPlainObject([])).is.false;
       chai.expect(Hu.util.isPlainObject([1])).is.false;
       chai.expect(Hu.util.isPlainObject(true)).is.false;
@@ -13664,7 +13672,9 @@
 
     it('Hu.util.isEmptyObject: 判断传入对象是否是一个空对象', () => {
       chai.expect(Hu.util.isEmptyObject({})).is.true;
-      chai.expect(Hu.util.isEmptyObject({ a: 1 })).is.false;
+      chai.expect(Hu.util.isEmptyObject({ asd: 123 })).is.false;
+      chai.expect(Hu.util.isEmptyObject(Object.create(null))).is.true;
+      chai.expect(Hu.util.isEmptyObject(Object.assign(Object.create(null), { asd: 123 }))).is.false;
     });
 
     it('Hu.util.isPrimitive: 判断传入对象是否是原始对象', () => {
@@ -13678,6 +13688,8 @@
       chai.expect(Hu.util.isPrimitive('')).is.true;
       chai.expect(Hu.util.isPrimitive({})).is.false;
       chai.expect(Hu.util.isPrimitive({ asd: 123 })).is.false;
+      chai.expect(Hu.util.isPrimitive(Object.create(null))).is.false;
+      chai.expect(Hu.util.isPrimitive(Object.assign(Object.create(null), { asd: 123 }))).is.false;
       chai.expect(Hu.util.isPrimitive([])).is.false;
       chai.expect(Hu.util.isPrimitive([1])).is.false;
       chai.expect(Hu.util.isPrimitive(true)).is.true;
@@ -13702,6 +13714,8 @@
       chai.expect(Hu.util.isIterable('')).is.true;
       chai.expect(Hu.util.isIterable({})).is.false;
       chai.expect(Hu.util.isIterable({ asd: 123 })).is.false;
+      chai.expect(Hu.util.isIterable(Object.create(null))).is.false;
+      chai.expect(Hu.util.isIterable(Object.assign(Object.create(null), { asd: 123 }))).is.false;
       chai.expect(Hu.util.isIterable([])).is.true;
       chai.expect(Hu.util.isIterable([1])).is.true;
       chai.expect(Hu.util.isIterable(true)).is.false;
@@ -13726,6 +13740,8 @@
       chai.expect(Hu.util.isEqual('', '')).is.true;
       chai.expect(Hu.util.isEqual({}, {})).is.false;
       chai.expect(Hu.util.isEqual({ asd: 123 }, { asd: 123 })).is.false;
+      chai.expect(Hu.util.isEqual(Object.create(null), Object.create(null))).is.false;
+      chai.expect(Hu.util.isEqual(Object.assign(Object.create(null), { asd: 123 }), Object.assign(Object.create(null), { asd: 123 }))).is.false;
       chai.expect(Hu.util.isEqual([], [])).is.false;
       chai.expect(Hu.util.isEqual([1], [1])).is.false;
       chai.expect(Hu.util.isEqual(true, true)).is.true;
@@ -13750,6 +13766,8 @@
       chai.expect(Hu.util.isNotEqual('', '')).is.false;
       chai.expect(Hu.util.isNotEqual({}, {})).is.true;
       chai.expect(Hu.util.isNotEqual({ asd: 123 }, { asd: 123 })).is.true;
+      chai.expect(Hu.util.isNotEqual(Object.create(null), Object.create(null))).is.true;
+      chai.expect(Hu.util.isNotEqual(Object.assign(Object.create(null), { asd: 123 }), Object.assign(Object.create(null), { asd: 123 }))).is.true;
       chai.expect(Hu.util.isNotEqual([], [])).is.true;
       chai.expect(Hu.util.isNotEqual([1], [1])).is.true;
       chai.expect(Hu.util.isNotEqual(true, true)).is.false;
@@ -13774,6 +13792,8 @@
       chai.expect(Hu.util.isString('')).is.true;
       chai.expect(Hu.util.isString({})).is.false;
       chai.expect(Hu.util.isString({ asd: 123 })).is.false;
+      chai.expect(Hu.util.isString(Object.create(null))).is.false;
+      chai.expect(Hu.util.isString(Object.assign(Object.create(null), { asd: 123 }))).is.false;
       chai.expect(Hu.util.isString([])).is.false;
       chai.expect(Hu.util.isString([1])).is.false;
       chai.expect(Hu.util.isString(true)).is.false;
@@ -13798,6 +13818,8 @@
       chai.expect(Hu.util.isObject('')).is.false;
       chai.expect(Hu.util.isObject({})).is.true;
       chai.expect(Hu.util.isObject({ asd: 123 })).is.true;
+      chai.expect(Hu.util.isObject(Object.create(null))).is.true;
+      chai.expect(Hu.util.isObject(Object.assign(Object.create(null), { asd: 123 }))).is.true;
       chai.expect(Hu.util.isObject([])).is.true;
       chai.expect(Hu.util.isObject([1])).is.true;
       chai.expect(Hu.util.isObject(true)).is.false;
@@ -13822,6 +13844,8 @@
       chai.expect(Hu.util.isFunction('')).is.false;
       chai.expect(Hu.util.isFunction({})).is.false;
       chai.expect(Hu.util.isFunction({ asd: 123 })).is.false;
+      chai.expect(Hu.util.isFunction(Object.create(null))).is.false;
+      chai.expect(Hu.util.isFunction(Object.assign(Object.create(null), { asd: 123 }))).is.false;
       chai.expect(Hu.util.isFunction([])).is.false;
       chai.expect(Hu.util.isFunction([1])).is.false;
       chai.expect(Hu.util.isFunction(true)).is.false;
@@ -13846,6 +13870,8 @@
       chai.expect(Hu.util.isSymbol('')).is.false;
       chai.expect(Hu.util.isSymbol({})).is.false;
       chai.expect(Hu.util.isSymbol({ asd: 123 })).is.false;
+      chai.expect(Hu.util.isSymbol(Object.create(null))).is.false;
+      chai.expect(Hu.util.isSymbol(Object.assign(Object.create(null), { asd: 123 }))).is.false;
       chai.expect(Hu.util.isSymbol([])).is.false;
       chai.expect(Hu.util.isSymbol([1])).is.false;
       chai.expect(Hu.util.isSymbol(true)).is.false;
@@ -13932,7 +13958,7 @@
     });
   });
 
-  /* eslint-disable symbol-description */
+  /* eslint-disable no-lone-blocks */
 
 
   describe('Hu.static.directive', () => {
@@ -14367,22 +14393,51 @@
       chai.expect(destroyIndex).is.equals(2);
     });
 
-    it('Hu.directive: 指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板 <-> 基本类型 )', () => {
-      const types = [
-        'undefined', 'null', 'Hu', '',
-        Number.MIN_SAFE_INTEGER, -1, 0, 1, Number.MAX_VALUE,
-        true, false,
-        undefined, null,
-        Symbol(), Symbol.iterator, Symbol(123)
-      ];
+    it('Hu.directive: 指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板 <-> 原始类型,对象,元素节点,指令方法 )', () => {
+      const types = [];
 
-      if (typeof BigInt === 'function') {
+      // 原始类型
+      {
         types.push(
-          BigInt(Number.MIN_SAFE_INTEGER), // eslint-disable-line no-undef
-          BigInt(-1), // eslint-disable-line no-undef
-          BigInt(0), // eslint-disable-line no-undef
-          BigInt(1), // eslint-disable-line no-undef
-          BigInt(Number.MAX_VALUE) // eslint-disable-line no-undef
+          'undefined', 'null', 'Hu', '',
+          Number.MIN_SAFE_INTEGER, -1, 0, 1, Number.MAX_VALUE,
+          true, false,
+          undefined, null,
+          Symbol(), Symbol.iterator, Symbol(123)
+        );
+
+        if (typeof BigInt === 'function') {
+          types.push(
+            BigInt(Number.MIN_SAFE_INTEGER), // eslint-disable-line no-undef
+            BigInt(-1), // eslint-disable-line no-undef
+            BigInt(0), // eslint-disable-line no-undef
+            BigInt(1), // eslint-disable-line no-undef
+            BigInt(Number.MAX_VALUE) // eslint-disable-line no-undef
+          );
+        }
+      }
+
+      // 对象
+      {
+        types.push(
+          [], [-1], [0], [1], [1, 2], [1, 2, 3],
+          {}, { a: 1 }, { a: 1, b: 2 },
+          Object.create(null), Object.assign(Object.create(null), { a: 1 }), Object.assign(Object.create(null), { a: 1, b: 2 })
+        );
+      }
+
+      // 元素节点
+      {
+        types.push(
+          document.createElement('div')
+        );
+      }
+
+      // 指令方法
+      {
+        types.push(
+          html.unsafe(''),
+          html.unsafe('Hu')
         );
       }
 
@@ -14399,542 +14454,115 @@
 
         chai.expect(destroyIndex).is.equals(0);
 
-        render(div)`${
-        html`<div :test=${null}></div>`
-      }`;
-        chai.expect(destroyIndex).is.equals(0);
+        // 从纯模板切换到对象
+        {
+          const nowDestroyIndex = destroyIndex;
 
-        render(div)`${
-        types[index]
-      }`;
-        chai.expect(destroyIndex).is.equals(1);
+          render(div)`${
+          html`<div :test=${null}></div>`
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex);
 
-        // ---
+          render(div)`${
+          types[index]
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
 
-        render(div)`${
-        html`<div :test=${null}></div>`
-      }`;
-        chai.expect(destroyIndex).is.equals(1);
+          // 重复测试
 
-        render(div)`${
-        types[index]
-      }`;
-        chai.expect(destroyIndex).is.equals(2);
+          render(div)`${
+          html`<div :test=${null}></div>`
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
+
+          render(div)`${
+          types[index]
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 2);
+        }
+
+        // 从纯模板切换到数组中的对象
+        {
+          const nowDestroyIndex = destroyIndex;
+
+          render(div)`${
+          html`<div :test=${null}></div>`
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex);
+
+          render(div)`${[
+          types[index]
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
+
+          // 重复测试
+
+          render(div)`${
+          html`<div :test=${null}></div>`
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
+
+          render(div)`${[
+          types[index]
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 2);
+        }
+
+        // 从数组中的模板切换到对象
+        {
+          const nowDestroyIndex = destroyIndex;
+
+          render(div)`${[
+          html`<div :test=${null}></div>`
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex);
+
+          render(div)`${
+          types[index]
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
+
+          // 重复测试
+
+          render(div)`${[
+          html`<div :test=${null}></div>`
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
+
+          render(div)`${
+          types[index]
+        }`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 2);
+        }
+
+        // 从数组中的模板切换到数组中的对象
+        {
+          const nowDestroyIndex = destroyIndex;
+
+          render(div)`${[
+          html`<div :test=${null}></div>`
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex);
+
+          render(div)`${[
+          types[index]
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
+
+          // 重复测试
+
+          render(div)`${[
+          html`<div :test=${null}></div>`
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 1);
+
+          render(div)`${[
+          types[index]
+        ]}`;
+          chai.expect(destroyIndex).is.equals(nowDestroyIndex + 2);
+        }
       }
     });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板切换为数组 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       [ 1, 2, 3]
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       [ 1, 2, 3, 4, 5, 6 ]
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板切换为 JSON 对象 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       { a: 1 }
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       { a: 1, b: 2, c: 3 }
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板切换为元素节点 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       document.createElement('div')
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       document.createElement('span')
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 模板切换为指令方法 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.directiveFn( value => part => {
-
-    //       })
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.html`<div :test=${ null }><div>`
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.directiveFn( value => part => {
-
-    //       })
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 数组 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 数组切换为原始对象 )', ( done ) => {
-    //   const types = [
-    //     undefined, null, NaN, Infinity,
-    //     'undefined', 'null', 'asd', '',
-    //     true, false,
-    //     0, 1, 2,
-    //     Symbol(), Symbol.iterator, Symbol(123)
-    //   ];
-    //   const promises = [];
-
-    //   for( let index = 0, types1 = Array.$copy( types ); index < types1.length - 1; index++ ) promises.push(
-    //     new Promise( resolve => {
-    //       let constructorIndex = 0;
-    //       let commitIndex = 0;
-    //       let destroyIndex = 0;
-
-    //       Hu.directive( 'test', class {
-    //         constructor(){ constructorIndex++ }
-    //         commit(){ commitIndex++ }
-    //         destroy(){ destroyIndex++ }
-    //       });
-
-
-    //       Hu.render( div )`
-    //         <div>${[
-    //           Hu.html`<div :test=${ null }></div>`
-    //         ]}</div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 0 );
-
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ types1[ index ] }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 1 );
-
-    //       // ------
-
-    //       Hu.render( div )`
-    //         <div>${[
-    //           Hu.html`<div :test=${ null }></div>`
-    //         ]}</div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 2 );
-    //       expect( commitIndex ).is.equals( 2 );
-    //       expect( destroyIndex ).is.equals( 1 );
-
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ types1[ index ] }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 2 );
-    //       expect( commitIndex ).is.equals( 2 );
-    //       expect( destroyIndex ).is.equals( 2 );
-
-    //       resolve();
-    //     })
-    //   );
-
-    //   for( let index = 0, types1 = Array.$copy( types ).reverse(); index < types1.length - 1; index++ ) promises.push(
-    //     new Promise( resolve => {
-    //       let constructorIndex = 0;
-    //       let commitIndex = 0;
-    //       let destroyIndex = 0;
-
-    //       Hu.directive( 'test', class {
-    //         constructor(){ constructorIndex++ }
-    //         commit(){ commitIndex++ }
-    //         destroy(){ destroyIndex++ }
-    //       });
-
-
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ Hu.html`<div :test=${ null }></div>` }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 0 );
-
-    //       Hu.render( div )`
-    //         <div>
-    //           ${ types1[ index ] }
-    //         </div>
-    //       `;
-    //       expect( constructorIndex ).is.equals( 1 );
-    //       expect( commitIndex ).is.equals( 1 );
-    //       expect( destroyIndex ).is.equals( 1 );
-
-    //       resolve();
-    //     })
-    //   );
-
-    //   Promise.all( promises ).then(() => {
-    //     done();
-    //   });
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 数组切换为 JSON 对象 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       { a: 1 }
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       { a: 1, b: 2, c: 3 }
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 数组切换为元素节点 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       document.createElement('div')
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       document.createElement('span')
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
-
-    // it( 'Hu.directive: 注册的指令在被弃用时会触发 destroy 方法 ( 插值内切换: 数组切换为指令方法 )', () => {
-    //   let constructorIndex = 0;
-    //   let commitIndex = 0;
-    //   let destroyIndex = 0;
-
-    //   Hu.directive( 'test', class {
-    //     constructor(){ constructorIndex++ }
-    //     commit(){ commitIndex++ }
-    //     destroy(){ destroyIndex++ }
-    //   });
-
-
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 0 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.directiveFn( value => part => {
-
-    //       })
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 1 );
-    //   expect( commitIndex ).is.equals( 1 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   // ------
-    //   Hu.render( div )`
-    //     <div>${[
-    //       Hu.html`<div :test=${ null }><div>`
-    //     ]}</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 1 );
-
-    //   Hu.render( div )`
-    //     <div>${
-    //       Hu.directiveFn( value => part => {
-
-    //       })
-    //     }</div>
-    //   `;
-    //   expect( constructorIndex ).is.equals( 2 );
-    //   expect( commitIndex ).is.equals( 2 );
-    //   expect( destroyIndex ).is.equals( 2 );
-    // });
   });
 
   /* eslint-disable no-unused-vars */
