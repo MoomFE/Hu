@@ -1,4 +1,4 @@
-import HuConstructor from './hu';
+import HuConstructor from './HuConstructor';
 import init from '../static/define/init/index';
 import uid from '../shared/util/uid';
 import initOptions from '../static/define/initOptions/index';
