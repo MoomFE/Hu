@@ -1,6 +1,6 @@
 import isFunction from '../../shared/util/isFunction';
 import { apply } from '../../shared/global/Reflect/index';
-import Hu from '../../core/index';
+import Hu from '../../core/Hu';
 import create from '../../shared/util/create';
 import NodePart from '../../html/core/node';
 import ClassDirective from '../../html/directive/class';

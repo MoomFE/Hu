@@ -1,7 +1,7 @@
 import { assign } from '../shared/global/Object/index';
 
 
-import Hu from '../core/index';
+import Hu from '../core/Hu';
 import define from '../static/define/index';
 import staticRender from '../static/render/index';
 import nextTick from '../static/nextTick/index';
