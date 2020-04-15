@@ -4396,69 +4396,92 @@
 
   Hu.version = '__VERSION__';
 
-  var initAttributeChangedCallback = (propsMap) => function (name, oldValue, value) {
-    if (value === oldValue) return;
+  class HuElement extends HTMLElement {
+    /**
+     * 自定义元素被添加到文档流
+     */
+    connectedCallback() {
+      const $hu = activeCustomElement.get(this);
+      const $info = $hu.$info;
+      const isMounted = $info.isMounted;
+      const infoTarget = observeProxyMap.get($info).target;
 
-    const { $props: propsTargetProxy } = activeCustomElement.get(this);
-    const { target: propsTarget } = observeProxyMap.get(propsTargetProxy);
-    const props = propsMap[name];
+      // 标记首次实例已添加到文档流
+      setValueByReadonly(infoTarget, 'isConnected', true);
 
-    // eslint-disable-next-line no-shadow
-    for (const { name, from } of props) {
-      const fromValue = from(value);
+      // 如果是首次挂载, 需要运行 beforeMount 生命周期方法
+      if (!isMounted) {
+        // 运行 beforeMount 生命周期方法
+        callLifecycle($hu, 'beforeMount');
+      }
 
-      isEqual(propsTarget[name], fromValue) || (
-        propsTargetProxy[name] = fromValue
-      );
-    }
-  };
+      // 执行 render 方法, 进行渲染
+      $hu.$forceUpdate();
 
-  var initDisconnectedCallback = (options) => function () {
-    const $hu = activeCustomElement.get(this);
-    const infoTarget = observeProxyMap.get($hu.$info).target;
+      // 如果是首次挂载, 需要运行 mounted 生命周期方法
+      if (!isMounted) {
+        // 标记首次实例挂载已完成
+        setValueByReadonly(infoTarget, 'isMounted', true);
 
-    setValueByReadonly(infoTarget, 'isConnected', false);
+        // 运行 mounted 生命周期方法
+        callLifecycle($hu, 'mounted');
+      }
 
-    destroyRender($hu.$el);
-    removeRenderDeps($hu);
-
-    callLifecycle($hu, 'disconnected', options);
-  };
-
-  var initAdoptedCallback = (options) => function (oldDocument, newDocument) {
-    callLifecycle(activeCustomElement.get(this), 'adopted', options, [
-      newDocument, oldDocument
-    ]);
-  };
-
-  var initConnectedCallback = (options) => function () {
-    const $hu = activeCustomElement.get(this);
-    const $info = $hu.$info;
-    const isMounted = $info.isMounted;
-    const infoTarget = observeProxyMap.get($info).target;
-
-    setValueByReadonly(infoTarget, 'isConnected', true);
-
-    // 是首次挂载
-    if (!isMounted) {
-      // 运行 beforeMount 生命周期方法
-      callLifecycle($hu, 'beforeMount', options);
+      // 运行 connected 生命周期方法
+      callLifecycle($hu, 'connected');
     }
 
-    // 执行 render 方法, 进行渲染
-    $hu.$forceUpdate();
+    /**
+     * 自定义元素被从文档流移除
+     */
+    disconnectedCallback() {
+      const $hu = activeCustomElement.get(this);
+      const infoTarget = observeProxyMap.get($hu.$info).target;
 
-    // 如果是首次挂载, 需要运行 mounted 生命周期方法
-    if (!isMounted) {
-      // 标记首次实例挂载已完成
-      setValueByReadonly(infoTarget, 'isMounted', true);
+      // 标记首次实例已从文档流移除
+      setValueByReadonly(infoTarget, 'isConnected', false);
 
-      // 运行 mounted 生命周期方法
-      callLifecycle($hu, 'mounted', options);
+      // 移除自定义元素渲染的节点
+      destroyRender($hu.$el);
+      // 清空自定义元素渲染时收集的依赖
+      removeRenderDeps($hu);
+
+      // 运行 disconnected 生命周期方法
+      callLifecycle($hu, 'disconnected');
     }
 
-    callLifecycle($hu, 'connected', options);
-  };
+    /**
+     * 自定义元素位置被移动
+     */
+    adoptedCallback(oldDocument, newDocument) {
+      // 运行 adopted 生命周期方法
+      callLifecycle(activeCustomElement.get(this), 'adopted', undefined, [
+        newDocument, oldDocument
+      ]);
+    }
+
+    /**
+     * 自定义元素属性被更改
+     */
+    attributeChangedCallback(name, oldValue, value) {
+      // 如果值相同, 则不进行触发属性更新
+      if (value === oldValue) return;
+
+      const targetProxy = activeCustomElement.get(this);
+      const propsTargetProxy = targetProxy.$props;
+      const propsTarget = observeProxyMap.get(propsTargetProxy);
+      const propsMap = optionsMap[targetProxy.$info.name].propsMap;
+      const props = propsMap[name];
+
+      props.forEach(({ name, from }) => { // eslint-disable-line no-shadow
+        const fromValue = from(value);
+
+        isEqual(propsTarget[name], fromValue) || (
+          propsTargetProxy[name] = fromValue
+        );
+      });
+    }
+  }
 
   /**
    * 定义自定义元素
@@ -4468,7 +4491,7 @@
   function define(name, _userOptions) {
     const [userOptions, options] = initOptions(true, name, _userOptions);
 
-    class HuElement extends HTMLElement {
+    class HuDefineElement extends HuElement {
       constructor() {
         super();
 
@@ -4477,21 +4500,10 @@
     }
 
     // 定义需要监听的属性
-    HuElement.observedAttributes = keys(options.propsMap);
-
-    assign(HuElement.prototype, {
-      // 自定义元素被添加到文档流
-      connectedCallback: initConnectedCallback(options),
-      // 自定义元素被从文档流移除
-      disconnectedCallback: initDisconnectedCallback(options),
-      // 自定义元素位置被移动
-      adoptedCallback: initAdoptedCallback(options),
-      // 自定义元素属性被更改
-      attributeChangedCallback: initAttributeChangedCallback(options.propsMap)
-    });
+    HuDefineElement.observedAttributes = keys(options.propsMap);
 
     // 注册组件
-    customElements.define(name, HuElement);
+    customElements.define(name, HuDefineElement);
     // 标记组件已注册
     definedCustomElement.add(name);
   }
