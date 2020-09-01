@@ -1,3 +1,0 @@
-window.WebComponents = {
-  root: './Lib/'
-};
