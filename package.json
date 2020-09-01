@@ -30,6 +30,7 @@
     "publish-master": "npm run build && npm publish"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.10.4",
     "@moomfe/hu-cli": "^1.10.0-bata.9",
     "chai": "^4.2.0",
     "eslint": "^7.8.0",
