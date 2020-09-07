@@ -26,7 +26,8 @@
       "scripts": true,
       "src": true,
       "test": true,
-      "typings": true
+      "typings": true,
+      "yarn.lock": true
     },
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
