@@ -1,3 +1,5 @@
+const typescript = require('rollup-plugin-typescript2');
+
 /** 当前执行的指令 */
 const HU_RUNNING_COMMAND = process.env.HU_RUNNING_COMMAND;
 
@@ -7,15 +9,16 @@ module.exports = {
   replace: {
     'process.env.NODE_ENV': JSON.stringify(HU_RUNNING_COMMAND === 'build' ? 'production' : 'development')
   },
+  plugins: () => {
+    return [
+      typescript({
+        module: 'ESNext'
+      })
+    ];
+  },
   pluginOptions: {
     babel: {
-      babelrc: false,
-      exclude: [/\/node_modules\//],
-      extensions: ['.js', '.ts'],
-      presets: [
-        ['@babel/preset-env', { useBuiltIns: 'usage', corejs: 3, targets: 'browserslist' }],
-        ['@babel/preset-typescript', { allowNamespaces: true }]
-      ]
+      extensions: ['.js', '.ts']
     }
   },
   browserslist: [
