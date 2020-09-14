@@ -1,1 +1,1 @@
-import './observable/observe.ts'
+export { observable } from './observable/observe'
