@@ -11,9 +11,7 @@ module.exports = {
   },
   plugins: () => {
     return [
-      typescript({
-        module: 'ESNext'
-      })
+      typescript()
     ];
   },
   pluginOptions: {
