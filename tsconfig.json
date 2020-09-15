@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowJs": false,
+    "declaration": false,
+    "sourceMap": false,
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "removeComments": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "experimentalDecorators": true
+  }
+}
