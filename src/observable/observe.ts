@@ -1,4 +1,5 @@
-import isPlainObject from "../shared/isPlainObject";
+import emptyObject from "src/shared/const/emptyObject";
+import isPlainObject from "../shared/util/isPlainObject";
 
 /**
  * 可以创建观察者对象的对象类型
@@ -50,9 +51,31 @@ export function observable<T>(obj: T): T extends ObserveTargetType ? ObserveProx
   return (isPlainObject(obj) || Array.isArray(obj)) ? observe(obj) : obj;
 }
 
-interface observeOptions {
-  [propName: string]: {
-    before: (target: ObserveTargetType, name: string, targetProxy: ObserveTargetType) => boolean | undefined
+/**
+ * 创建观察者对象时传递的参数
+ */
+interface CreateObserveOptions {
+  /**
+   * 定义观察者对象在收集依赖时的行为
+   */
+  get?: {
+    /**
+     * 观察者对象在收集依赖前执行的回调
+     *  - 方法返回 0 时, 将不对当前操作收集依赖
+     */
+    before?<T extends ObserveTargetType, P extends ObserveProxyType<T>>(target: T, name: string | number | symbol, targetProxy: P): 0 | undefined;
+  },
+  /**
+   * 定义观察者对象在写入值时的行为
+   */
+  set?: {
+    before?<T extends ObserveTargetType, P extends ObserveProxyType<T>>(target: T, name: string | number | symbol, value: any, targetProxy: P): 0 | undefined;
+  },
+  /**
+   * 
+   */
+  deleteProperty?: {
+
   }
 }
 
@@ -61,7 +84,7 @@ interface observeOptions {
  * @param target 需要创建观察者对象的原始对象
  * @param options 观察者对象选项参数
  */
-export function observe<T>(target: T, options?: observeOptions): ObserveProxyType<T>{
+export function observe<T>(target: T, options?: CreateObserveOptions): ObserveProxyType<T>{
   // 如果创建过观察者
   // 则返回之前创建的观察者
   if (observeMap.has(target)) return observeMap.get(target).proxy;
@@ -77,7 +100,7 @@ export function observe<T>(target: T, options?: observeOptions): ObserveProxyTyp
  * @param target 需要创建观察者对象的原始对象
  * @param options 观察者对象选项参数
  */
-function createObserver<T extends ObserveTargetType>(target: T, options?: observeOptions): ObserveProxyType<T> {
+function createObserver<T extends ObserveTargetType>(target: T, options: CreateObserveOptions = emptyObject): ObserveProxyType<T> {
   // 创建观察者对象选项参数
   // @ts-ignore
   const observeOptions: ObserveOptions<T> = {
@@ -90,7 +113,9 @@ function createObserver<T extends ObserveTargetType>(target: T, options?: observ
 
   // 创建观察者对象
   const proxy: ObserveProxyType<T> = observeOptions.proxy = new Proxy(target, {
-
+    get: createObserverProxyGetter(options.get),
+    set: createObserverProxySetter(options.set),
+    ownKeys: createObserverProxyOwnKeys(observeOptions)
   });
 
   // 存储观察者选项参数
@@ -104,6 +129,69 @@ function createObserver<T extends ObserveTargetType>(target: T, options?: observ
 /**
  * 创建依赖收集的响应方法
  */
-function createObserverProxyGetter() {
+function createObserverProxyGetter<I extends CreateObserveOptions['get']>(options: I) {
+  const before = options?.before
+
+  return function<T extends ObserveTargetType, P extends ObserveProxyType<T>>(target: T, name: string | number | symbol, targetProxy: P){
+    const value = target[name];
+
+    // 0: 不对当前操作收集依赖
+    if (before && before(target, name, targetProxy) === 0) {
+      return value;
+    }
+
+    // 获取的值是使用 Object.defineProperty 定义的属性
+    if (Reflect.getOwnPropertyDescriptor(target, name)?.get){
+      return value;
+    }
+
+    // 获取的是原型上的方法
+    if (typeof value === 'function' && !Object.prototype.hasOwnProperty.call(target, name) && Reflect.has(target, name)) {
+      return value;
+    }
+
+    return observable(value)
+  }
+}
+
+/**
+ * 创建响应更新方法
+ */
+function createObserverProxySetter<I extends CreateObserveOptions['set']>(options: I) {
+  const before = options?.before
+  
+  return function<T extends ObserveTargetType, P extends ObserveProxyType<T>>(target: T, name: string | number | symbol, value: any, targetProxy: P){
+    // 0: 阻止设置值
+    if (before && before(target, name, value, targetProxy) === 0) {
+      return false;
+    }
+    
+    // 设置的值是使用 Object.defineProperty 定义的属性
+    if (Reflect.getOwnPropertyDescriptor(target, name)?.get){
+      target[name] = value;
+      return true;
+    }
+
+    return true
+  }
+}
+
+/**
+ * 响应以下方式的依赖收集:
+ *   - for ... in ( 低版本浏览器不支持, 请避免使用 )
+ *   - Object.keys
+ *   - Object.values
+ *   - Object.entries
+ *   - Object.getOwnPropertyNames
+ *   - Object.getOwnPropertySymbols
+ *   - Reflect.ownKeys
+ */
+function createObserverProxyOwnKeys<T extends ObserveTargetType, O extends ObserveOptions<T>>(observeOptions: O) {
+  return function (target: T) {
+    return Reflect.ownKeys(target)
+  }
+}
+
+function createObserverProxyDeleteProperty<I extends CreateObserveOptions['deleteProperty']>(options: I) {
 
 }

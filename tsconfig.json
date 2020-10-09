@@ -11,6 +11,7 @@
     "baseUrl": ".",
     "removeComments": false,
     "strict": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "suppressImplicitAnyIndexErrors": true
   }
 }
